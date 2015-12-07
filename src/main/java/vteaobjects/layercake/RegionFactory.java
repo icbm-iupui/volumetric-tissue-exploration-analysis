@@ -53,7 +53,7 @@ public class RegionFactory extends Object implements Cloneable, java.io.Serializ
         this.alRegions = Regions;
         this.nVolumes = 0;
         
-        VolumeForkPool vf = new VolumeForkPool(alRegions, minConstants, 0, alRegions.size());
+        VolumeForkPool vf = new VolumeForkPool(alRegions, minConstants, 0, alRegions.size()-1);
         ForkJoinPool pool = new ForkJoinPool();
         pool.invoke(vf);
         cleanupVolumes();
@@ -673,11 +673,11 @@ public class RegionFactory extends Object implements Cloneable, java.io.Serializ
             }
             
             
-            //System.out.println("PROFILING-DETAILS: ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
+            //System.out.println("PROFILING-DETAILS: Derived Regions Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
             
             if(stop-start > length){
-            invokeAll(new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start, ((stop-start)/2)),
-                new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, ((stop-start)/2)+1, stop));
+            invokeAll(new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start, start+((stop-start)/2)),
+                new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start+((stop-start)/2)+1, stop));
              //System.out.println("PROFILING-DETAILS: ForkJoin Splitting...");
         }
             else{
@@ -902,8 +902,8 @@ public class RegionFactory extends Object implements Cloneable, java.io.Serializ
             
             if(stop-start > length){
                 // RegionForkPool(ImageStack st, ImageStack orig, int start, int stop)
-            invokeAll(new RegionForkPool(stack, original, start, ((stop-start)/2)),
-                new RegionForkPool(stack, original, ((stop-start)/2)+1, stop));
+            invokeAll(new RegionForkPool(stack, original, start, start+((stop-start)/2)),
+                new RegionForkPool(stack, original, start+((stop-start)/2)+1, stop));
              //System.out.println("PROFILING-DETAILS: Region Making ForkJoin Splitting...");
         }
             else{
@@ -989,12 +989,12 @@ public class RegionFactory extends Object implements Cloneable, java.io.Serializ
                 length = alRegions.size();
             }
            
-            
+            //System.out.println("PROFILING-DETAILS: Volume Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
             
             if(stop-start > length){
                 // RegionForkPool(ImageStack st, ImageStack orig, int start, int stop)
-                invokeAll(new VolumeForkPool(alRegionsLocal, minConstantsLocal, start, ((stop-start)/2)),
-                new VolumeForkPool(alRegionsLocal, minConstantsLocal, ((stop-start)/2)+1, stop));
+                invokeAll(new VolumeForkPool(alRegions, minConstantsLocal, start, start+((stop-start)/2)),
+                new VolumeForkPool(alRegions, minConstantsLocal, start+((stop-start)/2)+1, stop));
                 //System.out.println("PROFILING-DETAILS: Region Making ForkJoin Splitting...");
         }
             else{
