@@ -78,6 +78,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     private ArrayList<RequestImageListener> RequestImageListeners = new ArrayList<RequestImageListener>();
     private ArrayList<RepaintTabListener> RepaintTabListeners = new ArrayList<RepaintTabListener>();
     private MicroExperiment me = new MicroExperiment();
+    private MicroExperiment me2 = new MicroExperiment();
 
     private int tab;
 
@@ -978,6 +979,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         //IJ.log("Objects to segment:" + ObjectStepsList.size());
 
         me.start(ProcessedImage, protocol);
+        me2.start(ProcessedImage, protocol);
         
         this.exploreText.setForeground(new java.awt.Color(0, 0, 0));
         
@@ -992,9 +994,11 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
 
 
     private void executeExploring(int i) {
-        System.out.println("PROFILING: Explorer getting " +  me.getVolumes(i).size() + " volumes for Object_" + i);
+        System.out.println("PROFILING: Explorer getting " +  me.getVolumes(i).size() + " layercake volumes for Object_" + i);
+        System.out.println("PROFILING: Explorer getting " +  me2.getVolumes3D(i).size() + " floodfill volumes for Object_" + i);
         this.ObjectProcess.setMaximum(me.getVolumes(i).size() + 100);
-        me.addExplore(ProcessedImage, "Object_" + (i+1), me.getVolumes(i), me.getAvailableData(i));
+        me.addExplore(ProcessedImage, "Object_LayerCake_" + (i+1), me.getVolumes(i), me.getAvailableData(i));
+        me2.addExplore(ProcessedImage, "Object_FloodFill_" + (i+1), me2.getVolumes3D(i), me2.getAvailableData3D(i));
     }
 
     ;

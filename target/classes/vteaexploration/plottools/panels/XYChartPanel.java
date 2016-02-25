@@ -46,6 +46,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.XYZDataset;
 import org.jfree.ui.RectangleEdge;
 import vteaexploration.listeners.UpdatePlotWindowListener;
+import vteaobjects.MicroObject;
+import vteaobjects.MicroObjectModel;
 
 /**
  *
@@ -278,7 +280,7 @@ public class XYChartPanel implements RoiListener {
 
         while (litr.hasNext()) {
             try {
-                microVolume volume = (microVolume) litr.next();
+                MicroObjectModel volume = (MicroObjectModel) litr.next();
                 Number Corrected = processPosition(x, volume);
                 al.add(Corrected);
 
@@ -308,7 +310,7 @@ public class XYChartPanel implements RoiListener {
 
         while (litr.hasNext()) {
             try {
-                microVolume volume = (microVolume) litr.next();
+                MicroObjectModel volume = (MicroObjectModel) litr.next();
                 Number Corrected = processPosition(x, volume);
                 if (Corrected.floatValue() > high.floatValue()) {
                     high = Corrected;
@@ -329,7 +331,7 @@ public class XYChartPanel implements RoiListener {
 
         while (litr.hasNext()) {
             try {
-                microVolume volume = (microVolume) litr.next();
+                MicroObjectModel volume = (MicroObjectModel) litr.next();
                 Number Corrected = processPosition(x, volume);
                 if (Corrected.floatValue() < low.floatValue()) {
                     low = Corrected;
@@ -341,7 +343,7 @@ public class XYChartPanel implements RoiListener {
     }
 
     private XYZDataset createXYZDataset(ArrayList alVolumes, int x, int y, int l) {
-        
+        //System.out.println("PROFILING: New dataset, for  " + alVolumes.size() + " objects.");
         DefaultXYZDataset result = new DefaultXYZDataset();
         int counter = 0;
         
@@ -352,19 +354,18 @@ public class XYChartPanel implements RoiListener {
         ListIterator litr = alVolumes.listIterator();
 
         while (litr.hasNext()) {
-            try {
-                microVolume volume = (microVolume) litr.next();
+//            try {
+                MicroObjectModel volume = (MicroObjectModel) litr.next();
                 xCorrected[counter] = processPosition(x, volume).doubleValue();
                 yCorrected[counter] = processPosition(y, volume).doubleValue();
                 lCorrected[counter] = processPosition(l, volume).doubleValue();
                 counter++;
-            } 
-            catch (NullPointerException e) {
-            }
+//            } 
+//            catch (NullPointerException e) {
+//                System.out.println("EXCEPTION:  Error building dataset.");
+//            }
         }
  
-        //System.out.println("PROFILING: Plotter data: " + counter);
-        //System.out.println("PROFILING: Volumes plotted: " + alVolumes.size());
         
         double[][] series = new double[][]{xCorrected, yCorrected, lCorrected};
         result.addSeries("first", series);
@@ -372,10 +373,11 @@ public class XYChartPanel implements RoiListener {
         return result;
     }
 
-    private Number processPosition(int a, microVolume volume) {
-        ArrayList ResultsPointer = volume.getResultPointer();
-        int size = ResultsPointer.size();
+    private Number processPosition(int a, MicroObjectModel volume) {
+//        ArrayList ResultsPointer = volume.getResultPointer();
+//        int size = ResultsPointer.size();
         if (a <= 10) {
+            //System.out.println("PROFILING: Object " + volume.getSerialID() + ", value:" + (Number) volume.getAnalysisMaskVolume()[a]);
             return (Number) volume.getAnalysisMaskVolume()[a];
         } else {
             int row = ((a) / 11) - 1;

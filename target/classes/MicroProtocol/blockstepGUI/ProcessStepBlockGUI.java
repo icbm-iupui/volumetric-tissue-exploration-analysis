@@ -254,10 +254,12 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         
         
         protected void showThumbnail(int x, int y) {
-                   thumb.setSize(300, 300);
-                        //ExtractSteps
-                        //new micro preproccessing use imp returned.
-                   //if(this.position == 1){thumb.add(new ImagePanel(ThumbnailImage.getImage()));}
+                   thumb.setSize(256, 256);
+
+                   if(this.OriginalImage.getWidth() < 256){
+                       thumb.setSize(OriginalImage.getWidth(), OriginalImage.getHeight());
+                   }
+
                    if(this.position > 1 && updatePreviewImage){
                        ThumbnailImage = previewThumbnail();
                        thumb.add(new ImagePanel(ThumbnailImage.getImage()));
@@ -283,52 +285,11 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         MicroProtocolPreProcessing previewEngine = new MicroProtocolPreProcessing(this.OriginalImage.duplicate(), options);
        
         
-        return UtilityMethods.makeThumbnail(previewEngine.ProcessImage());
+        return UtilityMethods.makeThumbnail(previewEngine.ProcessPreviewImage());
         
         }
         
-//        public ImagePlus makeThumbnail(ImagePlus imp){   
-//            //System.out.println("...Making thumbnail!");
-//        imp.setPosition(imp.getStackSize()/2);
-//        for(int i = 1; i <= imp.getNChannels(); i++){
-//            
-//            switch(i){
-//                case 1:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.CYAN)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.CYAN),0);compImp.resetDisplayRanges();break; 
-//                case 2:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.RED)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.RED),1);compImp.resetDisplayRanges();break;
-//                case 3:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.GREEN)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.GREEN),2);compImp.resetDisplayRanges();break;
-//                case 4:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.MAGENTA)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.MAGENTA),3);compImp.resetDisplayRanges();break;        
-//                case 5:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.YELLOW)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.YELLOW),4);compImp.resetDisplayRanges();break;
-//                case 6:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.BLUE)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.BLUE),5);compImp.resetDisplayRanges();break;
-//                case 7:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.WHITE)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.WHITE),6);compImp.resetDisplayRanges();break;
-//                default:
-//                        break;
-//            }
-//         
-// 
-//            
-//          ContrastAdjuster.update();
-//          
-//        }
-//        //CompositeImage compImp = new CompositeImage(imp, IJ.COMPOSITE);  
-//        
-//        imp.setOpenAsHyperStack(true);  
-//        imp.flatten();
-//        return imp;
-//    }
+
         
     protected void deleteStep(int type, int position) {
         this.notifyDeleteBlockListeners(type, position);

@@ -1,16 +1,20 @@
 package vteaobjects.layercake;
 
 import ij.*;
+import ij.gui.ImageRoi;
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import vteaobjects.MicroObject;
+import vteaobjects.MicroObjectModel;
 //
 
 //new class for defining a cell object for microFLOW analysis
-public class microVolume extends Object implements Cloneable, java.io.Serializable {
+public class microVolume extends MicroObject implements MicroObjectModel, Cloneable, java.io.Serializable {
 
     public static final int INCLUDED = 1;
     public static final int EXCLUDED = 2;
@@ -58,6 +62,8 @@ public class microVolume extends Object implements Cloneable, java.io.Serializab
 
     microVolume Original; 
     
+    int serialID = 0;
+    
 
    //   Volume measurements; 297, 1663.5555, 558321, 0.0, 4095.0
 //[channel][0, count, 1, mean, 2, integrated density, 3, min, 4, max, 5 standard deviation, 6 Feret_AR, 7 Feret_Min, 8 Feret_Max]
@@ -96,23 +102,17 @@ public class microVolume extends Object implements Cloneable, java.io.Serializab
         }
     }
   
-    public void calculateAllDerivedVolumeMeasurements(){
-        
+    public void calculateAllDerivedVolumeMeasurements(){   
         for(int i = 0; i < this.nChannels; i++){
             calculateDerivedVolumeMeasurements(i);
-        }
-        
+        } 
     }
     
     public void calculateDerivedVolumeMeasurements(int Channel) {
-        
-        
-        
         int countPixels = 0;
         long total = 0;
         long totalThreshold = 0;
-        int nThreshold = 0;
-        
+        int nThreshold = 0; 
         double minLocal = 0;//why doubles?
         double maxLocal = 0;//why doubles?
         double standardDeviation = 0;
@@ -122,8 +122,7 @@ public class microVolume extends Object implements Cloneable, java.io.Serializab
         double meanFeretMinCaliperLocal = 0;
         
         ArrayList<microDerivedRegion> regions = new ArrayList<microDerivedRegion>();
-        
-        
+
         for(int i = 0; i < nRegions; i++){
             regions.add(DerivedRegions[Channel][i]);
         }
@@ -453,10 +452,12 @@ public void addRegions(List<microRegion> regions){
         return Region.getPixelCount();
     }
 
+    @Override
     public Object[][] getAnalysisResultsVolume() {
         return this.analysisResultsVolume;
     }
 
+    @Override
     public Object[] getAnalysisMaskVolume() {
         return this.analysisMaskVolume;
     }
@@ -489,4 +490,149 @@ public void addRegions(List<microRegion> regions){
         center[1] = (Integer)this.y;
         return center;
     }
+
+    @Override
+    public void calculateDerivedObjectMeasurements(int channel, ImageStack is) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void calculateObjectMeasurments() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int[][] getDerivedObjectConstants() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ArrayList getObjectPixels() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double[] getFeretValues() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getThresholdPixelCount() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int[] getPixelsX() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int[] getPixelsY() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public float getCentroidX() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public float getCentroidY() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getBoundCenterX() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getBoundCenterY() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getMaxIntensity() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getMinIntensity() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getIntegratedIntensity() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getMeanIntensity() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double[] getDeviations() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getThresholdedIntegratedIntensity() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getThresholdedMeanIntensity() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setThreshold(double threshold) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Rectangle getBoundingRectangle() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getSerialID() {
+       return serialID;
+    }
+
+     @Override
+    public int[] getXPixelsInRegion(int i) {
+        List regions = getRegions();
+                
+                //have microobject return the slice specific arrays of pixels
+            
+                ListIterator<microRegion> ritr = regions.listIterator(); 
+                while (ritr.hasNext()) {
+                    microRegion region = ritr.next();
+
+                    if (region.getZPosition() == i) {
+                          return region.getPixelsX();
+                    }
+                }
+            return null;    
+    }
+
+    @Override
+    public int[] getYPixelsInRegion(int i) {
+        List regions = getRegions();
+                
+                //have microobject return the slice specific arrays of pixels
+            
+                ListIterator<microRegion> ritr = regions.listIterator(); 
+                while (ritr.hasNext()) {
+                    microRegion region = ritr.next();
+
+                    if (region.getZPosition() == i) {
+                          return region.getPixelsY();
+                    }
+                }
+                return null;
+    }
+
     };

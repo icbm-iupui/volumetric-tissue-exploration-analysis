@@ -11,6 +11,7 @@ import vteaobjects.layercake.microVolume;
 import ij.ImagePlus;
 import ij.ImageStack;
 import java.util.ArrayList;
+import vteaobjects.MicroObject;
 
 /**
  *
@@ -33,6 +34,7 @@ public class MicroFolder extends java.lang.Object implements Runnable {
      */
     private ArrayList<ArrayList> protocol;
     private ArrayList volumes;
+    private ArrayList volumes3D;
     private ImageStack[] imagedata;
     private SingleThresholdDataModel stdm;
     
@@ -58,6 +60,8 @@ public class MicroFolder extends java.lang.Object implements Runnable {
             case 1:
                 stdm = new SingleThresholdDataModel(imagedata, protocol);
                 volumes = stdm.getObjects();
+                volumes3D = stdm.getObjects3D();
+                System.out.println("PROFILING: Getting " + volumes3D.size() + " 3D flood fill volumes.");
                 break;
             default: ;
                 break;
@@ -67,6 +71,11 @@ public class MicroFolder extends java.lang.Object implements Runnable {
     public ArrayList getVolumes() {
         return volumes;
     }
+    
+    
+    public ArrayList getVolumes3D() {
+        return volumes3D;
+    }
 
     public ArrayList getAvailableData() {
 
@@ -74,8 +83,8 @@ public class MicroFolder extends java.lang.Object implements Runnable {
 
         //microVolume.Analytics;
         protocol.size();
-        for (int i = 0; i <= protocol.size() - 1; i++) {
-            for (int c = 0; c <= microVolume.Analytics.length - 1; c++) {
+        for (int i = 0; i < protocol.size(); i++) {
+            for (int c = 0; c < microVolume.Analytics.length; c++) {
                 String derived = new String();
                 String text = new String();
                 if (i == 0) {
@@ -89,8 +98,30 @@ public class MicroFolder extends java.lang.Object implements Runnable {
         }
         return al;
     }
+    
+        public ArrayList getAvailableData3D() {
 
-    private ImageStack[] getInterleavedStacks(ImagePlus imp) {
+        ArrayList al = new ArrayList();
+
+        //microVolume.Analytics;
+        protocol.size();
+        for (int i = 0; i < protocol.size(); i++) {
+            for (int c = 0; c < MicroObject.Analytics.length; c++) {
+                String derived = new String();
+                String text = new String();
+                if (i == 0) {
+                    derived = " ";
+                } else {
+                    derived = "_d" + ((ArrayList) protocol.get(i)).get(1) + " ";
+                }
+                text = "Ch" + ((Integer)((ArrayList) protocol.get(i)).get(0)+1) + derived + MicroObject.Analytics[c];
+                al.add(text);
+            }
+        }
+        return al;
+    }
+
+    public static ImageStack[] getInterleavedStacks(ImagePlus imp) {
         ImageStack[] stacks = new ImageStack[imp.getNChannels()];
         ImageStack stack = imp.getImageStack();
         for (int m = 0; m <= imp.getNChannels() - 1; m++) {

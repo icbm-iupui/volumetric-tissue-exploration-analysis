@@ -13,18 +13,22 @@ import ij.ImageStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import vteaobjects.floodfill3D.FloodFill3D;
+import vteaobjects.layercake.LayerCake3D;
 
 /**
  *
  * @author vinfrais
  */
-public class SingleThresholdDataModel implements Datasets, MicroObjectModel{
+public class SingleThresholdDataModel implements Datasets{
 
     private ArrayList Volumes;
+    private ArrayList Volumes3D;
     //for keeping track of the analyzed data, [main object, 2nd, etc]
     private ArrayList ResultsPointers;
-    private RegionFactory builderRegions;
-    private RegionFactory builderVolumes;
+    private LayerCake3D builderRegions;
+    private LayerCake3D builderVolumes;
+    private FloodFill3D builder3DVolumes;
     
     public SingleThresholdDataModel() {
     }
@@ -43,21 +47,9 @@ public class SingleThresholdDataModel implements Datasets, MicroObjectModel{
 
         final List alprimary = (ArrayList) details.get(0);
 
-        //IJ.log("SimpleThresholdDataModel, primary: " + alprimary);
-
         final List alsecondary = details.subList(1, details.size());
 
-        //IJ.log("SimpleThresholdDataModel, secondary: " + alsecondary);
-        
-
-        //make ResultsPointer
-        //ResultsPointers = 
         final List fieldnames = (List) alprimary.get(2);
-        //IJ.log("SimpleThresholdDataModel, field names: " + fieldnames);
-
-        //IJ.log("SimpleThresholdModel, minthreshold: " + alprimary.get((Integer) fieldnames.indexOf("minObjectSize") + 3));
-        
-       
 
         minConstants[3] = Integer.parseInt(alprimary.get(fieldnames.indexOf("minThreshold") + 3).toString());
         minConstants[1] = Integer.parseInt(alprimary.get(fieldnames.indexOf("maxObjectSize") + 3).toString());
@@ -69,13 +61,13 @@ public class SingleThresholdDataModel implements Datasets, MicroObjectModel{
         System.out.println("PROFILING: ImageStack size: " + is[Integer.parseInt(alprimary.get(0).toString())].getSize() + " slices.");
         IJ.log("PROFILING: ImageStack size: " + is[Integer.parseInt(alprimary.get(0).toString())].getSize() + " slices.");
         
-        builderRegions = new RegionFactory(is[Integer.parseInt(alprimary.get(0).toString())], minConstants, false);
+        builderRegions = new LayerCake3D(is[Integer.parseInt(alprimary.get(0).toString())], minConstants, false);
         long end = System.nanoTime();
         System.out.println("PROFILING: Region find time: " + ((end-start)/1000000) + " ms. " + "Found " + builderRegions.getRegionsCount() + " regions.");
         IJ.log("PROFILING: Region find time: " + ((end-start)/1000000) + " ms. " + "Found " + builderRegions.getRegionsCount() + " regions.");
         //make builder with all the volumes from the detectable regions
         start = System.nanoTime();
-        builderVolumes = new RegionFactory(builderRegions.getRegions(), minConstants, is[Integer.parseInt(alprimary.get(0).toString())]);
+        builderVolumes = new LayerCake3D(builderRegions.getRegions(), minConstants, is[Integer.parseInt(alprimary.get(0).toString())]);
         end = System.nanoTime();
         System.out.println("PROFILING: Volume build time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getVolumesCount() + " volumes.");
         IJ.log("PROFILING: Volume build time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getVolumesCount() + " volumes.");
@@ -94,6 +86,17 @@ public class SingleThresholdDataModel implements Datasets, MicroObjectModel{
         System.out.println("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getRegionsCount() + " regions.");
         IJ.log("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getRegionsCount() + " regions.");
         Volumes = builderVolumes.getVolumesAsList();
+
+        start = System.nanoTime(); 
+        builder3DVolumes = new FloodFill3D(is, Integer.parseInt(alprimary.get(0).toString()), minConstants, false);
+        builder3DVolumes.makeDerivedRegionsPool(derivedRegionType, is.length, is, getResultsPointers(details));
+        end = System.nanoTime();
+        System.out.println("PROFILING: 3D Floodfill time: " + ((end-start)/1000000) + " ms. ");
+        IJ.log("PROFILING: 3D Floodfill time: " + ((end-start)/1000000) + " ms. ");
+        
+        Volumes3D = builder3DVolumes.getVolumesAsList();
+        
+        
     
         }    
  
@@ -134,5 +137,15 @@ public class SingleThresholdDataModel implements Datasets, MicroObjectModel{
     public ArrayList getObjects() {
         return Volumes;
     }
+
+    @Override
+    public List getColumn(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+        public ArrayList getObjects3D() {
+        return Volumes3D;
+    }
+
 
 }

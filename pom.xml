@@ -16,7 +16,7 @@
     <artifactId>VTC_</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 
-    <name>plugins/VTC.jar</name>
+    <name>VTEA_3DFloodFill</name>
     <description>Volumetric analysis</description>
 
     <dependencies>

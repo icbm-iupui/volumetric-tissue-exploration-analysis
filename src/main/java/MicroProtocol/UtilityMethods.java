@@ -8,8 +8,7 @@ package MicroProtocol;
 import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.WindowManager;
-import ij.plugin.frame.ContrastAdjuster;
+import ij.ImageStack;
 import ij.process.LUT;
 import java.awt.Color;
 
@@ -27,9 +26,9 @@ public class UtilityMethods {
         if(imp.isHyperStack()){
             IJ.run("Hyperstack to Stack", "");
         }
+ 
         
         
-            //IJ.run("Fire"); 
         CompositeImage compImp = new CompositeImage(imp, IJ.COMPOSITE); 
         
         for(int i = 1; i <= imp.getNChannels(); i++){
@@ -72,5 +71,39 @@ public class UtilityMethods {
 
         compImp.setPosition(imp.getStackSize()/2);
         return compImp;
+    }
+    
+    static private double[] getChannelDisplayRange(ImagePlus imp, int channel){
+        
+        double[] range = new double[2];
+        double max = 0;
+        double min = Math.pow(2,imp.getBitDepth())-1;
+        imp.setC(channel);
+        ImageStack is = imp.getImageStack();
+        
+        
+        if(is.getSize() == 1){
+            range[0] = imp.getProcessor().getMin();
+            range[1] = imp.getProcessor().getMax();
+            System.out.println("PROFILING: range determination for channel " + channel + ": " + range[0] + " to " + range[1]);
+            return range;
+        } else {
+            for(int i = 0; i < is.getSize(); i++){
+                for(int x = 0; x < is.getWidth(); x++){
+                    for(int y = 0; y < is.getHeight(); y++){
+                        if(is.getVoxel(x, y, i)> max){
+                            max = is.getVoxel(x, y, i);
+                        }else if(is.getVoxel(x, y, i) < min && is.getVoxel(x, y, i) < max){
+                            min = is.getVoxel(x, y, i);
+                        }
+                    }
+                }
+            }
+           range[0] = min;
+           range[1] = max;
+           System.out.println("PROFILING: range determination for channel " + channel + ": " + range[0] + " to " + range[1]);
+           return range;
+           
+        }
     }
 }

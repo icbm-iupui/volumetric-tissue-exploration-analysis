@@ -12,6 +12,7 @@ import vteaexploration.plottools.panels.XYExplorationPanel;
 import ij.ImagePlus;
 import java.util.ArrayList;
 import java.util.HashMap;
+import vteaobjects.MicroObjectModel;
 import vteaobjects.layercake.microDerivedRegion;
 import vteaobjects.layercake.microVolume;
 import vteapreprocessing.MicroProtocolPreProcessing;
@@ -68,7 +69,7 @@ public class MicroExperiment implements Runnable {
         
     }
 
-    public void addExplore(ImagePlus imp, String title, ArrayList<microVolume> alvolumes, ArrayList AvailableData) {
+    public void addExplore(ImagePlus imp, String title, ArrayList<MicroObjectModel> alvolumes, ArrayList AvailableData) {
 
         int[] plotDataReference = new int[5];
 
@@ -126,11 +127,23 @@ public class MicroExperiment implements Runnable {
         mf = (MicroFolder) FolderDrawer.get(i);
         return mf.getVolumes();
     }
+    
+        public ArrayList getVolumes3D(int i) {
+        MicroFolder mf;
+        mf = (MicroFolder) FolderDrawer.get(i);
+        return mf.getVolumes3D();
+    }
 
     public ArrayList getAvailableData(int i) {
         MicroFolder mf;
         mf = (MicroFolder) FolderDrawer.get(i);
         return mf.getAvailableData();
+    }
+    
+       public ArrayList getAvailableData3D(int i) {
+        MicroFolder mf;
+        mf = (MicroFolder) FolderDrawer.get(i);
+        return mf.getAvailableData3D();
     }
     
     public ArrayList getProcess() {

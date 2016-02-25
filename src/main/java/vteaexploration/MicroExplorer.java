@@ -39,6 +39,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +53,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import vteaexploration.listeners.UpdatePlotWindowListener;
+import vteaobjects.MicroObject;
+import vteaobjects.MicroObjectModel;
 
 /**
  *
@@ -709,7 +713,7 @@ this.setExtendedState(MAXIMIZED_BOTH);        // TODO add your handling code her
     }
     
     private void updatePlotByPopUpMenu(int x, int y, int l, int size){
-        //System.out.println("MicroExplorer...   Plot by popup menu: " + x + ", " + y + ", " + l + ", " + size );
+        System.out.println("MicroExplorer... "+ this.title + "  Plot by popup menu: " + x + ", " + y + ", " + l + ", " + size );
         Main.removeAll();
         ec.updatePlot(x, y, l, size);
         Main.add(ec.getPanel());
@@ -726,7 +730,7 @@ this.setExtendedState(MAXIMIZED_BOTH);        // TODO add your handling code her
         ec.updatePlotPointSize(size);
     }
 
-    private Number processPosition(int a, microVolume volume) {
+    private Number processPosition(int a, MicroObject volume) {
         if (a <= 10) {
             return (Number) volume.getAnalysisMaskVolume()[a];
         } else {
@@ -750,10 +754,13 @@ this.setExtendedState(MAXIMIZED_BOTH);        // TODO add your handling code her
     //SimpleThresholdDataModel dependent....
     //ImageJ1 specific code
     @Override
+    @SuppressWarnings("empty-statement")
     public void makeOverlayImage(ArrayList gates, int xAxis, int yAxis) {
         //convert gate to chart x,y path
         Gate gate;
         ListIterator<Gate> gate_itr = gates.listIterator();
+        
+        //.get
    
         int selected = 0;
         int total = 0;      
@@ -766,23 +773,23 @@ this.setExtendedState(MAXIMIZED_BOTH);        // TODO add your handling code her
         if(gate.getSelected()){
         Path2D path = gate.createPath2DInChartSpace();
 
-        ArrayList<microVolume> result = new ArrayList<microVolume>();
-        ArrayList<microVolume> volumes = (ArrayList) this.plotvalues.get(1);
-        microVolume volume;
+        ArrayList<MicroObject> result = new ArrayList<MicroObject>();
+        ArrayList<MicroObject> volumes = (ArrayList) this.plotvalues.get(1);
+        MicroObjectModel volume;
 
         double xValue = 0;
         double yValue = 0;
 
         //ArrayList resultalVolumes = new ArrayList();
-        ListIterator<microVolume> it = volumes.listIterator();
+        ListIterator<MicroObject> it = volumes.listIterator();
         try{
         while (it.hasNext()) {
-            volume = (microVolume) it.next();
+            volume =  it.next();
             if (volume != null) {
-                xValue = ((Number) processPosition(xAxis, volume)).doubleValue();
-                yValue = ((Number) processPosition(yAxis, volume)).doubleValue();
+                xValue = ((Number) processPosition(xAxis, (MicroObject) volume)).doubleValue();
+                yValue = ((Number) processPosition(yAxis, (MicroObject) volume)).doubleValue();
                 if (path.contains(xValue, yValue)) {
-                    result.add(volume);
+                    result.add((MicroObject) volume);
                 }
             }
         }
@@ -803,51 +810,97 @@ this.setExtendedState(MAXIMIZED_BOTH);        // TODO add your handling code her
             Graphics2D g2 = selections.createGraphics();
 
             ImageRoi ir = new ImageRoi(0, 0, placeholder);
-            ListIterator<microVolume> vitr = result.listIterator();
+            ListIterator<MicroObject> vitr = result.listIterator();
+            
             while (vitr.hasNext()) {
-                microVolume vol = (microVolume) vitr.next();
-                List<microRegion> regions = vol.getRegions();
-                ListIterator<microRegion> ritr = regions.listIterator(); 
-                while (ritr.hasNext()) {
-                    microRegion region = ritr.next();
+                try{
+                MicroObject vol = (MicroObject) vitr.next();
+                
+//                List regions = vol.getRegions();
+//                
+//                //have microobject return the slice specific arrays of pixels
+//                
+//                ListIterator<microRegion> ritr = regions.listIterator(); 
+//                while (ritr.hasNext()) {
+//                    microRegion region = ritr.next();
+//
+//                    if (region.getZPosition()+1 == i) {
+//                        for (int c = 0; c < region.getPixelCount(); c++) {
+//                            g2.setColor(gate.getColor());
+//                            g2.drawRect(region.getPixelsX()[c], region.getPixelsY()[c], 1, 1);
+//                        }
+//                        ir = new ImageRoi(0, 0, selections);                      
+//                        count++;
+//                    }
+//                }
 
-                    if (region.getZPosition()+1 == i) {
-                        for (int c = 0; c < region.getPixelCount(); c++) {
+              
+//                
+//                //have microobject return the slice specific arrays of pixels
+            //  
+            
+                //System.out.println("Get regions for slice: " + i);
+                //System.out.println("Region size: " + vol.getXPixelsInRegion(i).length);
+
+                        int[] x_pixels = vol.getXPixelsInRegion(i); 
+                        int[] y_pixels = vol.getYPixelsInRegion(i);  
+                        
+                          
+                    
+                        for (int c = 0; c < x_pixels.length; c++) {
+
                             g2.setColor(gate.getColor());
-                            g2.drawRect(region.getPixelsX()[c], region.getPixelsY()[c], 1, 1);
+                            g2.drawRect(x_pixels[c], y_pixels[c], 1, 1);
                         }
                         ir = new ImageRoi(0, 0, selections);                      
-                        count++;
-                    }
+                        count++; 
+                        
+                        
+                }     catch(NullPointerException e){}
                 }
-            }  
+        
+            
+              
             ir.setPosition(i);
             ir.setOpacity(0.4);
-            overlay.add(ir);   
+            overlay.add(ir);  
             
-            TextRoi text = new TextRoi(15, 20, selected + "/" + total + " objects (" + 100 * (new Double(selected).doubleValue() / (new Double(total)).doubleValue()) + "%)");          
-            text.setPosition(i);
-            overlay.add(text);
-            
-            
-            //rt.addLabel("Test");
-            //rt.addLabel("Gated");
-            //rt.addLabel("Total");
-            
+            java.awt.Font f = new Font("Arial", Font.BOLD, 12);
+            BigDecimal percentage = new BigDecimal(selected);
+            BigDecimal totalBD = new BigDecimal(total);         
+            percentage = percentage.divide(totalBD, 4, BigDecimal.ROUND_UP);
 
-            
-            
-        } 
-        
+            // System.out.println("PROFILING: gate fraction: " + percentage.toString());
+
+            if(impoverlay.getWidth() > 256){
+                TextRoi text = new TextRoi(5, 10, selected + "/" + total + " objects (" + 100*percentage.doubleValue() + "%)",  f);          
+                text.setPosition(i);
+                overlay.add(text);
+            }else{
+                f = new Font("Arial", Font.PLAIN, 10);
+                TextRoi line1 = new TextRoi(5, 5, selected + "/" + total + " objects",  f);      
+                TextRoi line2 = new TextRoi(5, 18, "(" + 100*percentage.doubleValue() + "%)",  f);  
+                line1.setPosition(i);
+                overlay.add(line1);
+                overlay.add(line2);
+            }
+        }        
         impoverlay.setOverlay(overlay);
         }
 
         impoverlay.draw();
         impoverlay.setTitle(this.getTitle());
 
-            impoverlay.setDisplayMode(IJ.COMPOSITE);
+            if(impoverlay.getDisplayMode() != IJ.COMPOSITE){
+                impoverlay.setDisplayMode(IJ.COMPOSITE);
+            }
+
     
-        impoverlay.setZ(Math.round(impoverlay.getNSlices()/2));
+        if(impoverlay.getSlice() == 1){
+            impoverlay.setZ(Math.round(impoverlay.getNSlices()/2));
+        }else{
+           impoverlay.setSlice(impoverlay.getSlice()); 
+        }
         impoverlay.show();  
         
 

@@ -8,6 +8,7 @@ package vteapreprocessing;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.Roi;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.filter.BackgroundSubtracter;
 import java.util.ArrayList;
@@ -22,22 +23,50 @@ import javax.swing.JTextField;
 public class MicroProtocolPreProcessing extends java.lang.Object {
 
     ImagePlus imp1;
+    ImagePlus impPreview;
     ArrayList protocol;
 
     public MicroProtocolPreProcessing(ImagePlus imp, ArrayList protocol) {
-        this.imp1 = imp.duplicate();
+
+        
+        
+        imp1 = imp.duplicate();
+        impPreview = imp.duplicate();
+        
+        impPreview.setOpenAsHyperStack(true);
+        
+
+        impPreview.setRoi(new Roi(0,0,255,255));
+        if(impPreview.getWidth() < 255 || impPreview.getHeight() < 255){
+            impPreview.setRoi(new Roi(0,0,impPreview.getWidth(),impPreview.getHeight()));
+        }
+        imp.getProcessor().crop();
+        
         this.protocol = protocol;
     }
 
     public ImagePlus ProcessImage() {
         ListIterator<Object> litr = this.protocol.listIterator();
         while (litr.hasNext()) {
-            ProcessManager((ArrayList) litr.next());
+            ProcessManager((ArrayList) litr.next(), imp1);
         }
+        //imp1.resetDisplayRange();
         return this.imp1;
     }
     
-    private void ProcessManager(ArrayList steps) {
+    public ImagePlus ProcessPreviewImage() {
+        
+        
+        
+        ListIterator<Object> litr = this.protocol.listIterator();
+        while (litr.hasNext()) {
+            ProcessManager((ArrayList) litr.next(), impPreview);
+        }
+        //imp1.resetDisplayRange();
+        return this.impPreview;
+    }
+    
+    private void ProcessManager(ArrayList steps, ImagePlus imp) {
         
         int testcase = 0;
         
@@ -47,10 +76,10 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         
         switch (testcase) {
             case 0:
-                SubtractBackground(steps);
+                SubtractBackground(imp,steps);
                 break;
             case 1:
-                EnhanceContrast(steps);
+                EnhanceContrast(imp,steps);
                 break;
             case 2: ;
                 break;
@@ -59,7 +88,7 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         }
     }
 
-    private void SubtractBackground(ArrayList variables) {
+    private void SubtractBackground(ImagePlus imp, ArrayList variables) {
 
         JTextField radius;
         int channel;
@@ -86,20 +115,22 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         
         BackgroundSubtracter rbb = new BackgroundSubtracter();
         
+        //rollingBallBackground(ImageProcessor ip, double radius, boolean createBackground, boolean lightBackground, boolean useParaboloid, boolean doPresmooth, boolean correctCorners)
+        
         ChannelSplitter cs = new ChannelSplitter();
         
         ImageStack is;
         
-        is = cs.getChannel(this.imp1, channel+1);
+        is = cs.getChannel(imp, channel+1);
         
         for(int n = 1; n <= is.getSize(); n++){
         rbb.rollingBallBackground(is.getProcessor(n), Integer.parseInt(radius.getText()), false, false, true, true, true);
-        rbb.run(is.getProcessor(n));
+        //rbb.run(is.getProcessor(n));
         }
 
     }
 
-    private void EnhanceContrast(ArrayList variables) {
+    private void EnhanceContrast(ImagePlus imp, ArrayList variables) {
 
         JTextField fractionsaturated;
         JRadioButton normalize, stack, equalize, stackhistogram;
@@ -133,7 +164,7 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
             stackhisto = "";
         }
 
-        IJ.run(this.imp1, "Enhance Contrast...", "saturated=" + fractionsaturated.getText() + " " + norm + " " + equal + " " + stackall + " " + stackhisto);
+        IJ.run(imp, "Enhance Contrast...", "saturated=" + fractionsaturated.getText() + " " + norm + " " + equal + " " + stackall + " " + stackhisto);
     }
 
     public ImagePlus getResult() {
@@ -141,7 +172,7 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
     }
 
     public ImagePlus getPreview(int step) {
-        return this.imp1;
+        return this.impPreview;
     }
     
     public ArrayList getSteps() {

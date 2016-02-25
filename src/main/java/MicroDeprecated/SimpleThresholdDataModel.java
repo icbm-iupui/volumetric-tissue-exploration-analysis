@@ -5,7 +5,7 @@
  */
 package MicroDeprecated;
 
-import vteaobjects.layercake.RegionFactory;
+import vteaobjects.layercake.LayerCake3D;
 import ij.IJ;
 import ij.ImageStack;
 import java.util.ArrayList;
@@ -61,15 +61,15 @@ public class SimpleThresholdDataModel implements Datasets {
         minConstants[2] = Integer.parseInt(alprimary.get(fieldnames.indexOf("minOverlap") + 3).toString());
         minConstants[0] = Integer.parseInt(alprimary.get(fieldnames.indexOf("minObjectSize") + 3).toString());
 
-        RegionFactory builderRegions;
-        RegionFactory builderVolumes;
+        LayerCake3D builderRegions;
+        LayerCake3D builderVolumes;
         //make builder with all the detectable regions
         
-        builderRegions = new RegionFactory(is[Integer.parseInt(alprimary.get(0).toString())], minConstants, false);
+        builderRegions = new LayerCake3D(is[Integer.parseInt(alprimary.get(0).toString())], minConstants, false);
         //new Thread(builderRegions).start();
         //make builder with all the volumes from the detectable regions
         //builderVolumes = new RegionFactory(builderRegions.getRegions(), builderRegions.getRegionsCount(), minConstants, is[0].getSize(), alsecondary);
-        builderVolumes = new RegionFactory(builderRegions.getRegions(), minConstants, new ImageStack());
+        builderVolumes = new LayerCake3D(builderRegions.getRegions(), minConstants, new ImageStack());
          //new Thread(builderVolumes).start();
         ListIterator itr = alsecondary.listIterator();
 
@@ -142,6 +142,11 @@ public class SimpleThresholdDataModel implements Datasets {
     @Override
     public List getObjects() {
         return Volumes;
+    }
+
+    @Override
+    public List getColumn(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

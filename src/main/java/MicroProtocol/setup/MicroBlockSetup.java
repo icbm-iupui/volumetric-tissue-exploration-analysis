@@ -181,10 +181,10 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
             }
         });
         ProcessSelectComboBox.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-            }
             public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
                 ProcessSelectComboBoxCaretPositionChanged(evt);
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         methodSelection.add(ProcessSelectComboBox, new java.awt.GridBagConstraints());
@@ -218,7 +218,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         jTextPane1.setMaximumSize(new java.awt.Dimension(150, 50));
         jTextPane1.setMinimumSize(new java.awt.Dimension(150, 50));
         jTextPane1.setPreferredSize(new java.awt.Dimension(150, 50));
-        jTextPane1.setSize(new java.awt.Dimension(150, 50));
         ProcessNotes.setViewportView(jTextPane1);
 
         notesPane.add(ProcessNotes, java.awt.BorderLayout.PAGE_END);
@@ -233,13 +232,20 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         secondaryObjects.setText("Secondary Object Classifiers");
         secondaryObjects.setMinimumSize(new java.awt.Dimension(180, 30));
         secondaryObjects.setPreferredSize(new java.awt.Dimension(180, 20));
+        secondaryObjects.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                secondaryObjectsMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                secondaryObjectsMousePressed(evt);
+            }
+        });
         tablePane.add(secondaryObjects, new java.awt.GridBagConstraints());
 
         tableScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tableScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         tableScrollPane.setMinimumSize(new java.awt.Dimension(360, 90));
         tableScrollPane.setPreferredSize(new java.awt.Dimension(360, 110));
-        tableScrollPane.setViewportView(null);
 
         secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -253,10 +259,8 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        secondaryTable.setBounds(new java.awt.Rectangle(0, 0, 360, 70));
         secondaryTable.setMinimumSize(new java.awt.Dimension(340, 70));
         secondaryTable.setPreferredSize(new java.awt.Dimension(340, 90));
-        secondaryTable.setShowGrid(false);
         tableScrollPane.setViewportView(secondaryTable);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -280,7 +284,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         methodBuild.setMaximumSize(new java.awt.Dimension(359, 60));
         methodBuild.setMinimumSize(new java.awt.Dimension(359, 60));
         methodBuild.setPreferredSize(new java.awt.Dimension(359, 60));
-        methodBuild.setSize(new java.awt.Dimension(359, 60));
         methodBuild.setLayout(new java.awt.GridBagLayout());
 
         defaultProtocolPanel();
@@ -311,7 +314,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         BlockSetupOK.setMaximumSize(VTC._VTC.SMALLBUTTONSIZE);
         BlockSetupOK.setMinimumSize(VTC._VTC.SMALLBUTTONSIZE);
         BlockSetupOK.setPreferredSize(VTC._VTC.SMALLBUTTONSIZE);
-        BlockSetupOK.setSize(VTC._VTC.SMALLBUTTONSIZE);
         BlockSetupOK.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 BlockSetupOKActionPerformed(evt);
@@ -330,7 +332,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         BlockSetupCancel.setMaximumSize(VTC._VTC.SMALLBUTTONSIZE);
         BlockSetupCancel.setMinimumSize(VTC._VTC.SMALLBUTTONSIZE);
         BlockSetupCancel.setPreferredSize(VTC._VTC.SMALLBUTTONSIZE);
-        BlockSetupCancel.setSize(VTC._VTC.SMALLBUTTONSIZE);
         BlockSetupCancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 BlockSetupCancelActionPerformed(evt);
@@ -434,6 +435,16 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         }
         pack();
     }//GEN-LAST:event_TitleTextFocusLost
+
+    private void secondaryObjectsMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_secondaryObjectsMousePressed
+    
+// TODO add your handling code here:
+    }//GEN-LAST:event_secondaryObjectsMousePressed
+
+    private void secondaryObjectsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_secondaryObjectsMouseClicked
+        this.secondaryTable.setEnabled(!(this.secondaryTable.isEnabled()));   
+        
+    }//GEN-LAST:event_secondaryObjectsMouseClicked
 
     public void addMicroBlockSetupListener(MicroBlockSetupListener listener) {
         MicroBlockSetupListeners.add(listener);
