@@ -99,6 +99,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         addNewTabTab();
         addSingleImagePanel();
         addMenuItems();
+        this.ImageTabs.setTabPlacement(JTabbedPane.BOTTOM);
         this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount()-1);
         //IJ.log("Starting things up!");
 
@@ -146,16 +147,15 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         setMaximumSize(new java.awt.Dimension(890, 460));
         setMinimumSize(new java.awt.Dimension(830, 420));
         setName("ProcessingFrame"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(870, 405));
-        setResizable(false);
+        setPreferredSize(new java.awt.Dimension(860, 450));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         ImageTabs.setBackground(VTC._VTC.ACTIONPANELBACKGROUND);
         ImageTabs.setTabPlacement(javax.swing.JTabbedPane.LEFT);
         ImageTabs.setToolTipText("");
-        ImageTabs.setMaximumSize(new java.awt.Dimension(1000, 380));
-        ImageTabs.setMinimumSize(new java.awt.Dimension(880, 380));
-        ImageTabs.setPreferredSize(new java.awt.Dimension(920, 380));
+        ImageTabs.setMaximumSize(new java.awt.Dimension(1000, 420));
+        ImageTabs.setMinimumSize(new java.awt.Dimension(800, 480));
+        ImageTabs.setPreferredSize(new java.awt.Dimension(800, 480));
         ImageTabs.setRequestFocusEnabled(false);
         ImageTabs.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
@@ -176,7 +176,6 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         getContentPane().add(ImageTabs, gridBagConstraints);
 
-        MenuBar.setLocation(new java.awt.Point(-10, 0));
         MenuBar.setPreferredSize(new java.awt.Dimension(910, 22));
 
         Settings.setText("Settings");
@@ -211,11 +210,11 @@ this.repaint();        // TODO add your handling code here:
        String tabtitle = jtp.getTitleAt(jtp.getSelectedIndex());
         
        //if(SwingUtilities.isRightMouseButton(evt)){ParallelFileMenu pfm = new ParallelFileMenu(); pfm.show(evt.getComponent(), evt.getX(), evt.getY());}
-       if(evt.getClickCount() > 1 && tabtitle.equals("Add")){ 
+       if(evt.getClickCount() > 1 && tabtitle.equals("Add Workflow")){ 
            addSingleImagePanel();  
            this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount()-1);
            evt.consume();
-       }else if(evt.getClickCount() == 1 && tabtitle.equals("Add")){
+       }else if(evt.getClickCount() == 1 && tabtitle.equals("Add Workflow")){
            addSingleImagePanel();  
            this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount()-1);
            evt.consume();
@@ -371,7 +370,7 @@ this.repaint();        // TODO add your handling code here:
         
     }
     
-    public void addNewTabTab(){ this.ImageTabs.addTab("Add",new JPanel());}
+    public void addNewTabTab(){ this.ImageTabs.addTab("Add Workflow",new JPanel());}
     
     public ArrayList getTabNames() {
         
