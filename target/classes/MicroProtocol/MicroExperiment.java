@@ -12,6 +12,7 @@ import vteaexploration.plottools.panels.XYExplorationPanel;
 import ij.ImagePlus;
 import java.util.ArrayList;
 import java.util.HashMap;
+import javax.swing.SwingWorker;
 import vteaobjects.MicroObjectModel;
 import vteaobjects.layercake.microDerivedRegion;
 import vteaobjects.layercake.microVolume;
@@ -24,7 +25,7 @@ import vteapreprocessing.MicroProtocolPreProcessing;
  * Class for organizing both the folder classes-> data source and processing and
  * the explorer classes-> connected exploration classes.
  */
-public class MicroExperiment implements Runnable {
+public class MicroExperiment implements Runnable{
 
     ArrayList FolderDrawer = new ArrayList();
     ArrayList ExploreDrawer = new ArrayList();
@@ -170,3 +171,5 @@ public class MicroExperiment implements Runnable {
             IJ.log("PROFILING: Exiting MicroExperiment thread: " + threadName); 
         }
 }
+
+

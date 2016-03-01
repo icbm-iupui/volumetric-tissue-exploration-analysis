@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JWindow;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.event.KeyEvent;
 import java.util.ListIterator;
 import javax.swing.BorderFactory;
 import javax.swing.JTabbedPane;
@@ -144,30 +145,35 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         setTitle("VTEA-Protocols v." + VTC._VTC.VERSION);
         setBackground(new java.awt.Color(204, 204, 204));
         setBounds(new java.awt.Rectangle(30, 100, 890, 400));
-        setMaximumSize(new java.awt.Dimension(890, 460));
-        setMinimumSize(new java.awt.Dimension(830, 420));
+        setMaximumSize(new java.awt.Dimension(790, 500));
+        setMinimumSize(new java.awt.Dimension(770, 420));
         setName("ProcessingFrame"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(860, 450));
+        setPreferredSize(new java.awt.Dimension(785, 480));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         ImageTabs.setBackground(VTC._VTC.ACTIONPANELBACKGROUND);
         ImageTabs.setTabPlacement(javax.swing.JTabbedPane.LEFT);
         ImageTabs.setToolTipText("");
         ImageTabs.setMaximumSize(new java.awt.Dimension(1000, 420));
-        ImageTabs.setMinimumSize(new java.awt.Dimension(800, 480));
-        ImageTabs.setPreferredSize(new java.awt.Dimension(800, 480));
+        ImageTabs.setMinimumSize(new java.awt.Dimension(785, 420));
+        ImageTabs.setPreferredSize(new java.awt.Dimension(785, 480));
         ImageTabs.setRequestFocusEnabled(false);
         ImageTabs.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                ImageTabsMouseReleased(evt);
-            }
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 ImageTabsMouseClicked(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                ImageTabsMouseReleased(evt);
             }
         });
         ImageTabs.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 ImageTabsComponentResized(evt);
+            }
+        });
+        ImageTabs.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                ImageTabsKeyPressed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -227,6 +233,18 @@ this.repaint();        // TODO add your handling code here:
                this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount()-1);
            }       
     }//GEN-LAST:event_ImageTabsMouseReleased
+
+    private void ImageTabsKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ImageTabsKeyPressed
+if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
+            if(this.ImageTabs.getSelectedIndex() > 1){
+                this.ImageTabs.remove(this.ImageTabs.getSelectedIndex());
+                this.ImageTabs.setSelectedIndex(1);
+            }
+            else {
+                this.ImageTabs.setSelectedIndex(this.ImageTabs.getSelectedIndex());
+            }
+        }// TODO add your handling code here:        
+    }//GEN-LAST:event_ImageTabsKeyPressed
     
     /**
      * @param args the command line arguments

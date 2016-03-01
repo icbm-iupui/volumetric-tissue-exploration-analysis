@@ -32,7 +32,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
 import vteapreprocessing.MicroProtocolPreProcessing;
 
 /**
@@ -77,8 +79,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     private ArrayList<AnalysisStartListener> listeners = new ArrayList<AnalysisStartListener>();
     private ArrayList<RequestImageListener> RequestImageListeners = new ArrayList<RequestImageListener>();
     private ArrayList<RepaintTabListener> RepaintTabListeners = new ArrayList<RepaintTabListener>();
-    private MicroExperiment me = new MicroExperiment();
-    private MicroExperiment me2 = new MicroExperiment();
+    private final MicroExperiment me = new MicroExperiment();
+    private final MicroExperiment me2 = new MicroExperiment();
 
     private int tab;
 
@@ -122,8 +124,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         ObjectProcess = new javax.swing.JProgressBar();
 
         setMaximumSize(new java.awt.Dimension(770, 365));
-        setMinimumSize(new java.awt.Dimension(770, 365));
-        setPreferredSize(new java.awt.Dimension(770, 365));
+        setMinimumSize(new java.awt.Dimension(750, 365));
+        setPreferredSize(new java.awt.Dimension(750, 365));
 
         SingleImageProcessing.setLayout(new java.awt.GridBagLayout());
 
@@ -242,7 +244,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                     .addGroup(PreProcessing_PanelLayout.createSequentialGroup()
                         .addComponent(PreProcessingGo, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 183, Short.MAX_VALUE))
-                    .addComponent(PreProcessingStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE))
+                    .addComponent(PreProcessingStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE))
                 .addContainerGap())
         );
         PreProcessing_PanelLayout.setVerticalGroup(
@@ -394,7 +396,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             .addGroup(Object_PanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(Object_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+                    .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
                     .addGroup(Object_PanelLayout.createSequentialGroup()
                         .addComponent(ObjectGo, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 97, Short.MAX_VALUE)
@@ -408,10 +410,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                 .addContainerGap()
                 .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(Object_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(ObjectGo)
-                    .addComponent(ObjectProcess, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(Object_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(ObjectGo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(ObjectProcess, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(66, Short.MAX_VALUE))
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -521,9 +523,39 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     }//GEN-LAST:event_DeleteAllSteps_ObjectActionPerformed
 
     private void ObjectGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ObjectGoActionPerformed
-        this.ObjectProcess.setIndeterminate(true);
-        executeObjectFinding();
-        this.ObjectProcess.setIndeterminate(false);
+        
+        
+
+
+    // Runs outside of the Swing UI thread
+    new Thread(new Runnable() {
+      public void run() {
+          ObjectProcess.setIndeterminate(true);
+          ObjectGo.setEnabled(false);
+          executeObjectFinding();
+          ObjectGo.setEnabled(true);
+          ObjectProcess.setIndeterminate(false);
+          // Runs inside of the Swing UI thread
+          SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                for(int i = 0; i < 100; i++){
+              
+              ObjectProcess.setValue(i);
+                ObjectProcess.updateUI();}
+            }
+          });
+
+          try {
+            java.lang.Thread.sleep(100);
+          }
+          catch(Exception e) { }
+        
+      }
+    }).start();
+        
+  
+        
+        
         
     }//GEN-LAST:event_ObjectGoActionPerformed
 
@@ -534,7 +566,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     private javax.swing.JButton DeleteAllSteps_Object;
     private javax.swing.JButton DeleteAllSteps_PreProcessing;
     private javax.swing.JLabel FindObjectText;
-    private javax.swing.JButton ObjectGo;
+    public javax.swing.JButton ObjectGo;
     public javax.swing.JProgressBar ObjectProcess;
     public javax.swing.JPanel ObjectStepsPanel;
     private javax.swing.JPanel Object_Header;
@@ -979,7 +1011,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         //IJ.log("Objects to segment:" + ObjectStepsList.size());
 
         me.start(ProcessedImage, protocol);
-        me2.start(ProcessedImage, protocol);
+        //me2.start(ProcessedImage, protocol);
         
         this.exploreText.setForeground(new java.awt.Color(0, 0, 0));
         
@@ -995,10 +1027,11 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
 
     private void executeExploring(int i) {
         System.out.println("PROFILING: Explorer getting " +  me.getVolumes(i).size() + " layercake volumes for Object_" + i);
-        System.out.println("PROFILING: Explorer getting " +  me2.getVolumes3D(i).size() + " floodfill volumes for Object_" + i);
+        System.out.println("PROFILING: Explorer getting " +  me.getVolumes3D(i).size() + " floodfill volumes for Object_" + i);
         this.ObjectProcess.setMaximum(me.getVolumes(i).size() + 100);
         me.addExplore(ProcessedImage, "Object_LayerCake_" + (i+1), me.getVolumes(i), me.getAvailableData(i));
-        me2.addExplore(ProcessedImage, "Object_FloodFill_" + (i+1), me2.getVolumes3D(i), me2.getAvailableData3D(i));
+        me.addExplore(ProcessedImage, "Object_FloodFill_" + (i+1), me.getVolumes3D(i), me.getAvailableData3D(i));
+        //me2.addExplore(ProcessedImage, "Object_FloodFill_" + (i+1), me2.getVolumes3D(i), me2.getAvailableData3D(i));
     }
 
     ;

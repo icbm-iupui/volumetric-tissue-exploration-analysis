@@ -105,7 +105,7 @@ public class MicroExplorer extends javax.swing.JFrame implements MakeImageOverla
 
     ArrayList<ExplorationCenter> ExplorationPanels = new ArrayList<ExplorationCenter>();
     
-    String[] sizes = {"Default", "2", "4", "8", "10", "15", "20"};
+    String[] sizes = {"2", "4", "8", "10", "15", "20"};
     
     int[] sizes_val = {6, 2, 4, 8, 10, 15, 20};
     
@@ -121,6 +121,7 @@ public class MicroExplorer extends javax.swing.JFrame implements MakeImageOverla
         //this.title = tit
         this.availabledata = AvailableData;
         initComponents();
+        
         
         
 
@@ -242,6 +243,7 @@ public class MicroExplorer extends javax.swing.JFrame implements MakeImageOverla
         this.repaint();
         this.pack();
         this.setVisible(true);
+        jComboBoxPointSize.setSelectedIndex(4);
     }
 
     /**
