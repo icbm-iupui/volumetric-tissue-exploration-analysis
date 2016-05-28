@@ -6,6 +6,7 @@
 package vteaexploration.plottools.panels;
 
 import ij.ImagePlus;
+import java.awt.Color;
 import vteaexploration.plotgatetools.gates.Gate;
 import vteaexploration.plotgatetools.gates.GateLayer;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public abstract class DefaultExplorationPanel extends JFrame implements Explorat
     protected ArrayList<ArrayList> ExplorationItems = new ArrayList<ArrayList>();
     protected HashMap<Integer, String> hm = new HashMap<Integer, String>();
     protected ImagePlus impoverlay;
+    protected boolean imageGate = false;
     
     
     
@@ -41,6 +43,7 @@ public abstract class DefaultExplorationPanel extends JFrame implements Explorat
     protected int currentY;
     protected int currentL; 
     protected int pointsize;
+    protected Color imageGateColor = new Color(0,177,76);
     
 
     public DefaultExplorationPanel() {

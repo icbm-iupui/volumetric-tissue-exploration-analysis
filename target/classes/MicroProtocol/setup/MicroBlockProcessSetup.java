@@ -195,10 +195,10 @@ public class MicroBlockProcessSetup extends MicroBlockSetup {
         ArrayList result = new ArrayList();
 
         if (position == 1) {
-            result.add(new JLabel("radius"));
+            result.add(new JLabel("Minimum dimension of object (pixels):"));
             result.add(new JTextField(5));
-            result.add(new JRadioButton("paraboloid", false));
-            result.add(new JRadioButton("stack", false));
+            //result.add(new JRadioButton("paraboloid", false));
+            //result.add(new JRadioButton("stack", false));
         }
         if (position == 2) {
             result.add(new JLabel("saturation"));

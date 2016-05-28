@@ -428,7 +428,7 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
         ImagePlus imp = roi == null ? getImage() : WindowManager.getCurrentImage();
 
         if (!imp.getTitle().contains("Plot")) {
-           // IJ.log("***NOT a PLOT image***");
+            // IJ.log("***NOT a PLOT image***");
             return false;
         }
 
@@ -619,12 +619,10 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
                     } else if (imp.getNFrames() > 1) {
                         roi.setPosition(0, 0, imp.getFrame());
                     }
+                } else if (imp.getStackSize() == 1) {
+                    roi.setPosition(0);
                 } else {
-                    if (imp.getStackSize() == 1) {
-                        roi.setPosition(0);
-                    } else {
-                        roi.setPosition(slice);
-                    }
+                    roi.setPosition(slice);
                 }
             }
         }
@@ -1120,7 +1118,7 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
      }
      */
 
-    /* This method performs measurements for several ROI's in a stack
+ /* This method performs measurements for several ROI's in a stack
      and arranges the results with one line per slice.  By constast, the 
      measure() method produces several lines per slice.  The results 
      from multiMeasure() may be easier to import into a spreadsheet 
@@ -2797,12 +2795,10 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
                     } else {
                         Recorder.recordCall("rm.setSelectedIndexes([" + arg + "]);");
                     }
+                } else if (selected.length == 1) {
+                    Recorder.recordString("microGateManager(\"Select\", " + arg + ");\n");
                 } else {
-                    if (selected.length == 1) {
-                        Recorder.recordString("microGateManager(\"Select\", " + arg + ");\n");
-                    } else {
-                        Recorder.recordString("microGateManager(\"Select\", newArray(" + arg + "));\n");
-                    }
+                    Recorder.recordString("microGateManager(\"Select\", newArray(" + arg + "));\n");
                 }
             }
         }

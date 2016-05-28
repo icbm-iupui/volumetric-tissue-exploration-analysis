@@ -39,7 +39,7 @@ public interface ExplorationCenter {
 
     public void updatePlot(int x, int y, int l, int size);
     
-    //public void changeImageGate(ArrayList<microVolume> al, int x, int y, int l, int size);
+   // public void changeImageGate(ArrayList<microVolume> al, int x, int y, int l, int size);
     
     //public JPanel addImageGatedPlot(ArrayList<microVolume> al, int x, int y, int l, int size, String xText, String yText, String lText);
     

@@ -235,7 +235,7 @@ public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
     private void notifyChangePlotAxesListeners(int x, int y, int z) {
         for (ChangePlotAxesListener listener : listeners) {
 
-            listener.onChangeAxes(x, y, z, 0);
+            //listener.onChangeAxes(x, y, z, 0);
 
         }
     }

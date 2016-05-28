@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.lang.Integer;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
 //
@@ -28,6 +29,7 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
 
     private int x;    //center x
     private int y;    //center y
+    private int z;    //center z
     private int n;    //total pixels
     private String name;
     private int nChannels;
@@ -244,8 +246,8 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
             mean = mean + (long) region.getMeanIntensity();
             x = (x + region.getBoundCenterX())/2;
             y = (y + region.getBoundCenterY())/2;
-            
-            
+            z = (z + region.getZPosition())/2;
+                       
             if (region.getMinIntensity() < minLocal) {
                 minLocal = region.getMinIntensity();
             }
@@ -274,6 +276,9 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
         if (meanFeretMinCaliperLocal / (nRegionsLocal) != 0) {
             analysisMaskVolume[6] = (meanFeretMaxCaliperLocal / (nRegionsLocal)) / (meanFeretMinCaliperLocal / (nRegionsLocal));
         }
+        
+
+        //System.out.println("New Object average z: " + z);
 
         //IJ.log("microVolume::calculateVolumeMeasurements Mask Volume measurements: " + analysisMaskVolume[0] + ", " + analysisMaskVolume[1] + ", " + analysisMaskVolume[2] + ", " + analysisMaskVolume[3] + ", " + analysisMaskVolume[4]);
 
@@ -484,7 +489,7 @@ public void addRegions(List<microRegion> regions){
         return name;
     }
     
-    public int[] getboundCenter(){
+    public int[] getBoundsCenter(){
         int[] center = new int[2];
         center[0] = (Integer)this.x;
         center[1] = (Integer)this.y;
@@ -539,6 +544,13 @@ public void addRegions(List<microRegion> regions){
     @Override
     public float getCentroidY() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public float getCentroidZ() {
+        try{
+        return z;
+        } catch(NullPointerException e){return -1;}
     }
 
     @Override

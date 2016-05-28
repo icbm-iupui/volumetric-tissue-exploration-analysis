@@ -6,23 +6,13 @@
 
 package vteaobjects;
 
-import MicroProtocol.MicroFolder;
-import ij.ImagePlus;
 import ij.ImageStack;
-import ij.gui.PolygonRoi;
-import ij.gui.Roi;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import java.util.concurrent.RecursiveAction;
-import vteaobjects.layercake.microDerivedRegion;
-import vteaobjects.layercake.microRegion;
 import vteaobjects.layercake.microVolume;
 
 
@@ -39,6 +29,8 @@ public class MicroObject implements MicroObjectModel {
     int[][] derivedX;
     int[][] derivedY;
     int[][] derivedZ;
+    
+    
     
     //calculated variables
     private float mean = 0;
@@ -75,25 +67,56 @@ public class MicroObject implements MicroObjectModel {
     private int centerBoundY = 0;
     
     private int serialID;
+    private int nChannels;
+    
+    private int xMin;
+    private int xMax;
+    private int yMin;
+    private int yMax;
+    private int zMin;
+    private int zMax;
+    
+    private int xOffset;
+    private int yOffset;
+    private int zOffset;
+    
+    private int xLimit;
+    private int yLimit;
+    private int zLimit;
+    
+    private int padding = 3;
+    
+    private int[][][] theBox;
     
     public MicroObject(){}
     
 
 
     public MicroObject(ArrayList<int[]> pixels, int maskChannel, ImageStack[] is, int serialID){
-        //System.out.println("PROFILING: Object created of size: " + pixels.size());
+        
        this.serialID = serialID;
+       xLimit = is[0].getWidth();
+       yLimit = is[0].getHeight();
+       zLimit = is[0].getSize();
+       
+       
+
        setPixels(pixels);
+       
+       
+       
        calculateMeasurements(is, maskChannel);
        //System.out.println("PROFILING: Object " + this.getSerialID() + " from channel " + maskChannel + " created of size: " + analysisMaskVolume[0] + " with mean intensities of: " + analysisMaskVolume[1]);
        //System.out.println("PROFILING: " + analysisMaskVolume[0] + ", " + analysisMaskVolume[1]);
+       
     }
     
     @Override
    public void makeDerivedRegions(int[][] derivedRegionType, int channels, ImageStack[] Stacks, ArrayList ResultsPointers){
-       System.out.println("PROFILING: Deriving Object " + this.getSerialID());
+       
+       //System.out.println("Deriving regions for object# " + this.serialID + ",for " + this.x.length + " pixels.");
         derivedConstants = derivedRegionType;
-        //this.nChannels = channels;
+        this.nChannels = channels;
         //DerivedRegions = new microDerivedRegion[nChannels][alRegions.size()];
         //derivedX = new int[channels][]
         this.ResultsPointer = ResultsPointers;
@@ -119,22 +142,104 @@ public class MicroObject implements MicroObjectModel {
         }
    }
    
-    private void calculateGrow(int Channel, int amountGrow, ImageStack is) {
+   private void calculateGrow(int Channel, int amountGrow, ImageStack is){
+       setMinMaxOffsetValues();
+       
+       
+       
+   }
+   
+   
+    private void calculateGrowOld(int Channel, int amountGrow, ImageStack is) {
 
         ArrayList<Integer> xderived = new ArrayList<Integer>();
         ArrayList<Integer> yderived = new ArrayList<Integer>();
-        ArrayList<Integer> zderived = new ArrayList<Integer>();     
+        ArrayList<Integer> zderived = new ArrayList<Integer>();   
+        
+        ArrayList<Integer> xObj = new ArrayList<Integer>();
+        ArrayList<Integer> yObj = new ArrayList<Integer>();
+        ArrayList<Integer> zObj = new ArrayList<Integer>();  
+        
+        //populate arraylists
+        
+        for(int j = 0; j < x.length; j++){
+
+                        xObj.add(x[j]);
+                        yObj.add(y[j]);
+                        zObj.add(z[j]);
+ 
+        } 
+        
         ArrayList<ArrayList> al = new ArrayList<ArrayList>();
         
         al.add(xderived);
         al.add(yderived);
         al.add(zderived);
 
-        for(int i = 0; i < amountGrow; i++){
-            al = dilatefill3D(al.get(0), al.get(1), al.get(2), x[0], y[0],z[0]);
-        }       
+        int width = is.getWidth();
+        int height = is.getHeight();
+        int size = is.getSize();
+
+        //System.out.println("PROFILING: Deriving by grow of " + amountGrow + " of Object# " + this.getSerialID() + " for " + this.x.length + " voxels in channel " + Channel);
+        
+        //for(int i = 0; i < amountGrow; i++){
+            for(int j = 0; j < xObj.size(); j++){
+               // for(int k = 0; k < yObj.size(); k++){
+                    //for(int l = 0; l < zObj.size(); l++){
+                    
+                    //System.out.println("Check 1");
+                        //al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(k), zObj.get(l), width, height, size);
+                        //System.out.println("Dilate fill 3D kernel (" + xObj.get(j) + ", " + yObj.get(j)+ ", " + zObj.get(j)+")");
+                        for(int k = -1; k <= 1; k++){
+                            for(int  l = -1; l <=1 ; l++){
+                                for(int m = -1; m <= 1; m++){
+                                    
+                                    al = dilatefill3D(al, xObj.get(j)+k, yObj.get(j)+l, zObj.get(j)+m, width, height, size);
+                                }
+                            }   
+                        }
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j), zObj.get(j), width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)+1, zObj.get(j), width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)+1, zObj.get(j), width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j), zObj.get(j), width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)-1, zObj.get(j), width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)-1, zObj.get(j), width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)+1, zObj.get(j), width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)-1, zObj.get(j), width, height, size);
+//                        
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j), zObj.get(j)-1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j), zObj.get(j)-1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)+1, zObj.get(j)-1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)+1, zObj.get(j)-1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j), zObj.get(j)-1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)-1, zObj.get(j)-1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)-1, zObj.get(j)-1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)+1, zObj.get(j)-1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)-1, zObj.get(j)-1, width, height, size);
+//                        
+//                        
+//                        
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j), zObj.get(j)+1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j), zObj.get(j)+1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)+1, zObj.get(j)+1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)+1, zObj.get(j)+1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j), zObj.get(j)+1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)-1, zObj.get(j)+1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)-1, zObj.get(j)+1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)+1, zObj.get(j)+1, width, height, size);
+//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)-1, zObj.get(j)+1, width, height, size);
+                   // }
+               // }
+            }
+        //}  
+        int c = 0;
+        for(int i = 0; i < al.get(0).size(); i++){
+            this.derivedX[Channel][c] = (Integer)al.get(0).get(i);
+            this.derivedY[Channel][c] = (Integer)al.get(1).get(i);
+            this.derivedZ[Channel][c] = (Integer)al.get(2).get(i);
+        }
     } 
-    
+     
     private void calculateMask(int Channel, ImageStack is) {
 //            ListIterator<microRegion> itr = alRegions.listIterator();
 //        int i = 0;        
@@ -147,12 +252,129 @@ public class MicroObject implements MicroObjectModel {
 //        }
 }
     
-    private boolean containsPixel(int x, int y, int z){
-        for(int i = 0; i < this.x.length; i++){
-            for(int j = 0; j < this.y.length; j++){
-                for(int k = 0; k < this.z.length; k++){
-                    if(this.x[i] == x && this.y[i] == y && this.z[i] == z){
-                        return true;
+    private void setMinMaxOffsetValues(){
+        //System.out.println("PROFILING: Object ID# " + serialID + " created of size: " + x.length);
+        xMax = 0;
+        xMin = xLimit;
+        yMax = 0;
+        yMin = yLimit;
+        zMax = 0;
+        zMin = zLimit;
+        
+        for(int i = 0; i < x.length; i++){
+            if(xMin > x[i]){xMin = x[i];}
+            if(xMax < x[i]){xMax = x[i];}
+            if(yMin > y[i]){yMin = y[i];}
+            if(yMax < y[i]){yMax = y[i];}
+            if(zMin > z[i]){zMin = z[i];}
+            if(zMax < z[i]){zMax = z[i];}
+        }
+        
+        //change offset dynamically-gui input
+        
+       // System.out.println("PROFILING: Object ID# " + serialID + " xMin: " + xMin + ", xMax: " + xMax);
+        
+       // System.out.println("PROFILING: Object ID# " + serialID + " yMin " + yMin + ", yMax: " + yMax);
+        
+       // System.out.println("PROFILING: Object ID# " + serialID + " zMin " + zMin + ", zMax: " + zMax);
+        
+        //Padding
+        
+        xOffset = xMin + padding;
+        yOffset = yMin + padding;
+        zOffset = zMin + padding;
+        
+        //theBoxX = xReal-Padding+1
+        theBox = new int[xMax-xMin+2*(padding)+1][yMax-yMin+2*(padding)+1][zMax-zMin+2*(padding)+1];
+        
+        for(int i = 0; i < (xMax-xMin+2*(padding)); i++){
+            for(int j = 0; j < (yMax-yMin+2*(padding)); j++){
+                for(int k = 0; k < (zMax-zMin+2*(padding)); k++){
+                    theBox[i][j][k] = -1;
+                    
+                }
+            }
+               
+        }
+        
+        for(int i = 0; i < x.length; i++){
+            theBox[padding + (x[i]-xMin)][padding + (y[i]-yMin)][padding + (z[i]-zMin)] = 0;
+        }
+        
+        int ring = 1;
+        
+        while(ring < 5){
+        
+        for(int i = 1; i < (xMax-xMin+2*(padding)); i++){
+            for(int j = 1; j < (yMax-yMin+2*(padding)); j++){
+                for(int k = 1; k < (zMax-zMin+2*(padding)); k++){
+                    
+                    try{
+                        if(theBox[i+1][j][k] == ring-1){theBox[i][j][k] = ring; break;} 
+                        if(theBox[i-1][j-1][k] == ring-1){theBox[i][j][k] = ring;  break;}
+                        if(theBox[i+1][j+1][k] == ring-1){theBox[i][j][k] = ring; break;}
+                        if(theBox[i+1][j-1][k] == ring-1){theBox[i][j][k] = ring;  break;}
+                        if(theBox[i-1][j+1][k] == ring-1){theBox[i][j][k] = ring; break;}
+                        if(theBox[i-1][j][k] == ring-1){theBox[i][j][k] = ring; break;}
+                        if(theBox[i][j-1][k] == ring-1){theBox[i][j][k] = ring; break;}
+                        
+                        if(theBox[i+1][j][k+1] == ring-1){theBox[i][j][k] = ring; break;}
+                        if(theBox[i-1][j-1][k+1] == ring-1){theBox[i][j][k] = ring;break;}
+                        if(theBox[i+1][j+1][k+1] == ring-1){theBox[i][j][k] = ring;break;}
+                        if(theBox[i+1][j-1][k+1] == ring-1){theBox[i][j][k] = ring; break;}
+                        if(theBox[i-1][j+1][k+1] == ring-1){theBox[i][j][k] = ring; break;}
+                        if(theBox[i-1][j][k+1] == ring-1){theBox[i][j][k] = ring; break;}
+                        if(theBox[i][j-1][k+1] == ring-1){theBox[i][j][k] = ring; break;}
+                        
+                        if(theBox[i+1][j][k-1] == ring-1){theBox[i][j][k] = ring;break;}
+                        if(theBox[i-1][j-1][k-1] == ring-1){theBox[i][j][k] = ring;break;}
+                        if(theBox[i+1][j+1][k-1] == ring-1){theBox[i][j][k] = ring;break;}
+                        if(theBox[i+1][j-1][k-1] == ring-1){theBox[i][j][k] = ring; break;}
+                        if(theBox[i-1][j+1][k-1] == ring-1){theBox[i][j][k] = ring;break;}
+                        if(theBox[i-1][j][k-1] == ring-1){theBox[i][j][k] = ring;break;}
+                        if(theBox[i][j-1][k-1] == ring-1){theBox[i][j][k] = ring; break;}
+                        
+                    }catch(NullPointerException e){}
+                }
+            }
+            
+        }
+        ring++;
+        }
+        
+        int[] ringPixelCount = new int[ring];
+        int objectPixelCount = 0;
+        
+        for(int r = 0; r < ring; r++){
+            for(int i = 1; i < xMax-xMin+2*(padding); i++){
+                for(int j = 1; j < yMax-yMin+2*(padding); j++){
+                    for(int k = 1; k < zMax-zMin+2*(padding); k++){
+                        if(theBox[i][j][k] == r) {ringPixelCount[r]++;}
+                        //if(theBox[i][j][k] == 0) {objectPixelCount++;}
+                    }
+                }
+            }
+            
+        }
+       //System.out.println("Object has " + objectPixelCount + " pixels");
+        for (int i = 0; i < ring; i++){
+           System.out.println("Ring #" + i + " has " + ringPixelCount[i] + " pixels");
+        }
+        
+        
+    }
+    
+    private boolean containsPixel(int[] xVal, int[] yVal, int [] zVal, int x, int y, int z){
+        //System.out.println("Checking object voxels!");
+        for(int i = 0; i < xVal.length; i++){
+            if(xVal[i] == x){
+                for(int j = 0; j < yVal.length; j++){
+                    if(yVal[i] == y){
+                        for(int k = 0; k < zVal.length; k++){
+                            if(xVal[i] == x && yVal[j] == y && zVal[k] == z){
+                            return true;
+                            }
+                        }
                     }
                 }
             }
@@ -160,55 +382,47 @@ public class MicroObject implements MicroObjectModel {
         return false;
     }
     
-    private ArrayList<ArrayList> dilatefill3D(ArrayList<Integer> xderived, ArrayList<Integer> yderived, ArrayList<Integer> zderived, int x, int y, int z){
-        
-        ArrayList<ArrayList> al = new ArrayList<ArrayList>();
-        
-        if(containsPixel(x,y,z) || x < 0 || y < 0 || z < 0){
-            al.add(xderived);
-            al.add(yderived);
-            al.add(zderived);
-            return al;
-        }
-      
-        xderived.add(x);
-        yderived.add(y);
-        zderived.add(z);
-        
-        dilatefill3D(xderived, yderived, zderived, x, y, z+1);
-        dilatefill3D(xderived, yderived, zderived, x+1, y, z+1);
-        dilatefill3D(xderived, yderived, zderived, x, y+1, z+1);
-        dilatefill3D(xderived, yderived, zderived, x+1, y+1, z+1);
-        dilatefill3D(xderived, yderived, zderived, x-1, y, z+1);
-        dilatefill3D(xderived, yderived, zderived, x, y-1, z+1);
-        dilatefill3D(xderived, yderived, zderived, x-1, y-1, z+1);
-        dilatefill3D(xderived, yderived, zderived, x-1, y+1, z+1);
-        dilatefill3D(xderived, yderived, zderived, x+1, y-1, z+1);
-//        floodfill3D(stack, x, y, z-1, width, height, depth, color);
-//        floodfill3D(stack, x+1, y, z-1, width, height, depth, color);
-//        floodfill3D(stack, x, y+1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x+1, y+1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x-1, y, z-1, width, height, depth, color);
-//        floodfill3D(stack, x, y-1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x-1, y-1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x-1, y+1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x+1, y-1, z-1, width, height, depth, color);
-        dilatefill3D(xderived, yderived, zderived, x+1, y, z);
-        dilatefill3D(xderived, yderived, zderived, x, y+1, z);
-        dilatefill3D(xderived, yderived, zderived, x+1, y+1, z);
-        dilatefill3D(xderived, yderived, zderived, x-1, y, z);
-        dilatefill3D(xderived, yderived, zderived, x, y-1, z);
-        dilatefill3D(xderived, yderived, zderived, x-1, y-1, z);
-        dilatefill3D(xderived, yderived, zderived, x-1, y+1, z);
-        dilatefill3D(xderived, yderived, zderived, x+1, y-1, z);
-
-        al.add(xderived);
-        al.add(yderived);
-        al.add(zderived);
-        return al;
+    private boolean containsPixel(ArrayList<Integer> xVal, ArrayList<Integer> yVal, ArrayList<Integer> zVal, int x, int y, int z){
+            //System.out.println("Checking Derived voxels!");
+            if(xVal.size() > 0){
+                for(int i = 0; i < xVal.size(); i++){
+                    if(xVal.get(i)==x){
+                        for(int j = 0; j < yVal.size(); j++){
+                            if(xVal.get(j)==y){
+                                for(int k = 0; k < zVal.size(); k++){
+                                    if(xVal.get(i) == x && yVal.get(j) == y && zVal.get(k) == z){
+                                     return true;
+                                    }
+                                 }
+                            }
+                        }
+                    }
+                    }
+            }
+        return false;
     }
     
-    
+    private ArrayList<ArrayList> dilatefill3D(ArrayList<ArrayList> al, int x, int y, int z, int width, int height, int size){
+        
+        //System.out.println("Checking: (" + x + ", " + y + ", " + z +")");
+        
+        //ArrayList<ArrayList> al = new ArrayList<ArrayList>();
+        //System.out.println("What the what!");
+
+         //System.out.println("In range!");
+         if((containsPixel(this.x, this.y, this.z,x,y,z)) ){  
+                       //System.out.println("Voxel already in object or derived!");
+            return al;
+         }
+          
+            al.get(0).add(x);
+            al.get(1).add(y);
+            al.get(2).add(z);
+            return al;
+         
+ 
+    }
+   
     private void setPixels(ArrayList<int[]> pixels){
         x = new int[pixels.size()];
         y = new int[pixels.size()];
@@ -292,10 +506,6 @@ public class MicroObject implements MicroObjectModel {
             analysisMaskVolume[10] = Math.pow(this.integrated_density/nThreshold,2);
         }
     }
-
- 
- 
- 
  
 //calculated values
     public float getMean() {
@@ -412,6 +622,31 @@ public class MicroObject implements MicroObjectModel {
   
     public Rectangle getBoundingRectangle() {return this.boundingRectangle;}
     
+    private void setDerivedObjectsArrays(int channel, int steps) {
+            int count = 0;
+        for(int i = 0; i < (xMax-xMin+2*(padding)); i++){
+            for(int j = 0; j < (yMax-yMin+2*(padding)); j++){
+                for(int k = 0; k < (zMax-zMin+2*(padding)); k++){
+                    if(theBox[i][j][k] < steps && !(theBox[i][j][k]==0)){
+                        count++;
+                    }
+                }
+            }   
+        }
+
+        for(int i = 0; i < (xMax-xMin+2*(padding)); i++){
+            for(int j = 0; j < (yMax-yMin+2*(padding)); j++){
+                for(int k = 0; k < (zMax-zMin+2*(padding)); k++){
+                    if(theBox[i][j][k] < steps && !(theBox[i][j][k]==0)){
+                       // derivedX[]
+                    }
+                }
+            }   
+        }
+        
+        
+    }
+    
     
     @Override
     public void calculateDerivedObjectMeasurements(int Channel, ImageStack is) {
@@ -473,7 +708,8 @@ public class MicroObject implements MicroObjectModel {
         //System.out.println("Analyzing volume: " + this.getName() + " ID " + analysisResultsVolume[Channel][2]);
         
         System.out.println("PROFILING: Calculated derived measures for object: " + this.getSerialID() + ", giving a mean of: " + analysisResultsVolume[Channel][1]);
-        }catch(NullPointerException e){System.out.println("Uh Oh, where did the object go?");}
+        }catch(NullPointerException e){//System.out.println("Uh Oh, where did the object go?");
+        }
     }
 
     @Override
@@ -553,6 +789,19 @@ public class MicroObject implements MicroObjectModel {
         //System.out.println("Y Maximum size: " + z.length);
         //System.out.println("Y Region counter: " + counter + " size: " + export_y.length);
         return export_y;
+    }
+
+    @Override
+    public int[] getBoundsCenter() {
+        int boundCenter[] = new int[2];
+        boundCenter[0] = this.centerBoundX;
+        boundCenter[1] = this.centerBoundY;
+        return boundCenter;
+    }
+
+    @Override
+    public float getCentroidZ() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     }

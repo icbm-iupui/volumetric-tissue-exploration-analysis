@@ -15,6 +15,7 @@ import MicroProtocol.setup.MicroBlockProcessSetup;
 import MicroProtocol.setup.MicroBlockSetup;
 import ij.CompositeImage;
 import ij.IJ;
+import static ij.IJ.COLOR;
 import ij.ImagePlus;
 import ij.plugin.frame.ContrastAdjuster;
 import ij.process.LUT;
@@ -82,7 +83,7 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
 
             this.ThumbnailImage = ThumbnailImage;
             this.OriginalImage = OriginalImage;
-            this.PreviewThumbnailImage = ThumbnailImage.duplicate();
+            //this.PreviewThumbnailImage = ThumbnailImage.createImagePlus();
             this.Channels = (ArrayList)Channels.clone();
             this.Channels.add("All");
             this.position = position;
@@ -254,17 +255,28 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         
         
         protected void showThumbnail(int x, int y) {
-                   thumb.setSize(256, 256);
-
-                   if(this.OriginalImage.getWidth() < 256){
+                   thumb.setSize(255, 255);
+                   
+                   if(this.OriginalImage.getWidth() < 255){
                        thumb.setSize(OriginalImage.getWidth(), OriginalImage.getHeight());
                    }
 
-                   if(this.position > 1 && updatePreviewImage){
-                       ThumbnailImage = previewThumbnail();
+                   if(position > 1 && updatePreviewImage){
+                       
+                       ThumbnailImage = previewThumbnail(OriginalImage.duplicate());
+                       
+                       //ThumbnailImage.show();
+                      // ThumbnailImage.setSlice(ThumbnailImage.getNSlices()/2);
+                       
                        thumb.add(new ImagePanel(ThumbnailImage.getImage()));
+                       //ThumbnailImage.hide();
+//                       JLabel slice = new JLabel("Slice: " + ThumbnailImage.getSlice());
+//                       slice.setBackground(Color.YELLOW);
+//                       thumb.add(slice);
+                        
                        updatePreviewImage = false;
                    }else{
+                       
                        thumb.add(new ImagePanel(ThumbnailImage.getImage()));
                    }
 
@@ -274,23 +286,22 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         }         
                     
         
-        private ImagePlus previewThumbnail() {
+        private ImagePlus previewThumbnail(ImagePlus imp) {
             
         ArrayList options = new ArrayList();
         
         options.add(settings);
         
-        //thread this
+        System.out.println("imageProcessing: " + options);
         
-        MicroProtocolPreProcessing previewEngine = new MicroProtocolPreProcessing(this.OriginalImage.duplicate(), options);
-       
+        MicroProtocolPreProcessing previewEngine = new MicroProtocolPreProcessing(imp, options);
+        previewEngine.ProcessPreviewImage();
         
-        return UtilityMethods.makeThumbnail(previewEngine.ProcessPreviewImage());
+        //previewEngine.getPreview().show();
         
+        return previewEngine.getPreview();
         }
-        
 
-        
     protected void deleteStep(int type, int position) {
         this.notifyDeleteBlockListeners(type, position);
         this.notifyRebuildPanelListeners(type);

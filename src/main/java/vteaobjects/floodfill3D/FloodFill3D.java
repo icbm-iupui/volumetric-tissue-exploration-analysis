@@ -55,7 +55,7 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
         stackComplete = is;
         stackResult = stackOriginal.duplicate();
 
-        for (int n = 0; n <= stackResult.getSize(); n++) {
+        for (int n = 0; n < stackResult.getSize(); n++) {
             for(int x = 0; x < stackResult.getWidth(); x++){
                 for(int y = 0; y < stackResult.getHeight(); y++){
                     if(stackResult.getVoxel(x, y, n) <= minConstants[3]){
@@ -70,7 +70,7 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
         IJ.run(imageResult, "8-bit", ""); 
         if(watershedImageJ){IJ.run(imageResult, "Watershed", "stack");}
         IJ.run(imageResult, "Invert", "stack");     
-         imageResult.show();
+         //imageResult.show();
 
      makeRegions(imageResult.getStack(), maskStack);
   
@@ -167,6 +167,9 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
         protected void compute() {
         
             int processors = Runtime.getRuntime().availableProcessors();
+            
+            //int processors = 1;
+            
             int length = alVolumes.size()/processors;
             
             if(alVolumes.size() < processors){
@@ -174,7 +177,7 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
             }
             
             
-            //System.out.println("PROFILING-DETAILS: Derived Regions Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
+           // System.out.println("PROFILING-DETAILS: Derived Regions Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
             
             if(stop-start > length){
             invokeAll(new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start, start+((stop-start)/2)),
@@ -182,7 +185,7 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
              //System.out.println("PROFILING-DETAILS: ForkJoin Splitting...");
         }
             else{
-                //System.out.println("PROFILING-DETAILS: ForkJoin Computing...");
+               // System.out.println("PROFILING-DETAILS: ForkJoin Computing...");
                 defineDerivedRegions();
             }
         }
@@ -246,6 +249,8 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
     }
     
     private int dilatefill3D(ImageStack stack, int x, int y, int z, int width, int height, int depth, double color){
+        
+        
          if(x < 0 || y < 0 || z < 0 || x >= width || y >= height || z >= depth || stack.getVoxel(x, y, z) == 0 || stack.getVoxel(x, y, z) == color){
             return 0;
         }

@@ -114,7 +114,6 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         PreProcessing_Contextual = new javax.swing.JPopupMenu();
         Object_Contextual = new javax.swing.JPopupMenu();
@@ -145,18 +144,23 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         setTitle("VTEA-Protocols v." + VTC._VTC.VERSION);
         setBackground(new java.awt.Color(204, 204, 204));
         setBounds(new java.awt.Rectangle(30, 100, 890, 400));
-        setMaximumSize(new java.awt.Dimension(790, 500));
-        setMinimumSize(new java.awt.Dimension(770, 420));
+        setMaximumSize(new java.awt.Dimension(760, 480));
+        setMinimumSize(new java.awt.Dimension(760, 480));
         setName("ProcessingFrame"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(785, 480));
-        getContentPane().setLayout(new java.awt.GridBagLayout());
+        setPreferredSize(new java.awt.Dimension(760, 480));
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                formMousePressed(evt);
+            }
+        });
+        getContentPane().setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 1, 1));
 
         ImageTabs.setBackground(VTC._VTC.ACTIONPANELBACKGROUND);
         ImageTabs.setTabPlacement(javax.swing.JTabbedPane.LEFT);
         ImageTabs.setToolTipText("");
-        ImageTabs.setMaximumSize(new java.awt.Dimension(1000, 420));
-        ImageTabs.setMinimumSize(new java.awt.Dimension(785, 420));
-        ImageTabs.setPreferredSize(new java.awt.Dimension(785, 480));
+        ImageTabs.setMaximumSize(new java.awt.Dimension(761, 410));
+        ImageTabs.setMinimumSize(new java.awt.Dimension(761, 410));
+        ImageTabs.setPreferredSize(new java.awt.Dimension(761, 410));
         ImageTabs.setRequestFocusEnabled(false);
         ImageTabs.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -176,11 +180,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
                 ImageTabsKeyPressed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        getContentPane().add(ImageTabs, gridBagConstraints);
+        getContentPane().add(ImageTabs);
 
         MenuBar.setPreferredSize(new java.awt.Dimension(910, 22));
 
@@ -245,6 +245,10 @@ if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
             }
         }// TODO add your handling code here:        
     }//GEN-LAST:event_ImageTabsKeyPressed
+
+    private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formMousePressed
     
     /**
      * @param args the command line arguments

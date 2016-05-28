@@ -237,15 +237,18 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
             result.add(new JTextField("100"));
         }
         if (position == 2) {
-            result.add(new JLabel("Supervised Detection"));
-            result.add(new JTextField(5));
-            result.add(new JLabel("Solution not supported"));
-            //result.add(new JRadioButton("add types", false));
-            //result.add(new JRadioButton("secondary", false));
+            result.add(new JLabel("Low Threshold"));
+            result.add(new JTextField("750"));
+            result.add(new JLabel("High Threshold"));
+            result.add(new JTextField("4095"));
+            result.add(new JLabel("Minimum Size (px)"));
+            result.add(new JTextField("20"));
+            result.add(new JLabel("Maximum Size (px)"));
+            result.add(new JTextField("100"));
         }
         if (position == 3) {
             result.add(new JLabel("Solution not supported"));
-            result.add(new JTextField(5));
+            result.add(new JTextField("5"));
             //result.add(new JRadioButton("normalize", false));
             //result.add(new JRadioButton("secondary", false));
         }
@@ -302,6 +305,29 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         repeated.add(key);
 
         if (ProcessSelectComboBox.getSelectedIndex() == 1) {
+            //build primary volume variables
+            placeholder = (JTextField) CurrentStepProtocol.get(6);
+            repeated.add(placeholder.getText());
+            placeholder = (JTextField) CurrentStepProtocol.get(8);
+            repeated.add(placeholder.getText());
+            //repeated.add("1000");
+            placeholder = (JTextField) CurrentStepProtocol.get(4);
+            repeated.add(placeholder.getText());
+            placeholder = (JTextField) CurrentStepProtocol.get(2);
+            repeated.add(placeholder.getText());
+
+            //add primary as first item in list
+            result.add(repeated);
+             
+            for(int i = 0; i < secondaryTable.getRowCount(); i++){
+                ArrayList alDerived = new ArrayList();
+                alDerived.add(getChannelIndex(secondaryTable.getValueAt(i, 0).toString()));
+                alDerived.add(getAnalysisTypeInt(i, secondaryTable.getModel()));
+                alDerived.add(secondaryTable.getValueAt(i, 2).toString());
+                result.add(alDerived);
+            }
+        }
+        if (ProcessSelectComboBox.getSelectedIndex() == 2) {
             //build primary volume variables
             placeholder = (JTextField) CurrentStepProtocol.get(6);
             repeated.add(placeholder.getText());

@@ -43,12 +43,14 @@ public class MicroExperiment implements Runnable{
     }
 
     private void addFolder(ImagePlus imp, ArrayList<ArrayList> details) {
-        //System.out.println("PROFILING: Adding " + details.size() + " folders to 'FolderDrawer'.");
+        System.out.println("PROFILING: Adding " + details.size() + " folders to 'FolderDrawer'.");
         for (int i = 0; i <= details.size() - 1; i++) {
             MicroFolder mf = new MicroFolder(imp, (ArrayList) details.get(i));
             mf.start();
+            
             //mf.process();
             FolderDrawer.add(mf);
+            
         }
     }
     
@@ -129,11 +131,11 @@ public class MicroExperiment implements Runnable{
         return mf.getVolumes();
     }
     
-        public ArrayList getVolumes3D(int i) {
-        MicroFolder mf;
-        mf = (MicroFolder) FolderDrawer.get(i);
-        return mf.getVolumes3D();
-    }
+//        public ArrayList getVolumes3D(int i) {
+//        MicroFolder mf;
+//        mf = (MicroFolder) FolderDrawer.get(i);
+//        return mf.getVolumes3D();
+//    }
 
     public ArrayList getAvailableData(int i) {
         MicroFolder mf;
@@ -141,11 +143,11 @@ public class MicroExperiment implements Runnable{
         return mf.getAvailableData();
     }
     
-       public ArrayList getAvailableData3D(int i) {
-        MicroFolder mf;
-        mf = (MicroFolder) FolderDrawer.get(i);
-        return mf.getAvailableData3D();
-    }
+//       public ArrayList getAvailableData3D(int i) {
+//        MicroFolder mf;
+//        mf = (MicroFolder) FolderDrawer.get(i);
+//        return mf.getAvailableData3D();
+//    }
     
     public ArrayList getProcess() {
         return this.Process.getSteps();

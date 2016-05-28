@@ -189,12 +189,12 @@
 
     @Override
     public void setSelectedColor(Color c) {
-        
+        selectedColor = c;
     }
 
     @Override
     public void setUnselectedColor(Color c) {
-        
+        unselectedColor = c;
     }
 
     }

@@ -53,10 +53,14 @@ public interface MicroObjectModel {
     public float getCentroidX();
 
     public float getCentroidY();
+    
+    public float getCentroidZ();
 
     public int getBoundCenterX();
 
     public int getBoundCenterY();
+    
+    public int[] getBoundsCenter();
 
     public double getMaxIntensity();
 

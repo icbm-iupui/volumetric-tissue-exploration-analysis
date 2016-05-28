@@ -8,33 +8,33 @@ and open the template in the editor.
 
 <root>
     <assembly>
-    <id>one-jar</id>
-    <formats>
-        <format>jar</format>
-    </formats>
-    <includeBaseDirectory>false</includeBaseDirectory>
-    <dependencySets>
-        <dependencySet>
-            <outputDirectory/>
-            <unpack>true</unpack>
-            <includes>
-                <include>com.simontuffs:one-jar</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>main</outputDirectory>
-            <includes>
-                <include>${groupId}:${artifactId}</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <scope>runtime</scope>
-            <excludes>
-                <exclude>com.simontuffs:one-jar</exclude>
-                <exclude>${groupId}:${artifactId}</exclude>
-            </excludes>
-        </dependencySet>
-    </dependencySets>
-</assembly>
+        <id>one-jar</id>
+        <formats>
+            <format>jar</format>
+        </formats>
+        <includeBaseDirectory>false</includeBaseDirectory>
+        <dependencySets>
+            <dependencySet>
+                <outputDirectory/>
+                <unpack>true</unpack>
+                <includes>
+                    <include>com.simontuffs:one-jar</include>
+                </includes>
+            </dependencySet>
+            <dependencySet>
+                <outputDirectory>main</outputDirectory>
+                <includes>
+                    <include>${groupId}:${artifactId}</include>
+                </includes>
+            </dependencySet>
+            <dependencySet>
+                <outputDirectory>lib</outputDirectory>
+                <scope>runtime</scope>
+                <excludes>
+                    <exclude>com.simontuffs:one-jar</exclude>
+                    <exclude>${groupId}:${artifactId}</exclude>
+                </excludes>
+            </dependencySet>
+        </dependencySets>
+    </assembly>
 </root>

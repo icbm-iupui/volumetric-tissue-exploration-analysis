@@ -10,6 +10,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
 import ij.plugin.ChannelSplitter;
+import ij.plugin.Duplicator;
 import ij.plugin.filter.BackgroundSubtracter;
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -22,7 +23,7 @@ import javax.swing.JTextField;
  */
 public class MicroProtocolPreProcessing extends java.lang.Object {
 
-    ImagePlus imp1;
+    ImagePlus impOriginal;
     ImagePlus impPreview;
     ArrayList protocol;
 
@@ -30,45 +31,48 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
 
         
         
-        imp1 = imp.duplicate();
+        impOriginal = imp;
         impPreview = imp.duplicate();
-        
-        impPreview.setOpenAsHyperStack(true);
-        
-
-        impPreview.setRoi(new Roi(0,0,255,255));
-        if(impPreview.getWidth() < 255 || impPreview.getHeight() < 255){
-            impPreview.setRoi(new Roi(0,0,impPreview.getWidth(),impPreview.getHeight()));
-        }
-        imp.getProcessor().crop();
-        
         this.protocol = protocol;
+    }
+    
+    private void makePreviewImage() {
+        
+        impOriginal.resetStack();
+        impOriginal.setRoi(new Roi(0,0,255,255));
+        if(impOriginal.getWidth() < 255 || impOriginal.getHeight() < 255){
+            impOriginal.setRoi(new Roi(0,0,impOriginal.getWidth(),impOriginal.getHeight()));
+        }
+        impPreview = new Duplicator().run(impOriginal);
+        impPreview.hide();
+        impOriginal.deleteRoi();
+        
     }
 
     public ImagePlus ProcessImage() {
-        ListIterator<Object> litr = this.protocol.listIterator();
-        while (litr.hasNext()) {
-            ProcessManager((ArrayList) litr.next(), imp1);
-        }
-        //imp1.resetDisplayRange();
-        return this.imp1;
-    }
-    
-    public ImagePlus ProcessPreviewImage() {
-        
-        
-        
+        makePreviewImage();
         ListIterator<Object> litr = this.protocol.listIterator();
         while (litr.hasNext()) {
             ProcessManager((ArrayList) litr.next(), impPreview);
         }
-        //imp1.resetDisplayRange();
-        return this.impPreview;
+        return impPreview;
+    }
+    
+    public ImagePlus ProcessPreviewImage() {
+        makePreviewImage();
+        ListIterator<Object> litr = this.protocol.listIterator();
+        while (litr.hasNext()) {
+            ProcessManager((ArrayList) litr.next(), impPreview);
+        }
+       
+        return impPreview;
     }
     
     private void ProcessManager(ArrayList steps, ImagePlus imp) {
         
         int testcase = 0;
+        
+        //System.out.println(steps);
         
         if(steps.get(0).toString().equals("Background Subtraction")) {testcase = 0;};
         if(steps.get(0).toString().equals("Enhance Contrast")) {testcase = 1;};
@@ -77,9 +81,11 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         switch (testcase) {
             case 0:
                 SubtractBackground(imp,steps);
+                //System.out.println("PROFILING: Running Background Subtraction...");
                 break;
             case 1:
                 EnhanceContrast(imp,steps);
+               // System.out.println("PROFILING: Running Enhance Contrast...");
                 break;
             case 2: ;
                 break;
@@ -96,22 +102,22 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
 
         channel = (Integer)variables.get(1);
         radius = (JTextField) variables.get(3);
-        slidingparabaloid = (JRadioButton) variables.get(4);
-        stack = (JRadioButton) variables.get(5);
+        //slidingparabaloid = (JRadioButton) variables.get(4);
+        //stack = (JRadioButton) variables.get(5);
         
 
-        String paraboloid, all;
-
-        if (slidingparabaloid.isSelected()) {
-            paraboloid = "paraboloid";
-        } else {
-            paraboloid = "";
-        }
-        if (stack.isSelected()) {
-            all = "stack";
-        } else {
-            all = "";
-        }
+//        String paraboloid, all;
+//
+//        if (slidingparabaloid.isSelected()) {
+//            paraboloid = "paraboloid";
+//        } else {
+//            paraboloid = "";
+//        }
+//        if (stack.isSelected()) {
+//            all = "stack";
+//        } else {
+//            all = "";
+//        }
         
         BackgroundSubtracter rbb = new BackgroundSubtracter();
         
@@ -124,10 +130,11 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         is = cs.getChannel(imp, channel+1);
         
         for(int n = 1; n <= is.getSize(); n++){
-        rbb.rollingBallBackground(is.getProcessor(n), Integer.parseInt(radius.getText()), false, false, true, true, true);
-        //rbb.run(is.getProcessor(n));
+        rbb.rollingBallBackground(is.getProcessor(n), Integer.parseInt(radius.getText()), false, false, false, true, true);
+        //System.out.println("PROFILING: Running Background Subtraction... slice " + n + ", radius: " + radius.getText());
         }
-
+        //ImagePlus result = new ImagePlus("processed", is);
+        //result.show();
     }
 
     private void EnhanceContrast(ImagePlus imp, ArrayList variables) {
@@ -168,10 +175,10 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
     }
 
     public ImagePlus getResult() {
-        return this.imp1;
+        return this.impOriginal;
     }
 
-    public ImagePlus getPreview(int step) {
+    public ImagePlus getPreview() {
         return this.impPreview;
     }
     

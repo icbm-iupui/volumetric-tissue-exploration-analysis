@@ -6,6 +6,8 @@
 package vteaexploration.plottools.panels;
 
 import ij.ImagePlus;
+import ij.gui.Roi;
+import ij.gui.RoiListener;
 import vteaexploration.MicroExplorer;
 import vteaexploration.plotgatetools.gates.Gate;
 import vteaexploration.plotgatetools.gates.GateLayer;
@@ -23,30 +25,37 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
+import vteaexploration.listeners.PlotUpdateListener;
 import vteaexploration.listeners.UpdatePlotWindowListener;
 import vteaexploration.plotgatetools.listeners.QuadrantSelectionListener;
+import vteaobjects.MicroObject;
 import vteaobjects.layercake.microVolume;
 
 /**
  *
  * @author vinfrais
  */
-public class XYExplorationPanel extends DefaultExplorationPanel implements PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener  {
+public class XYExplorationPanel extends DefaultExplorationPanel implements RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener  {
 
     XYChartPanel cpd;
     
+    
     public XYExplorationPanel(ArrayList li, HashMap<Integer, String> hm) {
+        
         super();
+        Roi.addRoiListener(this);
         this.plotvalues = li;
+        
 
         this.hm = hm;
         this.pointsize = MicroExplorer.POINTSIZE;
+        
         //default plot 
         addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART, MicroExplorer.POINTSIZE, hm.get(1), hm.get(4), hm.get(2)); 
     }
 
-    private XYChartPanel createChartPanel(int x, int y, int l, String xText, String yText, String lText, int size) {
-        return new XYChartPanel(plotvalues, x, y, l, xText, yText, lText, size);
+    private XYChartPanel createChartPanel(int x, int y, int l, String xText, String yText, String lText, int size, ImagePlus ip, boolean imageGate, Color imageGateOutline) {
+        return new XYChartPanel(plotvalues, x, y, l, xText, yText, lText, size, ip, imageGate, imageGateOutline);
     }
 
     @Override
@@ -81,8 +90,13 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements Polyg
         CenterPanel.removeAll();
 
         //setup chart values
-        cpd = new XYChartPanel(plotvalues, x, y, l, xText, yText, lText, pointsize);
+        
+        
+        
+        cpd = new XYChartPanel(plotvalues, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
+        //if(imageGate){cpd.roiCreated(impoverlay);}
         cpd.addUpdatePlotWindowListener(this);
+        //cpd.setOverlayImage(impoverlay);
         chart = cpd.getChartPanel();
         chart.setOpaque(false);
         
@@ -155,7 +169,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements Polyg
                 }
             }
         }
-        return this.createChartPanel(x, y, l, xText, yText, lText, pointsize);
+        return createChartPanel(x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
     }
 
     @Override
@@ -237,8 +251,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements Polyg
     }
 
     @Override
-    public void onChangeAxes(int x, int y, int l, int size) {
-
+    public void onChangeAxes(int x, int y, int l, int size, boolean imagegate) {
         if (!(isMade(currentX, currentY, currentL, size))) {
             addExplorationGroup();
         }
@@ -269,7 +282,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements Polyg
     }
 
     @Override
-    public void onChangePointSize(int size) {
+    public void onChangePointSize(int size, boolean imagegate) {
         
     }
 
@@ -281,6 +294,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements Polyg
     @Override
     public void onUpdatePlotWindow() {     
         
+        System.out.println("PROFILING: Image gating, plot updated...  refresh.");
         
         CenterPanel.removeAll();
 
@@ -315,7 +329,54 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements Polyg
         cpd.setOverlayImage(impoverlay);
     }
 
+    @Override
+    public void onPlotUpdateListener() {
+        this.getParent().validate();
+        this.getParent().repaint();
+        System.out.println("PROFILING: Plot updated...");
+    }
 
+    @Override
+    public void roiModified(ImagePlus ip, int i) {
+       try{ 
+        if(ip.getID() == impoverlay.getID()){
+     switch(i)
+            {
+                case RoiListener.COMPLETED:
+                    imageGate = true;
+                    System.out.println("PROFILING: XYChartPanel, Roi modified... Completed. Imagegate: " + imageGate);  
+                    
+                    addPlot(currentX, currentY, currentL, pointsize, hm.get(currentX), hm.get(currentY), hm.get(currentL));                 
+                    break;
+                case RoiListener.MOVED:
+                    imageGate = true;
+                    System.out.println("PROFILING: XYChartPanel, roiListener, Roi modified... Moved. Imagegate: " + imageGate); 
+                    
+                    addPlot(currentX, currentY, currentL, pointsize, hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                    break;
+               case RoiListener.DELETED:
+                   imageGate = false;
+                    System.out.println("PROFILING: XYChartPanel, roiListener, Roi modified... Deleted. Imagegate: " + imageGate);  
+                    
+                    addPlot(currentX, currentY, currentL, pointsize, hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                    break;
+                default:
+                    break;
+            }
+        }}
+       catch(NullPointerException e){}
+    }
+    
+   
+   
+    private void roiCreated(ImagePlus ip){
 
+        System.out.println("PROFILING: XYChartPanel... image gate processed and updated.");  
+       
+    }
+
+    private void roiDeleted(){ 
+
+    }
 
 }
