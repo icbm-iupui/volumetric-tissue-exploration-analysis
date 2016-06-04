@@ -185,16 +185,14 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
     private void initComponents() {
 
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 10), new java.awt.Dimension(0, 10), new java.awt.Dimension(32767, 10));
-        jSeparator1 = new javax.swing.JSeparator();
         jPanel1 = new javax.swing.JPanel();
         saveGateResult = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         listGates = new javax.swing.JList();
         addGate = new javax.swing.JButton();
-        updateGate = new javax.swing.JButton();
         renameGate = new javax.swing.JButton();
         deleteGate = new javax.swing.JButton();
-        jToggleButton2 = new javax.swing.JToggleButton();
+        jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("VTC-Gate Manager");
@@ -215,17 +213,17 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
 
         listGates.setModel(listModel);
         listGates.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                listGatesMousePressed(evt);
-            }
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 listGatesMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                listGatesMousePressed(evt);
             }
         });
         jScrollPane3.setViewportView(listGates);
 
         addGate.setBackground(VTC._VTC.BUTTONBACKGROUND);
-        addGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-add_22.png"))); // NOI18N
+        addGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
         addGate.setToolTipText("Add gate");
         addGate.setPreferredSize(VTC._VTC.SMALLBUTTONSIZE);
         addGate.addActionListener(new java.awt.event.ActionListener() {
@@ -233,11 +231,6 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
                 addGateActionPerformed(evt);
             }
         });
-
-        updateGate.setBackground(VTC._VTC.BUTTONBACKGROUND);
-        updateGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/view-refresh-5.png"))); // NOI18N
-        updateGate.setToolTipText("Update selected gate");
-        updateGate.setPreferredSize(VTC._VTC.SMALLBUTTONSIZE);
 
         renameGate.setBackground(VTC._VTC.BUTTONBACKGROUND);
         renameGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-rename.png"))); // NOI18N
@@ -257,54 +250,40 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
             }
         });
 
-        jToggleButton2.setBackground(VTC._VTC.BUTTONBACKGROUND);
-        jToggleButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/draw-path.png"))); // NOI18N
-        jToggleButton2.setToolTipText("Show all gates");
-        jToggleButton2.setPreferredSize(VTC._VTC.SMALLBUTTONSIZE);
-        jToggleButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                VisibleActionPerformed(evt);
-            }
-        });
-
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
+                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(saveGateResult, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(saveGateResult, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(org.jdesktop.layout.GroupLayout.TRAILING, addGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(org.jdesktop.layout.GroupLayout.TRAILING, deleteGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(updateGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jToggleButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(renameGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, addGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, deleteGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, renameGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
+            .add(jSeparator1)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane3)
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 427, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(0, 0, Short.MAX_VALUE))
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(addGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 33, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(2, 2, 2)
-                        .add(updateGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(renameGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jToggleButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(18, 18, 18)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(deleteGate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 8, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                         .add(saveGateResult, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -314,21 +293,15 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jSeparator1)
-                    .add(layout.createSequentialGroup()
-                        .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(0, 6, Short.MAX_VALUE)))
+                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(5, 5, 5)
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(270, 270, 270))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(0, 0, 0))
         );
 
         pack();
@@ -360,11 +333,6 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
 
         //select();        // TODO add your handling code here:
     }//GEN-LAST:event_listGatesMousePressed
-
-    private void VisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VisibleActionPerformed
-        labels();
-        //drawOrFill(DRAW);
-    }//GEN-LAST:event_VisibleActionPerformed
 
     /**
      * @param args the command line arguments
@@ -428,7 +396,7 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
         ImagePlus imp = roi == null ? getImage() : WindowManager.getCurrentImage();
 
         if (!imp.getTitle().contains("Plot")) {
-            // IJ.log("***NOT a PLOT image***");
+           // IJ.log("***NOT a PLOT image***");
             return false;
         }
 
@@ -619,10 +587,12 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
                     } else if (imp.getNFrames() > 1) {
                         roi.setPosition(0, 0, imp.getFrame());
                     }
-                } else if (imp.getStackSize() == 1) {
-                    roi.setPosition(0);
                 } else {
-                    roi.setPosition(slice);
+                    if (imp.getStackSize() == 1) {
+                        roi.setPosition(0);
+                    } else {
+                        roi.setPosition(slice);
+                    }
                 }
             }
         }
@@ -1118,7 +1088,7 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
      }
      */
 
- /* This method performs measurements for several ROI's in a stack
+    /* This method performs measurements for several ROI's in a stack
      and arranges the results with one line per slice.  By constast, the 
      measure() method produces several lines per slice.  The results 
      from multiMeasure() may be easier to import into a spreadsheet 
@@ -2795,10 +2765,12 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
                     } else {
                         Recorder.recordCall("rm.setSelectedIndexes([" + arg + "]);");
                     }
-                } else if (selected.length == 1) {
-                    Recorder.recordString("microGateManager(\"Select\", " + arg + ");\n");
                 } else {
-                    Recorder.recordString("microGateManager(\"Select\", newArray(" + arg + "));\n");
+                    if (selected.length == 1) {
+                        Recorder.recordString("microGateManager(\"Select\", " + arg + ");\n");
+                    } else {
+                        Recorder.recordString("microGateManager(\"Select\", newArray(" + arg + "));\n");
+                    }
                 }
             }
         }
@@ -2844,11 +2816,9 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JToggleButton jToggleButton2;
     private javax.swing.JList listGates;
     private javax.swing.JButton renameGate;
     private javax.swing.JButton saveGateResult;
-    private javax.swing.JButton updateGate;
     // End of variables declaration//GEN-END:variables
 
 }

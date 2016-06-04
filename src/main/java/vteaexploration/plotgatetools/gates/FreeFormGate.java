@@ -5,6 +5,7 @@
  */
 package vteaexploration.plotgatetools.gates;
 
+import ij.ImageStack;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -107,6 +108,26 @@ public class FreeFormGate extends Path2D.Float implements Gate {
 
     @Override
     public Color getColor() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setGateOverlayStack(ImageStack is) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ImageStack getGateOverlayStack() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean getImageGated() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setImageGated(boolean b) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

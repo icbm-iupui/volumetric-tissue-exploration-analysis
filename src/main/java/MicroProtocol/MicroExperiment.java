@@ -93,31 +93,20 @@ public class MicroExperiment implements Runnable{
         plotvalues.add(imp.getTitle());
         plotvalues.add(plotDataReference);
 
-        //imageplus
-        //volumes per microvolumes
-        //float x, deprecated
-        //float y, deprecated
-        //x title, deprecated
-        //y title, deprecated
-        //imageplus title
-        //plot data reference
         
         HashMap<Integer, String> hm = new HashMap<Integer,String>();
+        
+        
         
         for(int i = 0; i <= AvailableData.size()-1; i++){hm.put(i, AvailableData.get(i).toString());}
        
         XYExplorationPanel XY = new XYExplorationPanel(plotvalues, hm);
     
-        
         DefaultPlotPanels DPP = new DefaultPlotPanels();
         MicroExplorer me = new MicroExplorer();
         me.setTitle(imp.getTitle().replace("DUP_", ""));
         me.setTitle(me.getTitle().replace(".tif", ""));
         me.setTitle(me.getTitle().concat("_"+title));
-        
-        
-        
-        
         me.process(imp, title, plotvalues, XY, DPP, AvailableData);
         
         //System.out.println("Add explorer for " + alvolumes.size() + " volumes.");

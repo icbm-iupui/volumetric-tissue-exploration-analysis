@@ -10,18 +10,11 @@ import ij.gui.RoiListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Paint;
-import java.awt.PaintContext;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.ColorModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -36,14 +29,12 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYShapeRenderer;
 import org.jfree.chart.title.PaintScaleLegend;
 import org.jfree.data.xy.DefaultXYZDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYZDataset;
 import org.jfree.ui.RectangleEdge;
-import org.jfree.util.ShapeUtilities;
 import vteaexploration.listeners.UpdatePlotWindowListener;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
@@ -56,6 +47,13 @@ public class XYChartPanel implements RoiListener {
 
     private static final String title = "XY Chart";
     private static boolean ImageGate = false;
+    
+    public static double xMin = -1;
+    public static double xMax = -1;
+    public static double yMin = -1;
+    public static double yMax = -1;
+    
+    public static boolean globalAxes = false;
 
 
     public static int XAXIS = 1;
@@ -232,23 +230,17 @@ public class XYChartPanel implements RoiListener {
         yAxis.setAutoRangeIncludesZero(false);
 
         XYPlot plot = new XYPlot(createXYZDataset((ArrayList) plotValues.get(1), x, y, l), xAxis, yAxis, renderer);
+        
+        plot.getDomainAxis();
+        plot.getRangeAxis();
 
         plot.setDomainPannable(false);
         plot.setRangePannable(false);
 
         plot.setRenderer(0, renderer);
         plot.setRenderer(1, rendererGate);
-        
-
-        
-        
 
         plot.setDataset(0, createXYZDataset((ArrayList) plotValues.get(1), x, y, l));
-        
-        //plot.setRenderer(rendererGate);
-
-        //XYPlot plot = XYPlot();
-        System.out.println("PROFILING: XYChartPanel chart... Imagegate: " + imageGate);
 
         if (imageGate) {
             roiCreated(impoverlay);
@@ -332,6 +324,8 @@ public class XYChartPanel implements RoiListener {
         return high.longValue() - low.longValue();
 
     }
+    
+    
 
     private double getMaximumOfData(ArrayList alVolumes, int x) {
 
@@ -465,10 +459,10 @@ public class XYChartPanel implements RoiListener {
             }
             //}
         }
-        System.out.println("PROFILING: XYChartPanel... image gate, found " + ImageGateOverlay.size() + " volumes in region");
+        //System.out.println("PROFILING: XYChartPanel... image gate, found " + ImageGateOverlay.size() + " volumes in region");
         //process(xValues,yValues,lValues,xValuesText,yValuesText,lValuesText);
 
-        System.out.println("PROFILING: XYChartPanel... image gate processed and updated.");
+        //System.out.println("PROFILING: XYChartPanel... image gate processed and updated.");
         notifiyUpdatePlotWindowListeners();
     }
 
@@ -483,7 +477,7 @@ public class XYChartPanel implements RoiListener {
     }
 
     public void addUpdatePlotWindowListener(UpdatePlotWindowListener listener) {
-        System.out.println("PROFILING: Added listener");
+        //System.out.println("PROFILING: Added listener");
         UpdatePlotWindowListeners.add(listener);
     }
 
@@ -493,5 +487,7 @@ public class XYChartPanel implements RoiListener {
             listener.onUpdatePlotWindow();
         }
     }
+    
+   
 
 }

@@ -18,7 +18,7 @@ public interface Datasets {
     public int getColumnCount();
 
     public String[] getColumnTitles();
-
+    
     public List getColumn(int i);
 
     public List getObjects();

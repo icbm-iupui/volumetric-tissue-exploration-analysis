@@ -12,8 +12,9 @@ package vteaexploration;
 public class GatePercentages extends javax.swing.JFrame {
 
     private Object[][] DataTableArray = new Object[4][15];
-
+    
     //int current
+            
 //  Object [] = new Object [][] {
 //                {null, null, null, null},
 //                {null, null, null, null},
@@ -101,21 +102,22 @@ public class GatePercentages extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+  
+    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private transient javax.swing.JTable DataTable;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 
+
     private void remakeTable() {
-
-        this.DataTable.setModel(new javax.swing.table.DefaultTableModel(DataTableArray, new String[]{"Gate", "Gated", "Total", "%"}));
-
+        
+        this.DataTable.setModel(new javax.swing.table.DefaultTableModel(DataTableArray, new String [] {"Gate", "Gated", "Total", "%"}));
+        
+        
     }
-
-    public void clearTable() {
-        DataTableArray = new Object[4][15];
-    }
-
-    public void addGate(String[] row) {
-    }
+    
+    public void clearTable() {DataTableArray = new Object[4][15];}
+    public void addGate(String[] row) {}
 }

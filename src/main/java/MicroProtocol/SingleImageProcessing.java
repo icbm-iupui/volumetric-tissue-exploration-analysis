@@ -66,7 +66,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
 
     protected ArrayList<ProcessStepBlockGUI> ProcessingStepsList = new ArrayList<ProcessStepBlockGUI>();
     protected ArrayList<ObjectStepBlockGUI> ObjectStepsList = new ArrayList<ObjectStepBlockGUI>();
-    // protected ArrayList<ExploreStepBlockGUI> ExploreStepsList = new ArrayList<ExploreStepBlockGUI>();
+    
 
     public JWindow thumb = new JWindow();
 
@@ -80,7 +80,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     private ArrayList<RequestImageListener> RequestImageListeners = new ArrayList<RequestImageListener>();
     private ArrayList<RepaintTabListener> RepaintTabListeners = new ArrayList<RepaintTabListener>();
     private final MicroExperiment me = new MicroExperiment();
-    private final MicroExperiment me2 = new MicroExperiment();
+   
 
     private int tab;
 

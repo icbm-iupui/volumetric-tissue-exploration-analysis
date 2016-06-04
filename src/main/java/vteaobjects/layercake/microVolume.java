@@ -66,6 +66,8 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     
     int serialID = 0;
     
+    private boolean gated = false;
+    
 
    //   Volume measurements; 297, 1663.5555, 558321, 0.0, 4095.0
 //[channel][0, count, 1, mean, 2, integrated density, 3, min, 4, max, 5 standard deviation, 6 Feret_AR, 7 Feret_Min, 8 Feret_Max]

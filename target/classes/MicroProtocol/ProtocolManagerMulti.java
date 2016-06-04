@@ -19,7 +19,6 @@ import MicroProtocol.menus.LengthFilter;
 import VTC.ImageSelectionListener;
 import VTC.OpenImageWindow;
 import ij.ImagePlus;
-import ij.measure.ResultsTable;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -29,11 +28,14 @@ import javax.swing.JWindow;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 import java.util.ListIterator;
 import javax.swing.BorderFactory;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.text.AbstractDocument;
+import vteaexploration.GateManager;
+import vteaexploration.plotgatetools.gates.Gate;
 
 /**
  *
@@ -55,6 +57,9 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
     //protected ImagePlus ProcessedImage;
     //protected ImagePlus ThumbnailImage;
     protected JPanel thumbnail;
+    protected GateManager gateManager;
+    
+    
     
 //batch support
     
@@ -84,6 +89,8 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
     
     private ArrayList<JPanel> Tabs = new ArrayList<JPanel>();
     
+    
+    
     //static ResultsTable rt;
 
     /**
@@ -92,11 +99,11 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
     public ProtocolManagerMulti() {
 
       openerWindow.addImageSelectionListener(this);
-//        batchWindow.addBatchFileListener(this);
-//        mfm.addBatchListener(this);
+
 
         GuiSetup();
         initComponents();
+        addGateManager();
         addNewTabTab();
         addSingleImagePanel();
         addMenuItems();
@@ -304,6 +311,10 @@ if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
 
     //
     
+    private void addGateManager(){
+       GateManager gateManager = new GateManager();
+    }
+    
     
     
     public void addSingleImagePanel(){
@@ -435,6 +446,8 @@ if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
             listener.transferThese(type, tab, arg);
         }
     }
+    
+
 
     @Override
     public void onSelect(ImagePlus imp, int tab) {

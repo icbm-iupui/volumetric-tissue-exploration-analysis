@@ -93,4 +93,9 @@ public interface MicroObjectModel {
     public int[] getXPixelsInRegion(int i);
     
     public int[] getYPixelsInRegion(int i);
+    
+    public void setGated(boolean b);
+    
+    public boolean getGated();
+   
 }

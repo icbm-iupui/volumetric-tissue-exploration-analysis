@@ -88,6 +88,8 @@ public class MicroObject implements MicroObjectModel {
     
     private int[][][] theBox;
     
+    private boolean gated = false;
+    
     public MicroObject(){}
     
 
@@ -802,6 +804,16 @@ public class MicroObject implements MicroObjectModel {
     @Override
     public float getCentroidZ() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setGated(boolean b) {
+       this.gated = b;
+    }
+
+    @Override
+    public boolean getGated() {
+        return gated;
     }
     
     }

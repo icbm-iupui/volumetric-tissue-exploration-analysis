@@ -90,7 +90,9 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     int impMode;
     String title;
     ArrayList availabledata;
-    ArrayList<microVolume> ImageGatedVolumes = new ArrayList<microVolume>();
+    ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
+    
+    private boolean all = false;
 
     boolean imageGate = false;
 
@@ -124,8 +126,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
         this.availabledata = AvailableData;
         initComponents();
+        
+        get3DProjection.setEnabled(false);
 
-        makeOverlayImage(new ArrayList<Gate>(), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
+        makeOverlayImage(new ArrayList<Gate>(), ec.getSelectedObjects(), ec.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
         AvailableDataHM = makeAvailableDataHM(availabledata);
 
         final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(availabledata, MicroExplorer.XAXIS);
@@ -269,26 +273,38 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jSeparator3 = new javax.swing.JSeparator();
         North = new javax.swing.JPanel();
         toolbarPlot = new javax.swing.JToolBar();
+        jLabel15 = new javax.swing.JLabel();
+        jSeparator4 = new javax.swing.JToolBar.Separator();
         jLabel1 = new javax.swing.JLabel();
         jComboBoxXaxis = new javax.swing.JComboBox();
         jLabel2 = new javax.swing.JLabel();
         jComboBoxYaxis = new javax.swing.JComboBox();
         jLabel5 = new javax.swing.JLabel();
         jComboBoxLUTPlot = new javax.swing.JComboBox();
-        toolbarGate = new javax.swing.JToolBar();
-        jLabel4 = new javax.swing.JLabel();
-        addRectangularGate = new javax.swing.JToggleButton();
-        addPolygonGate = new javax.swing.JToggleButton();
-        addQuadrantGate = new javax.swing.JToggleButton();
-        jSeparator1 = new javax.swing.JToolBar.Separator();
         jLabel6 = new javax.swing.JLabel();
         jComboBoxPointSize = new javax.swing.JComboBox();
-        jSeparator4 = new javax.swing.JToolBar.Separator();
-        saveGates = new javax.swing.JButton();
-        loadGates = new javax.swing.JButton();
+        toolbarGate = new javax.swing.JToolBar();
+        jLabel4 = new javax.swing.JLabel();
+        addPolygonGate = new javax.swing.JToggleButton();
+        addRectangularGate = new javax.swing.JToggleButton();
+        addQuadrantGate = new javax.swing.JToggleButton();
+        jSeparator1 = new javax.swing.JToolBar.Separator();
+        jLabel3 = new javax.swing.JLabel();
+        SetGlobalToLocal = new javax.swing.JButton();
+        UseGlobal = new javax.swing.JToggleButton();
+        jSeparator6 = new javax.swing.JToolBar.Separator();
+        totalLabel = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        plotGatedLabel = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        imageGatedLabel = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jSeparator5 = new javax.swing.JToolBar.Separator();
+        get3DProjection = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
         WestPanel = new javax.swing.JPanel();
-        FlipAxes = new javax.swing.JButton();
         yTextPanel = new javax.swing.JPanel();
+        FlipAxes = new javax.swing.JButton();
         SouthPanel = new javax.swing.JPanel();
         Main = new javax.swing.JPanel();
 
@@ -304,7 +320,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         });
 
         North.setMinimumSize(new java.awt.Dimension(600, 75));
-        North.setPreferredSize(new java.awt.Dimension(600, 75));
+        North.setPreferredSize(new java.awt.Dimension(600, 80));
         North.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 5));
 
         toolbarPlot.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -313,9 +329,19 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         toolbarPlot.setMinimumSize(new java.awt.Dimension(600, 30));
         toolbarPlot.setPreferredSize(new java.awt.Dimension(600, 30));
 
+        jLabel15.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel15.setText("Plot");
+        jLabel15.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel15MouseClicked(evt);
+            }
+        });
+        toolbarPlot.add(jLabel15);
+        toolbarPlot.add(jSeparator4);
+
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 12)); // NOI18N
         jLabel1.setLabelFor(jComboBoxXaxis);
-        jLabel1.setText("X axis:");
+        jLabel1.setText("X  ");
         toolbarPlot.add(jLabel1);
 
         jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.availabledata.toArray()));
@@ -329,7 +355,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
         jLabel2.setFont(new java.awt.Font("Lucida Grande", 1, 12)); // NOI18N
         jLabel2.setLabelFor(jComboBoxYaxis);
-        jLabel2.setText("Y axis:");
+        jLabel2.setText(" Y ");
         toolbarPlot.add(jLabel2);
 
         jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.availabledata.toArray()));
@@ -343,7 +369,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
         jLabel5.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
         jLabel5.setLabelFor(jComboBoxLUTPlot);
-        jLabel5.setText("LUT:");
+        jLabel5.setText(" Color ");
         jLabel5.setToolTipText("Metric to be plotted as a \npoint's look-up table.");
         toolbarPlot.add(jLabel5);
 
@@ -357,65 +383,9 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         });
         toolbarPlot.add(jComboBoxLUTPlot);
 
-        North.add(toolbarPlot);
-
-        toolbarGate.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        toolbarGate.setFloatable(false);
-        toolbarGate.setRollover(true);
-        toolbarGate.setPreferredSize(new java.awt.Dimension(600, 30));
-
-        jLabel4.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
-        jLabel4.setText("Gates:  ");
-        toolbarGate.add(jLabel4);
-
-        addRectangularGate.setText("RECTANGLE");
-        addRectangularGate.setFocusable(false);
-        addRectangularGate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        addRectangularGate.setPreferredSize(new java.awt.Dimension(78, 30));
-        addRectangularGate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        addRectangularGate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addRectangularGateActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(addRectangularGate);
-        addRectangularGate.getAccessibleContext().setAccessibleName("AddRectangleGate");
-
-        addPolygonGate.setText("POLYGON");
-        addPolygonGate.setFocusable(false);
-        addPolygonGate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        addPolygonGate.setMaximumSize(new java.awt.Dimension(67, 30));
-        addPolygonGate.setMinimumSize(new java.awt.Dimension(67, 30));
-        addPolygonGate.setPreferredSize(new java.awt.Dimension(67, 30));
-        addPolygonGate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        addPolygonGate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addPolygonGateActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(addPolygonGate);
-
-        addQuadrantGate.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        addQuadrantGate.setText("QUAD");
-        addQuadrantGate.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        addQuadrantGate.setBorderPainted(false);
-        addQuadrantGate.setFocusable(false);
-        addQuadrantGate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        addQuadrantGate.setMaximumSize(new java.awt.Dimension(45, 30));
-        addQuadrantGate.setMinimumSize(new java.awt.Dimension(45, 30));
-        addQuadrantGate.setPreferredSize(new java.awt.Dimension(45, 30));
-        addQuadrantGate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        addQuadrantGate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addQuadrantGateActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(addQuadrantGate);
-        toolbarGate.add(jSeparator1);
-
         jLabel6.setFont(new java.awt.Font("Lucida Grande", 1, 12)); // NOI18N
-        jLabel6.setText("Point Size:");
-        toolbarGate.add(jLabel6);
+        jLabel6.setText(" Size ");
+        toolbarPlot.add(jLabel6);
 
         jComboBoxPointSize.setModel(new DefaultComboBoxModel(this.sizes));
         jComboBoxPointSize.addActionListener(new java.awt.event.ActionListener() {
@@ -428,32 +398,129 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                 jComboBoxPointSizePropertyChange(evt);
             }
         });
-        toolbarGate.add(jComboBoxPointSize);
-        toolbarGate.add(jSeparator4);
+        toolbarPlot.add(jComboBoxPointSize);
 
-        saveGates.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save-2_24.png"))); // NOI18N
-        saveGates.setFocusable(false);
-        saveGates.setMaximumSize(new java.awt.Dimension(60, 30));
-        saveGates.setMinimumSize(new java.awt.Dimension(60, 30));
-        saveGates.setPreferredSize(new java.awt.Dimension(35, 30));
-        saveGates.addActionListener(new java.awt.event.ActionListener() {
+        North.add(toolbarPlot);
+
+        toolbarGate.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        toolbarGate.setFloatable(false);
+        toolbarGate.setRollover(true);
+        toolbarGate.setPreferredSize(new java.awt.Dimension(600, 40));
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel4.setText("Gate  ");
+        toolbarGate.add(jLabel4);
+
+        addPolygonGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/polygon-filled.png"))); // NOI18N
+        addPolygonGate.setToolTipText("");
+        addPolygonGate.setFocusable(false);
+        addPolygonGate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        addPolygonGate.setMaximumSize(new java.awt.Dimension(35, 40));
+        addPolygonGate.setMinimumSize(new java.awt.Dimension(35, 40));
+        addPolygonGate.setPreferredSize(new java.awt.Dimension(35, 40));
+        addPolygonGate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        addPolygonGate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveGatesActionPerformed(evt);
+                addPolygonGateActionPerformed(evt);
             }
         });
-        toolbarGate.add(saveGates);
+        toolbarGate.add(addPolygonGate);
 
-        loadGates.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-open-folder_24.png"))); // NOI18N
-        loadGates.setFocusable(false);
-        loadGates.setMaximumSize(new java.awt.Dimension(60, 30));
-        loadGates.setMinimumSize(new java.awt.Dimension(60, 30));
-        loadGates.setPreferredSize(new java.awt.Dimension(35, 30));
-        loadGates.addActionListener(new java.awt.event.ActionListener() {
+        addRectangularGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/draw-rectangle.png"))); // NOI18N
+        addRectangularGate.setFocusable(false);
+        addRectangularGate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        addRectangularGate.setMaximumSize(new java.awt.Dimension(35, 40));
+        addRectangularGate.setMinimumSize(new java.awt.Dimension(35, 40));
+        addRectangularGate.setPreferredSize(new java.awt.Dimension(35, 40));
+        addRectangularGate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        addRectangularGate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loadGatesActionPerformed(evt);
+                addRectangularGateActionPerformed(evt);
             }
         });
-        toolbarGate.add(loadGates);
+        toolbarGate.add(addRectangularGate);
+        addRectangularGate.getAccessibleContext().setAccessibleName("AddRectangleGate");
+
+        addQuadrantGate.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        addQuadrantGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/quad_sw.png"))); // NOI18N
+        addQuadrantGate.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        addQuadrantGate.setBorderPainted(false);
+        addQuadrantGate.setFocusable(false);
+        addQuadrantGate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        addQuadrantGate.setMaximumSize(new java.awt.Dimension(35, 40));
+        addQuadrantGate.setMinimumSize(new java.awt.Dimension(35, 40));
+        addQuadrantGate.setName(""); // NOI18N
+        addQuadrantGate.setPreferredSize(new java.awt.Dimension(35, 40));
+        addQuadrantGate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        addQuadrantGate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addQuadrantGateActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(addQuadrantGate);
+        toolbarGate.add(jSeparator1);
+        toolbarGate.add(jLabel3);
+
+        SetGlobalToLocal.setText("S");
+        SetGlobalToLocal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        SetGlobalToLocal.setMaximumSize(new java.awt.Dimension(35, 40));
+        SetGlobalToLocal.setMinimumSize(new java.awt.Dimension(35, 40));
+        SetGlobalToLocal.setPreferredSize(new java.awt.Dimension(35, 40));
+        SetGlobalToLocal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SetGlobalToLocalActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(SetGlobalToLocal);
+
+        UseGlobal.setText("G");
+        UseGlobal.setMaximumSize(new java.awt.Dimension(35, 40));
+        UseGlobal.setMinimumSize(new java.awt.Dimension(35, 40));
+        UseGlobal.setPreferredSize(new java.awt.Dimension(35, 40));
+        UseGlobal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                UseGlobalActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(UseGlobal);
+        toolbarGate.add(jSeparator6);
+
+        totalLabel.setText(" 000000");
+        toolbarGate.add(totalLabel);
+
+        jLabel8.setText(" Objects");
+        toolbarGate.add(jLabel8);
+
+        plotGatedLabel.setText(" 000000");
+        toolbarGate.add(plotGatedLabel);
+
+        jLabel10.setText(" Plot gated");
+        toolbarGate.add(jLabel10);
+
+        imageGatedLabel.setText(" 000000");
+        toolbarGate.add(imageGatedLabel);
+
+        jLabel12.setText(" Image gated");
+        toolbarGate.add(jLabel12);
+        toolbarGate.add(jSeparator5);
+
+        get3DProjection.setText("3D");
+        get3DProjection.setToolTipText("");
+        get3DProjection.setEnabled(false);
+        get3DProjection.setMaximumSize(new java.awt.Dimension(35, 40));
+        get3DProjection.setMinimumSize(new java.awt.Dimension(35, 40));
+        get3DProjection.setName(""); // NOI18N
+        get3DProjection.setOpaque(false);
+        get3DProjection.setPreferredSize(new java.awt.Dimension(35, 40));
+        get3DProjection.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                get3DProjectionActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(get3DProjection);
+
+        jPanel1.setPreferredSize(new java.awt.Dimension(100, 500));
+        toolbarGate.add(jPanel1);
 
         North.add(toolbarGate);
 
@@ -463,10 +530,17 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         WestPanel.setPreferredSize(new java.awt.Dimension(44, 530));
         WestPanel.setLayout(new java.awt.BorderLayout());
 
+        yTextPanel.setMaximumSize(new java.awt.Dimension(140, 40));
+        yTextPanel.setLayout(new java.awt.BorderLayout());
+        WestPanel.add(yTextPanel, java.awt.BorderLayout.CENTER);
+
         FlipAxes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/view-refresh-5.png"))); // NOI18N
         FlipAxes.setToolTipText("Flips X and Y axes.");
         FlipAxes.setFocusable(false);
         FlipAxes.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        FlipAxes.setMaximumSize(new java.awt.Dimension(40, 40));
+        FlipAxes.setMinimumSize(new java.awt.Dimension(40, 40));
+        FlipAxes.setPreferredSize(new java.awt.Dimension(40, 40));
         FlipAxes.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         FlipAxes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -474,9 +548,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             }
         });
         WestPanel.add(FlipAxes, java.awt.BorderLayout.PAGE_END);
-
-        yTextPanel.setLayout(new java.awt.BorderLayout());
-        WestPanel.add(yTextPanel, java.awt.BorderLayout.CENTER);
 
         getContentPane().add(WestPanel, java.awt.BorderLayout.WEST);
 
@@ -501,34 +572,42 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxXaxisActionPerformed
 
-    private void saveGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveGatesActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_saveGatesActionPerformed
-
-    private void loadGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadGatesActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_loadGatesActionPerformed
-
     private void jComboBoxYaxisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxYaxisActionPerformed
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxYaxisActionPerformed
 
     private void addQuadrantGateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addQuadrantGateActionPerformed
-//       if(this.addPolygonGate.isSelected()){makePolygonGate();}
-//       else{ec.stopGateSelection(); this.activationGateTools(0);}
+        
+        
+        if(!(this.GateButtonsHM.get(POLYGONGATE).isEnabled()) &&!(this.GateButtonsHM.get(POLYGONGATE).isEnabled())){      
+            ec.stopGateSelection();
+            this.activationGateTools(0);
+        }else{
+            
+            this.activationGateTools(QUADRANTGATE);
+            this.makeQuadrantGate();
+        } 
     }//GEN-LAST:event_addQuadrantGateActionPerformed
 
     private void addPolygonGateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addPolygonGateActionPerformed
-        // if(this.addQuadrantGate.isSelected()){makeQuadrantGate();}
-        //else{
-        ec.stopGateSelection();
-        this.activationGateTools(10);
+
+        if(!(this.GateButtonsHM.get(QUADRANTGATE).isEnabled()) &&!(this.GateButtonsHM.get(QUADRANTGATE).isEnabled())){      
+         ec.stopGateSelection();
+         this.activationGateTools(0);
+        }else{
+        this.activationGateTools(POLYGONGATE);
         this.makePolygonGate();
-        //}
+        }
     }//GEN-LAST:event_addPolygonGateActionPerformed
 
     private void addRectangularGateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRectangularGateActionPerformed
-        // TODO add your handling code here:
+        if(!(this.GateButtonsHM.get(QUADRANTGATE).isEnabled()) &&!(this.GateButtonsHM.get(QUADRANTGATE).isEnabled())){ 
+        ec.stopGateSelection();
+        this.activationGateTools(0);
+        }else{
+        this.activationGateTools(RECTANGLEGATE);
+        this.makeRectangleGate();
+        }
     }//GEN-LAST:event_addRectangularGateActionPerformed
 
     private void FlipAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FlipAxesActionPerformed
@@ -546,6 +625,27 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private void jComboBoxPointSizePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jComboBoxPointSizePropertyChange
 
     }//GEN-LAST:event_jComboBoxPointSizePropertyChange
+
+    private void get3DProjectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_get3DProjectionActionPerformed
+      ec.getZProjection();
+    }//GEN-LAST:event_get3DProjectionActionPerformed
+
+    private void jLabel15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel15MouseClicked
+        
+    }//GEN-LAST:event_jLabel15MouseClicked
+
+    private void SetGlobalToLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SetGlobalToLocalActionPerformed
+        ec.setAxesToCurrent();
+    }//GEN-LAST:event_SetGlobalToLocalActionPerformed
+
+    private void UseGlobalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UseGlobalActionPerformed
+        
+        
+        ec.setGlobalAxes(!ec.getGlobalAxes());
+       
+         updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
+        //ec.
+    }//GEN-LAST:event_UseGlobalActionPerformed
 
     /**
      * @param args the command line arguments
@@ -585,29 +685,41 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private javax.swing.JButton FlipAxes;
     protected javax.swing.JPanel Main;
     private javax.swing.JPanel North;
+    private javax.swing.JButton SetGlobalToLocal;
     private javax.swing.JPanel SouthPanel;
+    private javax.swing.JToggleButton UseGlobal;
     private javax.swing.JPanel WestPanel;
     protected javax.swing.JToggleButton addPolygonGate;
     protected javax.swing.JToggleButton addQuadrantGate;
     protected javax.swing.JToggleButton addRectangularGate;
+    private javax.swing.JButton get3DProjection;
+    private javax.swing.JLabel imageGatedLabel;
     private javax.swing.JComboBox jComboBox1;
     protected javax.swing.JComboBox jComboBoxLUTPlot;
     private javax.swing.JComboBox jComboBoxPointSize;
     protected javax.swing.JComboBox jComboBoxXaxis;
     protected javax.swing.JComboBox jComboBoxYaxis;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
-    private javax.swing.JButton loadGates;
-    private javax.swing.JButton saveGates;
+    private javax.swing.JToolBar.Separator jSeparator5;
+    private javax.swing.JToolBar.Separator jSeparator6;
+    private javax.swing.JLabel plotGatedLabel;
     private javax.swing.JToolBar toolbarGate;
     private javax.swing.JToolBar toolbarPlot;
+    private javax.swing.JLabel totalLabel;
     private javax.swing.JPanel yTextPanel;
     // End of variables declaration//GEN-END:variables
 
@@ -649,13 +761,19 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     private void makePolygonGate() {
         activationGateTools(POLYGONGATE);
-        ec.addSelectionToPlot();
+        ec.addPolygonToPlot();
+        pack();
+    }
+    
+    private void makeRectangleGate() {
+        activationGateTools(RECTANGLEGATE);
+        ec.addRectangleToPlot();
         pack();
     }
 
     private void makeQuadrantGate() {
         activationGateTools(QUADRANTGATE);
-        ec.addSelectionToPlot();
+        ec.addQuadrantToPlot();
         pack();
     }
 
@@ -678,6 +796,11 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                 if (i != activeGate) {
                     this.GateButtonsHM.get(i).setEnabled(false);
                 }
+            }
+        } else if(activeGate == 0) {
+            for (int i = 10; i <= 12; i++) {             
+                    this.GateButtonsHM.get(i).setEnabled(true);
+                    this.GateButtonsHM.get(i).setSelected(false);
             }
         } else {
             for (int i = 10; i <= 12; i++) {
@@ -710,7 +833,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
         SouthPanel.setLayout(new FlowLayout());
         xLabel.setText(xText);
-        lLabel.setText("LUT: " + lText + "           ");
+        lLabel.setText("Color: " + lText + "           ");
         SouthPanel.add(lLabel);
         SouthPanel.add(xLabel);
         pack();
@@ -719,7 +842,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private void updateAxesLabels(String xText, String yText, String lText) {
         yLabel.setText(yText);
         xLabel.setText(xText);
-        lLabel.setText("LUT: " + lText + "           ");
+        lLabel.setText("Color: " + lText + "           ");
         yTextPanel.removeAll();
         SouthPanel.removeAll();
         addAxesLabels(xText, yText, lText);
@@ -753,127 +876,147 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     //SimpleThresholdDataModel dependent....
     //ImageJ1 specific code
     @Override
-    @SuppressWarnings("empty-statement")
-    public void makeOverlayImage(ArrayList gates, int xAxis, int yAxis) {
-        //convert gate to chart x,y path
-        Gate gate;
-        ListIterator<Gate> gate_itr = gates.listIterator();
-
-        //.get
-        int selected = 0;
-        int total = 0;
-
-        int gatecount = gates.size();
-
-        while (gate_itr.hasNext()) {
-            gate = gate_itr.next();
-            if (gate.getSelected()) {
-                Path2D path = gate.createPath2DInChartSpace();
-
-                ArrayList<MicroObject> result = new ArrayList<MicroObject>();
-                ArrayList<MicroObject> volumes = (ArrayList) this.plotvalues.get(1);
-                MicroObjectModel volume;
-
-                double xValue = 0;
-                double yValue = 0;
-
-                ListIterator<MicroObject> it = volumes.listIterator();
-                try {
-                    while (it.hasNext()) {
-                        volume = it.next();
-                        if (volume != null) {
-                            xValue = ((Number) processPosition(xAxis, (MicroObject) volume)).doubleValue();
-                            yValue = ((Number) processPosition(yAxis, (MicroObject) volume)).doubleValue();
-                            if (path.contains(xValue, yValue)) {
-                                result.add((MicroObject) volume);
-                            }
-                        }
-                    }
-                } catch (NullPointerException e) {
-                };
-                Overlay overlay = new Overlay();
-
-                int count = 0;
-                BufferedImage placeholder = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
-                
-                ImageStack gateOverlay = new ImageStack(impoverlay.getWidth(), impoverlay.getHeight());
-
-                selected = result.size();
-
-                total = volumes.size();
-
-                for (int i = 0; i <= imp.getNSlices(); i++) {
-                    BufferedImage selections = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
-                    Graphics2D g2 = selections.createGraphics();
-
-                    ImageRoi ir = new ImageRoi(0, 0, placeholder);
-                    ListIterator<MicroObject> vitr = result.listIterator();
-
-                    while (vitr.hasNext()) {
-                        try {
-                            MicroObject vol = (MicroObject) vitr.next();
-
-                            int[] x_pixels = vol.getXPixelsInRegion(i);
-                            int[] y_pixels = vol.getYPixelsInRegion(i);
-
-                            for (int c = 0; c < x_pixels.length; c++) {
-
-                                g2.setColor(gate.getColor());
-                                g2.drawRect(x_pixels[c], y_pixels[c], 1, 1);
-                            }
-                            ir = new ImageRoi(0, 0, selections);
-                            count++;
-
-                        } catch (NullPointerException e) {
-                        }
-                    }
-
-                    ir.setPosition(i);
-                    ir.setOpacity(0.4);
-                    overlay.add(ir);
-
-                    gateOverlay.addSlice(ir.getProcessor());
-
-                    java.awt.Font f = new Font("Arial", Font.BOLD, 12);
-                    BigDecimal percentage = new BigDecimal(selected);
-                    BigDecimal totalBD = new BigDecimal(total);
-                    percentage = percentage.divide(totalBD, 4, BigDecimal.ROUND_UP);
-
-                    // System.out.println("PROFILING: gate fraction: " + percentage.toString());
-                    if (impoverlay.getWidth() > 256) {
-                        TextRoi text = new TextRoi(5, 10, selected + "/" + total + " objects (" + 100 * percentage.doubleValue() + "%)", f);
-                        text.setPosition(i);
-                        overlay.add(text);
-                    } else {
-                        f = new Font("Arial", Font.PLAIN, 10);
-                        TextRoi line1 = new TextRoi(5, 5, selected + "/" + total + " objects", f);
-                        TextRoi line2 = new TextRoi(5, 18, "(" + 100 * percentage.doubleValue() + "%)", f);
-                        line1.setPosition(i);
-                        overlay.add(line1);
-                        overlay.add(line2);
-                    }
-                }
-                impoverlay.setOverlay(overlay);
-                
-                      ImagePlus gateMaskImage = new ImagePlus("gates", gateOverlay);
-                    gateMaskImage.show();
-
-            }
-
-            impoverlay.draw();
-            impoverlay.setTitle(this.getTitle());
-
-            if (impoverlay.getDisplayMode() != IJ.COMPOSITE) {
-                impoverlay.setDisplayMode(IJ.COMPOSITE);
-            }
-
-            if (impoverlay.getSlice() == 1) {
-                impoverlay.setZ(Math.round(impoverlay.getNSlices() / 2));
-            } else {
-                impoverlay.setSlice(impoverlay.getSlice());
-            }
-            impoverlay.show();
+    @SuppressWarnings("empty-statementget3DProjection.setEnabled(true);")
+    public void makeOverlayImage(ArrayList gates, int x, int y, int xAxis, int yAxis) {
+        
+           get3DProjection.setEnabled(true);
+//convert gate to chart x,y path
+//        Gate gate;
+//        ListIterator<Gate> gate_itr = gates.listIterator();
+//
+//        //.get
+//
+//        int total = 0;
+//        int gated = 0;
+//        int selected = 0;
+//
+//        int gatecount = gates.size();
+//
+//        while (gate_itr.hasNext()) {
+//            gate = gate_itr.next();
+//            if (gate.getSelected()) {
+//                Path2D path = gate.createPath2DInChartSpace();
+//
+//                ArrayList<MicroObject> result = new ArrayList<MicroObject>();
+//                
+//                ArrayList<MicroObject> volumes = (ArrayList) this.plotvalues.get(1);
+//                MicroObjectModel volume;
+//
+//                double xValue = 0;
+//                double yValue = 0;
+//
+//                ListIterator<MicroObject> it = volumes.listIterator();
+//                try {
+//                    while (it.hasNext()) {
+//                        volume = it.next();
+//                        if (volume != null) {
+//                            xValue = ((Number) processPosition(xAxis, (MicroObject) volume)).doubleValue();
+//                            yValue = ((Number) processPosition(yAxis, (MicroObject) volume)).doubleValue();
+//                            if (path.contains(xValue, yValue)) {
+//                                result.add((MicroObject) volume);
+//                            }
+//                        }
+//                    }
+//                } catch (NullPointerException e) {
+//                };
+//                
+//                
+//                
+//                
+//                
+//                Overlay overlay = new Overlay();
+//
+//                int count = 0;
+//                BufferedImage placeholder = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
+//                
+//                ImageStack gateOverlay = new ImageStack(impoverlay.getWidth(), impoverlay.getHeight());
+//
+//                selected = result.size();
+//
+//                total = volumes.size();
+//                
+//                gated = ImageGatedObjects.size();
+//
+//                for (int i = 0; i <= imp.getNSlices(); i++) {
+//                    BufferedImage selections = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
+//
+//                    Graphics2D g2 = selections.createGraphics();
+//
+//                    ImageRoi ir = new ImageRoi(0, 0, placeholder);
+//                    ListIterator<MicroObject> vitr = result.listIterator();
+//
+//                    while (vitr.hasNext()) {
+//                        try {
+//                            MicroObject vol = (MicroObject) vitr.next();
+//
+//                            int[] x_pixels = vol.getXPixelsInRegion(i);
+//                            int[] y_pixels = vol.getYPixelsInRegion(i);
+//
+//                            for (int c = 0; c < x_pixels.length; c++) {
+//
+//                                g2.setColor(gate.getColor());
+//                                g2.drawRect(x_pixels[c], y_pixels[c], 1, 1);
+//                            }
+//                            ir = new ImageRoi(0, 0, selections);
+//                            count++;
+//
+//                        } catch (NullPointerException e) {
+//                        }
+//                    }
+//
+//                    ir.setPosition(i);
+//                    ir.setOpacity(0.4);
+//                    overlay.add(ir);
+//
+//                    gateOverlay.addSlice(ir.getProcessor());
+//
+//                    java.awt.Font f = new Font("Arial", Font.BOLD, 12);
+//                    BigDecimal percentage = new BigDecimal(selected);
+//                    BigDecimal totalBD = new BigDecimal(total);
+//                    percentage = percentage.divide(totalBD, 4, BigDecimal.ROUND_UP);
+//                    
+//                    BigDecimal percentageGated = new BigDecimal(gated);
+//                    BigDecimal totalGatedBD = new BigDecimal(total);
+//                    percentageGated = percentageGated.divide(totalGatedBD, 4, BigDecimal.ROUND_UP);
+//
+//                    // System.out.println("PROFILING: gate fraction: " + percentage.toString());
+//                    if (impoverlay.getWidth() > 256) {
+//                        TextRoi textTotal = new TextRoi(5, 10, selected + "/" + total + " total objects (" + 100 * percentage.doubleValue() + "%)" +
+//                                "; " + gated + "/" + total + " gated objects (" + 100 * percentageGated.doubleValue() + "%)", f);
+//                        //TextRoi textImageGated = new TextRoi(5, 18, selected + "/" + total + " gated objects (" + 100 * percentage.doubleValue() + "%)", f);
+//                        textTotal.setPosition(i);
+//                        //textImageGated.setPosition(i);
+//                        overlay.add(textTotal);
+//                    } else {
+//                        f = new Font("Arial", Font.PLAIN, 10);
+//                        TextRoi line1 = new TextRoi(5, 5, selected + "/" + total + " objects" + "(" + 100 * percentage.doubleValue() + "%)", f);
+//                        f = new Font("Arial", Font.PLAIN, 10);
+//                        TextRoi line2 = new TextRoi(5, 18, gated + "/" + total + " gated objects (" + 100 * percentageGated.doubleValue() + "%)", f);
+//                        line1.setPosition(i);
+//                        overlay.add(line1);
+//                        overlay.add(line2);
+//                    }
+//                }
+//                impoverlay.setOverlay(overlay);
+//                
+//                      ImagePlus gateMaskImage = new ImagePlus("gates", gateOverlay);
+//                    gateMaskImage.show();
+//
+//            }
+//
+//            impoverlay.draw();
+//            impoverlay.setTitle(this.getTitle());
+//
+//            if (impoverlay.getDisplayMode() != IJ.COMPOSITE) {
+//                impoverlay.setDisplayMode(IJ.COMPOSITE);
+//            }
+//
+//            if (impoverlay.getSlice() == 1) {
+//                impoverlay.setZ(Math.round(impoverlay.getNSlices() / 2));
+//            } else {
+//                impoverlay.setSlice(impoverlay.getSlice());
+//            }
+//            impoverlay.show();
 
 
             //ci.setDisplayMode(IJ.COMPOSITE);
@@ -881,11 +1024,11 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             //ci.show();   
 //map ArrayList of volumes into pixel space for the current stack position
 //add as overlay with a buffered image
-        }
+        //}
         //rt.incrementCounter();
 
         //rt.addValue("Test", "Test");
-        IJ.log("RESULT: " + this.getTitle() + ", Gated: " + selected + ", Total: " + total + ", for: " + 100 * (new Double(selected).doubleValue() / (new Double(total)).doubleValue()) + "%");
+        //IJ.log("RESULT: " + this.getTitle() + ", Gated: " + selected + ", Total: " + total + ", for: " + 100 * (new Double(selected).doubleValue() / (new Double(total)).doubleValue()) + "%");
         //rt.addValue("Gated", selected);
         //rt.addValue("Total", total);
 
@@ -968,10 +1111,21 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         try {
             if (ip.getID() == impoverlay.getID()) {
 
-                if (i == RoiListener.COMPLETED || i == RoiListener.MOVED) {
-                    System.out.println("PROFILING: MicroExplorer updating window...");
-                    //redrawCenterPanel();
+                if (i == RoiListener.COMPLETED || i == RoiListener.MOVED) {             
+                    ImageGatedObjects.clear();
+                    ArrayList<MicroObject> volumes = (ArrayList) plotvalues.get(1);
+                    ListIterator<MicroObject> itr = volumes.listIterator();
+                    while (itr.hasNext()) {
+                        MicroObject m = itr.next();
+                        int[] c = new int[2];
+                        c = m.getBoundsCenter();
 
+                        if (ip.getRoi().contains(c[0], c[1])) {
+                               ImageGatedObjects.add(m);
+                        }
+                    }
+                    
+                    System.out.println("PROFILING: MicroExplorer updating window..." + ImageGatedObjects.size() + " objects image gated.");
                     validate();
                     repaint();
                 }
