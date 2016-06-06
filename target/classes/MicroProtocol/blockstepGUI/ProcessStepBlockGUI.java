@@ -45,6 +45,7 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         JLabel Position = new JLabel();
         public JLabel Comment = new JLabel("Block by Block");
         JLabel Process = new JLabel("First things first");
+        String ProcessString;
         boolean ProcessTypeSet = false;
         int position;
         int type;
@@ -90,9 +91,14 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
             this.type = type;
             this.BlockColor = BlockColor;
             
-            this.
-
-            Process.setText(ProcessText);
+            this.ProcessString = ProcessText;
+            
+            if(ProcessString.length() > 30){
+              Process.setText(ProcessString.substring(0, 40)+"...");
+              Process.setToolTipText(ProcessString);
+            }else{
+              Process.setText(ProcessText);  
+            }
 
             Comment.setText(CommentText);
            

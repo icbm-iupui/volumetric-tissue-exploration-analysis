@@ -55,7 +55,8 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
 
     XYChartPanel cpd;
     private boolean useGlobal = false;
-    
+    int selected = 0;
+    int gated = 0;
     
     public XYExplorationPanel(ArrayList li, HashMap<Integer, String> hm) {
         
@@ -63,7 +64,6 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         Roi.addRoiListener(this);
         this.plotvalues = li;
         
-
         this.hm = hm;
         this.pointsize = MicroExplorer.POINTSIZE;
         
@@ -235,22 +235,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                 impoverlay.setSlice(impoverlay.getSlice());
             }
             impoverlay.show();
-
-
-            //ci.setDisplayMode(IJ.COMPOSITE);
-            //ci.setZ(Math.round(impoverlay.getNSlices()/2));
-            //ci.show();   
-//map ArrayList of volumes into pixel space for the current stack position
-//add as overlay with a buffered image
         }
-        //rt.incrementCounter();
-
-        //rt.addValue("Test", "Test");
-       // IJ.log("RESULT: " + this.getTitle() + ", Gated: " + selected + ", Total: " + total + ", for: " + 100 * (new Double(selected).doubleValue() / (new Double(total)).doubleValue()) + "%");
-        //rt.addValue("Gated", selected);
-        //rt.addValue("Total", total);
-
-        //rt.show("Gated Objects");
     }
 
 
@@ -480,7 +465,6 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         currentL = l;
         CenterPanel.removeAll();
         ArrayList current = this.ExplorationItems.get(keyLookUp(x, y, l));
-        
         this.gates = new ArrayList();
         this.chart = (ChartPanel) current.get(1);
         this.gates = (ArrayList) current.get(2);
@@ -488,7 +472,6 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         CenterPanel.setOpaque(false);
         CenterPanel.setBackground(new Color(0, 0, 0, 0));
         CenterPanel.setPreferredSize(chart.getPreferredSize());
-
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates);
         gjlayer.setLocation(0, 0);
         CenterPanel.add(gjlayer);
@@ -597,8 +580,6 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         //setup chart values
         chart = cpd.getUpdatedChartPanel();
         chart.setOpaque(false);
-        
-        
 
         //setup chart layer
         CenterPanel.setOpaque(false);
@@ -661,17 +642,12 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         }}
        catch(NullPointerException e){}
     }
-    
-   
    
     private void roiCreated(ImagePlus ip){
-
-        System.out.println("PROFILING: XYChartPanel... image gate processed and updated.");  
-       
+        System.out.println("PROFILING: XYChartPanel... image gate processed and updated.");     
     }
 
     private void roiDeleted(){ 
-
     }
 
     @Override
@@ -731,7 +707,6 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                      ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
                      ArrayList<MicroObject> volumes = (ArrayList) plotvalues.get(1);
         try{
-            //ArrayList<MicroObject> volumes = (ArrayList) plotvalues.get(1);
                     ListIterator<MicroObject> itr = volumes.listIterator();
                     while (itr.hasNext()) {
                         MicroObject m = itr.next();
@@ -775,8 +750,4 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         }
        return result.size();    
     }
-
-
-
-
 }

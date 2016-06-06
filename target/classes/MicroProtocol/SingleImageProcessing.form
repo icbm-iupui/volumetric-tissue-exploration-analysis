@@ -590,6 +590,9 @@
             <Property name="horizontalAlignment" type="int" value="11"/>
             <Property name="text" type="java.lang.String" value="Load an image to begin..."/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
+          </AuxValues>
         </Component>
         <Component class="javax.swing.JProgressBar" name="ObjectProcess">
           <Properties>
@@ -598,7 +601,7 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="9"/>
           </AuxValues>
         </Component>
       </SubComponents>
@@ -674,7 +677,7 @@
           </StatementProvider>
           <Parameters>
             <CodeExpression id="7_ProgressComment">
-              <CodeVariable name="ProgressComment" type="8194" declaredType="javax.swing.JLabel"/>
+              <CodeVariable name="ProgressComment" type="8201" declaredType="javax.swing.JLabel"/>
               <ExpressionOrigin>
                 <ExpressionProvider type="ComponentRef">
                   <ComponentRef name="ProgressComment"/>
@@ -690,7 +693,7 @@
           </StatementProvider>
           <Parameters>
             <CodeExpression id="8_ObjectProcess">
-              <CodeVariable name="ObjectProcess" type="8193" declaredType="javax.swing.JProgressBar"/>
+              <CodeVariable name="ObjectProcess" type="8201" declaredType="javax.swing.JProgressBar"/>
               <ExpressionOrigin>
                 <ExpressionProvider type="ComponentRef">
                   <ComponentRef name="ObjectProcess"/>

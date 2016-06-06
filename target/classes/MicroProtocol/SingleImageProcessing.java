@@ -607,7 +607,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     private javax.swing.JButton DeleteAllSteps_PreProcessing;
     private javax.swing.JLabel FindObjectText;
     public javax.swing.JButton ObjectGo;
-    public javax.swing.JProgressBar ObjectProcess;
+    public static javax.swing.JProgressBar ObjectProcess;
     public javax.swing.JPanel ObjectStepsPanel;
     private javax.swing.JPanel Object_Header;
     private javax.swing.JPanel Object_Panel;
@@ -618,7 +618,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     public javax.swing.JPanel PreProcessingStepsPanel;
     public javax.swing.JPanel PreProcessing_Panel;
     private javax.swing.JPanel Preprocessing_Header;
-    private javax.swing.JLabel ProgressComment;
+    public static javax.swing.JLabel ProgressComment;
     private javax.swing.JPanel ProgressPanel;
     private javax.swing.JPanel SingleImageProcessing;
     private javax.swing.JLabel exploreText;
