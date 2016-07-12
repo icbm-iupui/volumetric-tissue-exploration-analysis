@@ -259,8 +259,8 @@ public class XYChartPanel implements RoiListener {
     });
 
         }
-        System.out.println("PROFILING: Generating plot with " + plot.getDatasetCount() + " datasets.");
-        System.out.println("PROFILING: Generating plot with " + ImageGateOverlay.size() + " objects gated.");
+        //System.out.println("PROFILING: Generating plot with " + plot.getDatasetCount() + " datasets.");
+        //System.out.println("PROFILING: Generating plot with " + ImageGateOverlay.size() + " objects gated.");
 
         try {
             if (getRangeofData((ArrayList) plotValues.get(1), x) > 16384) {

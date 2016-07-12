@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import vteapreprocessing.MicroProtocolPreProcessing;
 
 /**
@@ -43,6 +44,7 @@ import vteapreprocessing.MicroProtocolPreProcessing;
  */
 public class SingleImageProcessing extends javax.swing.JPanel implements ImageSelectionListener, TransferProtocolStepsListener, RebuildPanelListener, DeleteBlockListener {
 
+    public static final int WORKFLOW = 0;
     public static final int PROCESSBLOCKS = 1;
     public static final int OBJECTBLOCKS = 2;
     public static final int EXPLOREBLOCKS = 3;
@@ -89,6 +91,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
      */
     public SingleImageProcessing() {
         initComponents();
+        
+       
     }
 
     /**
@@ -148,6 +152,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         OpenImage.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         OpenImage.setText("Load Image");
         OpenImage.setToolTipText("Load image for processing.");
+        OpenImage.setBorder(null);
         OpenImage.setMargin(new java.awt.Insets(2, 5, 2, 5));
         OpenImage.setMaximumSize(new java.awt.Dimension(80, 33));
         OpenImage.setMinimumSize(new java.awt.Dimension(80, 23));
@@ -173,6 +178,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         AddStep_Preprocessing.setForeground(new java.awt.Color(102, 102, 102));
         AddStep_Preprocessing.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
         AddStep_Preprocessing.setToolTipText("Adds a processing step.");
+        AddStep_Preprocessing.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         AddStep_Preprocessing.setEnabled(false);
         AddStep_Preprocessing.setMaximumSize(new java.awt.Dimension(32, 32));
         AddStep_Preprocessing.setMinimumSize(new java.awt.Dimension(32, 32));
@@ -211,7 +217,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         SingleImageProcessing.add(Preprocessing_Header, gridBagConstraints);
 
         PreProcessing_Panel.setBackground(new java.awt.Color(204, 204, 204));
-        PreProcessing_Panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         PreProcessing_Panel.setForeground(new java.awt.Color(102, 102, 102));
         PreProcessing_Panel.setAlignmentX(0.0F);
         PreProcessing_Panel.setAlignmentY(0.0F);
@@ -252,8 +257,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                 .addGroup(PreProcessing_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PreProcessing_PanelLayout.createSequentialGroup()
                         .addComponent(PreProcessingGo, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 175, Short.MAX_VALUE))
-                    .addComponent(PreProcessingStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE))
+                        .addGap(0, 187, Short.MAX_VALUE))
+                    .addComponent(PreProcessingStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE))
                 .addContainerGap())
         );
         PreProcessing_PanelLayout.setVerticalGroup(
@@ -263,7 +268,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                 .addComponent(PreProcessingStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(PreProcessingGo)
-                .addContainerGap(6, Short.MAX_VALUE))
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -367,7 +372,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         SingleImageProcessing.add(Object_Header, gridBagConstraints);
 
         Object_Panel.setBackground(new java.awt.Color(204, 204, 204));
-        Object_Panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         Object_Panel.setForeground(new java.awt.Color(102, 102, 102));
         Object_Panel.setAlignmentX(0.0F);
         Object_Panel.setAlignmentY(0.0F);
@@ -407,10 +411,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             .addGroup(Object_PanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(Object_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
+                    .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
                     .addGroup(Object_PanelLayout.createSequentialGroup()
                         .addComponent(ObjectGo, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 304, Short.MAX_VALUE)))
+                        .addGap(0, 316, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         Object_PanelLayout.setVerticalGroup(
@@ -420,7 +424,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                 .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(ObjectGo)
-                .addContainerGap(66, Short.MAX_VALUE))
+                .addContainerGap(68, Short.MAX_VALUE))
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -978,6 +982,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             sb.setPosition(ObjectStepsList.indexOf(sb) + 1);
             ObjectStepsPanel.add(sb.getPanel());
         }
+     
         
     }
 

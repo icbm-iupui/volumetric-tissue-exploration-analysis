@@ -5,6 +5,7 @@
  */
 package MicroProtocol;
 
+import MicroProtocol.blockstepGUI.ObjectStepBlockGUI;
 import MicroProtocol.blockstepGUI.ProcessStepBlockGUI;
 import MicroProtocol.listeners.BatchStateListener;
 import MicroProtocol.listeners.CopyBlocksListener;
@@ -33,6 +34,8 @@ import java.util.ListIterator;
 import javax.swing.BorderFactory;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.text.AbstractDocument;
 import vteaexploration.GateManager;
 import vteaexploration.plotgatetools.gates.Gate;
@@ -43,37 +46,35 @@ import vteaexploration.plotgatetools.gates.Gate;
  */
 public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSelectionListener, RequestImageListener, RepaintTabListener, RenameTabListener, CopyBlocksListener, BatchStateListener {
 
+    private static int WORKFLOW = 0;
     private static int PROCESSBLOCKS = 1;
     private static int OBJECTBLOCKS = 2;
-    
+
     public static final int PROCESS = 100;
     public static final int OBJECT = 110;
     public static final int EXPLORATION = 120;
 
     public JList OpenImages;
     public OpenImageWindow openerWindow = new OpenImageWindow(OpenImages);
-    
+
     //protected ImagePlus OriginalImage;
     //protected ImagePlus ProcessedImage;
     //protected ImagePlus ThumbnailImage;
     protected JPanel thumbnail;
     protected GateManager gateManager;
-    
-    
-    
+
 //batch support
-    
     //public MultipleFilesMenu mfm = new MultipleFilesMenu(false);
     //public microBatchManager batchWindow = new microBatchManager(OpenImages);
     protected boolean batch = false;
-    
+
     public AvailableWorkflowsMenu awf = new AvailableWorkflowsMenu();
 
-    private ArrayList <TransferProtocolStepsListener> listeners = new ArrayList <TransferProtocolStepsListener>();
-    
+    private ArrayList<TransferProtocolStepsListener> listeners = new ArrayList<TransferProtocolStepsListener>();
+
     public JMenuProtocol ProcessingMenu;
     public JMenuProtocol ObjectMenu;
-    public JMenuProtocol ExplorationMenu;
+    public JMenuProtocol WorkflowMenu;
     public JMenuBatch BatchMenu;
 
     public JWindow thumb = new JWindow();
@@ -84,23 +85,18 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
 
     public Color ButtonBackground = new java.awt.Color(102, 102, 102);
     public String[] Channels;
-    
-    private MicroExperiment me = new MicroExperiment();
-    
-    private ArrayList<JPanel> Tabs = new ArrayList<JPanel>();
-    
-    
-    
-    //static ResultsTable rt;
 
+    private MicroExperiment me = new MicroExperiment();
+
+    private ArrayList<JPanel> Tabs = new ArrayList<JPanel>();
+
+    //static ResultsTable rt;
     /**
      * Creates new form protocolManager
      */
     public ProtocolManagerMulti() {
 
-      openerWindow.addImageSelectionListener(this);
-
-
+        openerWindow.addImageSelectionListener(this);
         GuiSetup();
         initComponents();
         addGateManager();
@@ -108,9 +104,8 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         addSingleImagePanel();
         addMenuItems();
         this.ImageTabs.setTabPlacement(JTabbedPane.BOTTOM);
-        this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount()-1);
+        this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount() - 1);
         //IJ.log("Starting things up!");
-
     }
 
     /**
@@ -203,7 +198,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
     }// </editor-fold>//GEN-END:initComponents
 
     private void ImageTabsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ImageTabsMouseClicked
- 
+
     }//GEN-LAST:event_ImageTabsMouseClicked
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -215,39 +210,38 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
     }//GEN-LAST:event_jPopUpAddParallelAnalysisMouseClicked
 
     private void ImageTabsComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_ImageTabsComponentResized
-this.repaint();        // TODO add your handling code here:
+        this.repaint();        // TODO add your handling code here:
     }//GEN-LAST:event_ImageTabsComponentResized
 
     private void ImageTabsMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ImageTabsMouseReleased
-      JTabbedPane jtp = (JTabbedPane)evt.getComponent();
-       String tabtitle = jtp.getTitleAt(jtp.getSelectedIndex());
-        
-       //if(SwingUtilities.isRightMouseButton(evt)){ParallelFileMenu pfm = new ParallelFileMenu(); pfm.show(evt.getComponent(), evt.getX(), evt.getY());}
-       if(evt.getClickCount() > 1 && tabtitle.equals("Add Workflow")){ 
-           addSingleImagePanel();  
-           this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount()-1);
-           evt.consume();
-       }else if(evt.getClickCount() == 1 && tabtitle.equals("Add Workflow")){
-           addSingleImagePanel();  
-           this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount()-1);
-           evt.consume();
-       }
-       if(jtp.getTabCount() == 19){
-           jtp.setEnabledAt(0, false);
-       }
-           refreshMenuItems();
-           if(!rebuildPanels()){
-               this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount()-1);
-           }       
+        JTabbedPane jtp = (JTabbedPane) evt.getComponent();
+        String tabtitle = jtp.getTitleAt(jtp.getSelectedIndex());
+
+        //if(SwingUtilities.isRightMouseButton(evt)){ParallelFileMenu pfm = new ParallelFileMenu(); pfm.show(evt.getComponent(), evt.getX(), evt.getY());}
+        if (evt.getClickCount() > 1 && tabtitle.equals("Add Workflow")) {
+            addSingleImagePanel();
+            this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount() - 1);
+            evt.consume();
+        } else if (evt.getClickCount() == 1 && tabtitle.equals("Add Workflow")) {
+            addSingleImagePanel();
+            this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount() - 1);
+            evt.consume();
+        }
+        if (jtp.getTabCount() == 19) {
+            jtp.setEnabledAt(0, false);
+        }
+        refreshMenuItems();
+        if (!rebuildPanels()) {
+            this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount() - 1);
+        }
     }//GEN-LAST:event_ImageTabsMouseReleased
 
     private void ImageTabsKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ImageTabsKeyPressed
-if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
-            if(this.ImageTabs.getSelectedIndex() > 1){
+        if (evt.getKeyCode() == KeyEvent.VK_DELETE) {
+            if (this.ImageTabs.getSelectedIndex() > 1) {
                 this.ImageTabs.remove(this.ImageTabs.getSelectedIndex());
                 this.ImageTabs.setSelectedIndex(1);
-            }
-            else {
+            } else {
                 this.ImageTabs.setSelectedIndex(this.ImageTabs.getSelectedIndex());
             }
         }// TODO add your handling code here:        
@@ -256,7 +250,7 @@ if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
     private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
         // TODO add your handling code here:
     }//GEN-LAST:event_formMousePressed
-    
+
     /**
      * @param args the command line arguments
      */
@@ -268,14 +262,13 @@ if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
          */
 //        try {
 ////                       // Set System L&F
-////            UIManager.setLookAndFeel(
-////            UIManager.getSystemLookAndFeelClassName());
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
+
+//    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+//        if ("Nimbus".equals(info.getName())) {
+//            UIManager.setLookAndFeel(info.getClassName());
+//            break;
+//        }
+//     }
 //        } catch (ClassNotFoundException ex) {
 //            java.util.logging.Logger.getLogger(protocolManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 //        } catch (InstantiationException ex) {
@@ -310,119 +303,122 @@ if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
     // End of variables declaration//GEN-END:variables
 
     //
-    
-    private void addGateManager(){
-       GateManager gateManager = new GateManager();
+    private void addGateManager() {
+        GateManager gateManager = new GateManager();
     }
-    
-    
-    
-    public void addSingleImagePanel(){
-            SingleImageProcessing NewPanel = new SingleImageProcessing();
-            openerWindow.addImageSelectionListener(NewPanel);
-            NewPanel.addRequestImageListener(this);
-            NewPanel.addRepaintTabListener(this);
-            Tabs.add(NewPanel);
-            //Tabs.add(NewPanel);
-            addTransferProtocolStepsListener(NewPanel);    
-            ImageTabs.addTab("Image_" + this.Tabs.indexOf(NewPanel), NewPanel);
-            JTextField label = new JTextField("Image_" + this.Tabs.indexOf(NewPanel));
-            NewPanel.setTabName(this.ImageTabs.getTitleAt(this.Tabs.indexOf(NewPanel)+1));
-            label.setEditable(true);
-            label.setMaximumSize(new Dimension(30,50));
-            label.setMargin(new Insets(3,0,0,0));
-            label.setBackground(new Color(0,0,0,0));
-            label.setBorder(BorderFactory.createEmptyBorder());
-            ((AbstractDocument)label.getDocument()).setDocumentFilter(new LengthFilter(7));           
-            ImageTabs.setTabComponentAt(this.Tabs.indexOf(NewPanel)+1, label);
-            NewPanel.setTabValue(this.Tabs.size()-1);      
-         }
-    
-    public void addBatchPanel(String selected, ArrayList tabs){
-        
+
+    public void addSingleImagePanel() {
+        SingleImageProcessing NewPanel = new SingleImageProcessing();
+        openerWindow.addImageSelectionListener(NewPanel);
+        NewPanel.addRequestImageListener(this);
+        NewPanel.addRepaintTabListener(this);
+        Tabs.add(NewPanel);
+        //Tabs.add(NewPanel);
+        addTransferProtocolStepsListener(NewPanel);
+        ImageTabs.addTab("Image_" + this.Tabs.indexOf(NewPanel), NewPanel);
+        JTextField label = new JTextField("Image_" + this.Tabs.indexOf(NewPanel));
+        NewPanel.setTabName(this.ImageTabs.getTitleAt(this.Tabs.indexOf(NewPanel) + 1));
+        label.setEditable(true);
+        label.setMaximumSize(new Dimension(30, 50));
+        label.setMargin(new Insets(3, 0, 0, 0));
+        label.setBackground(new Color(0, 0, 0, 0));
+        label.setBorder(BorderFactory.createEmptyBorder());
+        ((AbstractDocument) label.getDocument()).setDocumentFilter(new LengthFilter(7));
+        ImageTabs.setTabComponentAt(this.Tabs.indexOf(NewPanel) + 1, label);
+        NewPanel.setTabValue(this.Tabs.size() - 1);
+    }
+
+    public void addBatchPanel(String selected, ArrayList tabs) {
+
         ArrayList<String> al = getAllTabNames();
-        
+
         BatchImageProcessing NewPanel = new BatchImageProcessing(getAllTabNames(), al.indexOf(selected));
         this.Tabs.add(NewPanel);
         this.ImageTabs.addTab("Batch" + this.Tabs.indexOf(NewPanel), NewPanel);
         JTextField label = new JTextField("Batch");
         label.setEditable(true);
-        label.setMaximumSize(new Dimension(30,50));
-            label.setMargin(new Insets(3,0,0,0));
-            label.setBackground(new Color(0,0,0,0));
-            label.setBorder(BorderFactory.createEmptyBorder());
-            ((AbstractDocument)label.getDocument()).setDocumentFilter(new LengthFilter(7));
-            
-            this.ImageTabs.setTabComponentAt(this.Tabs.indexOf(NewPanel)+1, label);
-            NewPanel.setTabValue(this.Tabs.size()-1); 
-            
-            
-        SingleImageProcessing sip = (SingleImageProcessing)(this.ImageTabs.getComponentAt(tabs.indexOf(selected)));
-        
+        label.setMaximumSize(new Dimension(30, 50));
+        label.setMargin(new Insets(3, 0, 0, 0));
+        label.setBackground(new Color(0, 0, 0, 0));
+        label.setBorder(BorderFactory.createEmptyBorder());
+        ((AbstractDocument) label.getDocument()).setDocumentFilter(new LengthFilter(7));
+
+        this.ImageTabs.setTabComponentAt(this.Tabs.indexOf(NewPanel) + 1, label);
+        NewPanel.setTabValue(this.Tabs.size() - 1);
+
+        SingleImageProcessing sip = (SingleImageProcessing) (this.ImageTabs.getComponentAt(tabs.indexOf(selected)));
+
         NewPanel.setPreProcessingProtocols(sip.getProProcessingProtocol());
         NewPanel.setObjectProcotols(sip.getObjectSteps());
         NewPanel.setProtocolSynopsis(sip.getProProcessingProtocol(), sip.getObjectSteps());
-           
+
     }
-    
-    public void addMenuItems(){       
+
+    public void addMenuItems() {
+        this.WorkflowMenu = new JMenuProtocol("Workflow", this.getTabNames(), SingleImageProcessing.WORKFLOW);
         this.ProcessingMenu = new JMenuProtocol("Processing", this.getTabNames(), SingleImageProcessing.PROCESSBLOCKS);
         this.ObjectMenu = new JMenuProtocol("Objects", this.getTabNames(), SingleImageProcessing.OBJECTBLOCKS);
-        
+
         ProcessingMenu.addStepCopierListener(this);
         ObjectMenu.addStepCopierListener(this);
-        
+        this.MenuBar.removeAll();
+        this.MenuBar.add(WorkflowMenu);
         this.MenuBar.add(ProcessingMenu);
         this.MenuBar.add(ObjectMenu);
     }
-    
-    public void refreshMenuItems(){
-        
+
+    public void refreshMenuItems() {
+
         this.MenuBar.removeAll();
         this.MenuBar.add(this.Settings);
         this.MenuBar.add(this.Default_Edit);
-        
-        addMenuItems();      
+
+        addMenuItems();
     }
-    
-    public boolean rebuildPanels(){
-        try{
-        SingleImageProcessing sip;
-        BatchImageProcessing bip;
-        
-        if(!((JTextField)ImageTabs.getTabComponentAt(ImageTabs.getSelectedIndex())).getText().equals("Batch")){
-        sip = (SingleImageProcessing)(ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
-        
-        sip.RebuildPanelProcessing();
-        sip.RebuildPanelObject();
-        }
-        }catch(NullPointerException npe){
+
+    public boolean rebuildPanels() {
+        try {
+            SingleImageProcessing sip;
+            BatchImageProcessing bip;
+
+            if (!((JTextField) ImageTabs.getTabComponentAt(ImageTabs.getSelectedIndex())).getText().equals("Batch")) {
+                sip = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
+
+                sip.RebuildPanelProcessing();
+                sip.RebuildPanelObject();
+            }
+        } catch (NullPointerException npe) {
             return false;
         }
         return true;
-        
+
     }
-    
-    public void addNewTabTab(){ this.ImageTabs.addTab("Add Workflow",new JPanel());}
-    
+
+    public void addNewTabTab() {
+        this.ImageTabs.addTab("Add Workflow", new JPanel());
+    }
+
     public ArrayList getTabNames() {
-        
+
         ArrayList<String> titles = new ArrayList<String>();
-        
+
         int currenttab = ImageTabs.getSelectedIndex();
-        
-        for(int i = 1; i <= ImageTabs.getTabCount()-1; i++){
-            if(i != currenttab)
-            {titles.add(((JTextField)ImageTabs.getTabComponentAt(i)).getText());}   
+
+        for (int i = 1; i <= ImageTabs.getTabCount() - 1; i++) {
+            if (i != currenttab) {
+                titles.add(((JTextField) ImageTabs.getTabComponentAt(i)).getText());
+            }
         }
         return titles;
-        
-    }   public ArrayList getAllTabNames() {
-        ArrayList<String> titles = new ArrayList<String>(); 
-        for(int i = 1; i <= ImageTabs.getTabCount()-1; i++){
+
+    }
+
+    public ArrayList getAllTabNames() {
+        ArrayList<String> titles = new ArrayList<String>();
+        for (int i = 1; i <= ImageTabs.getTabCount() - 1; i++) {
             //titles.add(ImageTabs.getTitleAt(i)); 
-            if(!((JTextField)ImageTabs.getTabComponentAt(i)).getText().equals("Batch")){
-           titles.add(((JTextField)ImageTabs.getTabComponentAt(i)).getText());
+            if (!((JTextField) ImageTabs.getTabComponentAt(i)).getText().equals("Batch")) {
+                titles.add(((JTextField) ImageTabs.getTabComponentAt(i)).getText());
             }
         }
         return titles;
@@ -431,12 +427,12 @@ if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
     public void UpdateImageList() {
         openerWindow.updateImages();
     }
-    
+
     public void openImage(int tab) {
         //this.openerWindow.setVisible(true);
         this.openerWindow.getImageFile(tab);
     }
-    
+
     public void addTransferProtocolStepsListener(TransferProtocolStepsListener listener) {
         listeners.add(listener);
     }
@@ -446,15 +442,13 @@ if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
             listener.transferThese(type, tab, arg);
         }
     }
-    
-
 
     @Override
     public void onSelect(ImagePlus imp, int tab) {
-        SingleImageProcessing sip = (SingleImageProcessing)Tabs.get(tab);  
-        sip.setImage(imp,tab);
+        SingleImageProcessing sip = (SingleImageProcessing) Tabs.get(tab);
+        sip.setImage(imp, tab);
         pack();
-}
+    }
 
     @Override
     public void onRequest(int tab) {
@@ -475,59 +469,68 @@ if(evt.getKeyCode() == KeyEvent.VK_DELETE)   {
 
     @Override
     public void onCopy(String source, int StepsList) {
-        
-       // IJ.log("Copy blocks to " +  ((JTextField)ImageTabs.getTabComponentAt(ImageTabs.getSelectedIndex())).getText()  +" from " + source + " of type " + StepsList);
-        
+
+        // IJ.log("Copy blocks to " +  ((JTextField)ImageTabs.getTabComponentAt(ImageTabs.getSelectedIndex())).getText()  +" from " + source + " of type " + StepsList);
         SingleImageProcessing SourceSIP;
         SingleImageProcessing DestinationSIP;
-        
+
         ProcessStepBlockGUI psbg;
-        
-        DestinationSIP = (SingleImageProcessing)(ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
-        
-        
-        for(int i = 1; i<=ImageTabs.getTabCount()-1; i++){
-            
-            SourceSIP = (SingleImageProcessing)(ImageTabs.getComponentAt(i));
-            
-            if(((JTextField)ImageTabs.getTabComponentAt(i)).getText().equals(source)){
-                switch(StepsList){
+
+        DestinationSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
+
+        for (int i = 1; i <= ImageTabs.getTabCount() - 1; i++) {
+
+            SourceSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(i));
+
+            if (((JTextField) ImageTabs.getTabComponentAt(i)).getText().equals(source)) {
+                switch (StepsList) {
                     case SingleImageProcessing.PROCESSBLOCKS:
-                        DestinationSIP.setProcessSteps((ArrayList)SourceSIP.getProcessSteps().clone());
-                         ListIterator<ProcessStepBlockGUI> itr = DestinationSIP.ProcessingStepsList.listIterator();
-                            while(itr.hasNext()){    
-                                psbg = (ProcessStepBlockGUI)itr.next();
-                                psbg.deleteblocklisteners.clear();
-                                psbg.rebuildpanelisteners.clear();
-                                psbg.addRebuildPanelListener(DestinationSIP);
-                                psbg.addDeleteBlockListener(DestinationSIP);
-                            }
+                        DestinationSIP.setProcessSteps((ArrayList) SourceSIP.getProcessSteps().clone());
+                        ListIterator<ProcessStepBlockGUI> itr = DestinationSIP.ProcessingStepsList.listIterator();
+                        while (itr.hasNext()) {
+                            psbg = (ProcessStepBlockGUI) itr.next();
+                            psbg.deleteblocklisteners.clear();
+                            psbg.rebuildpanelisteners.clear();
+                            psbg.addRebuildPanelListener(DestinationSIP);
+                            psbg.addDeleteBlockListener(DestinationSIP);
+                        }
                         DestinationSIP.UpdatePositionProcessing(1);
                         DestinationSIP.RebuildPanelProcessing();
                         SourceSIP.RebuildPanelProcessing();
-                        System.out.println("Copied process blocks.");
-                break;
+
+                        //System.out.println("Copied process blocks.");
+                        break;
                     case SingleImageProcessing.OBJECTBLOCKS:
-                 DestinationSIP.setObjectSteps((ArrayList)SourceSIP.getObjectSteps().clone());
-                 DestinationSIP.UpdatePositionObject(1);
-                 DestinationSIP.RebuildPanelObject();
-                 System.out.println("Copied object blocks.");
-                 break;   
+                        DestinationSIP.setObjectSteps((ArrayList) SourceSIP.getObjectSteps().clone());
+//                        ListIterator<ObjectStepBlockGUI> itr2 = DestinationSIP.ObjectStepsList.listIterator();
+//                            while(itr2.hasNext()){    
+//                                psbg = (ObjectStepBlockGUI)itr2.next();
+//                                psbg.deleteblocklisteners.clear();
+//                                psbg.rebuildpanelisteners.clear();
+//                                psbg.addRebuildPanelListener(DestinationSIP);
+//                                psbg.addDeleteBlockListener(DestinationSIP);
+//                            }
+                        DestinationSIP.UpdatePositionObject(1);
+                        DestinationSIP.RebuildPanelObject();
+                        SourceSIP.RebuildPanelObject();
+
+                        //System.out.println("Copied object blocks.");
+                        break;
 //                    case SingleImageProcessing.EXPLOREBLOCKS:
 //                 DestinationSIP.setObjectSteps((ArrayList)SourceSIP.getExploreSteps().clone());
 //                 DestinationSIP.UpdatePositionExplore(1);
 //                  DestinationSIP.RebuildPanelExplore();
 //                System.out.println("Copied explore blocks.");
- //                break;
-                    default: break;    
+                    //                break;
+                    default:
+                        break;
                 }
-            }        
-        }     
-    } 
+            }
+        }
+    }
 
     @Override
     public void batchStateAdd(String selected, ArrayList tabs) {
         this.addBatchPanel(selected, tabs);
     }
 }
-

@@ -34,6 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI;
@@ -101,8 +102,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
             @Override
             public void paintLayer(Graphics2D g2, JXLayer l) {
-                // paint the layer as is
-//                Graphics2D g2 = (Graphics2D) g.create();
+
                 g2.setStroke(new BasicStroke(1));
                 super.paintLayer(g2, l);
 
@@ -132,7 +132,6 @@ public class GateLayer implements ActionListener, ItemListener {
                         g2.setPaint(Color.red);
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                 RenderingHints.VALUE_ANTIALIAS_ON);
-
 
                         double coords[] = new double[6];
 
@@ -355,8 +354,7 @@ public class GateLayer implements ActionListener, ItemListener {
                         checkForGates(e, gates);
                         e.consume();
 
-                    } else if (e.isPopupTrigger() && checkForGate(e, gates)) {
-                        System.out.println("Yep, I heard you... need a menu now.");
+                    } else if (SwingUtilities.isRightMouseButton(e) && checkForGate(e, gates)) {
                         menu.show(e.getComponent(),
                                 e.getX(), e.getY());
                         e.consume();
@@ -573,6 +571,8 @@ public class GateLayer implements ActionListener, ItemListener {
         
         menuItem.addActionListener(this);
         menu.add(menuItem);
+        
+        menu.add(new JSeparator());
         
         menuItem = new JMenuItem("Delete All");
         

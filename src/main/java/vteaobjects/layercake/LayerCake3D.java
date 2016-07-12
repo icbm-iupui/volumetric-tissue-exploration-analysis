@@ -190,7 +190,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
             this.stop = stop;
             this.start = start;
 
-            //System.out.println("PROFILING-DETAILS: ForkJoin Start and Stop points:" + start + ", " + stop);
+            System.out.println("PROFILING-DETAILS: ForkJoin Start and Stop points:" + start + ", " + stop);
             //volumes = alVolumes.subList(start, stop);
         }
 
@@ -1104,7 +1104,6 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
     public void makeDerivedRegionsPool(int[][] localDerivedRegionTypes, int channels, ImageStack[] Stack, ArrayList ResultsPointers) {
 
         DerivedRegionForkPool drf = new DerivedRegionForkPool(localDerivedRegionTypes, channels, Stack, ResultsPointers, 0, alVolumes.size());
-
         ForkJoinPool pool = new ForkJoinPool();
         pool.invoke(drf);
 
