@@ -80,6 +80,9 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
     
     public void makeOverlayImage(ArrayList gates, int x, int y, int xAxis, int yAxis) {
         //convert gate to chart x,y path
+        
+        
+        
         Gate gate;
         ListIterator<Gate> gate_itr = gates.listIterator();
 
@@ -238,7 +241,10 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         }
     }
 
+   
+    
 
+    
     @Override
     public int getGatedObjects(ImagePlus ip){
                     ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
@@ -387,6 +393,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         pack();
         
         makeOverlayImage(gates, 0, 0, currentX, currentY);
+        //makeColorizedOverlayImage(gates, 0, 0, currentX, currentY);
         return CenterPanel;
     }
     
@@ -526,6 +533,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         this.gates = gates;
         
         makeOverlayImage(gates, 0, 0, currentX, currentY);
+        
         //this.notifyMakeImageOverlayListeners(gates);
     }
 

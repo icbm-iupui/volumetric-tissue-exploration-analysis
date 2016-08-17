@@ -92,11 +92,14 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         java.awt.GridBagConstraints gridBagConstraints;
 
         jMenuItem1 = new javax.swing.JMenuItem();
+        methodBuild = new javax.swing.JPanel();
+        MethodDetails = new javax.swing.JPanel();
+        AlgorithmStyle = new javax.swing.JPanel();
         methodSelection = new javax.swing.JPanel();
         TitleText = new javax.swing.JTextField();
         PositionText = new javax.swing.JLabel();
         MenuTypeText = new javax.swing.JLabel();
-        ProcessSelectComboBox = new javax.swing.JComboBox();
+        ChannelComboBox = new javax.swing.JComboBox();
         comments = new javax.swing.JPanel();
         notesPane = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
@@ -106,16 +109,16 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         secondaryObjects = new javax.swing.JLabel();
         tableScrollPane = new javax.swing.JScrollPane();
         secondaryTable = new javax.swing.JTable();
-        methodBuild = new javax.swing.JPanel();
-        MethodDetails = new javax.swing.JPanel();
         buttonPanel = new javax.swing.JPanel();
         BlockSetupOK = new javax.swing.JButton();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 32), new java.awt.Dimension(10, 32), new java.awt.Dimension(10, 32));
         BlockSetupCancel = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
         channelSelection = new javax.swing.JPanel();
         ProcessText = new javax.swing.JLabel();
-        ChannelComboBox = new javax.swing.JComboBox();
+        ProcessSelectComboBox = new javax.swing.JComboBox();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox<>();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -123,12 +126,42 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         setBounds(new java.awt.Rectangle(110, 160, 378, 282));
         setMinimumSize(VTC._VTC.BLOCKSETUP);
         setName("BlockOptionFrame"); // NOI18N
-        setResizable(false);
         setSize(new java.awt.Dimension(378, 282));
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
         layout.columnWidths = new int[] {0, 1, 0};
-        layout.rowHeights = new int[] {0, 1, 0, 1, 0};
+        layout.rowHeights = new int[] {0, 1, 0, 1, 0, 1, 0, 1, 0};
         getContentPane().setLayout(layout);
+
+        methodBuild.setBackground(VTC._VTC.BACKGROUND);
+        methodBuild.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        methodBuild.setMaximumSize(new java.awt.Dimension(359, 300));
+        methodBuild.setMinimumSize(new java.awt.Dimension(359, 60));
+        methodBuild.setPreferredSize(new java.awt.Dimension(359, 300));
+        methodBuild.setLayout(new java.awt.GridBagLayout());
+
+        defaultProtocolPanel();
+        MethodDetails.setBackground(VTC._VTC.BACKGROUND);
+        MethodDetails.setMaximumSize(new java.awt.Dimension(340, 250));
+        MethodDetails.setMinimumSize(new java.awt.Dimension(340, 50));
+        MethodDetails.setPreferredSize(new java.awt.Dimension(340, 50));
+        MethodDetails.setLayout(new java.awt.GridBagLayout());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipadx = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(2, 18, 8, 17);
+        methodBuild.add(MethodDetails, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        getContentPane().add(methodBuild, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        getContentPane().add(AlgorithmStyle, gridBagConstraints);
 
         methodSelection.setBackground(VTC._VTC.BACKGROUND);
         methodSelection.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -167,27 +200,16 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints.gridy = 0;
         methodSelection.add(PositionText, gridBagConstraints);
 
-        MenuTypeText.setText("Method");
+        MenuTypeText.setText("Channel");
         methodSelection.add(MenuTypeText, new java.awt.GridBagConstraints());
 
-        ProcessSelectComboBox.setBackground(VTC._VTC.BACKGROUND);
-        ProcessSelectComboBox.setModel(this.cbm);
-        ProcessSelectComboBox.setMaximumSize(new java.awt.Dimension(150, 27));
-        ProcessSelectComboBox.setMinimumSize(new java.awt.Dimension(150, 27));
-        ProcessSelectComboBox.setPreferredSize(new java.awt.Dimension(200, 27));
-        ProcessSelectComboBox.addActionListener(new java.awt.event.ActionListener() {
+        ChannelComboBox.setModel(ccbm);
+        ChannelComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ProcessSelectComboBoxActionPerformed(evt);
+                ChannelComboBoxActionPerformed(evt);
             }
         });
-        ProcessSelectComboBox.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-                ProcessSelectComboBoxCaretPositionChanged(evt);
-            }
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-            }
-        });
-        methodSelection.add(ProcessSelectComboBox, new java.awt.GridBagConstraints());
+        methodSelection.add(ChannelComboBox, new java.awt.GridBagConstraints());
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -273,39 +295,11 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.ipadx = 19;
         gridBagConstraints.ipady = 13;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         getContentPane().add(comments, gridBagConstraints);
-
-        methodBuild.setBackground(VTC._VTC.BACKGROUND);
-        methodBuild.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        methodBuild.setMaximumSize(new java.awt.Dimension(359, 60));
-        methodBuild.setMinimumSize(new java.awt.Dimension(359, 60));
-        methodBuild.setPreferredSize(new java.awt.Dimension(359, 60));
-        methodBuild.setLayout(new java.awt.GridBagLayout());
-
-        defaultProtocolPanel();
-        MethodDetails.setBackground(VTC._VTC.BACKGROUND);
-        MethodDetails.setMaximumSize(new java.awt.Dimension(340, 50));
-        MethodDetails.setMinimumSize(new java.awt.Dimension(340, 50));
-        MethodDetails.setPreferredSize(new java.awt.Dimension(340, 50));
-        MethodDetails.setLayout(new java.awt.GridBagLayout());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 176, 7, 176);
-        methodBuild.add(MethodDetails, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        getContentPane().add(methodBuild, gridBagConstraints);
 
         buttonPanel.setMinimumSize(VTC._VTC.BLOCKSETUPPANEL);
         buttonPanel.setLayout(new java.awt.GridBagLayout());
@@ -344,26 +338,10 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.ipadx = 21;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         getContentPane().add(buttonPanel, gridBagConstraints);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        getContentPane().add(jPanel2, gridBagConstraints);
 
         channelSelection.setBackground(VTC._VTC.BACKGROUND);
         channelSelection.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -379,21 +357,42 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 0);
         channelSelection.add(ProcessText, gridBagConstraints);
 
-        ChannelComboBox.setModel(ccbm);
-        ChannelComboBox.addActionListener(new java.awt.event.ActionListener() {
+        ProcessSelectComboBox.setBackground(VTC._VTC.BACKGROUND);
+        ProcessSelectComboBox.setModel(this.cbm);
+        ProcessSelectComboBox.setMaximumSize(new java.awt.Dimension(150, 27));
+        ProcessSelectComboBox.setMinimumSize(new java.awt.Dimension(150, 27));
+        ProcessSelectComboBox.setPreferredSize(new java.awt.Dimension(200, 27));
+        ProcessSelectComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ChannelComboBoxActionPerformed(evt);
+                ProcessSelectComboBoxActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.ipadx = 5;
-        channelSelection.add(ChannelComboBox, gridBagConstraints);
+        ProcessSelectComboBox.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+                ProcessSelectComboBoxCaretPositionChanged(evt);
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+            }
+        });
+        channelSelection.add(ProcessSelectComboBox, new java.awt.GridBagConstraints());
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         getContentPane().add(channelSelection, gridBagConstraints);
+
+        jLabel1.setText("Approach");
+        jPanel1.add(jLabel1);
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jPanel1.add(jComboBox1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 2;
+        getContentPane().add(jPanel1, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -672,6 +671,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 //        });
 //    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel AlgorithmStyle;
     protected javax.swing.JButton BlockSetupCancel;
     protected javax.swing.JButton BlockSetupOK;
     protected javax.swing.JComboBox ChannelComboBox;
@@ -686,9 +686,11 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     private javax.swing.JPanel channelSelection;
     protected javax.swing.JPanel comments;
     private javax.swing.Box.Filler filler1;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JLabel jLabel1;
     protected javax.swing.JLabel jLabel3;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel1;
     protected javax.swing.JTextPane jTextPane1;
     private javax.swing.JPanel methodBuild;
     private javax.swing.JPanel methodSelection;

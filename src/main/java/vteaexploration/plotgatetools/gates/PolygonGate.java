@@ -39,6 +39,7 @@ import ij.ImageStack;
     public Color unselectedColor;
     
     private ImageStack gateoverlay;
+    private ImageStack colorizedgateoverlay;
     
 
     public PolygonGate(ArrayList<Point2D.Double> points) {
@@ -206,7 +207,7 @@ import ij.ImageStack;
        gateoverlay = is;
     }
     
-        @Override
+    @Override
     public ImageStack getGateOverlayStack() {
        return gateoverlay;
     }
@@ -219,6 +220,16 @@ import ij.ImageStack;
     @Override
     public void setImageGated(boolean b) {
         imagegated = b;
+    }
+
+    @Override
+    public void setColorizedGateOverlayStack(ImageStack is) {
+        colorizedgateoverlay = is;
+    }
+
+    @Override
+    public ImageStack getColorizedGateOverlayStack() {
+        return colorizedgateoverlay;
     }
 
     }

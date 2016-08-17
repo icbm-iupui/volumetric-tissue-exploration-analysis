@@ -5,6 +5,8 @@
  */
 package vteaexploration;
 
+import MicroProtocol.SingleImageProcessing;
+import MicroProtocol.menus.JMenuProtocol;
 import ij.CompositeImage;
 import vteaexploration.plottools.panels.VerticalLabelUI;
 import vteaexploration.plotgatetools.gates.Gate;
@@ -112,6 +114,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     String[] sizes = {"2", "4", "8", "10", "15", "20"};
 
     int[] sizes_val = {6, 2, 4, 8, 10, 15, 20};
+    
+    public JMenuExploration ProcessingMenu;
+    public JMenuExploration ObjectMenu;
+    public JMenuExploration WorkflowMenu;
 
     /**
      * Creates new form MicroExplorer
@@ -126,6 +132,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
         this.availabledata = AvailableData;
         initComponents();
+        addMenuItems();
         
         get3DProjection.setEnabled(false);
 
@@ -307,6 +314,9 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         FlipAxes = new javax.swing.JButton();
         SouthPanel = new javax.swing.JPanel();
         Main = new javax.swing.JPanel();
+        jMenuBar = new javax.swing.JMenuBar();
+        Settings = new javax.swing.JMenu();
+        Edit = new javax.swing.JMenu();
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -561,6 +571,14 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         Main.setLayout(new java.awt.BorderLayout());
         getContentPane().add(Main, java.awt.BorderLayout.CENTER);
 
+        Settings.setText("Settings");
+        jMenuBar.add(Settings);
+
+        Edit.setText("Edit");
+        jMenuBar.add(Edit);
+
+        setJMenuBar(jMenuBar);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -682,10 +700,12 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 //        });
 //    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu Edit;
     private javax.swing.JButton FlipAxes;
     protected javax.swing.JPanel Main;
     private javax.swing.JPanel North;
     private javax.swing.JButton SetGlobalToLocal;
+    private javax.swing.JMenu Settings;
     private javax.swing.JPanel SouthPanel;
     private javax.swing.JToggleButton UseGlobal;
     private javax.swing.JPanel WestPanel;
@@ -709,6 +729,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JMenuBar jMenuBar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
@@ -871,6 +892,19 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             int column = a % 11;
             return (Number) volume.getAnalysisResultsVolume()[row][column];
         }
+    }
+    
+    public void addMenuItems() {
+        this.WorkflowMenu = new JMenuExploration("Settings",  SingleImageProcessing.WORKFLOW);
+        this.ProcessingMenu = new JMenuExploration("Edit",  SingleImageProcessing.PROCESSBLOCKS);
+        this.ObjectMenu = new JMenuExploration("Make",  SingleImageProcessing.OBJECTBLOCKS);
+
+        //ProcessingMenu.addStepCopierListener(this);
+        //ObjectMenu.addStepCopierListener(this);
+        this.jMenuBar.removeAll();
+        this.jMenuBar.add(WorkflowMenu);
+        this.jMenuBar.add(ProcessingMenu);
+        this.jMenuBar.add(ObjectMenu);
     }
 
     //SimpleThresholdDataModel dependent....

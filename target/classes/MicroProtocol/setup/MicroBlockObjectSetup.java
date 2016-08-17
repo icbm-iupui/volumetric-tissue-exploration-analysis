@@ -6,6 +6,8 @@
 package MicroProtocol.setup;
 
 import ij.IJ;
+import ij.ImagePlus;
+import ij.plugin.frame.ThresholdAdjuster;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.util.ArrayList;
@@ -139,11 +141,20 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         MethodDetails.removeAll();
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
+        
+        MicroThresholdAdjuster mta = new MicroThresholdAdjuster(IJ.getImage());
+        
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 0;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+        //MethodDetails.add(mta.getPanel());
 
         //MethodDetail
         if (ProcessComponents.size() > 0) {
             layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 0;
+            layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
@@ -152,7 +163,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
 
         if (ProcessComponents.size() > 1) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 1;
+            layoutConstraints.gridx = 2;
             layoutConstraints.gridy = 0;
             //layoutConstraints.weightx = 1;
             //layoutConstraints.weighty = 1;
@@ -161,7 +172,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
 
         if (ProcessComponents.size() > 2) {
             layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 2;
+            layoutConstraints.gridx = 3;
             layoutConstraints.gridy = 0;
             //layoutConstraints.weightx = 1;
             //layoutConstraints.weighty = 1;
@@ -169,7 +180,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         }
         if (ProcessComponents.size() > 3) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 3;
+            layoutConstraints.gridx = 4;
             layoutConstraints.gridy = 0;
             //layoutConstraints.weightx = 1;
             //layoutConstraints.weighty = 1;
@@ -177,7 +188,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         }
         if (ProcessComponents.size() > 4) {
             layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 0;
+            layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 1;
             //layoutConstraints.weightx = 1;
             //layoutConstraints.weighty = 1;
@@ -185,7 +196,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         }
         if (ProcessComponents.size() > 5) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 1;
+            layoutConstraints.gridx = 2;
             layoutConstraints.gridy = 1;
             //layoutConstraints.weightx = 1;
             //layoutConstraints.weighty = 1;
@@ -193,7 +204,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         }
         if (ProcessComponents.size() > 6) {
             layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 2;
+            layoutConstraints.gridx = 3;
             layoutConstraints.gridy = 1;
             //layoutConstraints.weightx = 1;
             //layoutConstraints.weighty = 1;
@@ -201,12 +212,15 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         }
         if (ProcessComponents.size() > 7) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 3;
+            layoutConstraints.gridx = 4;
             layoutConstraints.gridy = 1;
             //layoutConstraints.weightx = 1;
             //layoutConstraints.weighty = 1;
             MethodDetails.add((Component) ProcessComponents.get(7), layoutConstraints);
         }
+        
+
+
 
         pack();
         MethodDetails.setVisible(true);
@@ -217,6 +231,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         CurrentProcessList.add(cbm.getSelectedItem());
         //CurrentProcessList.add(jTextPane1);
         CurrentProcessList.addAll(ProcessComponents);
+        
 
         return MethodDetails;
     }

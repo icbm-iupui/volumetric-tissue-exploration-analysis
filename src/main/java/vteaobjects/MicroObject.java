@@ -90,6 +90,8 @@ public class MicroObject implements MicroObjectModel {
     
     private boolean gated = false;
     
+    private int color = 0;
+    
     public MicroObject(){}
     
 
@@ -814,6 +816,16 @@ public class MicroObject implements MicroObjectModel {
     @Override
     public boolean getGated() {
         return gated;
+    }
+
+    @Override
+    public void setColor(int c) {
+        this.color = c;
+    }
+
+    @Override
+    public int getColor() {
+       return color;
     }
     
     }

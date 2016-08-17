@@ -55,7 +55,11 @@ public interface Gate {
     public void setUnselectedColor(Color c);
     
     public void setGateOverlayStack(ImageStack is);
+    
+    public void setColorizedGateOverlayStack(ImageStack is);
 
      public ImageStack getGateOverlayStack();
+     
+      public ImageStack getColorizedGateOverlayStack();
      
 }

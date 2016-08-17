@@ -131,6 +131,16 @@ public class FreeFormGate extends Path2D.Float implements Gate {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public void setColorizedGateOverlayStack(ImageStack is) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ImageStack getColorizedGateOverlayStack() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     class PadDraw extends JComponent {
 
         Image image;

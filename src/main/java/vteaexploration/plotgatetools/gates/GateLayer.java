@@ -483,6 +483,7 @@ public class GateLayer implements ActionListener, ItemListener {
                 this.notifyImageHighLightSelectionListeners(gates);
             }
         }
+        e.consume();
     }
 
     public boolean checkForGate(MouseEvent e, ArrayList<Gate> gates) {
@@ -497,6 +498,7 @@ public class GateLayer implements ActionListener, ItemListener {
                 return true;
             }
         }
+        e.consume();
         return false;
     }
 

@@ -56,7 +56,7 @@ public class MicroBlockStepGUI implements MicroBlockSetupListener {
     MicroBlockStepGUI() {
     }
 
-    protected void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ArrayList<String> Channels, final int type, final int position) {
+    protected void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, final int type, final int position) {
 
         this.ThumbnailImage = ThumbnailImage;
         this.PreviewThumbnailImage = ThumbnailImage.duplicate();

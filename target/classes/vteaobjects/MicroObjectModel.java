@@ -97,5 +97,10 @@ public interface MicroObjectModel {
     public void setGated(boolean b);
     
     public boolean getGated();
+    
+    public void setColor(int c);
+    
+    public int getColor();
+   
    
 }
