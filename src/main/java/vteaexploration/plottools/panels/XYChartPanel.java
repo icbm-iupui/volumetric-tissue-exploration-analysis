@@ -10,6 +10,7 @@ import ij.gui.RoiListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -188,6 +189,10 @@ public class XYChartPanel implements RoiListener {
 
         XYShapeRenderer renderer = new XYShapeRenderer();
         XYShapeRenderer rendererGate = new XYShapeRenderer();
+        
+        PaintScaleLegend psl = new PaintScaleLegend(new LookupPaintScale(0, 100, new Color(0, 0, 0)), new NumberAxis(""));
+        
+        if(l > 0){
         double max = getMaximumOfData((ArrayList) plotValues.get(1), l);
         double min = this.getMinimumOfData((ArrayList) plotValues.get(1), l);
         double range = max - min;
@@ -201,16 +206,6 @@ public class XYChartPanel implements RoiListener {
 
         renderer.setPaintScale(ps);
         
-        
-        Ellipse2D shape = new Ellipse2D.Double(0, 0, size, size);
-        Ellipse2D shapeGate = new Ellipse2D.Double(-2, -2, size + 4, size + 4);
-      
-
-        renderer.setBaseShape(shape);
-        rendererGate.setBaseShape(shapeGate);
-        
-        
-
         ps.add(min, TENPERCENT);
         ps.add(min + (1 * (range / 10)), XYChartPanel.TENPERCENT);
         ps.add(min + (2 * (range / 10)), XYChartPanel.TWENTYPERCENT);
@@ -222,6 +217,31 @@ public class XYChartPanel implements RoiListener {
         ps.add(min + (8 * (range / 10)), XYChartPanel.EIGHTYPERCENT);
         ps.add(min + (9 * (range / 10)), XYChartPanel.NINETYPERCENT);
         ps.add(max, XYChartPanel.ALLPERCENT);
+        
+        
+        NumberAxis lAxis = new NumberAxis(lText);
+        lAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        
+        psl = new PaintScaleLegend(ps, lAxis);
+        psl.setBackgroundPaint(VTC._VTC.BACKGROUND);
+        psl.setPosition(RectangleEdge.RIGHT);
+        psl.setMargin(4, 4, 40, 4);
+        psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+        
+        } else {
+            
+            renderer.setBaseFillPaint(TENPERCENT);
+        }
+        
+        Ellipse2D shape = new Ellipse2D.Double(0, 0, size, size);
+        Ellipse2D shapeGate = new Ellipse2D.Double(-2, -2, size + 4, size + 4);
+      
+
+        renderer.setBaseShape(shape);
+        
+        
+        
+        rendererGate.setBaseShape(shapeGate);
 
         NumberAxis xAxis = new NumberAxis("");
         NumberAxis yAxis = new NumberAxis("");
@@ -281,15 +301,10 @@ public class XYChartPanel implements RoiListener {
 
         chart.removeLegend();
 
-        NumberAxis lAxis = new NumberAxis(lText);
-        lAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        PaintScaleLegend psl = new PaintScaleLegend(ps, lAxis);
-        psl.setBackgroundPaint(VTC._VTC.BACKGROUND);
-        psl.setPosition(RectangleEdge.RIGHT);
-        psl.setMargin(4, 4, 40, 4);
-        psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
 
-        chart.addSubtitle(psl);
+        
+        //LUT 
+        if(l > 0)chart.addSubtitle(psl);
 
         //notifiyUpdatePlotWindowListeners();
         return new ChartPanel(chart, true, true, false, false, true);
@@ -384,7 +399,12 @@ public class XYChartPanel implements RoiListener {
             MicroObjectModel volume = (MicroObjectModel) litr.next();
             xCorrected[counter] = processPosition(x, volume).doubleValue();
             yCorrected[counter] = processPosition(y, volume).doubleValue();
+            if(l > 0){
             lCorrected[counter] = processPosition(l, volume).doubleValue();
+            }else{
+                lCorrected[counter] = 0;
+            }
+
             counter++;
 //            } 
 //            catch (NullPointerException e) {

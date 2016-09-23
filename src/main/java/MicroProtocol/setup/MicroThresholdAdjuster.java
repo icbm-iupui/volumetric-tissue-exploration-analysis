@@ -13,6 +13,7 @@ package MicroProtocol.setup;
  * https://imagej.nih.gov/ij/developer/source/ij/plugin/frame/ThresholdAdjuster.java.html
  */
 
+    import MicroProtocol.listeners.ChangeThresholdListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -25,12 +26,20 @@ import ij.plugin.frame.Recorder;
 import ij.plugin.filter.*;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Thresholder;
+import java.util.ArrayList;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /** Adjusts the lower and upper threshold levels of the active image. This
     class is multi-threaded to provide a more responsive user interface. */
 public class MicroThresholdAdjuster  implements Measurements,
-    Runnable, ActionListener, AdjustmentListener, ItemListener, ImageListener {
+    Runnable, ActionListener, ChangeListener, ItemListener, ImageListener {
 
     public static final String LOC_KEY = "threshold.loc";
     public static final String MODE_KEY = "threshold.mode";
@@ -57,8 +66,8 @@ public class MicroThresholdAdjuster  implements Measurements,
     int sliderRange = 256;
     boolean doAutoAdjust,doReset,doApplyLut,doStateChange,doSet;
     
-    Panel panel;
-    Button autoB, resetB, applyB, setB;
+    JPanel panel;
+    JButton autoB, resetB, applyB, setB;
     int previousImageID;
     int previousImageType;
     int previousRoiHashCode;
@@ -67,43 +76,26 @@ public class MicroThresholdAdjuster  implements Measurements,
     boolean imageWasUpdated;
     ImageJ ij;
     double minThreshold, maxThreshold;  // 0-255
-    Scrollbar minSlider, maxSlider;
-    Label label1, label2;               // for current threshold
-    Label percentiles;
+    JSlider minSlider, maxSlider;
+    JLabel label1, label2;               // for current threshold
+    JLabel percentiles;
     boolean done;
     int lutColor;
-    Choice methodChoice, modeChoice;
-    Checkbox darkBackground, stackHistogram;
+    JComboBox methodChoice, modeChoice;
+    JCheckBox darkBackground, stackHistogram;
     boolean firstActivation = true;
     
+    ImagePlus impThreshold;
+    
     JPanel gui = new JPanel();
+    
+    ArrayList<ChangeThresholdListener> ctl = new ArrayList<ChangeThresholdListener>();
 
 
     public MicroThresholdAdjuster(ImagePlus cimp) {
-        //super("Threshold");
-        //ImagePlus cimp 
-                
-//                = WindowManager.getCurrentImage();
-//        if (cimp!=null && cimp.getBitDepth()==24) {
-//            IJ.error("Threshold Adjuster",
-//                "Image>Adjust>Threshold only works with grayscale images.\n"
-//                +"What you can do:\n"
-//                +"   Image>Type>8-bit (convert to grayscale)\n"
-//                +"   Image>Type>RGB Stack (convert to RGB stack)\n"
-//                +"   Image>Type>HSB Stack (convert to HSB stack)\n"
-//                +"   Image>Color>Split Channels (convert to 3 grayscale images)\n"
-//                +"   Image>Adjust>Color Threshold (do color thresholding)\n");
-//            return;
-//        }
-//        if (instance!=null) {
-//            instance.firstActivation = true;
-//            instance.toFront();
-//            instance.setup(cimp, true);
-//            return;
-//        }
-//        
-//        WindowManager.addWindow(this);
-//        instance = this;
+       
+        impThreshold = cimp;
+        
         mode = (int)Prefs.get(MODE_KEY, RED);
         if (mode<RED || mode>OVER_UNDER) mode = RED;
         setLutColor(mode);
@@ -114,6 +106,8 @@ public class MicroThresholdAdjuster  implements Measurements,
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         gui.setLayout(gridbag);
+        gui.setPreferredSize(new Dimension(359,300));
+        gui.setBackground(VTC._VTC.BACKGROUND);
         
         // plot
         int y = 0;
@@ -125,18 +119,20 @@ public class MicroThresholdAdjuster  implements Measurements,
         c.insets = new Insets(10, 10, 0, 10); //top left bottom right
         gui.add(plot, c);
         plot.addKeyListener(ij);
+        
 
         // percentiles
         c.gridx = 0;
         c.gridy = y++;
         c.insets = new Insets(1, 10, 0, 10);
-        percentiles = new Label("");
+        percentiles = new JLabel("");
         percentiles.setFont(font);
         gui.add(percentiles, c);
 
         // minThreshold slider
-        minSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange/3, 1, 0, sliderRange);
-        GUI.fix(minSlider);
+        minSlider = new JSlider(JSlider.HORIZONTAL, 0, 256, 0);
+        //GUI.fix(minSlider);
+        minSlider.setSize(new Dimension (15, 80));
         c.gridx = 0;
         c.gridy = y++;
         c.gridwidth = 1;
@@ -144,33 +140,36 @@ public class MicroThresholdAdjuster  implements Measurements,
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(1, 10, 0, 0);
         gui.add(minSlider, c);
-        minSlider.addAdjustmentListener(this);
+        minSlider.addChangeListener(this);      
+        minSlider.addChangeListener(plot);
         minSlider.addKeyListener(ij);
-        minSlider.setUnitIncrement(1);
         minSlider.setFocusable(false);
         
         // minThreshold slider label
         c.gridx = 1;
+        //c.gridy = y++;
         c.gridwidth = 1;
         c.weightx = IJ.isMacintosh()?10:0;
         c.insets = new Insets(5, 0, 0, 10);
         String text = IJ.isMacOSX()?"000000":"00000000";
-        label1 = new Label(text, Label.RIGHT);
+        label1 = new JLabel(text, JLabel.RIGHT);
         label1.setFont(font);
         gui.add(label1, c);
         
         // maxThreshold slider
-        maxSlider = new Scrollbar(Scrollbar.HORIZONTAL, sliderRange*2/3, 1, 0, sliderRange);
-        GUI.fix(maxSlider);
+        maxSlider = new JSlider(Scrollbar.HORIZONTAL, 0, 255, 255);
+        //GUI.fix(maxSlider);
         c.gridx = 0;
         c.gridy = y++;
         c.gridwidth = 1;
         c.weightx = 100;
         c.insets = new Insets(2, 10, 0, 0);
         gui.add(maxSlider, c);
-        maxSlider.addAdjustmentListener(this);
+        maxSlider.addChangeListener(this);
+        //maxSlider.addAdjustmentListener(this);
         maxSlider.addKeyListener(ij);
-        maxSlider.setUnitIncrement(1);
+        //maxSlider.setUnitIncrement(1);
+        maxSlider.setSize(new Dimension (15, 80));
         maxSlider.setFocusable(false);
         
         // maxThreshold slider label
@@ -178,25 +177,46 @@ public class MicroThresholdAdjuster  implements Measurements,
         c.gridwidth = 1;
         c.weightx = 0;
         c.insets = new Insets(2, 0, 0, 10);
-        label2 = new Label(text, Label.RIGHT);
+        label2 = new JLabel(text, JLabel.RIGHT);
         label2.setFont(font);
         gui.add(label2, c);
+        
+        // checkboxes
+        panel = new JPanel();
+        panel.setBackground(VTC._VTC.BACKGROUND);
+        //boolean db = Prefs.get(DARK_BACKGROUND, Prefs.blackBackground?true:false);
+        darkBackground = new JCheckBox("Dark background");
+        darkBackground.setSelected(true);
+        darkBackground.addItemListener(this);
+        panel.add(darkBackground);
+        stackHistogram = new JCheckBox("Stack histogram");
+        stackHistogram.setSelected(true);
+        stackHistogram.addItemListener(this);
+        panel.add(stackHistogram);
+        c.gridx = 0;
+        c.gridy = y++;
+        c.gridwidth = 2;
+        c.insets = new Insets(5, 5, 0, 5);
+        gui.add(panel, c);
                 
         // choices
-        panel = new Panel();
-        methodChoice = new Choice();
+        panel = new JPanel();
+        panel.setBackground(VTC._VTC.BACKGROUND);
+        
+        methodChoice = new JComboBox();
         for (int i=0; i<methodNames.length; i++)
-            methodChoice.addItem(methodNames[i]);
-        methodChoice.select(method);
+        methodChoice.addItem(methodNames[i]);
+        methodChoice.setSelectedItem(method);
         methodChoice.addItemListener(this);
-        //methodChoice.addKeyListener(ij);
+        methodChoice.addItemListener(plot);
+
         panel.add(methodChoice);
-        modeChoice = new Choice();
+        modeChoice = new JComboBox();
         for (int i=0; i<modes.length; i++)
             modeChoice.addItem(modes[i]);
-        modeChoice.select(mode);
+        modeChoice.setSelectedItem(mode);
         modeChoice.addItemListener(this);
-        //modeChoice.addKeyListener(ij);
+
         panel.add(modeChoice);
         c.gridx = 0;
         c.gridy = y++;
@@ -206,47 +226,32 @@ public class MicroThresholdAdjuster  implements Measurements,
         c.fill = GridBagConstraints.NONE;
         gui.add(panel, c);
 
-        // checkboxes
-        panel = new Panel();
-        boolean db = Prefs.get(DARK_BACKGROUND, Prefs.blackBackground?true:false);
-        darkBackground = new Checkbox("Dark background");
-        darkBackground.setState(db);
-        darkBackground.addItemListener(this);
-        panel.add(darkBackground);
-        stackHistogram = new Checkbox("Stack histogram");
-        stackHistogram.setState(false);
-        stackHistogram.addItemListener(this);
-        panel.add(stackHistogram);
-        c.gridx = 0;
-        c.gridy = y++;
-        c.gridwidth = 2;
-        c.insets = new Insets(5, 5, 0, 5);
-        gui.add(panel, c);
+
 
         // buttons
-        int trim = IJ.isMacOSX()?11:0;
-        panel = new Panel();
-        autoB = new TrimmedButton("Auto",trim);
-        autoB.addActionListener(this);
-        autoB.addKeyListener(ij);
-        panel.add(autoB);
-        applyB = new TrimmedButton("Apply",trim);
-        applyB.addActionListener(this);
-        applyB.addKeyListener(ij);
-        panel.add(applyB);
-        resetB = new TrimmedButton("Reset",trim);
-        resetB.addActionListener(this);
-        resetB.addKeyListener(ij);
-        panel.add(resetB);
-        setB = new TrimmedButton("Set",trim);
-        setB.addActionListener(this);
-        setB.addKeyListener(ij);
-        panel.add(setB);
-        c.gridx = 0;
-        c.gridy = y++;
-        c.gridwidth = 2;
-        c.insets = new Insets(0, 5, 10, 5);
-        gui.add(panel, c);
+//        int trim = IJ.isMacOSX()?11:0;
+//        panel = new Panel();
+//        autoB = new TrimmedButton("Auto",trim);
+//        autoB.addActionListener(this);
+//        autoB.addKeyListener(ij);
+//        panel.add(autoB);
+//        applyB = new TrimmedButton("Apply",trim);
+//        applyB.addActionListener(this);
+//        applyB.addKeyListener(ij);
+//        panel.add(applyB);
+//        resetB = new TrimmedButton("Reset",trim);
+//        resetB.addActionListener(this);
+//        resetB.addKeyListener(ij);
+//        panel.add(resetB);
+//        setB = new TrimmedButton("Set",trim);
+//        setB.addActionListener(this);
+//        setB.addKeyListener(ij);
+//        panel.add(setB);
+//        c.gridx = 0;
+//        c.gridy = y++;
+//        c.gridwidth = 2;
+//        c.insets = new Insets(0, 5, 10, 5);
+        //gui.add(panel, c);
         
         //addKeyListener(ij);  // ImageJ handles keyboard shortcuts
         //gui.pack();
@@ -261,10 +266,14 @@ public class MicroThresholdAdjuster  implements Measurements,
         thread = new Thread(this, "ThresholdAdjuster");
         //thread.setPriority(thread.getPriority()-1);
         thread.start();
-        ImagePlus imp = WindowManager.getCurrentImage();
+        
         ImagePlus.addImageListener(this);
-        if (imp!=null)
-            setup(imp, true);
+        
+        if (impThreshold!=null){
+            impThreshold.setSlice(impThreshold.getStackSize()/2);
+            setup(impThreshold, true);
+            
+        }
     }
     
     public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
@@ -276,17 +285,17 @@ public class MicroThresholdAdjuster  implements Measurements,
     }
 
     public synchronized  void actionPerformed(ActionEvent e) {
-        Button b = (Button)e.getSource();
-        if (b==null) return;
-        if (b==resetB)
-            doReset = true;
-        else if (b==autoB)
-            doAutoAdjust = true;
-        else if (b==applyB)
-            doApplyLut = true;
-        else if (b==setB)
-            doSet = true;
-        notify();
+//        Button b = (Button)e.getSource();
+//        if (b==null) return;
+//        if (b==resetB)
+//            doReset = true;
+//        else if (b==autoB)
+//            doAutoAdjust = true;
+//        else if (b==applyB)
+//            doApplyLut = true;
+//        else if (b==setB)
+//            doSet = true;
+//        notify();
     }
 
     public void imageUpdated(ImagePlus imp) {
@@ -311,24 +320,26 @@ public class MicroThresholdAdjuster  implements Measurements,
         }
     }
     
+    @Override
     public synchronized void itemStateChanged(ItemEvent e) {
         Object source = e.getSource();
+        //System.out.println("New value from: " + source.toString());
         if (source==methodChoice) {
-            method = methodChoice.getSelectedItem();
+            method = (String)methodChoice.getSelectedItem();
             doAutoAdjust = true;
+            doUpdate();
+            notify();
         } else if (source==modeChoice) {
             mode = modeChoice.getSelectedIndex();
             setLutColor(mode);
             doStateChange = true;
-            if (Recorder.record) {
-                if (Recorder.scriptMode())
-                    Recorder.recordCall("ThresholdAdjuster.setMode(\""+modes[mode]+"\");");
-                else
-                    Recorder.recordString("call(\"ij.plugin.frame.ThresholdAdjuster.setMode\", \""+modes[mode]+"\");\n");
-            }
+            doUpdate();
+            notify();
         } else
             doAutoAdjust = true;
-        notify();
+            doUpdate();
+            notify();
+        //notify();
     }
 
     ImageProcessor setup(ImagePlus imp, boolean enableAutoThreshold) {
@@ -396,7 +407,7 @@ public class MicroThresholdAdjuster  implements Measurements,
     }
     
     boolean entireStack(ImagePlus imp) {
-        return stackHistogram!=null && stackHistogram.getState() && imp.getStackSize()>1;
+        return stackHistogram!=null && stackHistogram.isSelected() && imp.getStackSize()>1;
     }
 
     void autoSetLevels(ImageProcessor ip, ImageStatistics stats) {
@@ -406,7 +417,7 @@ public class MicroThresholdAdjuster  implements Measurements,
             return;
         }
         //int threshold = ip.getAutoThreshold(stats.histogram);
-        boolean darkb = darkBackground!=null && darkBackground.getState();
+        boolean darkb = darkBackground!=null && darkBackground.isSelected();
         boolean invertedLut = ip.isInvertedLut();
         int modifiedModeCount = stats.histogram[stats.mode];
         if (!method.equals(methodNames[DEFAULT]))
@@ -426,7 +437,7 @@ public class MicroThresholdAdjuster  implements Measurements,
         }
         if (minThreshold>255) minThreshold = 255;
         if (Recorder.record) {
-            boolean stack = stackHistogram!=null && stackHistogram.getState();
+            boolean stack = stackHistogram!=null && stackHistogram.isSelected();
             String options = method+(darkb?" dark":"")+(stack?" stack":"");
             if (Recorder.scriptMode())
                 Recorder.recordCall("IJ.setAutoThreshold(imp, \""+options+"\");");
@@ -443,6 +454,7 @@ public class MicroThresholdAdjuster  implements Measurements,
             if (max>min) {
                 minThreshold = min + (minThreshold/255.0)*(max-min);
                 maxThreshold = min + (maxThreshold/255.0)*(max-min);
+                //System.out.println("PROFILING: new thresholds, " + minThreshold + ", " + maxThreshold);
             } else
                 minThreshold = maxThreshold = min;
         }
@@ -554,8 +566,8 @@ public class MicroThresholdAdjuster  implements Measurements,
     }
 
     void updateScrollBars() {
-        minSlider.setValue((int)minThreshold);
-        maxSlider.setValue((int)maxThreshold);
+        //minSlider.setValue((int)minThreshold);
+        //maxSlider.setValue((int)maxThreshold);
     }
     
     /** Restore image outside non-rectangular roi. */
@@ -566,24 +578,24 @@ public class MicroThresholdAdjuster  implements Measurements,
     }
 
     void adjustMinThreshold(ImagePlus imp, ImageProcessor ip, double value) {
-        if (IJ.altKeyDown() || IJ.shiftKeyDown() ) {
-            double width = maxThreshold-minThreshold;
-            if (width<1.0) width = 1.0;
-            minThreshold = value;
-            maxThreshold = minThreshold+width;
-            if ((minThreshold+width)>255) {
-                minThreshold = 255-width;
-                maxThreshold = minThreshold+width;
-                minSlider.setValue((int)minThreshold);
-            }
-            maxSlider.setValue((int)maxThreshold);
-            scaleUpAndSet(ip, minThreshold, maxThreshold);
-            return;
-        }
+//        if (IJ.altKeyDown() || IJ.shiftKeyDown() ) {
+//            double width = maxThreshold-minThreshold;
+//            if (width<1.0) width = 1.0;
+//            minThreshold = value;
+//            maxThreshold = minThreshold+width;
+//            if ((minThreshold+width)>255) {
+//                minThreshold = 255-width;
+//                maxThreshold = minThreshold+width;
+//                minSlider.setValue((int)minThreshold);
+//            }
+//            maxSlider.setValue((int)maxThreshold);
+//            scaleUpAndSet(ip, minThreshold, maxThreshold);
+//            return;
+//        }
         minThreshold = value;
         if (maxThreshold<minThreshold) {
             maxThreshold = minThreshold;
-            maxSlider.setValue((int)maxThreshold);
+            //maxSlider.setValue((int)maxThreshold);
         }
         scaleUpAndSet(ip, minThreshold, maxThreshold);
     }
@@ -592,15 +604,15 @@ public class MicroThresholdAdjuster  implements Measurements,
         maxThreshold = cvalue;
         if (minThreshold>maxThreshold) {
             minThreshold = maxThreshold;
-            minSlider.setValue((int)minThreshold);
+            //minSlider.setValue((int)minThreshold);
         }
         if (minThreshold < 0) {     //remove NO_THRESHOLD
             minThreshold = 0;
-            minSlider.setValue((int)minThreshold);
+            //minSlider.setValue((int)minThreshold);
         }
         scaleUpAndSet(ip, minThreshold, maxThreshold);
-        IJ.setKeyUp(KeyEvent.VK_ALT);
-        IJ.setKeyUp(KeyEvent.VK_SHIFT);
+//        IJ.setKeyUp(KeyEvent.VK_ALT);
+//        IJ.setKeyUp(KeyEvent.VK_SHIFT);
     }
 
     void reset(ImagePlus imp, ImageProcessor ip) {
@@ -724,7 +736,7 @@ public class MicroThresholdAdjuster  implements Measurements,
     
     void runThresholdCommand() {
         Thresholder.setMethod(method);
-        Thresholder.setBackground(darkBackground.getState()?"Dark":"Light");
+        Thresholder.setBackground(darkBackground.isSelected()?"Dark":"Light");
         if (Recorder.record) {
             Recorder.setCommand("Convert to Mask");
             (new Thresholder()).run("mask");
@@ -736,6 +748,7 @@ public class MicroThresholdAdjuster  implements Measurements,
     static final int RESET=0, AUTO=1, HIST=2, APPLY=3, STATE_CHANGE=4, MIN_THRESHOLD=5, MAX_THRESHOLD=6, SET=7;
 
     // Separate thread that does the potentially time-consuming processing 
+    @Override
     public void run() {
         while (!done) {
             synchronized(this) {
@@ -767,22 +780,10 @@ public class MicroThresholdAdjuster  implements Measurements,
         doApplyLut = false;
         doStateChange = false;
         doSet = false;
-        imp = WindowManager.getCurrentImage();
-        if (imp==null) {
-            IJ.beep();
-            IJ.showStatus("No image");
-            return;
-        }
+        imp = impThreshold;
+
         ip = setup(imp, false);
-        if (ip==null) {
-            imp.unlock();
-            IJ.beep();
-            if (imp.isComposite())
-                IJ.showStatus("\"Composite\" mode images cannot be thresholded");
-            else
-                IJ.showStatus("RGB images cannot be thresholded");
-            return;
-        }
+
         //IJ.write("setup: "+(imp==null?"null":imp.getTitle()));
         switch (action) {
             case RESET: reset(imp, ip); break;
@@ -793,6 +794,8 @@ public class MicroThresholdAdjuster  implements Measurements,
             case MIN_THRESHOLD: adjustMinThreshold(imp, ip, min); break;
             case MAX_THRESHOLD: adjustMaxThreshold(imp, ip, max); break;
         }
+        //System.out.println("PROFILING: Updating minSlider: " + minSlider.getValue() + " and minValue " + min );
+        //System.out.println("PROFILING: Updating maxSlider: " + maxSlider.getValue() + " and maxValue " + max );
         updatePlot(ip);
         updateLabels(imp, ip);
         updatePercentiles(imp, ip);
@@ -859,16 +862,18 @@ public class MicroThresholdAdjuster  implements Measurements,
         if (valid) {
             method = thresholdingMethod;
             if (instance!=null)
-                instance.methodChoice.select(method);
+                instance.methodChoice.setSelectedItem(method);
         }
     }
     
-    /** Returns the current mode ("Red","B&W" or"Over/Under"). */
+    /** Returns the current mode ("Red","B&W" or"Over/Under").
+     * @return  */
     public static String getMode() {
         return modes[mode];
     }
     
-    /** Sets the current mode ("Red","B&W" or"Over/Under"). */
+    /** Sets the current mode ("Red","B&W" or"Over/Under").
+     * @param tmode */
     public static void setMode(String tmode) {
         if (instance!=null) synchronized (instance) {
             MicroThresholdAdjuster ta = ((MicroThresholdAdjuster)instance);
@@ -882,8 +887,8 @@ public class MicroThresholdAdjuster  implements Measurements,
                 return;
             ta.setLutColor(mode);
             ta.doStateChange = true;
-            ta.modeChoice.select(mode);
-            ta.notify();
+            ta.modeChoice.setSelectedItem(mode);
+            //ta.notify();
         }
     }
 
@@ -891,12 +896,51 @@ public class MicroThresholdAdjuster  implements Measurements,
         return this.gui;
     }
 
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        Object source = e.getSource();
+        if (source==minSlider){
+            minValue = minSlider.getValue();
+            System.out.println("PROFILING: minSlider, " + minValue);
+            doUpdate();
+        } 
+
+        else if(source==maxSlider){
+            maxValue = maxSlider.getValue();
+            System.out.println("PROFILING: maxSlider, " + maxValue);
+            doUpdate();
+        }
+
+        else if (source==methodChoice) {
+            method = (String)methodChoice.getSelectedItem();
+            System.out.println("PROFILING: methodChoice, " + methodChoice.getSelectedIndex());
+            doAutoAdjust = true;
+            doUpdate();
+            
+        } else if (source==modeChoice) {
+            mode = modeChoice.getSelectedIndex();
+            System.out.println("PROFILING: modeChoice, " + mode);
+            setLutColor(mode);
+            doStateChange = true;
+            doUpdate();
+        } else
+            doAutoAdjust = true;
+            doUpdate(); 
+       
+      
+       
+            
+    
+    }
+
 } // ThresholdAdjuster class
 
 
 
-class ThresholdPlot extends Canvas implements Measurements, MouseListener {
-    static final int WIDTH = 256, HEIGHT=48;
+
+
+class ThresholdPlot extends JPanel implements Measurements, MouseListener, ChangeListener, ItemListener {
+    static final int WIDTH = 256, HEIGHT=100;
     int lowerThreshold = -1;
     int upperThreshold = 170;
     ImageStatistics stats;
@@ -904,7 +948,7 @@ class ThresholdPlot extends Canvas implements Measurements, MouseListener {
     Color[] hColors;
     int hmax;
     Image os;
-    Graphics osg;
+    Graphics2D osg;
     int mode;
     int originalModeCount;
     double stackMin, stackMax;
@@ -914,7 +958,8 @@ class ThresholdPlot extends Canvas implements Measurements, MouseListener {
     
     public ThresholdPlot() {
         addMouseListener(this);
-        setSize(WIDTH+2, HEIGHT+2);
+        this.setMinimumSize(new Dimension(WIDTH+2, HEIGHT+2));
+        this.setPreferredSize(new Dimension(WIDTH+2, HEIGHT+2));
     }
     
     /** Overrides Component getPreferredSize(). Added to work 
@@ -1018,7 +1063,7 @@ class ThresholdPlot extends Canvas implements Measurements, MouseListener {
         if (histogram!=null) {
             if (os==null && hmax>0) {
                 os = createImage(WIDTH,HEIGHT);
-                osg = os.getGraphics();
+                osg = (Graphics2D)os.getGraphics();
                 osg.setColor(Color.white);
                 osg.fillRect(0, 0, WIDTH, HEIGHT);
                 osg.setColor(Color.gray);
@@ -1059,6 +1104,16 @@ class ThresholdPlot extends Canvas implements Measurements, MouseListener {
     public void mouseExited(MouseEvent e) {}
     public void mouseClicked(MouseEvent e) {}
     public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+     
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+      
+    }
     
 
 

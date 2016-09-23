@@ -5,7 +5,7 @@
  */
 package MicroProtocol;
 
-import MicroProtocol.blockstepGUI.ObjectStepBlockGUI;
+
 import MicroProtocol.blockstepGUI.ProcessStepBlockGUI;
 import MicroProtocol.listeners.BatchStateListener;
 import MicroProtocol.listeners.CopyBlocksListener;

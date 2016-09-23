@@ -164,7 +164,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
 
         for (int i = 0; i < windowList.length; i++) {
             ImagePlus imp_temp = WindowManager.getImage(windowList[i]);
-            if (!imp_temp.getTitle().contains("Plot")) {
+            if (!imp_temp.getTitle().contains("Plot") && imp_temp.getType() != ImagePlus.COLOR_RGB) {
                 titles[i] = imp_temp != null ? imp_temp.getTitle() : "";
             }
         }

@@ -909,7 +909,7 @@ public class protocolManager extends javax.swing.JFrame implements ImageSelectio
             Object.setFont(ObjectFont);
             Comment.setFont(CommentFont);
 
-            mbs = new MicroBlockObjectSetup(position, Channels);
+            //mbs = new MicroBlockObjectSetup(position, Channels);
 
             mbs.setVisible(false);
             mbs.addMicroBlockSetupListener(this);
@@ -1111,10 +1111,10 @@ public class protocolManager extends javax.swing.JFrame implements ImageSelectio
             Process.setFont(ProcessFont);
             Comment.setFont(CommentFont);
 
-            mbps = new MicroProtocol.setup.MicroBlockProcessSetup(position, Channels);
-
-            mbps.setVisible(false);
-            mbps.addMicroBlockSetupListener(this);
+          //  mbps = new MicroProtocol.setup.MicroBlockProcessSetup(position, Channels, new ImagePlus());
+//
+//            mbps.setVisible(false);
+//            mbps.addMicroBlockSetupListener(this);
 
             JButton DeleteButton = new JButton();
             DeleteButton.addActionListener(new java.awt.event.ActionListener() {

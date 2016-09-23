@@ -22,9 +22,9 @@ public class _VTC implements PlugIn, ImageListener, ActionListener {
     public static Dimension SMALLBUTTONSIZE = new Dimension(32, 32);
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
-    public static String VERSION = new String("0.1.5_a1");
+    public static String VERSION = new String("0.2.0");
     
-    public static String[] PROCESSOPTIONS = {"Select Method", "LayerCake 3D", "FloodFill 3D", "Assisted Detection 3D", "Auto Detection 3D"};
+    public static String[] PROCESSOPTIONS = {"Select Method", "LayerCake 3D", "FloodFill 3D"};
     
     //public static Color ButtonBackground = new java.awt.Color(102, 102, 102);
 

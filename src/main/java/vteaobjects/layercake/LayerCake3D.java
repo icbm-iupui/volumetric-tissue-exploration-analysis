@@ -85,7 +85,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         }
 
         ImagePlus impShow = new ImagePlus("Orginal", stackOriginal);
-        impShow.show();
+        //impShow.show();
 
         imageResult = new ImagePlus("Mask Result", stackResult);
         IJ.run(imageResult, "8-bit", "");
@@ -94,7 +94,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         }
         IJ.run(imageResult, "Invert", "stack");
 
-        imageResult.show();
+        //imageResult.show();
 
         makeRegionsPool(imageResult.getStack(), stackOriginal);
     }
@@ -190,7 +190,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
             this.stop = stop;
             this.start = start;
 
-            System.out.println("PROFILING-DETAILS: ForkJoin Start and Stop points:" + start + ", " + stop);
+            //System.out.println("PROFILING-DETAILS: ForkJoin Start and Stop points:" + start + ", " + stop);
             //volumes = alVolumes.subList(start, stop);
         }
 

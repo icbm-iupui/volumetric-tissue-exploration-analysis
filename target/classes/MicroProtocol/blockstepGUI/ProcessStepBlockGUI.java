@@ -46,6 +46,7 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         public JLabel Comment = new JLabel("Block by Block");
         JLabel Process = new JLabel("First things first");
         String ProcessString;
+        int processChannel;
         boolean ProcessTypeSet = false;
         int position;
         int type;
@@ -65,6 +66,8 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
 
         private ArrayList settings;
         
+        private ArrayList ProtocolAll;
+        
          public ArrayList <RebuildPanelListener> rebuildpanelisteners = new ArrayList <RebuildPanelListener>();
          public ArrayList <DeleteBlockListener> deleteblocklisteners = new ArrayList <DeleteBlockListener>();
    
@@ -73,14 +76,14 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
            //BuildStepBlock("Empty Step", "", Color.LIGHT_GRAY, false, );
         }
 
-        public ProcessStepBlockGUI(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, int type, int position) {
-            BuildStepBlock(ProcessText, CommentText, BlockColor, multiple, ThumbnailImage, OriginalImage, Channels, type, position);
+        public ProcessStepBlockGUI(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, int type, ArrayList<ProcessStepBlockGUI> protocol, int position) {
+            BuildStepBlock(ProcessText, CommentText, BlockColor, multiple, ThumbnailImage, OriginalImage, Channels, type, protocol, position);
         }
 
         ;
 
         
-        protected void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, final int type, final int position) {
+        protected void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, final int type, ArrayList<ProcessStepBlockGUI> protocol, final int position) {
 
             this.ThumbnailImage = ThumbnailImage;
             this.OriginalImage = OriginalImage;
@@ -92,6 +95,8 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
             this.BlockColor = BlockColor;
             
             this.ProcessString = ProcessText;
+            
+            this.ProtocolAll = protocol;
             
             if(ProcessString.length() > 30){
               Process.setText(ProcessString.substring(0, 40)+"...");
@@ -119,7 +124,7 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
             Process.setFont(ProcessFont);
             Comment.setFont(CommentFont);
 
-            mbs = new MicroProtocol.setup.MicroBlockProcessSetup(position, Channels);
+            mbs = new MicroProtocol.setup.MicroBlockProcessSetup(position, Channels, protocol, OriginalImage);
 
             mbs.setVisible(false);
             mbs.addMicroBlockSetupListener(this);
@@ -355,6 +360,12 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         }
     }
     
+    public int getChannel(){
+        
+       return processChannel;
+    }
+    
+    
     
 
     @Override
@@ -362,7 +373,7 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         
         super.clone();
         
-        ProcessStepBlockGUI Copy = new ProcessStepBlockGUI(Process.getText(), Comment.getText(), this.BlockColor, false, this.ThumbnailImage.duplicate(), OriginalImage.duplicate(), this.Channels, this.type, this.position);
+        ProcessStepBlockGUI Copy = new ProcessStepBlockGUI(Process.getText(), Comment.getText(), this.BlockColor, false, this.ThumbnailImage.duplicate(), OriginalImage.duplicate(), this.Channels, this.type, this.ProtocolAll, this.position);
         
         Copy.mbs = (MicroBlockProcessSetup)this.mbs.clone();
         Copy.mbs.MicroBlockSetupListeners.clear();
@@ -380,9 +391,11 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
     }
 
       
+        @Override
         public void onChangeSetup(ArrayList al) {
 
             Process.setText(al.get(0).toString());
+            processChannel = (Integer)al.get(1);
             Comment.setText("On channel: " + ((Integer)al.get(1)+1));
 
             notifyRebuildPanelListeners(ProtocolManagerMulti.PROCESS);

@@ -188,11 +188,11 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                     // System.out.println("PROFILING: gate fraction: " + percentage.toString());
                     if (impoverlay.getWidth() > 256) {
                         
-                        TextRoi textTotal = new TextRoi(5, 10, selected + "/" + total + " total (" + 100 * percentage.doubleValue() + "%)");
+                        TextRoi textTotal = new TextRoi(5, 10, selected + "/" + total + " gated (" + 100 * percentage.doubleValue() + "%)");
                         
                         if(gated > 0){
                             textTotal = new TextRoi(5, 10, selected + "/" + total + " total (" + 100 * percentage.doubleValue() + "%)" +
-                            "; " + gated + "/" + total + " gated (" + 100 * percentageGated.doubleValue() + "%)" +
+                            "; " + gated + "/" + total + " roi (" + 100 * percentageGated.doubleValue() + "%)" +
                             "; " + gatedSelected + "/" + total + " overlap (" + 100 * percentageGatedSelected.doubleValue() + "%)" , f);   
                         }
                         //TextRoi textImageGated = new TextRoi(5, 18, selected + "/" + total + " gated objects (" + 100 * percentage.doubleValue() + "%)", f);
@@ -201,11 +201,11 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                         overlay.add(textTotal);
                     } else {
                         f = new Font("Arial", Font.PLAIN, 10);
-                        TextRoi line1 = new TextRoi(5, 5, selected + "/" + total + " objects" + "(" + 100 * percentage.doubleValue() + "%)", f);
+                        TextRoi line1 = new TextRoi(5, 5, selected + "/" + total + " gated" + "(" + 100 * percentage.doubleValue() + "%)", f);
                         overlay.add(line1);
                         if(gated > 0){
                         f = new Font("Arial", Font.PLAIN, 10);
-                        TextRoi line2 = new TextRoi(5, 18, gated + "/" + total + " gated (" + 100 * percentageGated.doubleValue() + "%)", f);
+                        TextRoi line2 = new TextRoi(5, 18, gated + "/" + total + " roi (" + 100 * percentageGated.doubleValue() + "%)", f);
                         overlay.add(line2);
                         TextRoi line3 = new TextRoi(5, 31, gatedSelected + "/" + total + " overlap (" + 100 * percentageGatedSelected.doubleValue() + "%)", f);
                         overlay.add(line3);
@@ -411,10 +411,16 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         if (!(isMade(currentX, currentY, currentL, size))) {
             addExplorationGroup();
         }
+        String lText = "";
+        if(l < 0){
+            lText = "";
+        }else{
+            lText = hm.get(l);
+        }
         if (!(isMade(x, y, l, size))) {
-            addPlot(x, y, l, size, hm.get(x), hm.get(y), hm.get(l));
+            addPlot(x, y, l, size, hm.get(x), hm.get(y), lText);
         } else { 
-            showPlot(x, y, l, size, hm.get(x), hm.get(y), hm.get(l));  
+            showPlot(x, y, l, size, hm.get(x), hm.get(y), lText);  
         }
     }
 

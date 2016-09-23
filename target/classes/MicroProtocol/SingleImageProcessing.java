@@ -5,6 +5,7 @@
  */
 package MicroProtocol;
 
+
 import MicroProtocol.menus.MultipleFilesMenu;
 import MicroProtocol.listeners.AnalysisStartListener;
 import MicroProtocol.listeners.DeleteBlockListener;
@@ -15,6 +16,7 @@ import MicroProtocol.listeners.RequestImageListener;
 import MicroProtocol.listeners.TransferProtocolStepsListener;
 import MicroProtocol.setup.MicroBlockObjectSetup;
 import MicroProtocol.blockstepGUI.ProcessStepBlockGUI;
+import MicroProtocol.listeners.UpdatedProtocolListener;
 import VTC.ImageSelectionListener;
 import ij.IJ;
 import ij.ImagePlus;
@@ -81,6 +83,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     private ArrayList<AnalysisStartListener> listeners = new ArrayList<AnalysisStartListener>();
     private ArrayList<RequestImageListener> RequestImageListeners = new ArrayList<RequestImageListener>();
     private ArrayList<RepaintTabListener> RepaintTabListeners = new ArrayList<RepaintTabListener>();
+    
+    private ArrayList<UpdatedProtocolListener> UpdatedProtocolListeners = new ArrayList<UpdatedProtocolListener>();
+    
     private final MicroExperiment me = new MicroExperiment();
    
 
@@ -465,7 +470,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         // TODO add your handling code here:
         if (ProcessingStepsList.size() > 0) {
 
-            ProcessStepBlockGUI block = new ProcessStepBlockGUI("Process Step", "", Color.LIGHT_GRAY, false, ThumbnailImage, OriginalImage, Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList.size() + 1);
+            ProcessStepBlockGUI block = new ProcessStepBlockGUI("Process Step", "", Color.LIGHT_GRAY, false, ThumbnailImage, OriginalImage, Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, ProcessingStepsList.size() + 1);
             block.addDeleteBlockListener(this);
             block.addRebuildPanelListener(this);
             this.notifyRepaintTabListeners();
@@ -475,6 +480,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             //pack();
 
             ProcessingStepsList.add(block);
+            
 
             if (ProcessingStepsList.size() <= 3) {
 
@@ -734,7 +740,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             Object.setFont(ObjectFont);
             Comment.setFont(CommentFont);
 
-            mbs = new MicroBlockObjectSetup(position, Channels);
+            mbs = new MicroBlockObjectSetup(position, Channels, ProcessedImage);
 
             mbs.setVisible(false);
             mbs.addMicroBlockSetupListener(this);
@@ -752,6 +758,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     mbs.setVisible(true);
+                    
                 }
             });
 
@@ -1015,36 +1022,25 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         
         ProgressComment.setText("Processing image data...");
 
-        ArrayList protocol = new ArrayList();
+        ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
 
 //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
         protocol = ExtractSteps(ProcessingStepsList, PROCESSBLOCKS);
-        MicroProtocolPreProcessing mpp = new MicroProtocolPreProcessing(OriginalImage.duplicate(), protocol);
+        
+        ProgressComment.setText("Processing image data...");
+        //System.out.println("PROFILING: preprocessing protocol with " + protocol.size()+ " steps.");
+        if(protocol.size() > 0){
+        MicroProtocolPreProcessing mpp = new MicroProtocolPreProcessing(OriginalImage, protocol);
         mpp.ProcessImage();
         
         ProcessedImage = mpp.getResult();
-        //ProcessedImage.setTitle(this.tabName + "_Processed");
-       // ProcessedImage.show();
-        
-        
-        //ImagePlus OriginalShow = this.OriginalImage.duplicate();
-        //OriginalShow.setOpenAsHyperStack(true);
-        //OriginalShow.setTitle(this.OriginalImage.getTitle());
-
-        //this.OriginalImage.hide();
-
-        //ImagePlus ProcessedShow = this.ProcessedImage.duplicate();
-        //ProcessedShow.setOpenAsHyperStack(true);
-        //ProcessedShow.setDisplayMode(IJ.COMPOSITE);
-        //ProcessedShow.setTitle(this.ProcessedImage.getTitle());
-        //ProcessedShow.setPosition(ProcessedShow.getNSlices()/2);
-        //IJ.resetMinAndMax(ProcessedShow);
+        }else{
+            ProcessedImage = OriginalImage.duplicate();
+        }
 
         ImagePlus ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
         ProcessedShow.setTitle(this.tabName + "_Processed");
-        //OriginalShow = UtilityMethods.makeThumbnail(OriginalShow);
 
-        //OriginalShow.show();
         ProgressComment.setText("Processing complete...");
         ProcessedShow.show();
         this.ObjectGo.setEnabled(true);
@@ -1059,8 +1055,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
         protocol = ExtractSteps(ObjectStepsList, OBJECTBLOCKS);
 
-        System.out.println("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
-        IJ.log("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
+        //System.out.println("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
+        //System.out.println("PROFILING: for variables: " + protocol.get(5) + ", " + protocol.get(6)+ protocol.get(7) + ", " + protocol.get(8) +".");
+        //IJ.log("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
 
         me.start(ProcessedImage, protocol);
         
@@ -1083,17 +1080,14 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         System.out.println("PROFILING: Explorer getting " +  me.getVolumes(i).size() + " volumes for Object_" + i);
         //System.out.println("PROFILING: Explorer getting " +  me.getVolumes3D(i).size() + " floodfill volumes for Object_" + i);
         this.ObjectProcess.setMaximum(me.getVolumes(i).size() + 100);
-        me.addExplore(ProcessedImage, VTC._VTC.PROCESSOPTIONS[i+1] + "_" + (i+1), me.getVolumes(i), me.getAvailableData(i));
-        //me.addExplore(ProcessedImage, "Object_FloodFill_" + (i+1), me.getVolumes3D(i), me.getAvailableData3D(i));
-        //me2.addExplore(ProcessedImage, "Object_FloodFill_" + (i+1), me2.getVolumes3D(i), me2.getAvailableData3D(i));
-        
+        me.addExplore(ProcessedImage,  "Object_" + (i+1), me.getVolumes(i), me.getAvailableData(i));
     }
 
     ;
 
-private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
+public ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
 
-        ArrayList Result = new ArrayList();
+        ArrayList<ArrayList> Result = new ArrayList<ArrayList>();
 
         if (blocktype == PROCESSBLOCKS) {
 
@@ -1104,8 +1098,11 @@ private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
                 ppsb = (ProcessStepBlockGUI) litr.next();
                 if (!(ppsb.Comment.getText()).equals("New Image")) {
                     Result.add(ppsb.getVariables());
+                    //System.out.println("PROFILING: preprocessing constants" + ppsb.getVariables());
                 }
             }
+            
+           
         }
 
         if (blocktype == OBJECTBLOCKS) {
@@ -1138,7 +1135,7 @@ private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
             }
             AddStep_Preprocessing.setEnabled(true);
 
-            ProcessStepBlockGUI block = new ProcessStepBlockGUI(imp.getTitle(), "New Image", ImageBlockBackground, batch, ThumbnailImage, OriginalImage, this.Channels, ProtocolManagerMulti.PROCESS, getBlockPosition());
+            ProcessStepBlockGUI block = new ProcessStepBlockGUI(imp.getTitle(), "New Image", ImageBlockBackground, batch, ThumbnailImage, OriginalImage, this.Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, getBlockPosition());
 
             PreProcessingStepsPanel.setLayout(PreProcessingLayout);
             PreProcessingStepsPanel.add(block.getPanel());
@@ -1175,6 +1172,17 @@ private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
     private void notifyListeners(int i) {
         for (AnalysisStartListener listener : listeners) {
             listener.onStartButton(i);
+        }
+    }
+    
+        
+    public void addUpdatedProtcolListener(UpdatedProtocolListener listener) {
+        UpdatedProtocolListeners.add(listener);
+    }
+
+    private void notifyUpdatedProtcolListeners(ArrayList<ArrayList> al) {
+        for (UpdatedProtocolListener listener : UpdatedProtocolListeners) {
+            listener.protocolUpdated(al);
         }
     }
 
@@ -1215,7 +1223,7 @@ private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
 
             AddStep_Preprocessing.setEnabled(true);
 
-            ProcessStepBlockGUI block = new ProcessStepBlockGUI(imp.getTitle(), "New Image", ImageBlockBackground, this.batch, this.ThumbnailImage, this.OriginalImage, this.Channels, ProtocolManagerMulti.PROCESS, getBlockPosition());
+            ProcessStepBlockGUI block = new ProcessStepBlockGUI(imp.getTitle(), "New Image", ImageBlockBackground, this.batch, this.ThumbnailImage, this.OriginalImage, this.Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, getBlockPosition());
             block.addRebuildPanelListener(this);
             PreProcessingStepsPanel.setLayout(PreProcessingLayout);
             PreProcessingStepsPanel.add(block.getPanel());

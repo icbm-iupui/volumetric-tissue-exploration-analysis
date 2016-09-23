@@ -97,6 +97,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private boolean all = false;
 
     boolean imageGate = false;
+    boolean noLUT = false;
 
     ResultsTable rt = new ResultsTable();
 
@@ -308,6 +309,8 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jLabel12 = new javax.swing.JLabel();
         jSeparator5 = new javax.swing.JToolBar.Separator();
         get3DProjection = new javax.swing.JButton();
+        jSeparator7 = new javax.swing.JToolBar.Separator();
+        BWLUT = new javax.swing.JToggleButton();
         jPanel1 = new javax.swing.JPanel();
         WestPanel = new javax.swing.JPanel();
         yTextPanel = new javax.swing.JPanel();
@@ -495,22 +498,28 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         toolbarGate.add(UseGlobal);
         toolbarGate.add(jSeparator6);
 
+        totalLabel.setForeground(new java.awt.Color(204, 204, 204));
         totalLabel.setText(" 000000");
         toolbarGate.add(totalLabel);
 
+        jLabel8.setForeground(new java.awt.Color(204, 204, 204));
         jLabel8.setText(" Objects");
         toolbarGate.add(jLabel8);
 
-        plotGatedLabel.setText(" 000000");
+        plotGatedLabel.setForeground(new java.awt.Color(204, 204, 204));
+        plotGatedLabel.setText(" 00000");
         toolbarGate.add(plotGatedLabel);
 
-        jLabel10.setText(" Plot gated");
+        jLabel10.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel10.setText(" Plot");
         toolbarGate.add(jLabel10);
 
-        imageGatedLabel.setText(" 000000");
+        imageGatedLabel.setForeground(new java.awt.Color(204, 204, 204));
+        imageGatedLabel.setText(" 00000");
         toolbarGate.add(imageGatedLabel);
 
-        jLabel12.setText(" Image gated");
+        jLabel12.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel12.setText(" Image");
         toolbarGate.add(jLabel12);
         toolbarGate.add(jSeparator5);
 
@@ -520,7 +529,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         get3DProjection.setMaximumSize(new java.awt.Dimension(35, 40));
         get3DProjection.setMinimumSize(new java.awt.Dimension(35, 40));
         get3DProjection.setName(""); // NOI18N
-        get3DProjection.setOpaque(false);
         get3DProjection.setPreferredSize(new java.awt.Dimension(35, 40));
         get3DProjection.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -528,6 +536,21 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             }
         });
         toolbarGate.add(get3DProjection);
+        toolbarGate.add(jSeparator7);
+
+        BWLUT.setText("BW");
+        BWLUT.setFocusable(false);
+        BWLUT.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        BWLUT.setMaximumSize(new java.awt.Dimension(35, 40));
+        BWLUT.setMinimumSize(new java.awt.Dimension(35, 40));
+        BWLUT.setPreferredSize(new java.awt.Dimension(35, 40));
+        BWLUT.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        BWLUT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BWLUTActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(BWLUT);
 
         jPanel1.setPreferredSize(new java.awt.Dimension(100, 500));
         toolbarGate.add(jPanel1);
@@ -665,6 +688,16 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         //ec.
     }//GEN-LAST:event_UseGlobalActionPerformed
 
+    private void BWLUTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BWLUTActionPerformed
+         
+        if(!noLUT){
+        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        }
+        else{
+        onRemoveLUTChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), -1, jComboBoxPointSize.getSelectedIndex(), imageGate);
+        }
+    }//GEN-LAST:event_BWLUTActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -700,6 +733,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 //        });
 //    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JToggleButton BWLUT;
     private javax.swing.JMenu Edit;
     private javax.swing.JButton FlipAxes;
     protected javax.swing.JPanel Main;
@@ -737,6 +771,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private javax.swing.JToolBar.Separator jSeparator4;
     private javax.swing.JToolBar.Separator jSeparator5;
     private javax.swing.JToolBar.Separator jSeparator6;
+    private javax.swing.JToolBar.Separator jSeparator7;
     private javax.swing.JLabel plotGatedLabel;
     private javax.swing.JToolBar toolbarGate;
     private javax.swing.JToolBar toolbarPlot;
@@ -832,6 +867,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     }
 
     public void onPlotChangeRequest(int x, int y, int z, int size, boolean imagegate) {
+        
+        if(BWLUT.isSelected()){
+            onRemoveLUTChangeRequest(x,y,z,size,imagegate);
+        } else {
         Main.removeAll();
         //ec.updatePlotPointSize(size);
 
@@ -840,6 +879,18 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         Main.add(ec.getPanel());
         updateBorderPanels(DefaultXYPanels);
         updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+        pack();
+        }
+    }
+    
+    public void onRemoveLUTChangeRequest(int x, int y, int z, int size, boolean imagegate) {
+        
+        Main.removeAll();
+        ec.updatePlot(x, y, -1, size);
+
+        Main.add(ec.getPanel());
+        updateBorderPanels(DefaultXYPanels);
+        updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), "");
         pack();
     }
 
@@ -1181,7 +1232,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             this.Axis = Axis;
 
             String tempString;
-            Integer tempInteger;
+            Integer tempInteger = 0;
 
             ListIterator<String> itr = AvailableData.listIterator();
             HashMap<String, Integer> hm_string = new HashMap<String, Integer>();
@@ -1193,6 +1244,9 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                 this.add(new JMenuItem(tempString)).addActionListener(this);
                 hm_string.put(tempString, tempInteger);
 
+            }
+            if(this.Axis == 2){
+                hm_string.put("None", tempInteger++);
             }
         }
 
