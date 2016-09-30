@@ -15,6 +15,7 @@ import MicroProtocol.setup.MicroBlockProcessSetup;
 import MicroProtocol.setup.MicroBlockSetup;
 import ij.CompositeImage;
 import ij.IJ;
+import static ij.IJ.COLOR;
 import ij.ImagePlus;
 import ij.plugin.frame.ContrastAdjuster;
 import ij.process.LUT;
@@ -44,6 +45,8 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         JLabel Position = new JLabel();
         public JLabel Comment = new JLabel("Block by Block");
         JLabel Process = new JLabel("First things first");
+        String ProcessString;
+        int processChannel;
         boolean ProcessTypeSet = false;
         int position;
         int type;
@@ -63,6 +66,8 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
 
         private ArrayList settings;
         
+        private ArrayList ProtocolAll;
+        
          public ArrayList <RebuildPanelListener> rebuildpanelisteners = new ArrayList <RebuildPanelListener>();
          public ArrayList <DeleteBlockListener> deleteblocklisteners = new ArrayList <DeleteBlockListener>();
    
@@ -71,27 +76,34 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
            //BuildStepBlock("Empty Step", "", Color.LIGHT_GRAY, false, );
         }
 
-        public ProcessStepBlockGUI(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, int type, int position) {
-            BuildStepBlock(ProcessText, CommentText, BlockColor, multiple, ThumbnailImage, OriginalImage, Channels, type, position);
+        public ProcessStepBlockGUI(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, int type, ArrayList<ProcessStepBlockGUI> protocol, int position) {
+            BuildStepBlock(ProcessText, CommentText, BlockColor, multiple, ThumbnailImage, OriginalImage, Channels, type, protocol, position);
         }
 
         ;
 
         
-        protected void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, final int type, final int position) {
+        protected void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, final int type, ArrayList<ProcessStepBlockGUI> protocol, final int position) {
 
             this.ThumbnailImage = ThumbnailImage;
             this.OriginalImage = OriginalImage;
-            this.PreviewThumbnailImage = ThumbnailImage.duplicate();
+            //this.PreviewThumbnailImage = ThumbnailImage.createImagePlus();
             this.Channels = (ArrayList)Channels.clone();
             this.Channels.add("All");
             this.position = position;
             this.type = type;
             this.BlockColor = BlockColor;
             
-            this.
-
-            Process.setText(ProcessText);
+            this.ProcessString = ProcessText;
+            
+            this.ProtocolAll = protocol;
+            
+            if(ProcessString.length() > 30){
+              Process.setText(ProcessString.substring(0, 40)+"...");
+              Process.setToolTipText(ProcessString);
+            }else{
+              Process.setText(ProcessText);  
+            }
 
             Comment.setText(CommentText);
            
@@ -112,7 +124,7 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
             Process.setFont(ProcessFont);
             Comment.setFont(CommentFont);
 
-            mbs = new MicroProtocol.setup.MicroBlockProcessSetup(position, Channels);
+            mbs = new MicroProtocol.setup.MicroBlockProcessSetup(position, Channels, protocol, OriginalImage);
 
             mbs.setVisible(false);
             mbs.addMicroBlockSetupListener(this);
@@ -254,15 +266,28 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         
         
         protected void showThumbnail(int x, int y) {
-                   thumb.setSize(300, 300);
-                        //ExtractSteps
-                        //new micro preproccessing use imp returned.
-                   //if(this.position == 1){thumb.add(new ImagePanel(ThumbnailImage.getImage()));}
-                   if(this.position > 1 && updatePreviewImage){
-                       ThumbnailImage = previewThumbnail();
+                   thumb.setSize(255, 255);
+                   
+                   if(this.OriginalImage.getWidth() < 255){
+                       thumb.setSize(OriginalImage.getWidth(), OriginalImage.getHeight());
+                   }
+
+                   if(position > 1 && updatePreviewImage){
+                       
+                       ThumbnailImage = previewThumbnail(OriginalImage.duplicate());
+                       
+                       //ThumbnailImage.show();
+                      // ThumbnailImage.setSlice(ThumbnailImage.getNSlices()/2);
+                       
                        thumb.add(new ImagePanel(ThumbnailImage.getImage()));
+                       //ThumbnailImage.hide();
+//                       JLabel slice = new JLabel("Slice: " + ThumbnailImage.getSlice());
+//                       slice.setBackground(Color.YELLOW);
+//                       thumb.add(slice);
+                        
                        updatePreviewImage = false;
                    }else{
+                       
                        thumb.add(new ImagePanel(ThumbnailImage.getImage()));
                    }
 
@@ -272,64 +297,22 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         }         
                     
         
-        private ImagePlus previewThumbnail() {
+        private ImagePlus previewThumbnail(ImagePlus imp) {
             
         ArrayList options = new ArrayList();
         
         options.add(settings);
         
-        //thread this
+        System.out.println("imageProcessing: " + options);
         
-        MicroProtocolPreProcessing previewEngine = new MicroProtocolPreProcessing(this.OriginalImage.duplicate(), options);
-       
+        MicroProtocolPreProcessing previewEngine = new MicroProtocolPreProcessing(imp, options);
+        previewEngine.ProcessPreviewImage();
         
-        return UtilityMethods.makeThumbnail(previewEngine.ProcessImage());
+        //previewEngine.getPreview().show();
         
+        return previewEngine.getPreview();
         }
-        
-//        public ImagePlus makeThumbnail(ImagePlus imp){   
-//            //System.out.println("...Making thumbnail!");
-//        imp.setPosition(imp.getStackSize()/2);
-//        for(int i = 1; i <= imp.getNChannels(); i++){
-//            
-//            switch(i){
-//                case 1:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.CYAN)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.CYAN),0);compImp.resetDisplayRanges();break; 
-//                case 2:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.RED)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.RED),1);compImp.resetDisplayRanges();break;
-//                case 3:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.GREEN)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.GREEN),2);compImp.resetDisplayRanges();break;
-//                case 4:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.MAGENTA)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.MAGENTA),3);compImp.resetDisplayRanges();break;        
-//                case 5:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.YELLOW)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.YELLOW),4);compImp.resetDisplayRanges();break;
-//                case 6:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.BLUE)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.BLUE),5);compImp.resetDisplayRanges();break;
-//                case 7:
-//                        imp.setC(i-1); imp.setLut(LUT.createLutFromColor(Color.WHITE)); imp.resetDisplayRange(); break;
-//                        //compImp.setChannelLut(LUT.createLutFromColor(Color.WHITE),6);compImp.resetDisplayRanges();break;
-//                default:
-//                        break;
-//            }
-//         
-// 
-//            
-//          ContrastAdjuster.update();
-//          
-//        }
-//        //CompositeImage compImp = new CompositeImage(imp, IJ.COMPOSITE);  
-//        
-//        imp.setOpenAsHyperStack(true);  
-//        imp.flatten();
-//        return imp;
-//    }
-        
+
     protected void deleteStep(int type, int position) {
         this.notifyDeleteBlockListeners(type, position);
         this.notifyRebuildPanelListeners(type);
@@ -377,6 +360,12 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         }
     }
     
+    public int getChannel(){
+        
+       return processChannel;
+    }
+    
+    
     
 
     @Override
@@ -384,7 +373,7 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
         
         super.clone();
         
-        ProcessStepBlockGUI Copy = new ProcessStepBlockGUI(Process.getText(), Comment.getText(), this.BlockColor, false, this.ThumbnailImage.duplicate(), OriginalImage.duplicate(), this.Channels, this.type, this.position);
+        ProcessStepBlockGUI Copy = new ProcessStepBlockGUI(Process.getText(), Comment.getText(), this.BlockColor, false, this.ThumbnailImage.duplicate(), OriginalImage.duplicate(), this.Channels, this.type, this.ProtocolAll, this.position);
         
         Copy.mbs = (MicroBlockProcessSetup)this.mbs.clone();
         Copy.mbs.MicroBlockSetupListeners.clear();
@@ -402,9 +391,11 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
     }
 
       
+        @Override
         public void onChangeSetup(ArrayList al) {
 
             Process.setText(al.get(0).toString());
+            processChannel = (Integer)al.get(1);
             Comment.setText("On channel: " + ((Integer)al.get(1)+1));
 
             notifyRebuildPanelListeners(ProtocolManagerMulti.PROCESS);

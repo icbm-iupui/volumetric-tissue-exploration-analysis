@@ -5,6 +5,7 @@
     */
     package vteaexploration.plotgatetools.gates;
 
+import ij.ImageStack;
     import java.awt.Color;
     import java.awt.Component;
     import java.awt.Point;
@@ -30,11 +31,15 @@
     private Path2D path;
     private Rectangle2D boundingbox;
     private boolean selected = false;
+    private boolean imagegated = false;
     private boolean mouseover = false;
     private boolean keypressed = false;
     
     public Color selectedColor = new Color(255,0,0);
     public Color unselectedColor;
+    
+    private ImageStack gateoverlay;
+    private ImageStack colorizedgateoverlay;
     
 
     public PolygonGate(ArrayList<Point2D.Double> points) {
@@ -189,12 +194,42 @@
 
     @Override
     public void setSelectedColor(Color c) {
-        
+        selectedColor = c;
     }
 
     @Override
     public void setUnselectedColor(Color c) {
-        
+        unselectedColor = c;
+    }
+
+    @Override
+    public void setGateOverlayStack(ImageStack is) {
+       gateoverlay = is;
+    }
+    
+    @Override
+    public ImageStack getGateOverlayStack() {
+       return gateoverlay;
+    }
+
+    @Override
+    public boolean getImageGated() {
+        return imagegated;
+    }
+
+    @Override
+    public void setImageGated(boolean b) {
+        imagegated = b;
+    }
+
+    @Override
+    public void setColorizedGateOverlayStack(ImageStack is) {
+        colorizedgateoverlay = is;
+    }
+
+    @Override
+    public ImageStack getColorizedGateOverlayStack() {
+        return colorizedgateoverlay;
     }
 
     }

@@ -5,6 +5,7 @@
  */
 package vteaexploration.plotgatetools.gates;
 
+import ij.ImageStack;
 import java.awt.Color;
 import java.awt.Shape;
 import java.awt.geom.Path2D;
@@ -30,6 +31,10 @@ public interface Gate {
     public Path2D createPath2DInChartSpace();
 
     public Path2D getPath2D();
+    
+    public boolean getImageGated();
+    
+    public void setImageGated(boolean b);
 
     public boolean getSelected();
 
@@ -48,5 +53,13 @@ public interface Gate {
     public void setSelectedColor(Color c);
     
     public void setUnselectedColor(Color c);
+    
+    public void setGateOverlayStack(ImageStack is);
+    
+    public void setColorizedGateOverlayStack(ImageStack is);
 
+     public ImageStack getGateOverlayStack();
+     
+      public ImageStack getColorizedGateOverlayStack();
+     
 }

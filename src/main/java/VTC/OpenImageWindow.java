@@ -4,6 +4,7 @@ import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.WindowManager;
+import ij.plugin.Duplicator;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -162,9 +163,8 @@ public class OpenImageWindow extends javax.swing.JFrame {
         String[] titles = new String[windowList.length];
 
         for (int i = 0; i < windowList.length; i++) {
-            //if(WindowManager.getUn   )
             ImagePlus imp_temp = WindowManager.getImage(windowList[i]);
-            if (!imp_temp.getTitle().contains("Plot")) {
+            if (!imp_temp.getTitle().contains("Plot") && imp_temp.getType() != ImagePlus.COLOR_RGB) {
                 titles[i] = imp_temp != null ? imp_temp.getTitle() : "";
             }
         }
@@ -189,10 +189,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
 
     private ImagePlus getSelectedImagePlus() {
         int i = OpenImages.getSelectedIndex();
-        ImagePlus imp = WindowManager.getImage(i + 1);
-        //IJ.log("Getting image file... at:" + i + 1);
-        return imp;
-
+        return new Duplicator().run(WindowManager.getImage(i + 1));
     }
 
     private Color getBackgroundColor() {
@@ -203,20 +200,12 @@ public class OpenImageWindow extends javax.swing.JFrame {
 //Analyze button events
     public void addImageSelectionListener(ImageSelectionListener listener) {
         listeners.add(listener);
-        //IJ.log("Listener added: "+ listener.toString());
-        //IJ.log("There are now: " + listeners.size() + " listeners.");
-        
     }
 
     private void notifyImageSelectionListeners(int i, int tab) {
-         //IJ.log("Getting image file..." + (i+1) + " for " + tab);
-         //IJ.log("Listener count: " + listeners.size());
         for (ImageSelectionListener listener : listeners) {
-            
-            ImagePlus imp = WindowManager.getImage(i + 1);
-            listener.onSelect(imp, tab);
-
-        }
+            listener.onSelect(new Duplicator().run(WindowManager.getImage(i + 1)), tab);
+        }  
     }
 
    public void getImageFile(int i){
@@ -284,8 +273,6 @@ public class OpenImageWindow extends javax.swing.JFrame {
     private DefaultListModel plots = new DefaultListModel();
     private DefaultListModel analysis = new DefaultListModel();
 
-    //private String[] plotNames = new String[10];
-    //private String[] analysisNames = new String[10];
     protected ArrayList<ImageSelectionListener> listeners = new ArrayList<ImageSelectionListener>();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

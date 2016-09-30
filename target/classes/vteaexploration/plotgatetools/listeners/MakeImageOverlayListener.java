@@ -15,5 +15,5 @@ import java.util.ArrayList;
  */
 public interface MakeImageOverlayListener {
 
-    void makeOverlayImage(ArrayList gates, int xAxis, int yAxis);
+    void makeOverlayImage(ArrayList gates, int selected, int gated, int xAxis, int yAxis);
 }

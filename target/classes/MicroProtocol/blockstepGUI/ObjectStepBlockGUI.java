@@ -9,6 +9,7 @@ package MicroProtocol.blockstepGUI;
 import MicroProtocol.listeners.MicroBlockSetupListener;
 import MicroProtocol.setup.MicroBlockObjectSetup;
 import MicroProtocol.setup.MicroBlockSetup;
+import ij.ImagePlus;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -43,11 +44,11 @@ import javax.swing.JPanel;
             
         }
 
-        public ObjectStepBlockGUI(String ProcessText, String CommentText, Color BlockColor, int position) {
-            BuildStepBlock(ProcessText, CommentText, Color.GREEN, position);
+        public ObjectStepBlockGUI(String ProcessText, String CommentText, Color BlockColor, int position, ImagePlus Image) {
+            BuildStepBlock(ProcessText, CommentText, Color.GREEN, position, Image);
         }
 
-        private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, final int position) {
+        private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, final int position, ImagePlus Image) {
 
 //            if (ObjectStepsList.isEmpty()) {
 //                position = 1;
@@ -74,7 +75,7 @@ import javax.swing.JPanel;
             Object.setFont(ObjectFont);
             Comment.setFont(CommentFont);
 
-            mbs = new MicroBlockObjectSetup(position, Channels);
+            mbs = new MicroBlockObjectSetup(position, Channels, Image);
 
             mbs.setVisible(false);
             mbs.addMicroBlockSetupListener(this);
@@ -202,5 +203,7 @@ import javax.swing.JPanel;
         public ArrayList getVariables() {
             return settings;
         }
+        
+        
 
     }

@@ -23,6 +23,8 @@ public interface PreProcessingModule<T> {
     
     public ImagePlus getPreview();
     
-    public String runImageJMacroCommand();
+    public String runImageJMacroCommand(String str);
+    
+    public void sendProgressComment();
     
 }

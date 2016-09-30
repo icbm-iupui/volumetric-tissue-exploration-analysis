@@ -450,6 +450,7 @@ public class  microDerivedRegion extends microRegion {
         
         
         for (int i = 0; i <= n_local - 1; i++) {
+            if(getVoxelBounds(stack,x_local[i], y_local[i], z_local) > -1){
             total = total + (long) stack.getVoxel(x_local[i], y_local[i], z_local);
             if (stack.getVoxel(x_local[i], y_local[i], z_local) < local_min) {
                 local_min = stack.getVoxel(x_local[i], y_local[i], z_local);
@@ -457,6 +458,7 @@ public class  microDerivedRegion extends microRegion {
             if (stack.getVoxel(x_local[i], y_local[i], z_local) > local_max) {
                 local_max = stack.getVoxel(x_local[i], y_local[i], z_local);
             deviation[i] = stack.getVoxel(x[i], y[i], z);
+            }
         }
         this.deviation = deviation;
             //IJ.log("DerivedRegions max: " + local_max + "getVoxel: x " + x_local[i] + ", y " + y_local[i] + ", z" + z_local + " value: " + stack.getVoxel(x_local[i], y_local[i], z_local));
@@ -468,10 +470,12 @@ public class  microDerivedRegion extends microRegion {
         total = 0;
         int thresholdcount = 0;        
         for(int j = 0; j <= n_local - 1; j++) {
-            if (stack.getVoxel(x_local[j], y_local[j], z_local) > local_max*this.thresholdformean){
-                total = total + (long) stack.getVoxel(x_local[j], y_local[j], z_local);
-                thresholdcount++;
+            if(getVoxelBounds(stack,x_local[j], y_local[j], z_local) > -1){
+                if (stack.getVoxel(x_local[j], y_local[j], z_local) > local_max*this.thresholdformean){
+                    total = total + (long) stack.getVoxel(x_local[j], y_local[j], z_local);
+                    thresholdcount++;
             }  
+            }
         }   
         this.thresholdedid = total;
         this.nThreshold = thresholdcount;
@@ -479,6 +483,15 @@ public class  microDerivedRegion extends microRegion {
         else {this.thresholdedmean = 0;}
         calculateCenter();
         } 
+    }
+    
+        private double getVoxelBounds(ImageStack stack, int x, int y, int z){
+        
+        try{
+            return stack.getVoxel(x, y, z);
+        }catch(IndexOutOfBoundsException e){
+            return -1;
+        }
     }
 
     private void calculateCenter() {

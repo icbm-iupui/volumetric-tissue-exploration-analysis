@@ -56,7 +56,7 @@ public class MicroBlockStepGUI implements MicroBlockSetupListener {
     MicroBlockStepGUI() {
     }
 
-    protected void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ArrayList<String> Channels, final int type, final int position) {
+    protected void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, final int type, ArrayList<MicroBlockStepGUI> protocol, final int position) {
 
         this.ThumbnailImage = ThumbnailImage;
         this.PreviewThumbnailImage = ThumbnailImage.duplicate();
@@ -85,10 +85,10 @@ public class MicroBlockStepGUI implements MicroBlockSetupListener {
         Headline.setFont(ProcessFont);
         Comment.setFont(CommentFont);
 
-        mbs = new MicroProtocol.setup.MicroBlockProcessSetup(position, Channels);
-
-        mbs.setVisible(false);
-        mbs.addMicroBlockSetupListener(this);
+//        mbs = new MicroProtocol.setup.MicroBlockProcessSetup(position, Channels, protocol,OriginalImage);
+//
+//        mbs.setVisible(false);
+//        mbs.addMicroBlockSetupListener(this);
 
         JButton DeleteButton = new JButton();
         DeleteButton.addActionListener(new java.awt.event.ActionListener() {
@@ -100,6 +100,8 @@ public class MicroBlockStepGUI implements MicroBlockSetupListener {
 
             }
         });
+        
+        
 
         JButton EditButton = new JButton();
         EditButton.addActionListener(new java.awt.event.ActionListener() {
@@ -113,10 +115,12 @@ public class MicroBlockStepGUI implements MicroBlockSetupListener {
         DeleteButton.setSize(20, 20);
         DeleteButton.setBackground(VTC._VTC.BUTTONBACKGROUND);
         DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
+        DeleteButton.setToolTipText("Delete this step.");
 
         EditButton.setSize(20, 20);
         EditButton.setBackground(VTC._VTC.BUTTONBACKGROUND);
         EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
+        DeleteButton.setToolTipText("Edit this step.");
 
         step.setSize(205, 20);
         step.setBorder(javax.swing.BorderFactory.createEtchedBorder());

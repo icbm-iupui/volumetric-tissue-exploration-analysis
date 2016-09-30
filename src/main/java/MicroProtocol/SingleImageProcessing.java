@@ -5,6 +5,7 @@
  */
 package MicroProtocol;
 
+
 import MicroProtocol.menus.MultipleFilesMenu;
 import MicroProtocol.listeners.AnalysisStartListener;
 import MicroProtocol.listeners.DeleteBlockListener;
@@ -15,6 +16,7 @@ import MicroProtocol.listeners.RequestImageListener;
 import MicroProtocol.listeners.TransferProtocolStepsListener;
 import MicroProtocol.setup.MicroBlockObjectSetup;
 import MicroProtocol.blockstepGUI.ProcessStepBlockGUI;
+import MicroProtocol.listeners.UpdatedProtocolListener;
 import VTC.ImageSelectionListener;
 import ij.IJ;
 import ij.ImagePlus;
@@ -32,7 +34,10 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import vteapreprocessing.MicroProtocolPreProcessing;
 
 /**
@@ -41,6 +46,7 @@ import vteapreprocessing.MicroProtocolPreProcessing;
  */
 public class SingleImageProcessing extends javax.swing.JPanel implements ImageSelectionListener, TransferProtocolStepsListener, RebuildPanelListener, DeleteBlockListener {
 
+    public static final int WORKFLOW = 0;
     public static final int PROCESSBLOCKS = 1;
     public static final int OBJECTBLOCKS = 2;
     public static final int EXPLOREBLOCKS = 3;
@@ -64,7 +70,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
 
     protected ArrayList<ProcessStepBlockGUI> ProcessingStepsList = new ArrayList<ProcessStepBlockGUI>();
     protected ArrayList<ObjectStepBlockGUI> ObjectStepsList = new ArrayList<ObjectStepBlockGUI>();
-    // protected ArrayList<ExploreStepBlockGUI> ExploreStepsList = new ArrayList<ExploreStepBlockGUI>();
+    
 
     public JWindow thumb = new JWindow();
 
@@ -77,7 +83,11 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     private ArrayList<AnalysisStartListener> listeners = new ArrayList<AnalysisStartListener>();
     private ArrayList<RequestImageListener> RequestImageListeners = new ArrayList<RequestImageListener>();
     private ArrayList<RepaintTabListener> RepaintTabListeners = new ArrayList<RepaintTabListener>();
-    private MicroExperiment me = new MicroExperiment();
+    
+    private ArrayList<UpdatedProtocolListener> UpdatedProtocolListeners = new ArrayList<UpdatedProtocolListener>();
+    
+    private final MicroExperiment me = new MicroExperiment();
+   
 
     private int tab;
 
@@ -86,6 +96,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
      */
     public SingleImageProcessing() {
         initComponents();
+        
+       
     }
 
     /**
@@ -100,7 +112,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
 
         SingleImageProcessing = new javax.swing.JPanel();
         Preprocessing_Header = new javax.swing.JPanel();
-        StartText = new javax.swing.JLabel();
         OpenImage = new javax.swing.JButton();
         PreProcessingLabel = new javax.swing.JLabel();
         AddStep_Preprocessing = new javax.swing.JButton();
@@ -118,12 +129,19 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         Object_Panel = new javax.swing.JPanel();
         ObjectStepsPanel = new javax.swing.JPanel();
         ObjectGo = new javax.swing.JButton();
+        ProgressPanel = new javax.swing.JPanel();
+        ProgressComment = new javax.swing.JLabel();
         ObjectProcess = new javax.swing.JProgressBar();
 
-        setMaximumSize(new java.awt.Dimension(770, 365));
-        setMinimumSize(new java.awt.Dimension(770, 365));
-        setPreferredSize(new java.awt.Dimension(770, 365));
+        setMaximumSize(new java.awt.Dimension(761, 381));
+        setMinimumSize(new java.awt.Dimension(761, 381));
+        setPreferredSize(new java.awt.Dimension(761, 381));
+        java.awt.FlowLayout flowLayout1 = new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 1, 1);
+        flowLayout1.setAlignOnBaseline(true);
+        setLayout(flowLayout1);
 
+        SingleImageProcessing.setMaximumSize(new java.awt.Dimension(750, 353));
+        SingleImageProcessing.setMinimumSize(new java.awt.Dimension(750, 353));
         SingleImageProcessing.setLayout(new java.awt.GridBagLayout());
 
         Preprocessing_Header.setBackground(new java.awt.Color(204, 204, 204));
@@ -135,17 +153,15 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         Preprocessing_Header.setPreferredSize(new java.awt.Dimension(300, 36));
         Preprocessing_Header.setLayout(new java.awt.GridBagLayout());
 
-        StartText.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
-        StartText.setText("Start...  ");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        Preprocessing_Header.add(StartText, gridBagConstraints);
-
         OpenImage.setBackground(VTC._VTC.BUTTONBACKGROUND);
-        OpenImage.setForeground(new java.awt.Color(102, 102, 102));
-        OpenImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/insert-image-2 copy.png"))); // NOI18N
+        OpenImage.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        OpenImage.setText("Load Image");
         OpenImage.setToolTipText("Load image for processing.");
-        OpenImage.setPreferredSize(new java.awt.Dimension(34, 34));
+        OpenImage.setBorder(null);
+        OpenImage.setMargin(new java.awt.Insets(2, 5, 2, 5));
+        OpenImage.setMaximumSize(new java.awt.Dimension(80, 33));
+        OpenImage.setMinimumSize(new java.awt.Dimension(80, 23));
+        OpenImage.setPreferredSize(new java.awt.Dimension(120, 34));
         OpenImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 OpenImageActionPerformed(evt);
@@ -155,13 +171,19 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
 
         PreProcessingLabel.setBackground(new java.awt.Color(204, 204, 204));
         PreProcessingLabel.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        PreProcessingLabel.setText(" Process    ");
-        Preprocessing_Header.add(PreProcessingLabel, new java.awt.GridBagConstraints());
+        PreProcessingLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        PreProcessingLabel.setText("Process");
+        PreProcessingLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        PreProcessingLabel.setRequestFocusEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.ipadx = 11;
+        Preprocessing_Header.add(PreProcessingLabel, gridBagConstraints);
 
         AddStep_Preprocessing.setBackground(new java.awt.Color(204, 204, 204));
         AddStep_Preprocessing.setForeground(new java.awt.Color(102, 102, 102));
         AddStep_Preprocessing.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
-        AddStep_Preprocessing.setToolTipText("Adds a preprocessing step.");
+        AddStep_Preprocessing.setToolTipText("Adds a processing step.");
+        AddStep_Preprocessing.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         AddStep_Preprocessing.setEnabled(false);
         AddStep_Preprocessing.setMaximumSize(new java.awt.Dimension(32, 32));
         AddStep_Preprocessing.setMinimumSize(new java.awt.Dimension(32, 32));
@@ -200,7 +222,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         SingleImageProcessing.add(Preprocessing_Header, gridBagConstraints);
 
         PreProcessing_Panel.setBackground(new java.awt.Color(204, 204, 204));
-        PreProcessing_Panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         PreProcessing_Panel.setForeground(new java.awt.Color(102, 102, 102));
         PreProcessing_Panel.setAlignmentX(0.0F);
         PreProcessing_Panel.setAlignmentY(0.0F);
@@ -224,6 +245,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
 
         PreProcessingGo.setBackground(VTC._VTC.BUTTONBACKGROUND);
         PreProcessingGo.setText("Process");
+        PreProcessingGo.setToolTipText("Process the loaded image.");
         PreProcessingGo.setEnabled(false);
         PreProcessingGo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -240,8 +262,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                 .addGroup(PreProcessing_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PreProcessing_PanelLayout.createSequentialGroup()
                         .addComponent(PreProcessingGo, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 183, Short.MAX_VALUE))
-                    .addComponent(PreProcessingStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE))
+                        .addGap(0, 187, Short.MAX_VALUE))
+                    .addComponent(PreProcessingStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE))
                 .addContainerGap())
         );
         PreProcessing_PanelLayout.setVerticalGroup(
@@ -251,7 +273,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                 .addComponent(PreProcessingStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(PreProcessingGo)
-                .addContainerGap(4, Short.MAX_VALUE))
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -294,6 +316,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         AddStep_Object.setBackground(new java.awt.Color(204, 204, 204));
         AddStep_Object.setForeground(new java.awt.Color(102, 102, 102));
         AddStep_Object.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
+        AddStep_Object.setToolTipText("Add a segmentation method.");
         AddStep_Object.setEnabled(false);
         AddStep_Object.setMaximumSize(new java.awt.Dimension(34, 34));
         AddStep_Object.setMinimumSize(new java.awt.Dimension(34, 34));
@@ -311,6 +334,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         DeleteAllSteps_Object.setBackground(new java.awt.Color(204, 204, 204));
         DeleteAllSteps_Object.setForeground(new java.awt.Color(102, 102, 102));
         DeleteAllSteps_Object.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-clear-list_24.png"))); // NOI18N
+        DeleteAllSteps_Object.setToolTipText("Delete all segmentation methods.");
         DeleteAllSteps_Object.setEnabled(false);
         DeleteAllSteps_Object.setMaximumSize(new java.awt.Dimension(34, 34));
         DeleteAllSteps_Object.setMinimumSize(new java.awt.Dimension(34, 34));
@@ -353,7 +377,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         SingleImageProcessing.add(Object_Header, gridBagConstraints);
 
         Object_Panel.setBackground(new java.awt.Color(204, 204, 204));
-        Object_Panel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         Object_Panel.setForeground(new java.awt.Color(102, 102, 102));
         Object_Panel.setAlignmentX(0.0F);
         Object_Panel.setAlignmentY(0.0F);
@@ -378,7 +401,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
 
         ObjectGo.setBackground(VTC._VTC.BUTTONBACKGROUND);
         ObjectGo.setText("Find Objects");
-        ObjectGo.setToolTipText("");
+        ObjectGo.setToolTipText("Find segmented objects.");
         ObjectGo.setEnabled(false);
         ObjectGo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -393,12 +416,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             .addGroup(Object_PanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(Object_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+                    .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
                     .addGroup(Object_PanelLayout.createSequentialGroup()
                         .addComponent(ObjectGo, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 97, Short.MAX_VALUE)
-                        .addComponent(ObjectProcess, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 316, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         Object_PanelLayout.setVerticalGroup(
@@ -407,10 +428,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                 .addContainerGap()
                 .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(Object_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(ObjectGo)
-                    .addComponent(ObjectProcess, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(ObjectGo)
+                .addContainerGap(68, Short.MAX_VALUE))
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -420,35 +439,38 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
         SingleImageProcessing.add(Object_Panel, gridBagConstraints);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(SingleImageProcessing, javax.swing.GroupLayout.PREFERRED_SIZE, 757, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(SingleImageProcessing, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        add(SingleImageProcessing);
+
+        ProgressPanel.setMaximumSize(new java.awt.Dimension(700, 50));
+        ProgressPanel.setMinimumSize(new java.awt.Dimension(700, 50));
+        ProgressPanel.setPreferredSize(new java.awt.Dimension(700, 30));
+        ProgressPanel.setRequestFocusEnabled(false);
+        java.awt.FlowLayout flowLayout2 = new java.awt.FlowLayout(java.awt.FlowLayout.TRAILING, 1, 1);
+        flowLayout2.setAlignOnBaseline(true);
+        ProgressPanel.setLayout(flowLayout2);
+
+        ProgressComment.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        ProgressComment.setText("Load an image to begin...");
+        ProgressPanel.add(ProgressComment);
+
+        ObjectProcess.setPreferredSize(new java.awt.Dimension(200, 20));
+        ProgressPanel.add(ObjectProcess);
+
+        add(ProgressPanel);
     }// </editor-fold>//GEN-END:initComponents
 
     private void OpenImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenImageActionPerformed
 
         this.notifyRequestImageListeners(tab);
         this.notifyRepaintTabListeners();
+        
     }//GEN-LAST:event_OpenImageActionPerformed
 
     private void AddStep_PreprocessingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStep_PreprocessingActionPerformed
         // TODO add your handling code here:
         if (ProcessingStepsList.size() > 0) {
 
-            ProcessStepBlockGUI block = new ProcessStepBlockGUI("Process Step", "", Color.LIGHT_GRAY, false, ThumbnailImage, OriginalImage, Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList.size() + 1);
+            ProcessStepBlockGUI block = new ProcessStepBlockGUI("Process Step", "", Color.LIGHT_GRAY, false, ThumbnailImage, OriginalImage, Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, ProcessingStepsList.size() + 1);
             block.addDeleteBlockListener(this);
             block.addRebuildPanelListener(this);
             this.notifyRepaintTabListeners();
@@ -458,6 +480,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             //pack();
 
             ProcessingStepsList.add(block);
+            
 
             if (ProcessingStepsList.size() <= 3) {
 
@@ -477,12 +500,40 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         ProcessingStepsList.clear();
         PreProcessingStepsPanel.removeAll();
         AddStep_Preprocessing.setEnabled(false);
+        PreProcessingGo.setEnabled(false);
+        this.OpenImage.setEnabled(true);
         PreProcessingStepsPanel.repaint();
         //pack();
     }//GEN-LAST:event_DeleteAllSteps_PreProcessingActionPerformed
 
     private void PreProcessingGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreProcessingGoActionPerformed
-        executeProcessing();
+        
+            new Thread(new Runnable() {
+      public void run() {
+          ObjectProcess.setIndeterminate(true);
+          PreProcessingGo.setEnabled(false);
+          executeProcessing();
+          PreProcessingGo.setEnabled(true);
+          ObjectProcess.setIndeterminate(false);
+          // Runs inside of the Swing UI thread
+          SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                for(int i = 0; i < 100; i++){
+              
+              ObjectProcess.setValue(i);
+                ObjectProcess.updateUI();}
+            }
+          });
+
+          try {
+            java.lang.Thread.sleep(100);
+          }
+          catch(Exception e) { }
+        
+      }
+    }).start();
+
+        ObjectProcess.setValue(0);
         this.FindObjectText.setForeground(VTC._VTC.ACTIVETEXT);
         this.AddStep_Object.setEnabled(true);
     }//GEN-LAST:event_PreProcessingGoActionPerformed
@@ -520,9 +571,41 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     }//GEN-LAST:event_DeleteAllSteps_ObjectActionPerformed
 
     private void ObjectGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ObjectGoActionPerformed
-        this.ObjectProcess.setIndeterminate(true);
-        executeObjectFinding();
-        this.ObjectProcess.setIndeterminate(false);
+        
+        
+
+
+    
+    new Thread(new Runnable() {
+      public void run() {
+          ObjectProcess.setIndeterminate(true);
+          ObjectGo.setEnabled(false);
+          PreProcessingGo.setEnabled(false);
+          executeObjectFinding();
+          ObjectGo.setEnabled(true);
+          PreProcessingGo.setEnabled(true);
+          ObjectProcess.setIndeterminate(false);
+          // Runs inside of the Swing UI thread
+          SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                for(int i = 0; i < 100; i++){
+              
+              ObjectProcess.setValue(i);
+                ObjectProcess.updateUI();}
+            }
+          });
+
+          try {
+            java.lang.Thread.sleep(100);
+          }
+          catch(Exception e) { }
+        
+      }
+    }).start();
+        
+  
+        
+        
         
     }//GEN-LAST:event_ObjectGoActionPerformed
 
@@ -533,8 +616,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     private javax.swing.JButton DeleteAllSteps_Object;
     private javax.swing.JButton DeleteAllSteps_PreProcessing;
     private javax.swing.JLabel FindObjectText;
-    private javax.swing.JButton ObjectGo;
-    public javax.swing.JProgressBar ObjectProcess;
+    public javax.swing.JButton ObjectGo;
+    public static javax.swing.JProgressBar ObjectProcess;
     public javax.swing.JPanel ObjectStepsPanel;
     private javax.swing.JPanel Object_Header;
     private javax.swing.JPanel Object_Panel;
@@ -545,8 +628,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     public javax.swing.JPanel PreProcessingStepsPanel;
     public javax.swing.JPanel PreProcessing_Panel;
     private javax.swing.JPanel Preprocessing_Header;
+    public static javax.swing.JLabel ProgressComment;
+    private javax.swing.JPanel ProgressPanel;
     private javax.swing.JPanel SingleImageProcessing;
-    private javax.swing.JLabel StartText;
     private javax.swing.JLabel exploreText;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
@@ -656,7 +740,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             Object.setFont(ObjectFont);
             Comment.setFont(CommentFont);
 
-            mbs = new MicroBlockObjectSetup(position, Channels);
+            mbs = new MicroBlockObjectSetup(position, Channels, ProcessedImage);
 
             mbs.setVisible(false);
             mbs.addMicroBlockSetupListener(this);
@@ -674,6 +758,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     mbs.setVisible(true);
+                    
                 }
             });
 
@@ -904,6 +989,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             sb.setPosition(ObjectStepsList.indexOf(sb) + 1);
             ObjectStepsPanel.add(sb.getPanel());
         }
+     
+        
     }
 
     public void UpdatePositionProcessing(int position) {
@@ -932,50 +1019,45 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
     }
 
     private void executeProcessing() {
+        
+        ProgressComment.setText("Processing image data...");
 
-        ArrayList protocol = new ArrayList();
+        ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
 
 //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
         protocol = ExtractSteps(ProcessingStepsList, PROCESSBLOCKS);
-
-        MicroProtocolPreProcessing mpp = new MicroProtocolPreProcessing(this.OriginalImage, protocol);
-
+        
+        ProgressComment.setText("Processing image data...");
+        //System.out.println("PROFILING: preprocessing protocol with " + protocol.size()+ " steps.");
+        if(protocol.size() > 0){
+        MicroProtocolPreProcessing mpp = new MicroProtocolPreProcessing(OriginalImage, protocol);
         mpp.ProcessImage();
+        
+        ProcessedImage = mpp.getResult();
+        }else{
+            ProcessedImage = OriginalImage.duplicate();
+        }
 
-        this.ProcessedImage = mpp.getResult();
-        this.ProcessedImage.setTitle(this.tabName + "_Processed");
+        ImagePlus ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
+        ProcessedShow.setTitle(this.tabName + "_Processed");
 
-        ImagePlus OriginalShow = this.OriginalImage.duplicate();
-        OriginalShow.setOpenAsHyperStack(true);
-        OriginalShow.setTitle(this.OriginalImage.getTitle());
-
-        this.OriginalImage.hide();
-
-        ImagePlus ProcessedShow = this.ProcessedImage.duplicate();
-        ProcessedShow.setOpenAsHyperStack(true);
-        ProcessedShow.setDisplayMode(IJ.COMPOSITE);
-        //ProcessedShow.setTitle(this.ProcessedImage.getTitle());
-        //ProcessedShow.setPosition(ProcessedShow.getNSlices()/2);
-        //IJ.resetMinAndMax(ProcessedShow);
-
-        ProcessedShow = UtilityMethods.makeThumbnail(ProcessedShow);
-        OriginalShow = UtilityMethods.makeThumbnail(OriginalShow);
-
-        //OriginalShow.show();
+        ProgressComment.setText("Processing complete...");
         ProcessedShow.show();
-
         this.ObjectGo.setEnabled(true);
     }
 
     private synchronized void executeObjectFinding() {
 
+        this.PreProcessingGo.setEnabled(false);
+        ProgressComment.setText("Finding objects...");
+        
+        
         ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
-
         protocol = ExtractSteps(ObjectStepsList, OBJECTBLOCKS);
 
-        System.out.println("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
-        IJ.log("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
-        //IJ.log("Objects to segment:" + ObjectStepsList.size());
+        //System.out.println("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
+        //System.out.println("PROFILING: for variables: " + protocol.get(5) + ", " + protocol.get(6)+ protocol.get(7) + ", " + protocol.get(8) +".");
+        //IJ.log("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
 
         me.start(ProcessedImage, protocol);
         
@@ -983,25 +1065,29 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         
         for(int i = 0; i < ObjectStepsList.size(); i++){
             executeExploring(i);
+            ProgressComment.setText("Finding objects complete...");
         }
         
         System.gc();
- 
+        
     }
     
 
 
     private void executeExploring(int i) {
+        
+        System.out.println("PROFILING: Explorer setup for Object_" + i);
         System.out.println("PROFILING: Explorer getting " +  me.getVolumes(i).size() + " volumes for Object_" + i);
+        //System.out.println("PROFILING: Explorer getting " +  me.getVolumes3D(i).size() + " floodfill volumes for Object_" + i);
         this.ObjectProcess.setMaximum(me.getVolumes(i).size() + 100);
-        me.addExplore(ProcessedImage, "Object_" + (i+1), me.getVolumes(i), me.getAvailableData(i));
+        me.addExplore(ProcessedImage,  "Object_" + (i+1), me.getVolumes(i), me.getAvailableData(i));
     }
 
     ;
 
-private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
+public ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
 
-        ArrayList Result = new ArrayList();
+        ArrayList<ArrayList> Result = new ArrayList<ArrayList>();
 
         if (blocktype == PROCESSBLOCKS) {
 
@@ -1012,8 +1098,11 @@ private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
                 ppsb = (ProcessStepBlockGUI) litr.next();
                 if (!(ppsb.Comment.getText()).equals("New Image")) {
                     Result.add(ppsb.getVariables());
+                    //System.out.println("PROFILING: preprocessing constants" + ppsb.getVariables());
                 }
             }
+            
+           
         }
 
         if (blocktype == OBJECTBLOCKS) {
@@ -1046,7 +1135,7 @@ private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
             }
             AddStep_Preprocessing.setEnabled(true);
 
-            ProcessStepBlockGUI block = new ProcessStepBlockGUI(imp.getTitle(), "New Image", ImageBlockBackground, batch, ThumbnailImage, OriginalImage, this.Channels, ProtocolManagerMulti.PROCESS, getBlockPosition());
+            ProcessStepBlockGUI block = new ProcessStepBlockGUI(imp.getTitle(), "New Image", ImageBlockBackground, batch, ThumbnailImage, OriginalImage, this.Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, getBlockPosition());
 
             PreProcessingStepsPanel.setLayout(PreProcessingLayout);
             PreProcessingStepsPanel.add(block.getPanel());
@@ -1085,6 +1174,17 @@ private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
             listener.onStartButton(i);
         }
     }
+    
+        
+    public void addUpdatedProtcolListener(UpdatedProtocolListener listener) {
+        UpdatedProtocolListeners.add(listener);
+    }
+
+    private void notifyUpdatedProtcolListeners(ArrayList<ArrayList> al) {
+        for (UpdatedProtocolListener listener : UpdatedProtocolListeners) {
+            listener.protocolUpdated(al);
+        }
+    }
 
     public void addRequestImageListener(RequestImageListener listener) {
         RequestImageListeners.add(listener);
@@ -1110,10 +1210,11 @@ private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
     public void onSelect(ImagePlus imp, int tab) {
 
         if (tab == this.tab && ProcessingStepsList.size() == 0) {
-            this.OriginalImage = imp.duplicate();
-            OriginalImage.setOpenAsHyperStack(true);
+            this.OriginalImage = imp;
+            //imp.setOpenAsHyperStack(true);
+            //OriginalImage.setOpenAsHyperStack(true);
 
-            this.ThumbnailImage = UtilityMethods.makeThumbnail(imp.duplicate());
+            ThumbnailImage = UtilityMethods.makeThumbnail(OriginalImage.duplicate());
 
             Channels = new ArrayList<String>();
             for (int i = 0; i <= OriginalImage.getNChannels() - 1; i++) {
@@ -1122,7 +1223,7 @@ private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
 
             AddStep_Preprocessing.setEnabled(true);
 
-            ProcessStepBlockGUI block = new ProcessStepBlockGUI(imp.getTitle(), "New Image", ImageBlockBackground, this.batch, this.ThumbnailImage, this.OriginalImage, this.Channels, ProtocolManagerMulti.PROCESS, getBlockPosition());
+            ProcessStepBlockGUI block = new ProcessStepBlockGUI(imp.getTitle(), "New Image", ImageBlockBackground, this.batch, this.ThumbnailImage, this.OriginalImage, this.Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, getBlockPosition());
             block.addRebuildPanelListener(this);
             PreProcessingStepsPanel.setLayout(PreProcessingLayout);
             PreProcessingStepsPanel.add(block.getPanel());
@@ -1142,10 +1243,13 @@ private ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
         }
         this.notifyRepaintTabListeners();
 
-        this.StartText.setForeground(VTC._VTC.INACTIVETEXT);
+       // this.StartText.setForeground(VTC._VTC.INACTIVETEXT);
+        this.OpenImage.setEnabled(false);
         this.DeleteAllSteps_PreProcessing.setEnabled(true);
         this.AddStep_Preprocessing.setEnabled(true);
         this.PreProcessingGo.setEnabled(true);
+        
+        ProgressComment.setText("Image loaded...");
     }
 
 };

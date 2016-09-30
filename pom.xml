@@ -14,9 +14,9 @@
 
     <groupId>sw_iupui</groupId>
     <artifactId>VTC_</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
 
-    <name>plugins/VTC.jar</name>
+    <name>VTEA_3DFloodFill</name>
     <description>Volumetric analysis</description>
 
     <dependencies>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-            <version>1.49v</version>
+            <version>1.51a</version>
         </dependency>
         <dependency>
             <groupId>org.swinglabs</groupId>
@@ -47,12 +47,12 @@
             <version>3.0.4</version>
             <type>jar</type>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>2.1</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
             <version>1.1</version>
@@ -108,8 +108,8 @@
                 <version>2.3.2</version>
                 <configuration>
                     <showDeprecation>true</showDeprecation>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -118,44 +118,24 @@
                 <version>2.3.2</version>
                 <configuration>
                     <executions>
-                    <execution>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                        <execution>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <mainClass>VTC._VTC</mainClass>
-                            </manifest>
+                        </manifest>
                     </archive>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.dstovall</groupId>
-                <artifactId>onejar-maven-plugin</artifactId>
-                <version>1.4.4</version>
-                <executions>
-                    <execution>
-                        <configuration>
-                            <!-- Optional -->
-                            <onejarVersion>0.97</onejarVersion>
-                            <classifier>onejar</classifier>
-                        </configuration>
-                        <goals>
-                            <goal>one-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>  
-        <pluginRepositories>
-        <pluginRepository>
-            <id>onejar-maven-plugin.googlecode.com</id>
-            <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
-        </pluginRepository>
+    <pluginRepositories>
+
     </pluginRepositories>  
     <developers>
         <developer>
@@ -190,7 +170,7 @@
     </repositories>
 
     <scm>
-       <connection>scm:git:git://github.com/imagej/minimal-ij1-plugin</connection>
+        <connection>scm:git:git://github.com/imagej/minimal-ij1-plugin</connection>
         <developerConnection>scm:git:git@github.com:imagej/minimal-ij1-plugin</developerConnection>
         <tag>HEAD</tag>
         <url>https://github.com/imagej/minimal-ij1-plugin</url>

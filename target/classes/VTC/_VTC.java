@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.lang.Runnable;
 import java.lang.Thread;
 
-public class _VTC implements PlugIn, ImageListener, ActionListener, ImageSelectionListener {
+public class _VTC implements PlugIn, ImageListener, ActionListener {
 
     public static Color BACKGROUND = new Color(204, 204, 204);
     public static Color BUTTONBACKGROUND = new Color(200, 200, 200);
@@ -22,9 +22,9 @@ public class _VTC implements PlugIn, ImageListener, ActionListener, ImageSelecti
     public static Dimension SMALLBUTTONSIZE = new Dimension(32, 32);
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
-    public static String VERSION = new String("0.1.0");
+    public static String VERSION = new String("0.2.0");
     
-    public static String[] PROCESSOPTIONS = {"Select Method", "LayerCake 3D", "FloodFill 3D", "Assisted Detection 3D", "Auto Detection 3D"};
+    public static String[] PROCESSOPTIONS = {"Select Method", "LayerCake 3D", "FloodFill 3D"};
     
     //public static Color ButtonBackground = new java.awt.Color(102, 102, 102);
 
@@ -102,10 +102,5 @@ public void run(String arg) {
     public void imageUpdated(ImagePlus imp) {
         protocolWindow.UpdateImageList();
         
-    }
-
-    @Override
-    public void onSelect(ImagePlus imp2, int tab) {
-
     }
 }
