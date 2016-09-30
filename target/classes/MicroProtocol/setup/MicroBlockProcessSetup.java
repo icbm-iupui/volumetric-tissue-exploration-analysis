@@ -532,6 +532,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             doPreview(currentSlice);  
         }else if(e.getSource() == this.ProcessSelectComboBox && this.ProcessSelectComboBox.getSelectedIndex() > 0){
           currentSlice = sliceSlider.getValue();
+          updateProtocolPanel(e);
             doPreview(currentSlice);  
         }
     }
