@@ -664,7 +664,8 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
 
         @Override
         protected void compute() {
-            int processors = Runtime.getRuntime().availableProcessors();
+            //limited to four threads, odd unreproducible behaviour above 4 threads
+            int processors = 4;
             int length = alRegions.size() / processors;
             //int remainder = alRegions.size()%processors; 
 
