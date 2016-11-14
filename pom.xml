@@ -175,5 +175,7 @@
         <tag>HEAD</tag>
         <url>https://github.com/imagej/minimal-ij1-plugin</url>
     </scm>
-
+    <properties>
+        <netbeans.hint.license>gpl20</netbeans.hint.license>
+    </properties>
 </project>
