@@ -919,25 +919,25 @@ public class MicroThresholdAdjuster  implements Measurements,
         Object source = e.getSource();
         if (source==minSlider){
             minValue = minSlider.getValue();
-            System.out.println("PROFILING: minSlider, " + minValue);
+            //System.out.println("PROFILING: minSlider, " + minValue);
             doUpdate();
         } 
 
         else if(source==maxSlider){
             maxValue = maxSlider.getValue();
-            System.out.println("PROFILING: maxSlider, " + maxValue);
+            //System.out.println("PROFILING: maxSlider, " + maxValue);
             doUpdate();
         }
 
         else if (source==methodChoice) {
             method = (String)methodChoice.getSelectedItem();
-            System.out.println("PROFILING: methodChoice, " + methodChoice.getSelectedIndex());
+            //System.out.println("PROFILING: methodChoice, " + methodChoice.getSelectedIndex());
             doAutoAdjust = true;
             doUpdate();
             
         } else if (source==modeChoice) {
             mode = modeChoice.getSelectedIndex();
-            System.out.println("PROFILING: modeChoice, " + mode);
+            //System.out.println("PROFILING: modeChoice, " + mode);
             setLutColor(mode);
             doStateChange = true;
             doUpdate();
