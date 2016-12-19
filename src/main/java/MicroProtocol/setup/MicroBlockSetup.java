@@ -18,25 +18,13 @@
 package MicroProtocol.setup;
 
 import MicroProtocol.listeners.MicroBlockSetupListener;
-import VTC._VTC;
-import ij.IJ;
-import ij.ImagePlus;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
 
 /**
  *
@@ -73,6 +61,8 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
     protected ArrayList CurrentProcessList;
     protected ArrayList<ArrayList> CurrentProcessItems = new ArrayList<ArrayList>();
+    
+    protected String[][] ProcessVariables = {{"750", "5", "20", "1000"},{"750", "4095", "20", "1000"}};
 
     /**
      * Creates new form MicroBlockSetup
@@ -507,7 +497,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         }
     }
 
-    protected ArrayList makeMethodComponentsArray(int position) {
+    protected ArrayList makeMethodComponentsArray(int position, String[][] values) {
 
         ArrayList result = new ArrayList();
 
@@ -531,7 +521,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         JPanel BuiltPanel = new JPanel();
         ArrayList ProcessComponents = new ArrayList();
 
-        ProcessComponents = makeMethodComponentsArray(position);
+        ProcessComponents = makeMethodComponentsArray(position,ProcessVariables);
 
         //IJ.log("Components: " + ProcessComponents);
         //MethodDetails = new JPanel();

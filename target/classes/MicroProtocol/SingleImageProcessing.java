@@ -1067,7 +1067,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
         protocol = ExtractSteps(ObjectStepsList, OBJECTBLOCKS);
 
-        //System.out.println("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
+        System.out.println("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
         //System.out.println("PROFILING: for variables: " + protocol.get(5) + ", " + protocol.get(6)+ protocol.get(7) + ", " + protocol.get(8) +".");
         //IJ.log("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
 
@@ -1126,7 +1126,7 @@ public ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
                 osb = (ObjectStepBlockGUI) litr.next();
 
                 Result.add(osb.getVariables());
-                //System.out.println("OSB variables: " + Result);
+                System.out.println("OSB variables: " + Result);
             }
         }
 

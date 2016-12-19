@@ -25,19 +25,18 @@ package MicroProtocol.setup;
  * https://imagej.nih.gov/ij/developer/source/ij/plugin/frame/ThresholdAdjuster.java.html
  */
 
-    import MicroProtocol.listeners.ChangeThresholdListener;
+import MicroProtocol.listeners.ChangeThresholdListener;
+import ij.*;
+import ij.gui.*;
+import ij.measure.*;
+import ij.plugin.ChannelSplitter;
+import ij.plugin.Thresholder;
+import ij.plugin.filter.*;
+import ij.plugin.frame.Recorder;
+import ij.process.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
-import ij.*;
-import ij.plugin.*;
-import ij.process.*;
-import ij.gui.*;
-import ij.measure.*;
-import ij.plugin.frame.Recorder;
-import ij.plugin.filter.*;
-import ij.plugin.ChannelSplitter;
-import ij.plugin.Thresholder;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -101,7 +100,7 @@ public class MicroThresholdAdjuster  implements Measurements,
     
     JPanel gui = new JPanel();
     
-    ArrayList<ChangeThresholdListener> ctl = new ArrayList<ChangeThresholdListener>();
+    ArrayList<ChangeThresholdListener> ctllisteners = new ArrayList<ChangeThresholdListener>();
 
 
     public MicroThresholdAdjuster(ImagePlus cimp) {
@@ -286,6 +285,7 @@ public class MicroThresholdAdjuster  implements Measurements,
             setup(impThreshold, true);
             
         }
+       this.notifyChangeThresholdListeners(minThreshold, maxThreshold);
     }
     
     public synchronized void adjustmentValueChanged(AdjustmentEvent e) {
@@ -340,16 +340,19 @@ public class MicroThresholdAdjuster  implements Measurements,
             method = (String)methodChoice.getSelectedItem();
             doAutoAdjust = true;
             doUpdate();
+            notifyChangeThresholdListeners(minThreshold, maxThreshold);
             notify();
         } else if (source==modeChoice) {
             mode = modeChoice.getSelectedIndex();
             setLutColor(mode);
             doStateChange = true;
             doUpdate();
+            notifyChangeThresholdListeners(minThreshold, maxThreshold);
             notify();
         } else
             doAutoAdjust = true;
             doUpdate();
+            notifyChangeThresholdListeners(minThreshold, maxThreshold);
             notify();
         //notify();
     }
@@ -610,6 +613,7 @@ public class MicroThresholdAdjuster  implements Measurements,
             //maxSlider.setValue((int)maxThreshold);
         }
         scaleUpAndSet(ip, minThreshold, maxThreshold);
+        notifyChangeThresholdListeners(minThreshold, maxThreshold);
     }
 
     void adjustMaxThreshold(ImagePlus imp, ImageProcessor ip, int cvalue) {
@@ -625,6 +629,7 @@ public class MicroThresholdAdjuster  implements Measurements,
         scaleUpAndSet(ip, minThreshold, maxThreshold);
 //        IJ.setKeyUp(KeyEvent.VK_ALT);
 //        IJ.setKeyUp(KeyEvent.VK_SHIFT);
+        notifyChangeThresholdListeners(minThreshold, maxThreshold);
     }
 
     void reset(ImagePlus imp, ImageProcessor ip) {
@@ -714,6 +719,7 @@ public class MicroThresholdAdjuster  implements Measurements,
     void changeState(ImagePlus imp, ImageProcessor ip) {
         scaleUpAndSet(ip, minThreshold, maxThreshold);
         updateScrollBars();
+        notifyChangeThresholdListeners(minThreshold, maxThreshold);
     }
 
     void autoThreshold(ImagePlus imp, ImageProcessor ip) {
@@ -944,6 +950,15 @@ public class MicroThresholdAdjuster  implements Measurements,
             
     
     }
+    public void addChangeThresholdListener(ChangeThresholdListener listener) {
+            ctllisteners.add(listener);
+        }
+
+    public void notifyChangeThresholdListeners(double min, double max) {
+            for (ChangeThresholdListener listener : ctllisteners) {
+                listener.thresholdChanged(min, max);
+            }
+        }
 
 } // ThresholdAdjuster class
 
@@ -1127,6 +1142,9 @@ class ThresholdPlot extends JPanel implements Measurements, MouseListener, Chang
       
     }
     
+  
+    
 
 
 } // ThresholdPlot class
+

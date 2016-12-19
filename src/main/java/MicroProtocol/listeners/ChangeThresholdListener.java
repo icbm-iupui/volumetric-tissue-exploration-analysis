@@ -23,6 +23,6 @@ package MicroProtocol.listeners;
  */
 public interface ChangeThresholdListener {
     
-    public void thresholdChanged(int min, int max);
+    public void thresholdChanged(double min, double max);
     
 }

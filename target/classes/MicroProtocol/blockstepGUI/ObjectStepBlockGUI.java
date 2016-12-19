@@ -61,11 +61,7 @@ import javax.swing.JPanel;
 
         private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, final int position, ImagePlus Image) {
 
-//            if (ObjectStepsList.isEmpty()) {
-//                position = 1;
-//            } else {
-//                position = ObjectStepsList.size() + 1;
-//            }
+
 
             Object.setText(ProcessText);
 

@@ -195,19 +195,10 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
     private void DeNoise(ImagePlus imp, ArrayList variables) {
         int channel = (Integer)variables.get(1);
         JTextField radius = (JTextField) variables.get(3);
-        //radius = (JTextField)variables.get(2);
+
         
-        ChannelSplitter cs = new ChannelSplitter();
-        
-        ImageStack is;
-        
-        is = cs.getChannel(imp, channel+1);
-        
-        for(int n = 1; n <= is.getSize(); n++){
             IJ.run(imp, "Median...", "radius="+radius.getText()+" stack");
-        }
-        //System.out.println("PROFILING: DeNoise, Median..." + "radius=" + radius.getText());
-        //IJ.run(imp, "Median...", "radius="+radius+" stack");
+
     }
 
     public ImagePlus getResult() {

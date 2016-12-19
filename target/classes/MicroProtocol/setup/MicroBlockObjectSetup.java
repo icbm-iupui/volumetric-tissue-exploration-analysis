@@ -17,11 +17,12 @@
  */
 package MicroProtocol.setup;
 
+import MicroProtocol.listeners.ChangeThresholdListener;
+import VTC._VTC;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.gui.ImageWindow;
 import ij.plugin.ChannelSplitter;
-import ij.plugin.frame.ThresholdAdjuster;
+import static java.awt.Color.GRAY;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
@@ -31,7 +32,6 @@ import java.util.Arrays;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -43,7 +43,7 @@ import javax.swing.table.TableModel;
  *
  * @author vinfrais
  */
-public class MicroBlockObjectSetup extends MicroBlockSetup {
+public final class MicroBlockObjectSetup extends MicroBlockSetup implements ChangeThresholdListener {
 
     //static public String[] ProcessOptions = {"Select Method", "LayerCake 3D", "FloodFill 3D", "Assisted Detection 3D", "Auto Detection 3D"};
 
@@ -86,10 +86,12 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
     
         mta = new MicroThresholdAdjuster(ThresholdPreview); 
         
+        mta.addChangeThresholdListener(this);
+        
         makeProtocolPanel(step);
 
         super.cbm = new DefaultComboBoxModel(VTC._VTC.PROCESSOPTIONS);
-        super.cbm.setSelectedItem("Select Method");
+        //super.cbm.setSelectedItem("Select Method");
         setBounds(new java.awt.Rectangle(500, 160, 378, 282));
 
         TitleText.setText("Object_" + (step));
@@ -100,7 +102,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         //MenuTypeText.setText("method");
 
         comments.remove(notesPane);
-        tablePane.setVisible(false);
+        tablePane.setVisible(true);
         
         CellValues = makeDerivedRegionTable();
         secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -123,6 +125,9 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
 
         ProcessSelectComboBox.setModel(cbm);
         ProcessSelectComboBox.setVisible(true);
+        
+        this.makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
+        
         repaint();
         pack();
     }
@@ -160,13 +165,14 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
    
     @Override
     protected void updateProtocolPanel(java.awt.event.ActionEvent evt) {
-        if(ProcessSelectComboBox.getSelectedIndex() != 0){
+        //if(ProcessSelectComboBox.getSelectedIndex() != 0){
         if(evt.getSource() == ChannelComboBox){
             
             Point p = new Point();
             p = ThresholdPreview.getWindow().getLocation();
             ThresholdPreview.hide();
             ThresholdPreview = getThresholdPreview();
+            
             ThresholdPreview.updateImage();
             ThresholdPreview.show();
             ThresholdPreview.getWindow().setLocation(p);
@@ -183,13 +189,23 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
-        } else {
-        methodBuild.removeAll();
-        MethodDetails.removeAll();
-        MethodDetails.repaint();
-        MethodDetails.setVisible(true);
-        //ThresholdPreview.hide();
-        }
+//        } else {
+////        Point p = new Point();
+////        p = ThresholdPreview.getWindow().getLocation();
+////        ThresholdPreview.hide();
+////        ThresholdPreview = getThresholdPreview();
+////        ThresholdPreview.updateImage();
+////        ThresholdPreview.show();
+////        ThresholdPreview.getWindow().setLocation(p);    
+//            
+//            
+//            
+//        methodBuild.removeAll();
+//        MethodDetails.removeAll();
+//        MethodDetails.repaint();
+//        MethodDetails.setVisible(true);
+//
+//        }
         pack();
     }
 
@@ -198,12 +214,13 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
 
         ArrayList ProcessComponents;
             
-        if (CurrentProcessItems.get(position) == null) {
-            ProcessComponents = CurrentProcessItems.set(position, makeMethodComponentsArray(position));
+//        if (CurrentProcessItems.get(position) == null) {
+//            ProcessComponents = CurrentProcessItems.set(position, makeMethodComponentsArray(position, ProcessVariables));
+//            ProcessComponents = CurrentProcessItems.get(position);
+//        } else {
+            ProcessComponents = CurrentProcessItems.set(position, makeMethodComponentsArray(position, ProcessVariables));
             ProcessComponents = CurrentProcessItems.get(position);
-        } else {
-            ProcessComponents = CurrentProcessItems.get(position);
-        }
+//        }
         
 
         MethodDetails.setVisible(false);
@@ -256,7 +273,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
 
             methodBuild.removeAll();
         
-        if(this.ProcessSelectComboBox.getSelectedIndex() != 0){
+//        if(this.ProcessSelectComboBox.getSelectedIndex() != 0){
             methodBuild.add(mta.getPanel());
         
             layoutConstraints.fill = GridBagConstraints.CENTER;
@@ -333,10 +350,10 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
             //layoutConstraints.weighty = 1;
             MethodDetails.add((Component) ProcessComponents.get(7), layoutConstraints);
         }
-        }else{
-            MethodDetails.removeAll();
-            MethodDetails.setVisible(false);
-        }
+//        }else{
+//            MethodDetails.removeAll();
+//            MethodDetails.setVisible(false);
+//        }
 
         pack();
         MethodDetails.setVisible(true);
@@ -345,6 +362,9 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         CurrentProcessList.add(cbm.getSelectedItem());
         CurrentProcessList.addAll(ProcessComponents);
         //CurrentProcessList.addAll(SecondaryComponents);
+        
+        
+ 
 
         return MethodDetails;
     }
@@ -365,31 +385,31 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
     }
 
     @Override
-    protected ArrayList makeMethodComponentsArray(int position) {
+    protected ArrayList makeMethodComponentsArray(int position, String[][] values) {
 
         ArrayList result = new ArrayList();
 
-        if (position == 1) {
+        if (position == 0) {
             result.add(new JLabel("Low Threshold"));
-            result.add(new JTextField("750"));
+            result.add(new JTextField(values[0][0]));
             result.add(new JLabel("Region Offset"));
             result.add(new JTextField("5"));
+            result.add(new JLabel("Min Vol (vox)"));
+            result.add(new JTextField("20"));
+            result.add(new JLabel("Max Vol (vox)"));
+            result.add(new JTextField("1000"));
+        }
+        if (position == 1) {
+            result.add(new JLabel("Low Threshold"));
+            result.add(new JTextField(values[1][0]));
+            result.add(new JLabel("High Threshold"));
+            result.add(new JTextField(values[1][1]));
             result.add(new JLabel("Min Vol (vox)"));
             result.add(new JTextField("20"));
             result.add(new JLabel("Max Vol (vox)"));
             result.add(new JTextField("100"));
         }
         if (position == 2) {
-            result.add(new JLabel("Low Threshold"));
-            result.add(new JTextField("750"));
-            result.add(new JLabel("High Threshold"));
-            result.add(new JTextField("4095"));
-            result.add(new JLabel("Min Vol (vox)"));
-            result.add(new JTextField("20"));
-            result.add(new JLabel("Max Vol (vox)"));
-            result.add(new JTextField("100"));
-        }
-        if (position == 3) {
             result.add(new JLabel("Solution not supported"));
             result.add(new JTextField("5"));
             //result.add(new JRadioButton("normalize", false));
@@ -434,21 +454,9 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
     @Override
     protected void blockSetupOKAction() {
 
-        //Object definition does not hold note value
-        //ArrayList cps = (ArrayList)CurrentProcessList.get(2);
         makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
-        //CurrentProcessList.set(1, "");
 
-        CurrentStepProtocol = CurrentProcessList;
-
-//        System.out.println("PROFILING: CurrentProcessList: " + ((JTextField)(CurrentProcessList.get(2))).getText());
-//        System.out.println("PROFILING: CurrentProcessList: " + ((JTextField)(CurrentProcessList.get(4))).getText());
-//        System.out.println("PROFILING: CurrentProcessList: " + ((JTextField)(CurrentProcessList.get(6))).getText());
-//        System.out.println("PROFILING: CurrentProcessList: " + ((JTextField)(CurrentProcessList.get(8))).getText());
-
-        super.notifyMicroBlockSetupListeners(getSettings());
-
-        //IJ.log("MicroBlockSetupObject result: " + getSettings());
+        CurrentStepProtocol = CurrentProcessList;       super.notifyMicroBlockSetupListeners(getSettings());
 
         this.setVisible(false);
     }
@@ -485,7 +493,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         key.addAll(Arrays.asList("minObjectSize", "maxObjectSize", "minOverlap", "minThreshold"));
         repeated.add(key);
 
-        if (ProcessSelectComboBox.getSelectedIndex() == 1) {
+        if (ProcessSelectComboBox.getSelectedIndex() == 0) {
             //build primary volume variables
             placeholder = (JTextField) CurrentStepProtocol.get(6);
             repeated.add(placeholder.getText());
@@ -512,7 +520,7 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
                 result.add(alDerived);
             }
         }
-        if (ProcessSelectComboBox.getSelectedIndex() == 2) {
+        if (ProcessSelectComboBox.getSelectedIndex() == 1) {
             //build primary volume variables
             placeholder = (JTextField) CurrentStepProtocol.get(6);
             repeated.add(placeholder.getText());
@@ -560,6 +568,36 @@ public class MicroBlockObjectSetup extends MicroBlockSetup {
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public void thresholdChanged(double min, double max) {
+        
+        max = (this.ThresholdPreview.getProcessor().getMax()/255)*max;
+        min = (this.ThresholdPreview.getProcessor().getMax()/255)*min;
+        
+       // System.out.println("PROFILING: Threshold " + min + "," + max );
+       
+      
+        
+        String[][] str = {{String.valueOf(Math.round(min)), "5", "20", "1000"},{String.valueOf(Math.round(min)), String.valueOf(Math.round(max)), "20", "1000"}};
+        
+        
+        
+        
+        tablePane.setVisible(true);
+        MethodDetails.setVisible(false);
+        MethodDetails.removeAll();
+        
+        ProcessVariables = str;
+        
+        makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
+        MethodDetails.revalidate();
+        MethodDetails.repaint();
+        MethodDetails.setVisible(true);
+        pack();
+        
+ 
     }
 
     private class channelNumber extends javax.swing.JComboBox {

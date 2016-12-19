@@ -16,7 +16,7 @@
     <artifactId>VTC_</artifactId>
     <version>0.2.0-SNAPSHOT</version>
 
-    <name>VTEA_Master</name>
+    <name>VTEA_Image Processing Bugs</name>
     <description>Volumetric analysis</description>
 
     <dependencies>

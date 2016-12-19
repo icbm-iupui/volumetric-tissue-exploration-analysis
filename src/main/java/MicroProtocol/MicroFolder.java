@@ -69,13 +69,13 @@ public class MicroFolder extends java.lang.Object implements Runnable {
         mask =  (ArrayList)protocol.get(0);
 
         switch ((Integer) mask.get(1)) {
-            case 1:
+            case 0:
                 stdm = new SingleThresholdDataModel();
                 stdm.processDataLayerCake(imagedata, protocol);
                 volumes = stdm.getObjects();
                 System.out.println("PROFILING: Getting " + volumes.size() + " 3D layercake volumes.");
                 break;
-            case 2:
+            case 1:
                 stdm = new SingleThresholdDataModel();
                 stdm.processData3DFloodFill(imagedata, protocol);
                 volumes = stdm.getObjects();

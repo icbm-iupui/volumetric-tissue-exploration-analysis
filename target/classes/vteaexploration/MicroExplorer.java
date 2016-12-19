@@ -90,7 +90,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private static final int POINTAXIS = 3;
 
     public static final int XSTART = 0;
-    public static final int YSTART = 4;
+    public static final int YSTART = 1;
     public static final int LUTSTART = 1;
 
     public static final int POINTSIZE = 4;

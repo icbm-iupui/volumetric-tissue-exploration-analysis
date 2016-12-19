@@ -21,6 +21,7 @@ import MicroProtocol.SingleImageProcessing;
 import static MicroProtocol.SingleImageProcessing.OBJECTBLOCKS;
 import static MicroProtocol.SingleImageProcessing.PROCESSBLOCKS;
 import MicroProtocol.blockstepGUI.ProcessStepBlockGUI;
+import VTC._VTC;
 import ij.ImagePlus;
 import ij.LookUpTable;
 import ij.plugin.ChannelSplitter;
@@ -389,7 +390,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
 
         
         if (CurrentProcessItems.get(position) == null) {
-            ProcessComponents = CurrentProcessItems.set(position, makeMethodComponentsArray(position));
+            ProcessComponents = CurrentProcessItems.set(position, makeMethodComponentsArray(position, ProcessVariables));
             ProcessComponents = CurrentProcessItems.get(position);
         } else {
             ProcessComponents = CurrentProcessItems.get(position);
@@ -483,7 +484,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
     }
 
     @Override
-    protected ArrayList makeMethodComponentsArray(int position) {
+    protected ArrayList makeMethodComponentsArray(int position, String[][] str) {
 
         ArrayList result = new ArrayList();
 
