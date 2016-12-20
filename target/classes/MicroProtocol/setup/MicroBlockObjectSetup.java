@@ -165,7 +165,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
    
     @Override
     protected void updateProtocolPanel(java.awt.event.ActionEvent evt) {
-        //if(ProcessSelectComboBox.getSelectedIndex() != 0){
+   
         if(evt.getSource() == ChannelComboBox){
             
             Point p = new Point();
@@ -177,7 +177,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             ThresholdPreview.show();
             ThresholdPreview.getWindow().setLocation(p);
             
-            //System.out.println("PROFILING: UpdateProtocol, ChannelComboBox");
+     
             mta = new MicroThresholdAdjuster(ThresholdPreview); 
             mta.doUpdate();
             
@@ -189,23 +189,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
-//        } else {
-////        Point p = new Point();
-////        p = ThresholdPreview.getWindow().getLocation();
-////        ThresholdPreview.hide();
-////        ThresholdPreview = getThresholdPreview();
-////        ThresholdPreview.updateImage();
-////        ThresholdPreview.show();
-////        ThresholdPreview.getWindow().setLocation(p);    
-//            
-//            
-//            
-//        methodBuild.removeAll();
-//        MethodDetails.removeAll();
-//        MethodDetails.repaint();
-//        MethodDetails.setVisible(true);
-//
-//        }
+
         pack();
     }
 
@@ -214,13 +198,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
 
         ArrayList ProcessComponents;
             
-//        if (CurrentProcessItems.get(position) == null) {
-//            ProcessComponents = CurrentProcessItems.set(position, makeMethodComponentsArray(position, ProcessVariables));
-//            ProcessComponents = CurrentProcessItems.get(position);
-//        } else {
+
             ProcessComponents = CurrentProcessItems.set(position, makeMethodComponentsArray(position, ProcessVariables));
             ProcessComponents = CurrentProcessItems.get(position);
-//        }
+
         
 
         MethodDetails.setVisible(false);
@@ -393,11 +374,11 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             result.add(new JLabel("Low Threshold"));
             result.add(new JTextField(values[0][0]));
             result.add(new JLabel("Region Offset"));
-            result.add(new JTextField("5"));
+            result.add(new JTextField(values[0][1]));
             result.add(new JLabel("Min Vol (vox)"));
-            result.add(new JTextField("20"));
+            result.add(new JTextField(values[0][2]));
             result.add(new JLabel("Max Vol (vox)"));
-            result.add(new JTextField("1000"));
+            result.add(new JTextField(values[0][3]));
         }
         if (position == 1) {
             result.add(new JLabel("Low Threshold"));
@@ -405,9 +386,9 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             result.add(new JLabel("High Threshold"));
             result.add(new JTextField(values[1][1]));
             result.add(new JLabel("Min Vol (vox)"));
-            result.add(new JTextField("20"));
+            result.add(new JTextField(values[1][2]));
             result.add(new JLabel("Max Vol (vox)"));
-            result.add(new JTextField("100"));
+            result.add(new JTextField(values[1][3]));
         }
         if (position == 2) {
             result.add(new JLabel("Solution not supported"));
@@ -450,14 +431,29 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     public void setProcessedImage(ImagePlus imp){
         this.ThresholdOriginal = imp;
     }
+    
+    private void updateProcessVariables()
+    {
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = ((JTextField)CurrentStepProtocol.get(2)).getText();
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][1] = ((JTextField)CurrentStepProtocol.get(4)).getText();
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][2] = ((JTextField)CurrentStepProtocol.get(6)).getText();
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][3] = ((JTextField)CurrentStepProtocol.get(8)).getText();
+    }
 
     @Override
     protected void blockSetupOKAction() {
+        
+        //CurrentStepProtocol = CurrentProcessList; 
+        
+        
+        
+        CurrentStepProtocol = CurrentProcessList;  
+        
+        updateProcessVariables();
 
         makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
 
-        CurrentStepProtocol = CurrentProcessList;       super.notifyMicroBlockSetupListeners(getSettings());
-
+        super.notifyMicroBlockSetupListeners(getSettings());
         this.setVisible(false);
     }
 
