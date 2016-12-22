@@ -23,8 +23,6 @@ import java.util.*;
 import ij.ImagePlus;
 import java.awt.Color;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import vteaobjects.MicroObject;

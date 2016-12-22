@@ -83,6 +83,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         CurrentProcessList = new ArrayList(10);
         initComponents();
         ChannelComboBox.setVisible(true);
+        PreviewButton.setVisible(false);
         pack();
     }
 
@@ -97,6 +98,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         java.awt.GridBagConstraints gridBagConstraints;
 
         jMenuItem1 = new javax.swing.JMenuItem();
+        jButton1 = new javax.swing.JButton();
         methodBuild = new javax.swing.JPanel();
         AlgorithmStyle = new javax.swing.JPanel();
         methodSelection = new javax.swing.JPanel();
@@ -112,6 +114,8 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         tableScrollPane = new javax.swing.JScrollPane();
         secondaryTable = new javax.swing.JTable();
         buttonPanel = new javax.swing.JPanel();
+        PreviewProgress = new javax.swing.JLabel();
+        PreviewButton = new javax.swing.JButton();
         BlockSetupOK = new javax.swing.JButton();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 32), new java.awt.Dimension(10, 32), new java.awt.Dimension(10, 32));
         BlockSetupCancel = new javax.swing.JButton();
@@ -125,6 +129,8 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         MethodDetails = new javax.swing.JPanel();
 
         jMenuItem1.setText("jMenuItem1");
+
+        jButton1.setText("jButton1");
 
         setBackground(new java.awt.Color(204, 204, 204));
         setBounds(new java.awt.Rectangle(110, 160, 378, 282));
@@ -294,8 +300,24 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         buttonPanel.setMinimumSize(VTC._VTC.BLOCKSETUPPANEL);
         buttonPanel.setLayout(new java.awt.GridBagLayout());
+        buttonPanel.add(PreviewProgress, new java.awt.GridBagConstraints());
+
+        PreviewButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/eye.png"))); // NOI18N
+        PreviewButton.setToolTipText("Preview Segmentation");
+        PreviewButton.setMaximumSize(VTC._VTC.SMALLBUTTONSIZE);
+        PreviewButton.setMinimumSize(VTC._VTC.SMALLBUTTONSIZE);
+        PreviewButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PreviewButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        buttonPanel.add(PreviewButton, gridBagConstraints);
 
         BlockSetupOK.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/dialog-apply.png"))); // NOI18N
+        BlockSetupOK.setToolTipText("Accept changes");
         BlockSetupOK.setMaximumSize(VTC._VTC.SMALLBUTTONSIZE);
         BlockSetupOK.setMinimumSize(VTC._VTC.SMALLBUTTONSIZE);
         BlockSetupOK.setPreferredSize(VTC._VTC.SMALLBUTTONSIZE);
@@ -314,6 +336,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         buttonPanel.add(filler1, gridBagConstraints);
 
         BlockSetupCancel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_24.png"))); // NOI18N
+        BlockSetupCancel.setToolTipText("Cancel changes");
         BlockSetupCancel.setMaximumSize(VTC._VTC.SMALLBUTTONSIZE);
         BlockSetupCancel.setMinimumSize(VTC._VTC.SMALLBUTTONSIZE);
         BlockSetupCancel.setPreferredSize(VTC._VTC.SMALLBUTTONSIZE);
@@ -482,16 +505,24 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         // TODO add your handling code here:
     }//GEN-LAST:event_TitleTextPropertyChange
 
+    private void PreviewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreviewButtonActionPerformed
+        this.PreviewProgress.setText("Getting segmentation preview...");
+        
+        getSegmentationPreview();
+        
+    }//GEN-LAST:event_PreviewButtonActionPerformed
+    
+    protected void getSegmentationPreview(){
+        
+    }
+    
     public void addMicroBlockSetupListener(MicroBlockSetupListener listener) {
         MicroBlockSetupListeners.add(listener);
-        //IJ.showMessage("microblocksetuplistener added");
-
     }
 
     protected void notifyMicroBlockSetupListeners(ArrayList al) {
         for (MicroBlockSetupListener listener : MicroBlockSetupListeners) {
 
-            // IJ.showMessage("notifying microblocksetuplisteners");
             listener.onChangeSetup(al);
 
         }
@@ -523,32 +554,10 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         ProcessComponents = makeMethodComponentsArray(position,ProcessVariables);
 
-        //IJ.log("Components: " + ProcessComponents);
-        //MethodDetails = new JPanel();
+
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
 
-//      JPanel options = new JPanel();
-//      JLabel label1 = new JLabel("test_1");
-//      JLabel label2 = new JLabel("test_2");
-//      JLabel label3 = new JLabel("test_3");
-//      JLabel label4 = new JLabel("test_4");
-//      JLabel label5 = new JLabel("test_5");
-//      JLabel label6 = new JLabel("test_6");
-//      
-//      JTextField text1 = new JTextField(5);
-//      JTextField text2 = new JTextField(5);
-//      JTextField text3 = new JTextField(5);
-//      JTextField text4 = new JTextField(5);
-//      JTextField text5 = new JTextField(5);
-//      JTextField text6 = new JTextField(5);
-//      
-//      JRadioButton radio1 = new JRadioButton("radio1", false);
-//      JRadioButton radio2 = new JRadioButton("radio2", false);
-//      JRadioButton radio3 = new JRadioButton("radio3", false);   
-//      JRadioButton radio4 = new JRadioButton("radio4", false);
-//      JRadioButton radio5 = new JRadioButton("radio5", false);
-//      JRadioButton radio6 = new JRadioButton("radio6", false);
         BuiltPanel.setLayout(new GridBagLayout());
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
@@ -730,14 +739,17 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     protected javax.swing.JLabel ChannelSelection;
     protected javax.swing.JPanel MethodDetails;
     protected javax.swing.JLabel PositionText;
+    public javax.swing.JButton PreviewButton;
+    public javax.swing.JLabel PreviewProgress;
     private javax.swing.JScrollPane ProcessNotes;
     protected javax.swing.JComboBox ProcessSelectComboBox;
     protected javax.swing.JLabel ProcessText;
     protected javax.swing.JTextField TitleText;
-    private javax.swing.JPanel buttonPanel;
+    public javax.swing.JPanel buttonPanel;
     private javax.swing.JPanel channelSelection;
     protected javax.swing.JPanel comments;
     private javax.swing.Box.Filler filler1;
+    private javax.swing.JButton jButton1;
     protected javax.swing.JLabel jLabel3;
     private javax.swing.JMenuItem jMenuItem1;
     protected javax.swing.JTextPane jTextPane1;

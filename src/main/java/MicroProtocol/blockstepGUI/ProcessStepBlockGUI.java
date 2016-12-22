@@ -284,17 +284,11 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
                    }
 
                    if(position > 1 && updatePreviewImage){
-                       
+                       OriginalImage.deleteRoi();
                        ThumbnailImage = previewThumbnail(OriginalImage.duplicate());
-                       
-                       //ThumbnailImage.show();
-                      // ThumbnailImage.setSlice(ThumbnailImage.getNSlices()/2);
+                       OriginalImage.restoreRoi();
                        
                        thumb.add(new ImagePanel(ThumbnailImage.getImage()));
-                       //ThumbnailImage.hide();
-//                       JLabel slice = new JLabel("Slice: " + ThumbnailImage.getSlice());
-//                       slice.setBackground(Color.YELLOW);
-//                       thumb.add(slice);
                         
                        updatePreviewImage = false;
                    }else{
@@ -415,10 +409,6 @@ public class ProcessStepBlockGUI extends Object implements Cloneable, MicroBlock
             updatePreviewImage = true;
             
         }
-//
-//        @Override
-//        public void newBatchFileList(int[] batchfileindices) {
-//           
-//        }
+
 
     }

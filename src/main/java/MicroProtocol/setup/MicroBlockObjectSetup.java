@@ -18,19 +18,21 @@
 package MicroProtocol.setup;
 
 import MicroProtocol.listeners.ChangeThresholdListener;
-import VTC._VTC;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.Roi;
+import ij.gui.RoiListener;
 import ij.plugin.ChannelSplitter;
-import static java.awt.Color.GRAY;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.LayoutManager;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -43,7 +45,10 @@ import javax.swing.table.TableModel;
  *
  * @author vinfrais
  */
-public final class MicroBlockObjectSetup extends MicroBlockSetup implements ChangeThresholdListener {
+public final class MicroBlockObjectSetup extends MicroBlockSetup implements ChangeThresholdListener, RoiListener {
+    public static String getMethod(int i) {
+        return VTC._VTC.PROCESSOPTIONS[i];
+    }
 
     //static public String[] ProcessOptions = {"Select Method", "LayerCake 3D", "FloodFill 3D", "Assisted Detection 3D", "Auto Detection 3D"};
 
@@ -73,17 +78,18 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     ImagePlus ThresholdOriginal = new ImagePlus();
     ImagePlus ThresholdPreview = new ImagePlus();
     
+    
+    
+    
+    
     //ImagePlus ImagePreview = new ImagePlus()
     
     public MicroBlockObjectSetup(int step, ArrayList Channels, ImagePlus imp) {
         super(step, Channels);
-        
-        
-
+ 
         ThresholdOriginal = imp.duplicate();
         ThresholdPreview = getThresholdPreview();
 
-    
         mta = new MicroThresholdAdjuster(ThresholdPreview); 
         
         mta.addChangeThresholdListener(this);
@@ -91,7 +97,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         makeProtocolPanel(step);
 
         super.cbm = new DefaultComboBoxModel(VTC._VTC.PROCESSOPTIONS);
-        //super.cbm.setSelectedItem("Select Method");
         setBounds(new java.awt.Rectangle(500, 160, 378, 282));
 
         TitleText.setText("Object_" + (step));
@@ -99,7 +104,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         PositionText.setText("Object_" + (step));
         PositionText.setVisible(false);
         ProcessText.setText("Object building method ");
-        //MenuTypeText.setText("method");
+       
 
         comments.remove(notesPane);
         tablePane.setVisible(true);
@@ -128,6 +133,9 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         
         this.makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
         
+        PreviewButton.setVisible(true);
+        PreviewButton.setEnabled(true);
+        
         repaint();
         pack();
     }
@@ -142,6 +150,23 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         }
         return CellValues;
     }
+    
+    @Override
+    protected void getSegmentationPreview(){
+        
+        CurrentStepProtocol = CurrentProcessList;  
+        
+        updateProcessVariables();
+        
+        ThresholdOriginal.setRoi(ThresholdPreview.getRoi());
+        
+        this.PreviewProgress.setText("Getting Preview...");
+
+        SegmentationPreviewer.SegmentationPreviewFactory(ThresholdOriginal, getSettings());
+        
+        this.PreviewProgress.setText("");
+        
+    }
 
     
     @Override
@@ -150,7 +175,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         if(b){
             ThresholdPreview.show(); 
             ThresholdPreview.setTitle(this.TitleText.getText());
-            //ThresholdPreview.getWindow().setAlwaysOnTop(true);
         }
         else {ThresholdPreview.hide();}
     }
@@ -208,53 +232,12 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         MethodDetails.removeAll();
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
-   //     GridBagConstraints secondaryLayoutConstraints = new GridBagConstraints();
-        
-//        secondaryFilter.removeAll();
-//        
-//        ArrayList SecondaryComponents;
-//        
-//        SecondaryComponents = this.makeSecondaryComponentsArray(position);
-//        
-//        //Secondary-size filter
-//        if (SecondaryComponents.size() > 0) {
-//            secondaryLayoutConstraints.fill = GridBagConstraints.CENTER;
-//            secondaryLayoutConstraints.gridx = 1;
-//            secondaryLayoutConstraints.gridy = 0;
-//            secondaryLayoutConstraints.weightx = 1;
-//            secondaryLayoutConstraints.weighty = 1;
-//            secondaryFilter.add((Component) SecondaryComponents.get(0), secondaryLayoutConstraints);
-//        }
-//
-//        if (SecondaryComponents.size() > 1) {
-//            secondaryLayoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-//            secondaryLayoutConstraints.gridx = 2;
-//            secondaryLayoutConstraints.gridy = 0;
-//            //layoutConstraints.weightx = 1;
-//            //layoutConstraints.weighty = 1;
-//            secondaryFilter.add((Component) SecondaryComponents.get(1), secondaryLayoutConstraints);
-//        } 
-//        if (SecondaryComponents.size() > 2) {
-//            secondaryLayoutConstraints.fill = GridBagConstraints.CENTER;
-//            secondaryLayoutConstraints.gridx = 3;
-//            secondaryLayoutConstraints.gridy = 0;
-//            //layoutConstraints.weightx = 1;
-//            //layoutConstraints.weighty = 1;
-//            secondaryFilter.add((Component) SecondaryComponents.get(2), secondaryLayoutConstraints);
-//        }
-//        if (SecondaryComponents.size() > 3) {
-//            secondaryLayoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-//            secondaryLayoutConstraints.gridx = 4;
-//            secondaryLayoutConstraints.gridy = 0;
-//            //layoutConstraints.weightx = 1;
-//            //layoutConstraints.weighty = 1;
-//            secondaryFilter.add((Component) SecondaryComponents.get(3), secondaryLayoutConstraints);
-//        }
+
  
 
             methodBuild.removeAll();
         
-//        if(this.ProcessSelectComboBox.getSelectedIndex() != 0){
+
             methodBuild.add(mta.getPanel());
         
             layoutConstraints.fill = GridBagConstraints.CENTER;
@@ -262,7 +245,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
-        //MethodDetails.add(mta.getPanel());
+ 
         
         //MethodDetail
         if (ProcessComponents.size() > 0) {
@@ -278,8 +261,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
             layoutConstraints.gridx = 2;
             layoutConstraints.gridy = 0;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
+
             MethodDetails.add((Component) ProcessComponents.get(1), layoutConstraints);
         }
 
@@ -287,66 +269,49 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 3;
             layoutConstraints.gridy = 0;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
+
             MethodDetails.add((Component) ProcessComponents.get(2), layoutConstraints);
         }
         if (ProcessComponents.size() > 3) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
             layoutConstraints.gridx = 4;
             layoutConstraints.gridy = 0;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
+
             MethodDetails.add((Component) ProcessComponents.get(3), layoutConstraints);
         }
         if (ProcessComponents.size() > 4) {
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 1;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
+
             MethodDetails.add((Component) ProcessComponents.get(4), layoutConstraints);
         }
         if (ProcessComponents.size() > 5) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
             layoutConstraints.gridx = 2;
             layoutConstraints.gridy = 1;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
+
             MethodDetails.add((Component) ProcessComponents.get(5), layoutConstraints);
         }
         if (ProcessComponents.size() > 6) {
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 3;
             layoutConstraints.gridy = 1;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
+
             MethodDetails.add((Component) ProcessComponents.get(6), layoutConstraints);
         }
         if (ProcessComponents.size() > 7) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
             layoutConstraints.gridx = 4;
             layoutConstraints.gridy = 1;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
+
             MethodDetails.add((Component) ProcessComponents.get(7), layoutConstraints);
         }
-//        }else{
-//            MethodDetails.removeAll();
-//            MethodDetails.setVisible(false);
-//        }
-
         pack();
-        MethodDetails.setVisible(true);
-       
+        MethodDetails.setVisible(true);    
         CurrentProcessList.clear();
         CurrentProcessList.add(cbm.getSelectedItem());
         CurrentProcessList.addAll(ProcessComponents);
-        //CurrentProcessList.addAll(SecondaryComponents);
-        
-        
- 
-
         return MethodDetails;
     }
     
@@ -356,14 +321,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         return imp;
     }
     
-        private int getChannelIndex(String text) {
-
+    private int getChannelIndex(String text) {
         return Channels.indexOf(text);
     }
 
-    public static String getMethod(int i) {
-        return VTC._VTC.PROCESSOPTIONS[i];
-    }
 
     @Override
     protected ArrayList makeMethodComponentsArray(int position, String[][] values) {
@@ -393,8 +354,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         if (position == 2) {
             result.add(new JLabel("Solution not supported"));
             result.add(new JTextField("5"));
-            //result.add(new JRadioButton("normalize", false));
-            //result.add(new JRadioButton("secondary", false));
         }
         return result;
     }
@@ -406,25 +365,12 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
        
         ArrayList result = new ArrayList();
 
-        //if (position == 1) {
+   
             result.add(new JLabel("Min. Size (vox)"));
             result.add(new JTextField("20"));
             result.add(new JLabel("Max. Size (vox)"));
             result.add(new JTextField("100"));
-//        }
-//        if (position == 2) {
-//
-//            result.add(new JLabel("Minimum Size (px)"));
-//            result.add(new JTextField("20"));
-//            result.add(new JLabel("Maximum Size (px)"));
-//            result.add(new JTextField("100"));
-//        }
-//        if (position == 3) {
-//            result.add(new JLabel("Solution not supported"));
-//           
-//            //result.add(new JRadioButton("normalize", false));
-//            //result.add(new JRadioButton("secondary", false));
-//        }
+
         return result;
     }
     
@@ -432,6 +378,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         this.ThresholdOriginal = imp;
     }
     
+ 
     private void updateProcessVariables()
     {
         ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = ((JTextField)CurrentStepProtocol.get(2)).getText();
@@ -443,10 +390,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     @Override
     protected void blockSetupOKAction() {
         
-        //CurrentStepProtocol = CurrentProcessList; 
-        
-        
-        
         CurrentStepProtocol = CurrentProcessList;  
         
         updateProcessVariables();
@@ -454,6 +397,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
 
         super.notifyMicroBlockSetupListeners(getSettings());
+        
         this.setVisible(false);
     }
 
@@ -522,13 +466,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             repeated.add(placeholder.getText());
             placeholder = (JTextField) CurrentStepProtocol.get(8);
             repeated.add(placeholder.getText());
-            //repeated.add("1000");
             placeholder = (JTextField) CurrentStepProtocol.get(4);
             repeated.add(placeholder.getText());
             placeholder = (JTextField) CurrentStepProtocol.get(2);
             repeated.add(placeholder.getText());
-
-            //add primary as first item in list
             result.add(repeated);
              
             for(int i = 0; i < secondaryTable.getRowCount(); i++){
@@ -594,6 +535,18 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         pack();
         
  
+    }
+
+    @Override
+    public void roiModified(ImagePlus ip, int i) {
+        if(ip.getID() == ThresholdPreview.getID()){
+            try{
+                Roi r = ThresholdPreview.getRoi();
+            }catch(NullPointerException e){
+                
+            }
+            
+        }
     }
 
     private class channelNumber extends javax.swing.JComboBox {

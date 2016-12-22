@@ -24,7 +24,9 @@ import MicroProtocol.blockstepGUI.ProcessStepBlockGUI;
 import VTC._VTC;
 import ij.ImagePlus;
 import ij.LookUpTable;
+import ij.gui.Roi;
 import ij.plugin.ChannelSplitter;
+import ij.plugin.Duplicator;
 import ij.process.LUT;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -60,7 +62,7 @@ import vteapreprocessing.MicroProtocolPreProcessing;
  */
 public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeListener, ActionListener {
     
-    ImagePlus ThresholdPreview = new ImagePlus();
+    //ImagePlus ThresholdPreview = new ImagePlus();
     ImagePlus OriginalImage;
     ImagePlus ProcessPreview;
     int currentSlice;
@@ -211,6 +213,15 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         final ImagePlus imp = new ImagePlus("preview", cs.getChannel(OriginalImage.duplicate(), ChannelComboBox.getSelectedIndex()+1));
         
         ProcessPreview = new ImagePlus("ProcessPreview", imp.getStack().getProcessor(slice));
+        
+        ProcessPreview.resetStack();
+            ProcessPreview.setRoi(new Roi(0,0,255,255));
+            if(ProcessPreview.getWidth() < 255 || ProcessPreview.getHeight() < 255){
+            ProcessPreview.setRoi(new Roi(0,0,ProcessPreview.getWidth(),ProcessPreview.getHeight()));
+            }
+ 
+        
+        
         
         
         if(this.previewControl.isSelected()){

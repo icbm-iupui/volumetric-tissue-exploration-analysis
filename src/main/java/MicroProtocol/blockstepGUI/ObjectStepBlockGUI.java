@@ -46,6 +46,10 @@ import javax.swing.JPanel;
         JLabel Object = new JLabel("First things first");
         boolean ProcessTypeSet = false;
         int position;
+        
+        JButton DeleteButton;
+        JButton EditButton;
+        JButton PreviewButton;
 
         MicroBlockSetup mbs;
 
@@ -87,7 +91,7 @@ import javax.swing.JPanel;
             mbs.setVisible(false);
             mbs.addMicroBlockSetupListener(this);
 
-            JButton DeleteButton = new JButton();
+            DeleteButton = new JButton();
             DeleteButton.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
@@ -95,12 +99,20 @@ import javax.swing.JPanel;
                 }
             });
 
-            JButton EditButton = new JButton();
+            EditButton = new JButton();
             EditButton.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     mbs.setVisible(true);
-                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+            });
+            
+            PreviewButton = new JButton();
+            PreviewButton.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    
+                    
                 }
             });
 
@@ -111,6 +123,16 @@ import javax.swing.JPanel;
             EditButton.setSize(20, 20);
             EditButton.setBackground(VTC._VTC.BUTTONBACKGROUND);
             EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
+            
+            PreviewButton.setSize(20, 20);
+            PreviewButton.setBackground(VTC._VTC.BUTTONBACKGROUND);
+            PreviewButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/eye.png")));
+            
+            if(Comment.getText().isEmpty()){
+                PreviewButton.setEnabled(false);
+            }else{
+                PreviewButton.setEnabled(true);
+            }
 
             step.setSize(205, 20);
             step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -156,6 +178,15 @@ import javax.swing.JPanel;
             layoutConstraints.ipadx = -1;
             layoutConstraints.ipady = -1;
             step.add(EditButton, layoutConstraints);
+            
+            layoutConstraints.fill = GridBagConstraints.BOTH;
+            layoutConstraints.gridx = 3;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = -1;
+            layoutConstraints.weighty = -1;
+            layoutConstraints.ipadx = -1;
+            layoutConstraints.ipady = -1;
+            step.add(PreviewButton, layoutConstraints);
 
             step.addMouseListener(new java.awt.event.MouseListener() {
                 @Override

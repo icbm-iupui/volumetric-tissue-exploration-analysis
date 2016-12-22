@@ -49,16 +49,16 @@ public class MicroFolder extends java.lang.Object implements Runnable {
     private ArrayList volumes3D;
     private ImageStack[] imagedata;
     private SingleThresholdDataModel stdm;
+    private boolean calculate;
     
     private Thread t;
     private String threadName = "microFolder_" + System.nanoTime();
 
     // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
-    MicroFolder(ImagePlus imp, ArrayList details) {
+    MicroFolder(ImagePlus imp, ArrayList details, boolean calculate) {
         protocol = details;
-        imagedata = getInterleavedStacks(imp);
-       
-        
+        imagedata = getInterleavedStacks(imp); 
+        this.calculate = calculate;
     }
     
     
@@ -71,13 +71,13 @@ public class MicroFolder extends java.lang.Object implements Runnable {
         switch ((Integer) mask.get(1)) {
             case 0:
                 stdm = new SingleThresholdDataModel();
-                stdm.processDataLayerCake(imagedata, protocol);
+                stdm.processDataLayerCake(imagedata, protocol, calculate);
                 volumes = stdm.getObjects();
                 System.out.println("PROFILING: Getting " + volumes.size() + " 3D layercake volumes.");
                 break;
             case 1:
                 stdm = new SingleThresholdDataModel();
-                stdm.processData3DFloodFill(imagedata, protocol);
+                stdm.processData3DFloodFill(imagedata, protocol, calculate);
                 volumes = stdm.getObjects();
                 System.out.println("PROFILING: Getting " + volumes.size() + " 3D flood fill volumes.");
                 break;

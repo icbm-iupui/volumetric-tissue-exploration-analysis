@@ -30,6 +30,10 @@ import vteaobjects.layercake.microDerivedRegion;
 import vteaobjects.layercake.microVolume;
 import vteapreprocessing.MicroProtocolPreProcessing;
 
+import java.lang.IllegalArgumentException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author vinfrais
@@ -49,15 +53,17 @@ public class MicroExperiment implements Runnable{
     ImagePlus image;
     ArrayList protocol;
     int position;
+    boolean calculate;
     
 
-    MicroExperiment() {
+    public MicroExperiment() {
     }
 
-    private void addFolder(ImagePlus imp, ArrayList<ArrayList> details) {
+    private void addFolder(ImagePlus imp, ArrayList<ArrayList> details, boolean calculate) {
         System.out.println("PROFILING: Adding " + details.size() + " folders to 'FolderDrawer'.");
+        this.calculate = calculate;
         for (int i = 0; i <= details.size() - 1; i++) {
-            MicroFolder mf = new MicroFolder(imp, (ArrayList) details.get(i));
+            MicroFolder mf = new MicroFolder(imp, (ArrayList) details.get(i), calculate);
             mf.start();
             
             //mf.process();
@@ -158,18 +164,22 @@ public class MicroExperiment implements Runnable{
     public void run() {
         System.out.println("PROFILING: Starting MicroExperiment thread: " + threadName);
         IJ.log("PROFILING: Starting MicroExperiment thread: " + threadName);
-        addFolder(image, protocol);
+        addFolder(image, protocol, calculate);
     }
     
-    public void start(ImagePlus ProcessedImage, ArrayList p){
+    public void start(ImagePlus ProcessedImage, ArrayList p, boolean calculate){
+                    this.calculate = calculate;
                     image = ProcessedImage;
                     protocol = p;
                      t = new Thread (this, threadName);
                      t.start ();
             try {
                 t.join();
-            } catch (InterruptedException ex) {     
-            }
+            } catch (IllegalArgumentException iae) {  
+                
+            } catch (InterruptedException ex) {
+            
+        }
             System.out.println("PROFILING: Exiting MicroExperiment thread: " + threadName); 
             IJ.log("PROFILING: Exiting MicroExperiment thread: " + threadName); 
         }

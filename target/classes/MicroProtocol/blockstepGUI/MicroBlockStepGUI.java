@@ -131,7 +131,7 @@ public class MicroBlockStepGUI implements MicroBlockSetupListener {
 
         EditButton.setSize(20, 20);
         EditButton.setBackground(VTC._VTC.BUTTONBACKGROUND);
-        EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
+        EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4_small.png")));
         DeleteButton.setToolTipText("Edit this step.");
 
         step.setSize(205, 20);
@@ -154,15 +154,15 @@ public class MicroBlockStepGUI implements MicroBlockSetupListener {
         layoutConstraints.anchor = GridBagConstraints.CENTER;
         layoutConstraints.gridx = 1;
         layoutConstraints.gridy = 0;
-        layoutConstraints.weightx = 20;
-        layoutConstraints.weighty = 20;
+        layoutConstraints.weightx = 10;
+        layoutConstraints.weighty = 10;
         step.add(Headline, layoutConstraints);
 
         layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
         layoutConstraints.gridx = 1;
         layoutConstraints.gridy = 1;
-        layoutConstraints.weightx = 20;
-        layoutConstraints.weighty = 20;
+        layoutConstraints.weightx = 10;
+        layoutConstraints.weighty = 10;
         step.add(Comment, layoutConstraints);
 
         if (position > 1) {

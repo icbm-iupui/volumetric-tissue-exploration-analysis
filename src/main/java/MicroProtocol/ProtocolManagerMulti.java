@@ -115,7 +115,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         addNewTabTab();
         addSingleImagePanel();
         addMenuItems();
-        this.ImageTabs.setTabPlacement(JTabbedPane.BOTTOM);
+        this.ImageTabs.setTabPlacement(JTabbedPane.TOP);
         this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount() - 1);
         //IJ.log("Starting things up!");
     }

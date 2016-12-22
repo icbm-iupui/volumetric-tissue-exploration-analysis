@@ -28,10 +28,12 @@ import MicroProtocol.listeners.RequestImageListener;
 import MicroProtocol.listeners.TransferProtocolStepsListener;
 import MicroProtocol.setup.MicroBlockObjectSetup;
 import MicroProtocol.blockstepGUI.ProcessStepBlockGUI;
+import MicroProtocol.listeners.UpdateProgressListener;
 import MicroProtocol.listeners.UpdatedProtocolListener;
 import VTC.ImageSelectionListener;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.Roi;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -56,7 +58,7 @@ import vteapreprocessing.MicroProtocolPreProcessing;
  *
  * @author vinfrais
  */
-public class SingleImageProcessing extends javax.swing.JPanel implements ImageSelectionListener, TransferProtocolStepsListener, RebuildPanelListener, DeleteBlockListener {
+public class SingleImageProcessing extends javax.swing.JPanel implements UpdateProgressListener, ImageSelectionListener, TransferProtocolStepsListener, RebuildPanelListener, DeleteBlockListener {
 
     public static final int WORKFLOW = 0;
     public static final int PROCESSBLOCKS = 1;
@@ -108,8 +110,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
      */
     public SingleImageProcessing() {
         initComponents();
-        
-       
+
     }
 
     /**
@@ -700,6 +701,14 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         }
     }
 
+    @Override
+    public void changeProgress(String text, int min, int max, int position) {      
+        ObjectProcess.setMinimum(min);
+        ObjectProcess.setMaximum(min);
+        ObjectProcess.setValue(position);
+        ProgressComment.setText(text);    
+    }
+
 //classes for step blocks
     private final class ObjectStepBlockGUI extends Object implements MicroBlockSetupListener {
 
@@ -711,7 +720,12 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         JLabel Comment = new JLabel("Block by Block");
         JLabel Object = new JLabel("First things first");
         boolean ProcessTypeSet = false;
+        boolean thresholdPreviewRoi = false;
         int position;
+        
+        JButton DeleteButton;
+        JButton EditButton;
+        JButton PreviewButton;
 
         MicroBlockObjectSetup mbs;
 
@@ -757,7 +771,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             mbs.setVisible(false);
             mbs.addMicroBlockSetupListener(this);
 
-            JButton DeleteButton = new JButton();
+            DeleteButton = new JButton();
             DeleteButton.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
@@ -765,7 +779,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                 }
             });
 
-            JButton EditButton = new JButton();
+            EditButton = new JButton();
             EditButton.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
@@ -773,14 +787,33 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
                     
                 }
             });
+            
+            PreviewButton = new JButton();
+            PreviewButton.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                   
+       
+                    
+                }
+            });
+            PreviewButton.setEnabled(false);
+            
 
             DeleteButton.setSize(20, 20);
             DeleteButton.setBackground(VTC._VTC.BUTTONBACKGROUND);
             DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
+            DeleteButton.setToolTipText("Delete this segmentation protocol.");
 
             EditButton.setSize(20, 20);
             EditButton.setBackground(VTC._VTC.BUTTONBACKGROUND);
             EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
+            EditButton.setToolTipText("Edit this segmentation protocol.");
+            
+//            PreviewButton.setSize(20, 20);
+//            PreviewButton.setBackground(VTC._VTC.BUTTONBACKGROUND);
+//            PreviewButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/eye.png")));
+//            PreviewButton.setToolTipText("Preview segmentation protocol.");
 
             step.setSize(205, 20);
             step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -788,26 +821,35 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             step.setLayout(new GridBagLayout());
             GridBagConstraints layoutConstraints = new GridBagConstraints();
 
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 0;
-            layoutConstraints.gridy = 0;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            step.add(Position, layoutConstraints);
+//            layoutConstraints.fill = GridBagConstraints.BOTH;
+//            layoutConstraints.gridx = 0;
+//            layoutConstraints.gridy = 0;
+//            layoutConstraints.weightx = 1;
+//            layoutConstraints.weighty = 1;
+//            step.add(Position, layoutConstraints);
 
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.fill = GridBagConstraints.BOTH;
             layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 0;
-            layoutConstraints.weightx = 20;
-            layoutConstraints.weighty = 20;
+            layoutConstraints.weightx = 10;
+            layoutConstraints.weighty = 10;
             step.add(Object, layoutConstraints);
 
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.fill = GridBagConstraints.BOTH;
             layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 1;
-            layoutConstraints.weightx = 20;
-            layoutConstraints.weighty = 20;
+            layoutConstraints.weightx = 10;
+            layoutConstraints.weighty = 10;
             step.add(Comment, layoutConstraints);
+            
+//            layoutConstraints.fill = GridBagConstraints.BOTH;
+//            layoutConstraints.gridx = 2;
+//            layoutConstraints.gridy = 0;
+//            layoutConstraints.weightx = -1;
+//            layoutConstraints.weighty = -1;
+//            layoutConstraints.ipadx = -1;
+//            layoutConstraints.ipady = -1;
+//            step.add(PreviewButton, layoutConstraints);
 
             layoutConstraints.fill = GridBagConstraints.BOTH;
             layoutConstraints.gridx = 2;
@@ -895,9 +937,13 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
             Object.setText("Object_" +getPosition()+ " Method: " + VTC._VTC.PROCESSOPTIONS[(Integer) al.get(1)] + ", Segment by: " + Channels.get((Integer) al.get(0)).toString());
             Comment.setText(MethodText);
             
+            if(thresholdPreviewRoi){PreviewButton.setEnabled(true);}
+            
             RebuildPanelObject();
             this.settings = al2;
         }
+
+ 
     }
 
     
@@ -1047,7 +1093,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         
         ProcessedImage = mpp.getResult();
         }else{
+            OriginalImage.deleteRoi();
             ProcessedImage = OriginalImage.duplicate();
+            OriginalImage.restoreRoi();
         }
 
         ImagePlus ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
@@ -1071,7 +1119,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
         //System.out.println("PROFILING: for variables: " + protocol.get(5) + ", " + protocol.get(6)+ protocol.get(7) + ", " + protocol.get(8) +".");
         //IJ.log("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
 
-        me.start(ProcessedImage, protocol);
+        me.start(ProcessedImage, protocol, true);
         
         this.exploreText.setForeground(new java.awt.Color(0, 0, 0));
         
@@ -1097,7 +1145,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements ImageSe
 
     ;
 
-public ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
+static public ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
 
         ArrayList<ArrayList> Result = new ArrayList<ArrayList>();
 
@@ -1222,9 +1270,9 @@ public ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
     public void onSelect(ImagePlus imp, int tab) {
 
         if (tab == this.tab && ProcessingStepsList.size() == 0) {
+            imp.deleteRoi();
             this.OriginalImage = imp;
-            //imp.setOpenAsHyperStack(true);
-            //OriginalImage.setOpenAsHyperStack(true);
+            imp.restoreRoi();
 
             ThumbnailImage = UtilityMethods.makeThumbnail(OriginalImage.duplicate());
 

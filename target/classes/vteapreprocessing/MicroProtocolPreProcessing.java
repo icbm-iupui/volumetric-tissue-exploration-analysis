@@ -58,20 +58,28 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
     }
     
     private void makePreviewImage() {
+        try{
+        Roi r = impOriginal.getRoi();
+        impPreview = r.getImage().duplicate(); 
         
-        impOriginal.resetStack();
-        impOriginal.setRoi(new Roi(0,0,255,255));
-        if(impOriginal.getWidth() < 255 || impOriginal.getHeight() < 255){
+        } catch(NullPointerException e){
+            impOriginal.resetStack();
+            impOriginal.setRoi(new Roi(0,0,255,255));
+            if(impOriginal.getWidth() < 255 || impOriginal.getHeight() < 255){
             impOriginal.setRoi(new Roi(0,0,impOriginal.getWidth(),impOriginal.getHeight()));
-        }
+            }
         impPreview = new Duplicator().run(impOriginal);
         impPreview.hide();
+        impPreview.setZ(impPreview.getNSlices()/2);
         impOriginal.deleteRoi();
-        
+        }
+
     }
 
     public ImagePlus ProcessImage() {
+        impOriginal.deleteRoi();
         impProcessed = impOriginal.duplicate();
+        impOriginal.restoreRoi();
         ListIterator<Object> litr = this.protocol.listIterator();
         while (litr.hasNext()) {
             ProcessManager((ArrayList) litr.next(), impProcessed);
@@ -85,7 +93,6 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         while (litr.hasNext()) {
             ProcessManager((ArrayList) litr.next(), impPreview);
         }
-       
         return impPreview;
     }
     
@@ -188,8 +195,8 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         } else {
             stackhisto = "";
         }
-       // System.out.println("PROFILING: Enhance Contrast" + "saturated=" + fractionsaturated.getText() + " " + norm + " " + equal + " " + stackall + " " + stackhisto);
-        //IJ.run(imp, "Enhance Contrast...", "saturated=" + fractionsaturated.getText() + " " + norm + " " + equal + " " + stackall + " " + stackhisto);
+       //System.out.println("PROFILING: Enhance Contrast" + "saturated=" + fractionsaturated.getText() + " " + norm + " " + equal + " " + stackall + " " + stackhisto);
+        IJ.run(imp, "Enhance Contrast...", "saturated=" + fractionsaturated.getText() + " " + norm + " " + equal + " " + stackall + " " + stackhisto);
     }
 
     private void DeNoise(ImagePlus imp, ArrayList variables) {
@@ -206,7 +213,7 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
     }
 
     public ImagePlus getPreview() {
-        return this.impOriginal;
+        return this.impPreview;
     }
     
     public ArrayList getSteps() {
