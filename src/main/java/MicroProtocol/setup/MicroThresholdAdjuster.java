@@ -38,6 +38,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -96,13 +97,12 @@ public class MicroThresholdAdjuster  implements Measurements,
     JCheckBox darkBackground, stackHistogram;
     boolean firstActivation = true;
     
-    ImagePlus impThreshold;
-    
+    ImagePlus impThreshold; 
     JPanel gui = new JPanel();
-    
     ArrayList<ChangeThresholdListener> ctllisteners = new ArrayList<ChangeThresholdListener>();
-
-
+    
+    
+    
     public MicroThresholdAdjuster(ImagePlus cimp) {
        
         impThreshold = cimp;
@@ -355,6 +355,13 @@ public class MicroThresholdAdjuster  implements Measurements,
             notifyChangeThresholdListeners(minThreshold, maxThreshold);
             notify();
         //notify();
+    }
+    
+    public void setImagePlus(ImagePlus imp){
+        
+            impThreshold = imp;
+            
+            IJ.run(impThreshold, "Grays", "");
     }
 
     ImageProcessor setup(ImagePlus imp, boolean enableAutoThreshold) {
@@ -959,6 +966,11 @@ public class MicroThresholdAdjuster  implements Measurements,
                 listener.thresholdChanged(min, max);
             }
         }
+    
+    public void removeChangeThresholdListeners() {
+            ctllisteners.clear();
+    }
+        
 
 } // ThresholdAdjuster class
 

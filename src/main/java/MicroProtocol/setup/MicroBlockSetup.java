@@ -673,9 +673,9 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     
     protected void updateProtocolPanel(ActionEvent evt) {
         
-        if(evt.getSource() == ChannelComboBox){
-        
-        } else {
+//        if(evt.getSource() == ChannelComboBox){
+//        
+//        } else {
  
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
@@ -687,7 +687,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         MethodDetails.setVisible(true);
        
         pack();
-        }
+//        }
     }
     
     @Override

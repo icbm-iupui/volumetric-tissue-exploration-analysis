@@ -14,7 +14,7 @@
 
     <groupId>sw_iupui</groupId>
     <artifactId>VTC_</artifactId>
-    <version>0.2.8-SNAPSHOT</version>
+    <version>0.2.90-SNAPSHOT</version>
 
     <name>VTEA_Image Processing Bugs</name>
     <description>Volumetric analysis</description>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-            <version>1.51a</version>
+            <version>1.51h</version>
         </dependency>
         <dependency>
             <groupId>org.swinglabs</groupId>

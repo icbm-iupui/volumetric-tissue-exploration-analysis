@@ -89,9 +89,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
  
         ThresholdOriginal = imp.duplicate();
         ThresholdPreview = getThresholdPreview();
+        
+        IJ.run(ThresholdPreview, "Grays", "");
 
         mta = new MicroThresholdAdjuster(ThresholdPreview); 
-        
         mta.addChangeThresholdListener(this);
         
         makeProtocolPanel(step);
@@ -192,19 +193,22 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
    
         if(evt.getSource() == ChannelComboBox){
             
+            //mta = new MicroThresholdAdjuster(ThresholdPreview); 
+            //mta.addChangeThresholdListener(this);
+            mta.removeChangeThresholdListeners();
+            mta.doUpdate();
+            
             Point p = new Point();
             p = ThresholdPreview.getWindow().getLocation();
             ThresholdPreview.hide();
+            IJ.run(ThresholdPreview, "Grays", "");
             ThresholdPreview = getThresholdPreview();
             
             ThresholdPreview.updateImage();
             ThresholdPreview.show();
             ThresholdPreview.getWindow().setLocation(p);
-            
-     
-            mta = new MicroThresholdAdjuster(ThresholdPreview); 
-            mta.doUpdate();
-            
+            mta.setImagePlus(ThresholdPreview);
+
         }
        tablePane.setVisible(true);
         MethodDetails.setVisible(false);
@@ -233,12 +237,11 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
- 
 
             methodBuild.removeAll();
-        
-
             methodBuild.add(mta.getPanel());
+            mta.removeChangeThresholdListeners();
+            mta.addChangeThresholdListener(this);
         
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 0;
@@ -512,16 +515,9 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         
         max = (this.ThresholdPreview.getProcessor().getMax()/255)*max;
         min = (this.ThresholdPreview.getProcessor().getMax()/255)*min;
-        
-       // System.out.println("PROFILING: Threshold " + min + "," + max );
-       
-      
-        
+
         String[][] str = {{String.valueOf(Math.round(min)), "5", "20", "1000"},{String.valueOf(Math.round(min)), String.valueOf(Math.round(max)), "20", "1000"}};
-        
-        
-        
-        
+
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();

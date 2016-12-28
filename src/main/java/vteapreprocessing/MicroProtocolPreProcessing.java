@@ -109,16 +109,18 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         if(protocol.get(0).toString().equals("Reduce Noise")) {testcase = 2;};  
         
        ChannelSplitter cs = new ChannelSplitter();
+
        RGBStackMerge rsm = new RGBStackMerge();
-       
-       ImagePlus temp_imp = new ImagePlus("Ch_" + (Integer)protocol.get(1) + "_modified", cs.getChannel(imp, (Integer)protocol.get(1)+1)); 
-       ImagePlus[] merged = new ImagePlus[imp.getNChannels()];
-       for(int i = 0; i < merged.length; i++){
-           merged[i] = new ImagePlus("Ch_" + i, cs.getChannel(imp, (Integer)protocol.get(1)+1));
-       }
-       merged[(Integer)protocol.get(1)] = temp_imp;
-       
-        switch (testcase) {
+       ImagePlus temp_imp = new ImagePlus();
+       if(imp.getNChannels() > 1){
+            temp_imp = new ImagePlus("Ch_" + (Integer)protocol.get(1) + "_modified", cs.getChannel(imp, (Integer)protocol.get(1)+1)); 
+            ImagePlus[] merged = new ImagePlus[imp.getNChannels()];
+            for(int i = 0; i < merged.length; i++){
+                merged[i] = new ImagePlus("Ch_" + i, cs.getChannel(imp, (Integer)protocol.get(1)+1));
+            }
+            merged[(Integer)protocol.get(1)] = temp_imp;
+            
+            switch (testcase) {
             case 0:
                 SubtractBackground(temp_imp,protocol);
                 //System.out.println("PROFILING: Running Background Subtraction...");
@@ -136,6 +138,32 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
             default: ;
                 break;
         }
+       }else{
+           temp_imp = new ImagePlus("Ch_" + (Integer)protocol.get(1) + "_modified", imp.getImageStack()); 
+           
+           switch (testcase) {
+            case 0:
+                SubtractBackground(temp_imp,protocol);
+                //System.out.println("PROFILING: Running Background Subtraction...");
+                //imp = temp_imp;
+                break;
+            case 1:
+                EnhanceContrast(temp_imp,protocol);
+               //System.out.println("PROFILING: Running Enhance Contrast...");
+               //imp = temp_imp;
+                break;
+            case 2:
+            //System.out.println("PROFILING: Denoising with median filter...");
+                DeNoise(temp_imp,protocol);
+                break;
+            default: ;
+                break;
+        }
+       }
+       
+        
+       
+        
     }
 
     private void SubtractBackground(ImagePlus imp, ArrayList variables) {
@@ -152,7 +180,13 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         
         ImageStack is;
         
-        is = cs.getChannel(imp, channel+1);
+        if(imp.getNChannels()>1){
+            is = cs.getChannel(imp, channel+1);
+        }else{
+            is = imp.getImageStack();
+        }
+        
+        
         
         for(int n = 1; n <= is.getSize(); n++){
         rbb.rollingBallBackground(is.getProcessor(n), Integer.parseInt(radius.getText()), false, false, false, true, true);
