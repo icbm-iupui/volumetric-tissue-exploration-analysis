@@ -437,7 +437,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         toolbarGate.add(jLabel4);
 
         addPolygonGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/polygon-filled.png"))); // NOI18N
-        addPolygonGate.setToolTipText("");
+        addPolygonGate.setToolTipText("Add polygon gate");
         addPolygonGate.setFocusable(false);
         addPolygonGate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         addPolygonGate.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -452,6 +452,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         toolbarGate.add(addPolygonGate);
 
         addRectangularGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/draw-rectangle.png"))); // NOI18N
+        addRectangularGate.setToolTipText("Add rectangular gate");
         addRectangularGate.setFocusable(false);
         addRectangularGate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         addRectangularGate.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -468,6 +469,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
         addQuadrantGate.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
         addQuadrantGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/quad_sw.png"))); // NOI18N
+        addQuadrantGate.setToolTipText("Add quadrant gate");
         addQuadrantGate.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         addQuadrantGate.setBorderPainted(false);
         addQuadrantGate.setFocusable(false);
@@ -486,7 +488,8 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         toolbarGate.add(jSeparator1);
         toolbarGate.add(jLabel3);
 
-        SetGlobalToLocal.setText("S");
+        SetGlobalToLocal.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/setGlobal copy.png"))); // NOI18N
+        SetGlobalToLocal.setToolTipText("Set global axes");
         SetGlobalToLocal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         SetGlobalToLocal.setMaximumSize(new java.awt.Dimension(35, 40));
         SetGlobalToLocal.setMinimumSize(new java.awt.Dimension(35, 40));
@@ -498,7 +501,8 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         });
         toolbarGate.add(SetGlobalToLocal);
 
-        UseGlobal.setText("G");
+        UseGlobal.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/global.png"))); // NOI18N
+        UseGlobal.setToolTipText("Use global axes");
         UseGlobal.setMaximumSize(new java.awt.Dimension(35, 40));
         UseGlobal.setMinimumSize(new java.awt.Dimension(35, 40));
         UseGlobal.setPreferredSize(new java.awt.Dimension(35, 40));
@@ -536,7 +540,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         toolbarGate.add(jSeparator5);
 
         get3DProjection.setText("3D");
-        get3DProjection.setToolTipText("");
+        get3DProjection.setToolTipText("Visualize in 3D");
         get3DProjection.setEnabled(false);
         get3DProjection.setMaximumSize(new java.awt.Dimension(35, 40));
         get3DProjection.setMinimumSize(new java.awt.Dimension(35, 40));
@@ -551,6 +555,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         toolbarGate.add(jSeparator7);
 
         BWLUT.setText("BW");
+        BWLUT.setToolTipText("Remove LUT");
         BWLUT.setFocusable(false);
         BWLUT.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         BWLUT.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -580,7 +585,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         WestPanel.add(yTextPanel, java.awt.BorderLayout.CENTER);
 
         FlipAxes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/view-refresh-5.png"))); // NOI18N
-        FlipAxes.setToolTipText("Flips X and Y axes.");
+        FlipAxes.setToolTipText("Flips X and Y axes");
         FlipAxes.setFocusable(false);
         FlipAxes.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         FlipAxes.setMaximumSize(new java.awt.Dimension(40, 40));

@@ -14,7 +14,7 @@
 
     <groupId>sw_iupui</groupId>
     <artifactId>VTC_</artifactId>
-    <version>0.2.90-SNAPSHOT</version>
+    <version>0.2.95-SNAPSHOT</version>
 
     <name>VTEA_Image Processing Bugs</name>
     <description>Volumetric analysis</description>

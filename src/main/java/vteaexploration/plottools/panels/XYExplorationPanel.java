@@ -110,11 +110,13 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
 
         while (gate_itr.hasNext()) {
             gate = gate_itr.next();
+            
             if (gate.getSelected()) {
-                Path2D path = gate.createPath2DInChartSpace();
-
-                ArrayList<MicroObject> result = new ArrayList<MicroObject>();
                 
+                Path2D path = gate.createPath2DInChartSpace();
+                
+                ArrayList<MicroObject> result = new ArrayList<MicroObject>();
+              
                 ArrayList<MicroObject> volumes = (ArrayList) this.plotvalues.get(1);
                 MicroObjectModel volume;
 
@@ -122,6 +124,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                 double yValue = 0;
 
                 ListIterator<MicroObject> it = volumes.listIterator();
+                
                 try {
                     while (it.hasNext()) {
                         volume = it.next();
@@ -147,11 +150,10 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
 
                 total = volumes.size();
                 
-                gated = getGatedObjects(impoverlay);
-                
+                gated = getGatedObjects(impoverlay);         
                 gatedSelected = getGatedSelected(impoverlay);
 
-                for (int i = 0; i <= impoverlay.getNSlices(); i++) {
+                for (int i = 1; i <= impoverlay.getNSlices(); i++) {
                     BufferedImage selections = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
                     Graphics2D g2 = selections.createGraphics();
@@ -183,6 +185,8 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                     overlay.add(ir);
 
                     gateOverlay.addSlice(ir.getProcessor());
+                    
+                    //text for overlay
 
                     java.awt.Font f = new Font("Arial", Font.BOLD, 12);
                     BigDecimal percentage = new BigDecimal(selected);
@@ -197,7 +201,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                     BigDecimal totalGatedSelectedBD = new BigDecimal(total);
                     percentageGatedSelected = percentageGatedSelected.divide(totalGatedSelectedBD, 4, BigDecimal.ROUND_UP);
 
-                    // System.out.println("PROFILING: gate fraction: " + percentage.toString());
+                    
                     if (impoverlay.getWidth() > 256) {
                         
                         TextRoi textTotal = new TextRoi(5, 10, selected + "/" + total + " gated (" + 100 * percentage.doubleValue() + "%)");
@@ -206,10 +210,8 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                             textTotal = new TextRoi(5, 10, selected + "/" + total + " total (" + 100 * percentage.doubleValue() + "%)" +
                             "; " + gated + "/" + total + " roi (" + 100 * percentageGated.doubleValue() + "%)" +
                             "; " + gatedSelected + "/" + total + " overlap (" + 100 * percentageGatedSelected.doubleValue() + "%)" , f);   
-                        }
-                        //TextRoi textImageGated = new TextRoi(5, 18, selected + "/" + total + " gated objects (" + 100 * percentage.doubleValue() + "%)", f);
+                        }       
                         textTotal.setPosition(i);
-                        //textImageGated.setPosition(i);
                         overlay.add(textTotal);
                     } else {
                         f = new Font("Arial", Font.PLAIN, 10);
@@ -228,11 +230,11 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                 }
                 impoverlay.setOverlay(overlay);
                     
-                    //ImagePlus gateMaskImage = new ImagePlus("gates", gateOverlay);
-                    
-                    //gateMaskImage.show();
-                     
-                    gate.setGateOverlayStack(gateOverlay);
+//                    ImagePlus gateMaskImage = new ImagePlus("gates", gateOverlay);
+//                    
+//                    gateMaskImage.show();
+//                     
+                     gate.setGateOverlayStack(gateOverlay);
 
             }
            
@@ -370,7 +372,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
 
         //setup chart values
         
-        System.out.println("PROFILING: Selected objects: " +  getSelectedObjects() + " and " + getGatedObjects(this.impoverlay) + " gated.");
+        //System.out.println("PROFILING: Selected objects: " +  getSelectedObjects() + " and " + getGatedObjects(this.impoverlay) + " gated.");
         
         cpd = new XYChartPanel(plotvalues, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
         //if(imageGate){cpd.roiCreated(impoverlay);}
@@ -562,10 +564,10 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         }
         if (!(isMade(x, y, l, size))) {
             addPlot(x, y, l, size, hm.get(x), hm.get(y), hm.get(l));
-            System.out.println("Change Axes, new plot: " + x + ", " + y + ", " + l);
+            //System.out.println("Change Axes, new plot: " + x + ", " + y + ", " + l);
         } else {
             showPlot(x, y, l, size,  hm.get(x), hm.get(y), hm.get(l));
-            System.out.println("Change Axes: " + x + ", " + y + ", " + l);
+            //System.out.println("Change Axes: " + x + ", " + y + ", " + l);
         }
     }
 

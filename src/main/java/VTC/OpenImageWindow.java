@@ -161,7 +161,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_SelectImageActionPerformed
 
     protected void ListActionPerformed(ActionEvent evt){
-               int i = OpenImages.getSelectedIndex();
+        int i = OpenImages.getSelectedIndex();
         notifyImageSelectionListeners(i, this.tab);
         this.setVisible(false);
         //IJ.log("Image number: " + i + ", for tab#: " + (tab)); 
@@ -178,10 +178,11 @@ public class OpenImageWindow extends javax.swing.JFrame {
         }
 
         String[] titles = new String[windowList.length];
+        
 
         for (int i = 0; i < windowList.length; i++) {
             ImagePlus imp_temp = WindowManager.getImage(windowList[i]);
-            if (!imp_temp.getTitle().contains("Plot") && imp_temp.getType() != ImagePlus.COLOR_RGB) {
+            if (!imp_temp.getTitle().contains("Plot")) {
                 titles[i] = imp_temp != null ? imp_temp.getTitle() : "";
             }
         }
@@ -221,7 +222,13 @@ public class OpenImageWindow extends javax.swing.JFrame {
 
     private void notifyImageSelectionListeners(int i, int tab) {
         for (ImageSelectionListener listener : listeners) {
-            listener.onSelect(new Duplicator().run(WindowManager.getImage(i + 1)), tab);
+            
+            Duplicator dup = new Duplicator();
+            ImagePlus imp = dup.run(WindowManager.getImage(i + 1)); 
+               if(imp.getType() == ImagePlus.COLOR_RGB){
+                   IJ.run("Make Composite", "");
+               }  
+            listener.onSelect(imp, tab);
         }  
     }
 

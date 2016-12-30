@@ -71,7 +71,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
     public transient boolean msActive;
     public transient boolean msPolygon;
-    public transient boolean msQuadrant;//
+    public transient boolean msQuadrant;
     public transient boolean msRectangle;
     public transient boolean msSelected;
     public transient boolean msFinal;
@@ -374,6 +374,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
                     };
                 }
+                e.consume();
             }
 
         };
@@ -381,6 +382,7 @@ public class GateLayer implements ActionListener, ItemListener {
         //layerUI.add(chart);
         //chart.add(layerUI);
         layer.setUI(layerUI);
+        
         return layer;
     }
 

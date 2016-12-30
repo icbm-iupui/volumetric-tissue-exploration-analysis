@@ -196,7 +196,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             //mta = new MicroThresholdAdjuster(ThresholdPreview); 
             //mta.addChangeThresholdListener(this);
             mta.removeChangeThresholdListeners();
-            mta.doUpdate();
+            //mta.doUpdate();
             
             Point p = new Point();
             p = ThresholdPreview.getWindow().getLocation();
@@ -208,6 +208,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             ThresholdPreview.show();
             ThresholdPreview.getWindow().setLocation(p);
             mta.setImagePlus(ThresholdPreview);
+            
 
         }
        tablePane.setVisible(true);
@@ -217,7 +218,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
-
+        //mta.doUpdate();
         pack();
     }
 
@@ -337,7 +338,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         if (position == 0) {
             result.add(new JLabel("Low Threshold"));
             result.add(new JTextField(values[0][0]));
-            result.add(new JLabel("Region Offset"));
+            result.add(new JLabel("Centroid Offset"));
             result.add(new JTextField(values[0][1]));
             result.add(new JLabel("Min Vol (vox)"));
             result.add(new JTextField(values[0][2]));

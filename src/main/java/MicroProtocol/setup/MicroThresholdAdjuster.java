@@ -357,11 +357,13 @@ public class MicroThresholdAdjuster  implements Measurements,
         //notify();
     }
     
-    public void setImagePlus(ImagePlus imp){
-        
-            impThreshold = imp;
-            
+    public void setImagePlus(ImagePlus imp){       
+            impThreshold = imp;    
             IJ.run(impThreshold, "Grays", "");
+//            doAutoAdjust = true;
+//            doUpdate();
+//            //notifyChangeThresholdListeners(minThreshold, maxThreshold);
+//            notify();
     }
 
     ImageProcessor setup(ImagePlus imp, boolean enableAutoThreshold) {
@@ -784,7 +786,7 @@ public class MicroThresholdAdjuster  implements Measurements,
         }
     }
 
-    void doUpdate() {
+    public void doUpdate() {
         ImagePlus imp;
         ImageProcessor ip;
         int action;
