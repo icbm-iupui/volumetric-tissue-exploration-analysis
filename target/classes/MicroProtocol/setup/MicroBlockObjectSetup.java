@@ -208,6 +208,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             ThresholdPreview.show();
             ThresholdPreview.getWindow().setLocation(p);
             mta.setImagePlus(ThresholdPreview);
+            mta.doUpdate();
             
 
         }
@@ -380,6 +381,16 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     
     public void setProcessedImage(ImagePlus imp){
         this.ThresholdOriginal = imp;
+
+            ThresholdPreview = getThresholdPreview();
+            IJ.run(ThresholdPreview, "Grays", "");
+            
+            ThresholdPreview.updateImage();
+            //ThresholdPreview.show();
+            
+            mta.setImagePlus(ThresholdPreview);
+            mta.doUpdate();
+            
     }
     
  
@@ -394,14 +405,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     @Override
     protected void blockSetupOKAction() {
         
-        CurrentStepProtocol = CurrentProcessList;  
-        
+        CurrentStepProtocol = CurrentProcessList;        
         updateProcessVariables();
-
         makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
-
-        super.notifyMicroBlockSetupListeners(getSettings());
-        
+        notifyMicroBlockSetupListeners(getSettings());        
         this.setVisible(false);
     }
 

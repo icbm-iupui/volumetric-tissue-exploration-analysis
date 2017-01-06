@@ -113,8 +113,9 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         initComponents();
         addGateManager();
         addNewTabTab();
-        addSingleImagePanel();
         addMenuItems();
+        addSingleImagePanel();
+        
         this.ImageTabs.setTabPlacement(JTabbedPane.TOP);
         this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount() - 1);
         //IJ.log("Starting things up!");
@@ -324,9 +325,11 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         openerWindow.addImageSelectionListener(NewPanel);
         NewPanel.addRequestImageListener(this);
         NewPanel.addRepaintTabListener(this);
+        ProcessingMenu.addFileOperationListener(NewPanel);
         Tabs.add(NewPanel);
-        //Tabs.add(NewPanel);
+     
         addTransferProtocolStepsListener(NewPanel);
+        
         ImageTabs.addTab("Image_" + this.Tabs.indexOf(NewPanel), NewPanel);
         JTextField label = new JTextField("Image_" + this.Tabs.indexOf(NewPanel));
         NewPanel.setTabName(this.ImageTabs.getTitleAt(this.Tabs.indexOf(NewPanel) + 1));
@@ -371,8 +374,9 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         this.ProcessingMenu = new JMenuProtocol("Processing", this.getTabNames(), SingleImageProcessing.PROCESSBLOCKS);
         this.ObjectMenu = new JMenuProtocol("Objects", this.getTabNames(), SingleImageProcessing.OBJECTBLOCKS);
 
-        ProcessingMenu.addStepCopierListener(this);
+        ProcessingMenu.addStepCopierListener(this);  
         ObjectMenu.addStepCopierListener(this);
+        
         this.MenuBar.removeAll();
         this.MenuBar.add(WorkflowMenu);
         this.MenuBar.add(ProcessingMenu);
@@ -457,8 +461,17 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
 
     @Override
     public void onSelect(ImagePlus imp, int tab) {
+        
+        ListIterator itr = Tabs.listIterator();
+        
+        while(itr.hasNext()){
+            SingleImageProcessing s = (SingleImageProcessing)itr.next();
+            s.setSelectedTab(false);
+        }
+        
         SingleImageProcessing sip = (SingleImageProcessing) Tabs.get(tab);
         sip.setImage(imp, tab);
+        sip.setSelectedTab(true);
         pack();
     }
 

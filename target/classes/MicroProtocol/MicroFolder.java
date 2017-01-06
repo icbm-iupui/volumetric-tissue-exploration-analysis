@@ -51,15 +51,27 @@ public class MicroFolder extends java.lang.Object implements Runnable {
     private SingleThresholdDataModel stdm;
     private boolean calculate;
     
+    private boolean imageChanged = false;
+    private boolean protocolChanged = false;
+    
     private Thread t;
     private String threadName = "microFolder_" + System.nanoTime();
 
     // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
-    MicroFolder(ImagePlus imp, ArrayList details, boolean calculate) {
-        protocol = details;
+    MicroFolder(ImagePlus imp, ArrayList al, boolean calculate) {
+        protocol = al;
         imagedata = getInterleavedStacks(imp); 
         this.calculate = calculate;
+        imageChanged = true;
+        protocolChanged = true;
     }
+    
+    public void setProcessedFlags(boolean b){
+        imageChanged = false;
+        protocolChanged = false;
+    }
+    
+    
     
     
 
@@ -74,22 +86,43 @@ public class MicroFolder extends java.lang.Object implements Runnable {
                 stdm.processDataLayerCake(imagedata, protocol, calculate);
                 volumes = stdm.getObjects();
                 System.out.println("PROFILING: Getting " + volumes.size() + " 3D layercake volumes.");
+                setProcessedFlags(false);
                 break;
             case 1:
                 stdm = new SingleThresholdDataModel();
                 stdm.processData3DFloodFill(imagedata, protocol, calculate);
                 volumes = stdm.getObjects();
                 System.out.println("PROFILING: Getting " + volumes.size() + " 3D flood fill volumes.");
+                setProcessedFlags(false);
                 break;
             default: ;
                 break;
         }
+        
+    }  
+    
+    public void setNewImageData(ImagePlus imp) {
+       imagedata = getInterleavedStacks(imp); 
+       imageChanged = true;
+    }
+    
+    public void setNewProtocol(ArrayList al) {
+        protocol.clear();
+        protocol.addAll(al);
+        protocolChanged = true;
+    }
+    
+    public boolean getProtocolUpdate(){
+        return protocolChanged;
+    }
+    
+    public boolean getImageUpdate(){
+        return imageChanged;
     }
 
     public ArrayList getVolumes() {
         return volumes;
-    }
-    
+    }   
     
     public ArrayList getVolumes3D() {
         return volumes3D;

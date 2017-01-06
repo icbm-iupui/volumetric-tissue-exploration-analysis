@@ -20,7 +20,7 @@ package vteaobjects.layercake;
 import ij.IJ;
 import vteaexploration.Datasets;
 
-import vteaobjects.MicroObjectModel;
+
 import ij.ImageStack;
 import java.util.ArrayList;
 import java.util.List;

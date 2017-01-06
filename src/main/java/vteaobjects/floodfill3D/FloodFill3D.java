@@ -80,7 +80,10 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
         } 
         imageResult = new ImagePlus("Mask Result", stackResult);
         IJ.run(imageResult, "8-bit", ""); 
-        if(watershedImageJ){IJ.run(imageResult, "Watershed", "stack");}
+        if(watershedImageJ){
+            IJ.run(imageResult, "Watershed", "stack");
+        }
+        
         IJ.run(imageResult, "Invert", "stack");     
          
 

@@ -1748,7 +1748,7 @@ private void executeObjectFinding() {
     ;
 
 private void executeExploring(int i) {
-        me.addExplore(ProcessedImage, "VTEA-Explorer Window, " + ProcessedImage.getTitle(), me.getVolumes(i), me.getAvailableData(i));
+        me.addExplore(ProcessedImage, "VTEA-Explorer Window, " + ProcessedImage.getTitle(), me.getFolderVolumes(i), me.getAvailableFolderData(i));
     }
 
     ;

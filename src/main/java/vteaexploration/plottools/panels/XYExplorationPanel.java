@@ -92,20 +92,14 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
     
     public void makeOverlayImage(ArrayList gates, int x, int y, int xAxis, int yAxis) {
         //convert gate to chart x,y path
-        
-        
-        
+
         Gate gate;
         ListIterator<Gate> gate_itr = gates.listIterator();
-
-        //.get
 
         int total = 0;
         int gated = 0;
         int selected = 0;
         int gatedSelected = 0;
-       
-
         int gatecount = gates.size();
 
         while (gate_itr.hasNext()) {
@@ -153,7 +147,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                 gated = getGatedObjects(impoverlay);         
                 gatedSelected = getGatedSelected(impoverlay);
 
-                for (int i = 1; i <= impoverlay.getNSlices(); i++) {
+                for (int i = 0; i <= impoverlay.getNSlices(); i++) {
                     BufferedImage selections = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
                     Graphics2D g2 = selections.createGraphics();
@@ -180,7 +174,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                         }
                     }
 
-                    ir.setPosition(i);
+                    ir.setPosition(i+1);
                     ir.setOpacity(0.4);
                     overlay.add(ir);
 
@@ -253,6 +247,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
             }
             impoverlay.show();
         }
+ 
     }
 
    
@@ -686,9 +681,14 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
         for(int i = 1; i <= impoverlay.getNChannels(); i++){
             isAll[i-1] = ChannelSplitter.getChannel(impoverlay, i);
         }
+        
+        if(gates.size() > 0){
         for(int i = 0; i < gates.size(); i++){
             isAll[i+impoverlay.getNChannels()] = gates.get(i).getGateOverlayStack();
         }
+        }
+        //add logic from segmentation previewer here to generate model of all objects
+        
         
         ImagePlus[] images = new ImagePlus[isAll.length];
         

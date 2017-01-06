@@ -24,15 +24,11 @@ import vteaexploration.plottools.panels.XYExplorationPanel;
 import ij.ImagePlus;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.swing.SwingWorker;
 import vteaobjects.MicroObjectModel;
-import vteaobjects.layercake.microDerivedRegion;
-import vteaobjects.layercake.microVolume;
 import vteapreprocessing.MicroProtocolPreProcessing;
 
 import java.lang.IllegalArgumentException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import vteaobjects.MicroObject;
 
 /**
  *
@@ -59,16 +55,48 @@ public class MicroExperiment implements Runnable{
     public MicroExperiment() {
     }
 
-    private void addFolder(ImagePlus imp, ArrayList<ArrayList> details, boolean calculate) {
-        System.out.println("PROFILING: Adding " + details.size() + " folders to 'FolderDrawer'.");
+    
+    //every segmentation setup is added to the microexperiment object as a microfolder.
+    
+    //will add folder unless the folder already exists...
+    private void addUpdateFolder(ImagePlus imp, ArrayList<ArrayList> details, boolean calculate) {
+        
         this.calculate = calculate;
-        for (int i = 0; i <= details.size() - 1; i++) {
-            MicroFolder mf = new MicroFolder(imp, (ArrayList) details.get(i), calculate);
-            mf.start();
+        for (int i = 0; i <= details.size()-1; i++) {
+            if(FolderDrawer.size() > i+1){
+            MicroFolder mf = (MicroFolder)FolderDrawer.get(i);
+                if(mf.getImageUpdate() || mf.getProtocolUpdate()){
+                    System.out.println("PROFILING: Updating folder at postion: " + i);
+                    mf.start();
+                    mf.setProcessedFlags(false);
+                } 
+            }else{
+                MicroFolder mf = new MicroFolder(imp, (ArrayList) details.get(i), calculate);
+                FolderDrawer.add(mf);
+                System.out.println("PROFILING: Adding folder at postion: " + i);
+                mf.start();
+            }
             
-            //mf.process();
-            FolderDrawer.add(mf);
-            
+        }
+    }
+    
+    public boolean updateMicroFolderImage(int i, ImagePlus imp){
+        if(FolderDrawer.size() > 0){
+        MicroFolder mf = (MicroFolder)FolderDrawer.get(i);
+        mf.setNewImageData(imp);
+        return true;
+        } else {
+        return false;
+        }
+    }
+    
+    public boolean updateMicroFolderProtocol(int i, ArrayList al){
+        if(FolderDrawer.size() > 0){
+        MicroFolder mf = (MicroFolder)FolderDrawer.get(i);
+        mf.setNewProtocol(al);
+        return true;
+        } else {
+        return false;
         }
     }
     
@@ -111,28 +139,23 @@ public class MicroExperiment implements Runnable{
         plotvalues.add(imp.getTitle());
         plotvalues.add(plotDataReference);
 
-        
         HashMap<Integer, String> hm = new HashMap<Integer,String>();
-        
-        
-        
+
         for(int i = 0; i <= AvailableData.size()-1; i++){hm.put(i, AvailableData.get(i).toString());}
        
         XYExplorationPanel XY = new XYExplorationPanel(plotvalues, hm);
     
         DefaultPlotPanels DPP = new DefaultPlotPanels();
-        MicroExplorer me = new MicroExplorer();
-        me.setTitle(imp.getTitle().replace("DUP_", ""));
-        me.setTitle(me.getTitle().replace(".tif", ""));
-        me.setTitle(me.getTitle().concat("_"+title));
-        me.process(imp, title, plotvalues, XY, DPP, AvailableData);
-        
-        //System.out.println("Add explorer for " + alvolumes.size() + " volumes.");
-       
-        ExploreDrawer.add(me);
+        MicroExplorer mex = new MicroExplorer();
+        mex.setTitle(imp.getTitle().replace("DUP_", ""));
+        mex.setTitle(mex.getTitle().replace(".tif", ""));
+        mex.setTitle(mex.getTitle().concat("_"+title));
+        mex.process(imp, title, plotvalues, XY, DPP, AvailableData);
+
+        ExploreDrawer.add(mex);
     }
 
-    public ArrayList getVolumes(int i) {
+    public ArrayList getFolderVolumes(int i) {
         MicroFolder mf;
         mf = (MicroFolder) FolderDrawer.get(i);
         return mf.getVolumes();
@@ -144,7 +167,7 @@ public class MicroExperiment implements Runnable{
 //        return mf.getVolumes3D();
 //    }
 
-    public ArrayList getAvailableData(int i) {
+    public ArrayList getAvailableFolderData(int i) {
         MicroFolder mf;
         mf = (MicroFolder) FolderDrawer.get(i);
         return mf.getAvailableData();
@@ -164,7 +187,7 @@ public class MicroExperiment implements Runnable{
     public void run() {
         System.out.println("PROFILING: Starting MicroExperiment thread: " + threadName);
         IJ.log("PROFILING: Starting MicroExperiment thread: " + threadName);
-        addFolder(image, protocol, calculate);
+        addUpdateFolder(image, protocol, calculate);
     }
     
     public void start(ImagePlus ProcessedImage, ArrayList p, boolean calculate){

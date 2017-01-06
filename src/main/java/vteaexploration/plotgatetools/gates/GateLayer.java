@@ -26,10 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -39,22 +36,18 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI;
 import vteaexploration.plotgatetools.listeners.AddGateListener;
 import vteaexploration.plotgatetools.listeners.ImageHighlightSelectionListener;
 import vteaexploration.plotgatetools.listeners.PolygonSelectionListener;
 import vteaexploration.plotgatetools.listeners.QuadrantSelectionListener;
-import vteaexploration.plottools.panels.ExplorationCenter;
 //import javax.swing.plaf.LayerUI;
 
 
@@ -91,7 +84,9 @@ public class GateLayer implements ActionListener, ItemListener {
     
     private Gate selectedGate;
     
+    
     public static Gate clipboardGate;
+    public static boolean gateInClipboard = false;
 
     public GateLayer() {
 
@@ -309,7 +304,7 @@ public class GateLayer implements ActionListener, ItemListener {
                                 } catch (Throwable ex) {
                                     Logger.getLogger(GateLayer.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                                //System.out.println("...making gate for display.");
+                                
                             }
                             e.consume();
                             //close polygon add to arraylist
@@ -360,21 +355,39 @@ public class GateLayer implements ActionListener, ItemListener {
                 } else {
 
                     //after processing gates, if no gates then 
-                    if (e.getClickCount() == 1) {
-
-                        //clearGateSelection();
-                        checkForGates(e, gates);
-                        e.consume();
-
-                    } else if (SwingUtilities.isRightMouseButton(e) && checkForGate(e, gates)) {
+                    
+                    if(gateInClipboard){
+                        ((JMenuItem)menu.getComponent(5)).setEnabled(true);
+                    } else if (!gateInClipboard){
+                        ((JMenuItem)menu.getComponent(5)).setEnabled(false);
+                    }
+                   
+                    if (SwingUtilities.isRightMouseButton(e) && !checkForGate(e, gates)) {
+                        ((JMenuItem)menu.getComponent(3)).setEnabled(false);
+                        ((JMenuItem)menu.getComponent(5)).setEnabled(false);
+                        
                         menu.show(e.getComponent(),
                                 e.getX(), e.getY());
                         e.consume();
-                    } else {
 
+                    } else if (SwingUtilities.isRightMouseButton(e) && checkForGate(e, gates)) {
+                         
+                        ((JMenuItem)menu.getComponent(3)).setEnabled(true);
+                        ((JMenuItem)menu.getComponent(5)).setEnabled(true);
+                       
+                        menu.show(e.getComponent(),
+                                e.getX(), e.getY());
+                        e.consume();
+                    } else if (e.getClickCount() == 1) {
+
+                        
+                        checkForGates(e, gates);
+                        e.consume();
+                    } else {
+                        e.consume();
                     };
                 }
-                e.consume();
+                //e.consume();
             }
 
         };
@@ -578,6 +591,7 @@ public class GateLayer implements ActionListener, ItemListener {
         menu.add(menuItem);
         
         menuItem = new JMenuItem("Paste");
+        menuItem.setEnabled(gateInClipboard);
 
         menuItem.addActionListener(this);
         menu.add(menuItem);
@@ -604,19 +618,22 @@ public class GateLayer implements ActionListener, ItemListener {
     public void actionPerformed(ActionEvent e) {
         System.out.println(e.getActionCommand());
         if(e.getActionCommand().equals("Delete")){
-            ListIterator<Gate> gt = gates.listIterator();
+            
+        ListIterator<Gate> gt = gates.listIterator();
             while(gt.hasNext()){
                 Gate g = gt.next();
-                if(g.getSelected()){
+                if(g.getHovering()){
                     gt.remove();
                 }
             }
             
         } else if(e.getActionCommand().equals("Copy")){
-            this.clipboardGate = selectedGate;
+            clipboardGate = selectedGate;
+            gateInClipboard = true;
+            menu.getComponent(4).setEnabled(true);
         } else if(e.getActionCommand().equals("Paste")){
             try{
-            gates.add(this.clipboardGate);
+            gates.add(clipboardGate);     
             } catch (NullPointerException n){}
         } else if(e.getActionCommand().equals("Delete All")){
             gates.clear();      

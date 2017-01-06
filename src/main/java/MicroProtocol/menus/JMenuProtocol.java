@@ -19,6 +19,7 @@ package MicroProtocol.menus;
 
 import MicroProtocol.listeners.BatchStateListener;
 import MicroProtocol.listeners.CopyBlocksListener;
+import MicroProtocol.listeners.FileOperationListener;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.event.MenuEvent;
@@ -53,6 +55,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                 
                 private ArrayList<BatchStateListener> listeners = new ArrayList<BatchStateListener>();
                 private ArrayList<CopyBlocksListener> CopyListeners = new ArrayList<CopyBlocksListener>();
+                private ArrayList<FileOperationListener> fileOperationListeners = new ArrayList<FileOperationListener>();
                 
                 public JMenuProtocol(final String text, ArrayList<String> tabs, int type){
                     
@@ -62,11 +65,21 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                     
                      LoadSteps = new JMenuItem("Load...");
                      LoadSteps.setActionCommand("Load");
-                     LoadSteps.addActionListener(this);
+                     LoadSteps.addActionListener(new ActionListener(){
+                         @Override
+                         public void actionPerformed(ActionEvent ae) {   
+                            notifyFileOperationListener(ae);
+                         }
+                     });
                      
                      SaveSteps = new JMenuItem("Save...");
-                     SaveSteps.setActionCommand("Load");
-                     SaveSteps.addActionListener(this);
+                     SaveSteps.setActionCommand("Save");
+                     SaveSteps.addActionListener(new ActionListener(){
+                         @Override
+                         public void actionPerformed(ActionEvent ae) {   
+                             notifyFileOperationListener(ae);
+                         }
+                     });
                      
                      CopySteps = new JMenu("Copy from...");
                      CopySteps.setActionCommand("Copy");
@@ -130,4 +143,53 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
     listener.onCopy(source, type);
 }
     }
+    
+    public void addFileOperationListener(FileOperationListener listener) {
+		fileOperationListeners.add(listener);
+	   }
+
+    private void notifyFileOperationListener(ActionEvent ae) {
+	     for (FileOperationListener listener : fileOperationListeners) {
+	    	 JMenuItem temp = (JMenuItem)(ae.getSource());
+	    	 if(temp.getText().equals("Load...")){
+				try {
+                                    System.out.println("PROFILING: loading.");
+                                    int returnVal = listener.onFileOpen();
+						
+						if(returnVal == 1){
+							
+						}
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(this.getParent(),
+					"File could not be opened...",
+					VTC._VTC.VERSION,
+					JOptionPane.WARNING_MESSAGE);
+                                        System.out.println("PROFILING: "+ e.getMessage());
+					}
+					
+	    	 } else if (temp.getText().equals("Save...")){
+				try {
+					listener.onFileSave();
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(this.getParent(),
+					"File could not be saved...",
+					VTC._VTC.VERSION,
+					JOptionPane.WARNING_MESSAGE);
+                                        System.out.println("PROFILING: "+ e.getMessage());
+				}
+			 } else if (temp.getText().equals("Export")){
+				try {
+					listener.onFileExport();
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(this.getParent(),
+					"File could not be exported...",
+					VTC._VTC.VERSION,
+					JOptionPane.WARNING_MESSAGE);
+                                        System.out.println("PROFILING: "+ e.getMessage());
+				}
+			}
+	    }
+	}
+
+    
                 }

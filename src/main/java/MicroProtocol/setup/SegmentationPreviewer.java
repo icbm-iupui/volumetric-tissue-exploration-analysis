@@ -89,7 +89,7 @@ static private void makeImage(ImagePlus imp, MicroExperiment me){
     
     ImageStack resultStack = resultImage.getStack();
     
-    ArrayList<microVolume> volumes = me.getVolumes(0);
+    ArrayList<microVolume> volumes = me.getFolderVolumes(0);
     
     ListIterator<microVolume> citr = volumes.listIterator();
     
