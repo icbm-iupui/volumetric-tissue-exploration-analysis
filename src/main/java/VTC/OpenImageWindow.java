@@ -24,6 +24,7 @@ import ij.WindowManager;
 import ij.plugin.Duplicator;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 
@@ -49,6 +50,8 @@ public class OpenImageWindow extends javax.swing.JFrame {
         GuiSetup();
         initComponents();
         
+        this.getRootPane().setDefaultButton(this.SelectImage);
+        
         comment.setVisible(false);
 
         //plotNames[0] = "NO PLOTS CREATED"; 
@@ -64,7 +67,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        Panel = new javax.swing.JPanel();
         jScrollPane10 = new javax.swing.JScrollPane();
         OpenImages = new javax.swing.JList();
         SelectImage = new javax.swing.JButton();
@@ -78,11 +81,16 @@ public class OpenImageWindow extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(217, 320));
         setName("microWindowManager"); // NOI18N
         setResizable(false);
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+        });
 
-        jPanel1.setBackground(VTC._VTC.BACKGROUND);
-        jPanel1.setMaximumSize(new java.awt.Dimension(305, 180));
-        jPanel1.setMinimumSize(new java.awt.Dimension(305, 180));
-        jPanel1.setPreferredSize(new java.awt.Dimension(305, 180));
+        Panel.setBackground(VTC._VTC.BACKGROUND);
+        Panel.setMaximumSize(new java.awt.Dimension(305, 180));
+        Panel.setMinimumSize(new java.awt.Dimension(305, 180));
+        Panel.setPreferredSize(new java.awt.Dimension(305, 180));
 
         OpenImages.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         OpenImages.setModel(new javax.swing.AbstractListModel() {
@@ -92,10 +100,16 @@ public class OpenImageWindow extends javax.swing.JFrame {
         }
     );
     OpenImages.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+    OpenImages.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+        public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+            OpenImagesValueChanged(evt);
+        }
+    });
     jScrollPane10.setViewportView(OpenImages);
 
     SelectImage.setText("Select");
     SelectImage.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+    SelectImage.setEnabled(false);
     SelectImage.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
             SelectImageActionPerformed(evt);
@@ -105,29 +119,29 @@ public class OpenImageWindow extends javax.swing.JFrame {
     comment.setFont(new java.awt.Font("Lucida Grande", 0, 10)); // NOI18N
     comment.setText("Select multiple for batch");
 
-    javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-    jPanel1.setLayout(jPanel1Layout);
-    jPanel1Layout.setHorizontalGroup(
-        jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addGroup(jPanel1Layout.createSequentialGroup()
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                .addGroup(jPanel1Layout.createSequentialGroup()
+    javax.swing.GroupLayout PanelLayout = new javax.swing.GroupLayout(Panel);
+    Panel.setLayout(PanelLayout);
+    PanelLayout.setHorizontalGroup(
+        PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(PanelLayout.createSequentialGroup()
+            .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(PanelLayout.createSequentialGroup()
                     .addContainerGap()
                     .addComponent(comment, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(SelectImage, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
                     .addComponent(jSeparator1)))
             .addGap(0, 0, Short.MAX_VALUE))
     );
-    jPanel1Layout.setVerticalGroup(
-        jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addGroup(jPanel1Layout.createSequentialGroup()
+    PanelLayout.setVerticalGroup(
+        PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(PanelLayout.createSequentialGroup()
             .addContainerGap()
             .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                 .addComponent(SelectImage)
                 .addComponent(comment))
             .addGap(1, 1, 1)
@@ -141,14 +155,14 @@ public class OpenImageWindow extends javax.swing.JFrame {
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         .addGroup(layout.createSequentialGroup()
             .addGap(6, 6, 6)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, Short.MAX_VALUE)
+            .addComponent(Panel, javax.swing.GroupLayout.PREFERRED_SIZE, 201, Short.MAX_VALUE)
             .addContainerGap())
     );
     layout.setVerticalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         .addGroup(layout.createSequentialGroup()
             .addContainerGap()
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+            .addComponent(Panel, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
             .addContainerGap())
     );
 
@@ -156,15 +170,39 @@ public class OpenImageWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void SelectImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SelectImageActionPerformed
-
-     ListActionPerformed(evt);
+        ListActionPerformed(evt);
     }//GEN-LAST:event_SelectImageActionPerformed
 
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+
+                // TODO add your handling code here:
+    }//GEN-LAST:event_formKeyPressed
+
+    private void OpenImagesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_OpenImagesValueChanged
+         if(!OpenImages.isSelectionEmpty() && WindowManager.getImageCount() > 0){
+        this.SelectImage.setEnabled(true); 
+        }else{
+            this.SelectImage.setEnabled(false);
+         }
+    }//GEN-LAST:event_OpenImagesValueChanged
+    
     protected void ListActionPerformed(ActionEvent evt){
+//        int i = OpenImages.getSelectedIndex();
+//        notifyImageSelectionListeners(i, this.tab);
+//        this.setVisible(false);
+            openImage();
+       
+    }
+    
+    protected void openImage(){
+        try{
         int i = OpenImages.getSelectedIndex();
         notifyImageSelectionListeners(i, this.tab);
         this.setVisible(false);
-        //IJ.log("Image number: " + i + ", for tab#: " + (tab)); 
+        } catch (NullPointerException e){
+            
+           
+        }
     }
     
     protected String[] populateImages() {
@@ -301,9 +339,9 @@ public class OpenImageWindow extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JList OpenImages;
+    private javax.swing.JPanel Panel;
     protected javax.swing.JButton SelectImage;
     protected javax.swing.JLabel comment;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane10;
     private javax.swing.JSeparator jSeparator1;
     // End of variables declaration//GEN-END:variables

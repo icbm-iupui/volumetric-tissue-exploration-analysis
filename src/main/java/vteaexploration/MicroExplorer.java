@@ -240,6 +240,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         this.impoverlay = imp.duplicate();
         this.impoverlay.setOpenAsHyperStack(true);
         this.impoverlay.setDisplayMode(IJ.COMPOSITE);
+        this.impoverlay.setTitle(this.getTitle());
 
         DefaultXYPanels = new XYPanels(AvailableData);
         DefaultXYPanels.addChangePlotAxesListener(this);

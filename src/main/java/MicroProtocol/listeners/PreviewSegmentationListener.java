@@ -25,6 +25,6 @@ import ij.gui.Roi;
  */
 public interface PreviewSegmentationListener {
     
-    public void onRequestPreviewSegementation(Roi r);
+    public void onRequestPreviewSegmentation(Roi r);
     
 }

@@ -85,7 +85,7 @@ static private boolean checkImage(ImagePlus imp){
 static private void makeImage(ImagePlus imp, MicroExperiment me){
     
     
-    ImagePlus resultImage = IJ.createImage("Segementation Preview", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices()); 
+    ImagePlus resultImage = IJ.createImage("Segmentation Preview", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices()); 
     
     ImageStack resultStack = resultImage.getStack();
     

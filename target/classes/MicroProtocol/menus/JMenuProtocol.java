@@ -149,35 +149,36 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
 	   }
 
     private void notifyFileOperationListener(ActionEvent ae) {
+            JMenuItem temp = (JMenuItem)(ae.getSource());
 	     for (FileOperationListener listener : fileOperationListeners) {
-	    	 JMenuItem temp = (JMenuItem)(ae.getSource());
+	    	 
 	    	 if(temp.getText().equals("Load...")){
 				try {
                                     System.out.println("PROFILING: loading.");
                                     int returnVal = listener.onFileOpen();
-						
+                                    
 						if(returnVal == 1){
 							
 						}
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(this.getParent(),
-					"File could not be opened...",
+					"File was opened...",
 					VTC._VTC.VERSION,
 					JOptionPane.WARNING_MESSAGE);
                                         System.out.println("PROFILING: "+ e.getMessage());
 					}
 					
-	    	 } else if (temp.getText().equals("Save...")){
+	    	} else if (temp.getText().equals("Save...")){
 				try {
 					listener.onFileSave();
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(this.getParent(),
-					"File could not be saved...",
+					"File was not saved...",
 					VTC._VTC.VERSION,
 					JOptionPane.WARNING_MESSAGE);
                                         System.out.println("PROFILING: "+ e.getMessage());
 				}
-			 } else if (temp.getText().equals("Export")){
+		} else if (temp.getText().equals("Export")){
 				try {
 					listener.onFileExport();
 				} catch (Exception e) {
@@ -188,7 +189,8 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                                         System.out.println("PROFILING: "+ e.getMessage());
 				}
 			}
-	    }
+                }
+            
 	}
 
     

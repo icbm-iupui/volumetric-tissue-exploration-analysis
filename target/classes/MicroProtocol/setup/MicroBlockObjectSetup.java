@@ -24,6 +24,9 @@ import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.plugin.ChannelSplitter;
 import java.awt.Component;
+import java.awt.Frame;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
@@ -34,6 +37,7 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -94,6 +98,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
 
         mta = new MicroThresholdAdjuster(ThresholdPreview); 
         mta.addChangeThresholdListener(this);
+        mta.notifyChangeThresholdListeners(mta.minThreshold, mta.maxThreshold);
         
         makeProtocolPanel(step);
 
@@ -193,22 +198,25 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
    
         if(evt.getSource() == ChannelComboBox){
             
-            //mta = new MicroThresholdAdjuster(ThresholdPreview); 
-            //mta.addChangeThresholdListener(this);
-            mta.removeChangeThresholdListeners();
-            //mta.doUpdate();
-            
             Point p = new Point();
+            try{
             p = ThresholdPreview.getWindow().getLocation();
             ThresholdPreview.hide();
-            IJ.run(ThresholdPreview, "Grays", "");
+            }
+            catch(NullPointerException e){
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            p = new Point(gd.getDisplayMode().getWidth()/2, gd.getDisplayMode().getHeight()/2);
+            }
+            
+            
             ThresholdPreview = getThresholdPreview();
+            IJ.run(ThresholdPreview, "Grays", "");
             
             ThresholdPreview.updateImage();
             ThresholdPreview.show();
             ThresholdPreview.getWindow().setLocation(p);
-            mta.setImagePlus(ThresholdPreview);
-            mta.doUpdate();
+            mta = new MicroThresholdAdjuster(ThresholdPreview); 
+            mta.addChangeThresholdListener(this);
             
 
         }
@@ -219,7 +227,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
-        //mta.doUpdate();
+        mta.doUpdate();
+        mta.notifyChangeThresholdListeners(mta.minThreshold, mta.maxThreshold);
         pack();
     }
 
@@ -312,6 +321,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
 
             MethodDetails.add((Component) ProcessComponents.get(7), layoutConstraints);
         }
+        mta.doUpdate();
         pack();
         MethodDetails.setVisible(true);    
         CurrentProcessList.clear();
@@ -322,7 +332,17 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     
     private ImagePlus getThresholdPreview(){
         ChannelSplitter cs = new ChannelSplitter();
-        ImagePlus imp = new ImagePlus("Threshold "+super.TitleText.getText(),cs.getChannel(ThresholdOriginal,this.ChannelComboBox.getSelectedIndex()+1).duplicate());
+        ImagePlus imp = new ImagePlus("Threshold "+super.TitleText.getText(),cs.getChannel(ThresholdOriginal,this.ChannelComboBox.getSelectedIndex()+1).duplicate()){
+
+            @Override
+            public void close() {
+                
+            }
+
+        };
+        
+   
+        
         return imp;
     }
     
@@ -380,17 +400,14 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     }
     
     public void setProcessedImage(ImagePlus imp){
-        this.ThresholdOriginal = imp;
-
+        this.ThresholdOriginal = imp;            
             ThresholdPreview = getThresholdPreview();
             IJ.run(ThresholdPreview, "Grays", "");
             
             ThresholdPreview.updateImage();
-            //ThresholdPreview.show();
-            
+
             mta.setImagePlus(ThresholdPreview);
-            mta.doUpdate();
-            
+            mta.doUpdate();        
     }
     
  
@@ -524,13 +541,17 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         max = (this.ThresholdPreview.getProcessor().getMax()/255)*max;
         min = (this.ThresholdPreview.getProcessor().getMax()/255)*min;
 
-        String[][] str = {{String.valueOf(Math.round(min)), "5", "20", "1000"},{String.valueOf(Math.round(min)), String.valueOf(Math.round(max)), "20", "1000"}};
-
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
         
-        ProcessVariables = str;
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = String.valueOf(Math.round(min));
+        
+        if(ProcessSelectComboBox.getSelectedIndex() == 1){
+            ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][1] = String.valueOf(Math.round(max));
+        }
+        //ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][2] = ((JTextField)CurrentStepProtocol.get(6)).getText();
+        //ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][3] = ((JTextField)CurrentStepProtocol.get(8)).getText();
         
         makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
         MethodDetails.revalidate();

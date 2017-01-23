@@ -47,6 +47,7 @@ public abstract class DefaultExplorationPanel extends JFrame implements Explorat
     protected ArrayList<ArrayList> ExplorationItems = new ArrayList<ArrayList>();
     protected HashMap<Integer, String> hm = new HashMap<Integer, String>();
     protected ImagePlus impoverlay;
+    protected ImagePlus impoverlayCopy;
     protected boolean imageGate = false;
     
     

@@ -136,6 +136,9 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                 Overlay overlay = new Overlay();
 
                 int count = 0;
+
+                
+                
                 BufferedImage placeholder = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
                 
                 ImageStack gateOverlay = new ImageStack(impoverlay.getWidth(), impoverlay.getHeight());
@@ -218,16 +221,11 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                         TextRoi line3 = new TextRoi(5, 31, gatedSelected + "/" + total + " overlap (" + 100 * percentageGatedSelected.doubleValue() + "%)", f);
                         overlay.add(line3);
                         }
-                        line1.setPosition(i);
-    
+                        line1.setPosition(i); 
                     }
                 }
                 impoverlay.setOverlay(overlay);
-                    
-//                    ImagePlus gateMaskImage = new ImagePlus("gates", gateOverlay);
-//                    
-//                    gateMaskImage.show();
-//                     
+  
                      gate.setGateOverlayStack(gateOverlay);
 
             }
@@ -235,6 +233,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
             
             impoverlay.draw();
             impoverlay.setTitle(this.getTitle());
+            
 
             if (impoverlay.getDisplayMode() != IJ.COMPOSITE) {
                 impoverlay.setDisplayMode(IJ.COMPOSITE);
@@ -247,12 +246,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
             }
             impoverlay.show();
         }
- 
     }
-
-   
-    
-
     
     @Override
     public int getGatedObjects(ImagePlus ip){
@@ -627,6 +621,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
     @Override
     public void setGatedOverlay(ImagePlus ip) {
         impoverlay = ip;
+        impoverlayCopy = impoverlay.duplicate();
         cpd.setOverlayImage(impoverlay);
     }
 
