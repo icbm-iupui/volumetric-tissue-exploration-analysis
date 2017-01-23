@@ -39,7 +39,7 @@ public class _VTC implements PlugIn, ImageListener, ActionListener {
     public static Dimension SMALLBUTTONSIZE = new Dimension(32, 32);
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
-    public static String VERSION = new String("0.3.1");
+    public static String VERSION = new String("0.3.6");
     
     public static String[] PROCESSOPTIONS = {"LayerCake 3D", "FloodFill 3D"};
     
@@ -64,20 +64,14 @@ public class _VTC implements PlugIn, ImageListener, ActionListener {
     
 
 
-    //protected ImagePlus imp1;
-    //private int folioCount = 0;
-
     public ProtocolManagerMulti protocolWindow;
-    //private static ArrayList<IJ1RoiModifiedListener> IJ1Roilisteners = new ArrayList<IJ1RoiModifiedListener>();
-    
-    
 
 
     public void setup(String arg, ImagePlus imp1) {
       
     }
 
-    // @Override
+    
     @Override
 public void run(String arg) {
     ImagePlus.addImageListener(this);

@@ -63,6 +63,8 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import vteapreprocessing.MicroProtocolPreProcessing;
 import MicroProtocol.listeners.UpdatedImageListener;
+import java.awt.event.KeyEvent;
+import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import vteaexploration.MicroExplorer;
@@ -79,7 +81,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
     public static final int EXPLOREBLOCKS = 3;
     public static final int BATCH = 4;
 
-    public JList OpenImages;
+    //public JList OpenImages;
 
     protected ImagePlus OriginalImage;
     protected ImagePlus ProcessedImage;
@@ -165,6 +167,11 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
         setMaximumSize(new java.awt.Dimension(761, 381));
         setMinimumSize(new java.awt.Dimension(761, 381));
         setPreferredSize(new java.awt.Dimension(761, 381));
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+        });
         java.awt.FlowLayout flowLayout1 = new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 1, 1);
         flowLayout1.setAlignOnBaseline(true);
         setLayout(flowLayout1);
@@ -638,6 +645,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
     }).start();
     }//GEN-LAST:event_ObjectGoActionPerformed
 
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+       
+    }//GEN-LAST:event_formKeyPressed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddStep_Object;
@@ -727,41 +738,62 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
 
     @Override
     public int onFileOpen() throws Exception {
-                System.out.println("PROFILING: Openning dialog..");
+        if(this.selected){
+                System.out.println("PROFILING: Opening settings for tab: " + this.tab);
 		JFileChooser chooser = new JFileChooser();
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA file.", ".vtf", "vtf");
 		chooser.setFileFilter(filter);
 		int returnVal = chooser.showOpenDialog(this);	
 		if(returnVal == JFileChooser.APPROVE_OPTION){
+                    
+                    
+                        System.out.println("PROFILING: Opening settings...");
+                    
 			File file = chooser.getSelectedFile();
 			FileInputStream fis = new FileInputStream(file);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			Object temp = ois.readObject();
-			this.ProcessingStepsList.clear();
+                        
+                        
+                        
+			ProcessStepBlockGUI image = ProcessingStepsList.get(0);
+                        ProcessingStepsList.clear();
+                        ProcessingStepsList.add(image);
                         
                         //Extract returns ArrayList of arraylists...  make new ProcessingBlockGUIs by arraylist.
-			ListIterator<ArrayList> itr = ((ArrayList<ArrayList>)temp).listIterator();
+			ListIterator<ArrayList> itr = ((ArrayList<ArrayList>)temp).listIterator();  
+                        
+                        while(itr.hasNext()){
+                            ProcessStepBlockGUI ppsb = new ProcessStepBlockGUI("Process Step", "", Color.LIGHT_GRAY, false, ThumbnailImage, OriginalImage, Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, ProcessingStepsList.size() + 1);
+                            ppsb.onChangeSetup(itr.next());    
+                        }
+                        
+                        this.RebuildPanelProcessing();
                         
 			repaint();
 			ois.close();
-			
+                        
 			return 1;
 		}else{
 			repaint();
 			
 			return -1;
 		}
-                
+        }  
+        
+        return -1;
     }
 
     @Override
     public void onFileSave() throws Exception {
-        
+        if(this.selected){
+            System.out.println("PROFILING: Saving settings...");
             JFileChooser chooser = new JFileChooser();
             FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA file.", ".vtf", "vtf");
-            chooser.setFileFilter(filter);
-	    chooser.showSaveDialog(this);	
+            chooser.setFileFilter(filter);          
+	    chooser.showSaveDialog(this);
 	    File file = chooser.getSelectedFile();
+            
             String filename = file.getName();
             if (!filename.endsWith(".vtf")){
                 String path = file.getPath();
@@ -771,10 +803,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
             
 	    FileOutputStream fos = new FileOutputStream(file);
 	    ObjectOutputStream oos = new ObjectOutputStream(fos);
-	    oos.writeObject(ExtractSteps(this.ProcessingStepsList, PROCESSBLOCKS));
+	    oos.writeObject(extractSteps(this.ProcessingStepsList, PROCESSBLOCKS));
 	    oos.close();
 	    repaint();
-            
+        }   
     }
 
     @Override
@@ -1116,7 +1148,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
     }
 
     public ArrayList getProProcessingProtocol() {
-        return ExtractSteps(ProcessingStepsList, PROCESSBLOCKS);
+        return extractSteps(ProcessingStepsList, PROCESSBLOCKS);
     }
     
     public ArrayList getProcessingProtocolList() {
@@ -1142,6 +1174,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
             sb = (ProcessStepBlockGUI) litr.next();
             sb.setPosition(ProcessingStepsList.indexOf(sb) + 1);
             PreProcessingStepsPanel.add(sb.getPanel());
+            
         }
     }
 
@@ -1187,7 +1220,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
         ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
 
         //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
-        protocol = ExtractSteps(ProcessingStepsList, PROCESSBLOCKS);
+        protocol = extractSteps(ProcessingStepsList, PROCESSBLOCKS);
         
         ProgressComment.setText("Processing image data...");
         //System.out.println("PROFILING: preprocessing protocol with " + protocol.size()+ " steps.");
@@ -1223,7 +1256,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
         ProgressComment.setText("Finding objects...");
                
         ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
-        protocol = ExtractSteps(ObjectStepsList, OBJECTBLOCKS);
+        protocol = extractSteps(ObjectStepsList, OBJECTBLOCKS);
 
         System.out.println("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
         me.start(ProcessedImage, protocol, true);
@@ -1262,7 +1295,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
     }
     ;
 
-static public ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
+static public ArrayList extractSteps(ArrayList sb_al, int blocktype) {
 
         ArrayList<ArrayList> Result = new ArrayList<ArrayList>();
 
@@ -1277,14 +1310,11 @@ static public ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
                     Result.add(ppsb.getVariables());
                 }
             }
-            
-           
         }
 
         if (blocktype == OBJECTBLOCKS) {
 
             ObjectStepBlockGUI osb;
-
             ListIterator<Object> litr = sb_al.listIterator();
             while (litr.hasNext()) {
                 osb = (ObjectStepBlockGUI) litr.next();
@@ -1432,13 +1462,11 @@ static public ArrayList ExtractSteps(ArrayList sb_al, int blocktype) {
                 AddStep_Preprocessing.setEnabled(false);
             }
         }
-        this.notifyRepaintTabListeners();
-
-       // this.StartText.setForeground(VTC._VTC.INACTIVETEXT);
-        this.OpenImage.setEnabled(false);
-        this.DeleteAllSteps_PreProcessing.setEnabled(true);
-        this.AddStep_Preprocessing.setEnabled(true);
-        this.PreProcessingGo.setEnabled(true);
+        notifyRepaintTabListeners();
+        OpenImage.setEnabled(false);
+        DeleteAllSteps_PreProcessing.setEnabled(true);
+        AddStep_Preprocessing.setEnabled(true);
+        PreProcessingGo.setEnabled(true);
         
         ProgressComment.setText("Image loaded...");
     }

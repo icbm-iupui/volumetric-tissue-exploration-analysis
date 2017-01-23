@@ -51,7 +51,7 @@ import javax.swing.event.ChangeListener;
 /** Adjusts the lower and upper threshold levels of the active image. This
     class is multi-threaded to provide a more responsive user interface. */
 public class MicroThresholdAdjuster  implements Measurements,
-    Runnable, ActionListener, ChangeListener, ItemListener, ImageListener {
+    Runnable, ActionListener, ChangeListener, ItemListener, ImageListener{
 
     public static final String LOC_KEY = "threshold.loc";
     public static final String MODE_KEY = "threshold.mode";
@@ -98,7 +98,10 @@ public class MicroThresholdAdjuster  implements Measurements,
     boolean firstActivation = true;
     
     ImagePlus impThreshold; 
+    ImagePlus impBackup;
     JPanel gui = new JPanel();
+    
+    
     ArrayList<ChangeThresholdListener> ctllisteners = new ArrayList<ChangeThresholdListener>();
     
     
@@ -106,6 +109,10 @@ public class MicroThresholdAdjuster  implements Measurements,
     public MicroThresholdAdjuster(ImagePlus cimp) {
        
         impThreshold = cimp;
+        
+        //impThreshold.getWindow().addWindowListener(this);
+        
+        impBackup = impThreshold.duplicate();
         
         mode = (int)Prefs.get(MODE_KEY, RED);
         if (mode<RED || mode>OVER_UNDER) mode = RED;
@@ -282,9 +289,8 @@ public class MicroThresholdAdjuster  implements Measurements,
         
         if (impThreshold!=null){
             impThreshold.setSlice(impThreshold.getStackSize()/2);
-            setup(impThreshold, true);
-            
-        }
+            setup(impThreshold, true);      
+        } 
        this.notifyChangeThresholdListeners(minThreshold, maxThreshold);
     }
     
@@ -761,6 +767,8 @@ public class MicroThresholdAdjuster  implements Measurements,
         //close();
     }
     
+
+    
     void runThresholdCommand() {
         Thresholder.setMethod(method);
         Thresholder.setBackground(darkBackground.isSelected()?"Dark":"Light");
@@ -807,9 +815,13 @@ public class MicroThresholdAdjuster  implements Measurements,
         doApplyLut = false;
         doStateChange = false;
         doSet = false;
+        
         imp = impThreshold;
-
         ip = setup(imp, false);
+        
+        
+        
+        //action = AUTO;
 
         //IJ.write("setup: "+(imp==null?"null":imp.getTitle()));
         switch (action) {
@@ -972,9 +984,7 @@ public class MicroThresholdAdjuster  implements Measurements,
     public void removeChangeThresholdListeners() {
             ctllisteners.clear();
     }
-        
 
-} // ThresholdAdjuster class
 
 
 
@@ -1161,4 +1171,5 @@ class ThresholdPlot extends JPanel implements Measurements, MouseListener, Chang
 
 
 } // ThresholdPlot class
+}
 

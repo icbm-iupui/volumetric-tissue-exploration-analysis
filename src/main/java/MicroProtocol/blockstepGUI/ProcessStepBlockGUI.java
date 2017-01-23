@@ -107,10 +107,10 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
         this.ProtocolAll = protocol;
 
         if (ProcessString.length() > 30) {
-            Process.setText(ProcessString.substring(0, 40) + "...");
-            Process.setToolTipText(ProcessString);
+            Process.setText(ProcessString.substring(0, 30).replace("DUP_", "") + "...");
+            
         } else {
-            Process.setText(ProcessText);
+            Process.setText(ProcessText.replace("DUP_", ""));
         }
 
         Comment.setText(CommentText);
@@ -333,6 +333,10 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
 
     public ArrayList getVariables() {
         return settings;
+    }
+    
+    public void setVariables(ArrayList al){
+        settings = al;
     }
 
     public void addRebuildPanelListener(RebuildPanelListener listener) {

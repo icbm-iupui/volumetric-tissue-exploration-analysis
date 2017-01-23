@@ -67,14 +67,10 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         this.minConstants = minConstants;
         this.alRegions = Regions;
         this.nVolumes = 0;
-
         Collections.sort(alRegions, new ZComparator());
-        //defineVolumes();
-
         VolumeForkPool vf = new VolumeForkPool(alRegions, minConstants, 0, alRegions.size() - 1);
         ForkJoinPool pool = new ForkJoinPool();
         pool.invoke(vf);
-        cleanupVolumes();
     }
 
 //constructor for region building
