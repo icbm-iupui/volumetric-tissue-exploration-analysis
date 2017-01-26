@@ -40,7 +40,7 @@ public class _VTC implements PlugIn, ImageListener, ActionListener {
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
     public static String VERSION = new String("0.3.64");
-    
+
     public static String[] PROCESSOPTIONS = {"LayerCake 3D", "FloodFill 3D"};
     
      
