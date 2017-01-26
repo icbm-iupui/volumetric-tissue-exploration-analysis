@@ -100,8 +100,6 @@ public class MicroThresholdAdjuster  implements Measurements,
     ImagePlus impThreshold; 
     ImagePlus impBackup;
     JPanel gui = new JPanel();
-    
-    
     ArrayList<ChangeThresholdListener> ctllisteners = new ArrayList<ChangeThresholdListener>();
     
     
@@ -341,7 +339,7 @@ public class MicroThresholdAdjuster  implements Measurements,
     @Override
     public synchronized void itemStateChanged(ItemEvent e) {
         Object source = e.getSource();
-        //System.out.println("New value from: " + source.toString());
+ 
         if (source==methodChoice) {
             method = (String)methodChoice.getSelectedItem();
             doAutoAdjust = true;
@@ -366,10 +364,6 @@ public class MicroThresholdAdjuster  implements Measurements,
     public void setImagePlus(ImagePlus imp){       
             impThreshold = imp;    
             IJ.run(impThreshold, "Grays", "");
-//            doAutoAdjust = true;
-//            doUpdate();
-//            //notifyChangeThresholdListeners(minThreshold, maxThreshold);
-//            notify();
     }
 
     ImageProcessor setup(ImagePlus imp, boolean enableAutoThreshold) {
@@ -596,8 +590,9 @@ public class MicroThresholdAdjuster  implements Measurements,
     }
 
     void updateScrollBars() {
-        //minSlider.setValue((int)minThreshold);
-        //maxSlider.setValue((int)maxThreshold);
+        //minSlider.setValue(255*(int)(minThreshold/this.impThreshold.getProcessor().getMax()));
+        //maxSlider.setValue(255*(int)(maxThreshold/this.impThreshold.getProcessor().getMax()));
+        
     }
     
     /** Restore image outside non-rectangular roi. */
@@ -625,8 +620,9 @@ public class MicroThresholdAdjuster  implements Measurements,
         minThreshold = value;
         if (maxThreshold<minThreshold) {
             maxThreshold = minThreshold;
-            //maxSlider.setValue((int)maxThreshold);
+            
         }
+        minSlider.setValue((int)minThreshold);
         scaleUpAndSet(ip, minThreshold, maxThreshold);
         notifyChangeThresholdListeners(minThreshold, maxThreshold);
     }
@@ -635,15 +631,12 @@ public class MicroThresholdAdjuster  implements Measurements,
         maxThreshold = cvalue;
         if (minThreshold>maxThreshold) {
             minThreshold = maxThreshold;
-            //minSlider.setValue((int)minThreshold);
         }
         if (minThreshold < 0) {     //remove NO_THRESHOLD
             minThreshold = 0;
-            //minSlider.setValue((int)minThreshold);
         }
+        maxSlider.setValue((int)maxThreshold);
         scaleUpAndSet(ip, minThreshold, maxThreshold);
-//        IJ.setKeyUp(KeyEvent.VK_ALT);
-//        IJ.setKeyUp(KeyEvent.VK_SHIFT);
         notifyChangeThresholdListeners(minThreshold, maxThreshold);
     }
 
@@ -767,8 +760,6 @@ public class MicroThresholdAdjuster  implements Measurements,
         //close();
     }
     
-
-    
     void runThresholdCommand() {
         Thresholder.setMethod(method);
         Thresholder.setBackground(darkBackground.isSelected()?"Dark":"Light");
@@ -819,10 +810,6 @@ public class MicroThresholdAdjuster  implements Measurements,
         imp = impThreshold;
         ip = setup(imp, false);
         
-        
-        
-        //action = AUTO;
-
         //IJ.write("setup: "+(imp==null?"null":imp.getTitle()));
         switch (action) {
             case RESET: reset(imp, ip); break;
@@ -940,7 +927,7 @@ public class MicroThresholdAdjuster  implements Measurements,
         Object source = e.getSource();
         if (source==minSlider){
             minValue = minSlider.getValue();
-            //System.out.println("PROFILING: minSlider, " + minValue);
+            //System.out.println("PROFILING: minSlider, " + minValue); 
             doUpdate();
         } 
 

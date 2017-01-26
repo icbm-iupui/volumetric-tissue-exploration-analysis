@@ -80,7 +80,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
     public static final int OBJECTBLOCKS = 2;
     public static final int EXPLOREBLOCKS = 3;
     public static final int BATCH = 4;
-
+    
+    
     //public JList OpenImages;
 
     protected ImagePlus OriginalImage;
@@ -1073,6 +1074,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
         @Override
         public void onUpdateImage(ImagePlus imp) {
            this.mbs.setProcessedImage(imp);
+           this.mbs.updateNewImage();
         }
 
         @Override

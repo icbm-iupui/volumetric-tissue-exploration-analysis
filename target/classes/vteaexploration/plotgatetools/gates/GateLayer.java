@@ -357,9 +357,9 @@ public class GateLayer implements ActionListener, ItemListener {
                     //after processing gates, if no gates then 
                     
                     if(gateInClipboard){
-                        ((JMenuItem)menu.getComponent(5)).setEnabled(true);
+                        ((JMenuItem)menu.getComponent(4)).setEnabled(true);
                     } else if (!gateInClipboard){
-                        ((JMenuItem)menu.getComponent(5)).setEnabled(false);
+                        ((JMenuItem)menu.getComponent(4)).setEnabled(false);
                     }
                    
                     if (SwingUtilities.isRightMouseButton(e) && !checkForGate(e, gates)) {
