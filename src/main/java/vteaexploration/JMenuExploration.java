@@ -17,8 +17,8 @@
  */
 package vteaexploration;
 
-import MicroProtocol.listeners.BatchStateListener;
-import MicroProtocol.listeners.CopyBlocksListener;
+import vteaprotocol.listeners.BatchStateListener;
+import vteaprotocol.listeners.CopyBlocksListener;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
