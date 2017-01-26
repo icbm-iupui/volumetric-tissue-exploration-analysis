@@ -47,6 +47,7 @@ public abstract class DefaultExplorationPanel extends JFrame implements Explorat
     protected ArrayList<ArrayList> ExplorationItems = new ArrayList<ArrayList>();
     protected HashMap<Integer, String> hm = new HashMap<Integer, String>();
     protected ImagePlus impoverlay;
+    protected ImagePlus impoverlayCopy;
     protected boolean imageGate = false;
     
     
@@ -60,7 +61,7 @@ public abstract class DefaultExplorationPanel extends JFrame implements Explorat
 
     public DefaultExplorationPanel() {
         CenterPanel.setOpaque(false);
-        CenterPanel.setBackground(VTC._VTC.BACKGROUND);
+        CenterPanel.setBackground(vtea._VTC.BACKGROUND);
     }
 
     protected int keyLookUp(int x, int y, int l) {

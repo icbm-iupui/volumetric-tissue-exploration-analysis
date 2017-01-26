@@ -21,11 +21,6 @@ package vteaobjects.floodfill3D;
 import ij.*;
 import ij.process.*;
 import java.util.*;
-import ij.ImagePlus;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.SwingWorker;
 import java.util.concurrent.ForkJoinPool;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
 import java.util.concurrent.RecursiveAction;
@@ -85,9 +80,12 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
         } 
         imageResult = new ImagePlus("Mask Result", stackResult);
         IJ.run(imageResult, "8-bit", ""); 
-        if(watershedImageJ){IJ.run(imageResult, "Watershed", "stack");}
+        if(watershedImageJ){
+            IJ.run(imageResult, "Watershed", "stack");
+        }
+        
         IJ.run(imageResult, "Invert", "stack");     
-         //imageResult.show();
+         
 
      makeRegions(imageResult.getStack(), maskStack);
   
@@ -139,74 +137,6 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
     
     }
     
-      private class DerivedRegionForkPool extends RecursiveAction {
-        //class splits it self into new classes...  start with largest start and stop and subdivided recursively until start-stop is the number for the number of cores or remaineder.
-        private int[][] derivedRegionType;
-        int channels;
-        ImageStack[] stack;
-        ArrayList ResultsPointers;
-        int stop;
-        int start;
-        List<microVolume> volumes = Collections.synchronizedList(new ArrayList<microVolume>());
- 
-        //Thread t;
-        //private String threadName = "derivedregionmaker_" + System.nanoTime();
-        
-         DerivedRegionForkPool(int[][] ldrt, int c, ImageStack[] st, ArrayList rp, int start, int stop) {
-        derivedRegionType = ldrt;
-        channels = c;
-        stack = st;
-        ResultsPointers = rp;       
-        this.stop = stop;
-        this.start = start;       
-        
-        //System.out.println("PROFILING-DETAILS: ForkJoin Start and Stop points:" + start + ", " + stop);
-        //volumes = alVolumes.subList(start, stop);
-        }
-         
-        
-
-
-        private void defineDerivedRegions(){ 
-            ListIterator<MicroObject> itr = alVolumes.listIterator(start);
-            int i = start;
-            while(itr.hasNext() && i<=stop){  
-                MicroObject mv = new MicroObject();
-                mv = itr.next();
-                
-                mv.makeDerivedRegions(derivedRegionType, channels, stack, ResultsPointers);
-                //System.out.println("PROFILING: making derived regions.  " + mv.getName() + ", getting " + mv.getNDRegions() + " derived regions and " + mv.getderivedConstants()[1][0]+ "  Giving: " + mv.getAnalysisResultsVolume()[0][2]);
-                i++;
-            }
-        }
-
-        @Override
-        protected void compute() {
-        
-            int processors = Runtime.getRuntime().availableProcessors();
-            
-            //int processors = 1;
-            
-            int length = alVolumes.size()/processors;
-            
-            if(alVolumes.size() < processors){
-                length = alVolumes.size();
-            }
-            
-            
-           // System.out.println("PROFILING-DETAILS: Derived Regions Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
-            
-            if(stop-start > length){
-            invokeAll(new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start, start+((stop-start)/2)),
-                new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start+((stop-start)/2)+1, stop));
-             //System.out.println("PROFILING-DETAILS: ForkJoin Splitting...");
-        }
-            else{
-               // System.out.println("PROFILING-DETAILS: ForkJoin Computing...");
-                defineDerivedRegions();
-            }
-        }
-    }  
     
     
         public void makeDerivedRegionsPool(int[][] localDerivedRegionTypes, int channels, ImageStack[] Stack, ArrayList ResultsPointers) {
@@ -243,15 +173,15 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
         pixels = floodfill(stack, x-1, y-1, z+1, width, height, depth, color, pixels);
         pixels = floodfill(stack, x-1, y+1, z+1, width, height, depth, color, pixels);
         pixels = floodfill(stack, x+1, y-1, z+1, width, height, depth, color, pixels);
-//        floodfill3D(stack, x, y, z-1, width, height, depth, color);
-//        floodfill3D(stack, x+1, y, z-1, width, height, depth, color);
-//        floodfill3D(stack, x, y+1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x+1, y+1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x-1, y, z-1, width, height, depth, color);
-//        floodfill3D(stack, x, y-1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x-1, y-1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x-1, y+1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x+1, y-1, z-1, width, height, depth, color);
+//        pixels = floodfill(stack, x, y, z-1, width, height, depth, color, pixels);
+//        pixels = floodfill(stack, x+1, y, z-1, width, height, depth, color, pixels);
+//        pixels = floodfill(stack, x, y+1, z-1, width, height, depth, color, pixels);
+//        pixels = floodfill(stack, x+1, y+1, z-1, width, height, depth, color, pixels);
+//        pixels = floodfill(stack, x-1, y, z-1, width, height, depth, color, pixels);
+//        pixels = floodfill(stack, x, y-1, z-1, width, height, depth, color, pixels);
+//        pixels = floodfill(stack, x-1, y-1, z-1, width, height, depth, color, pixels);
+//        pixels = floodfill(stack, x-1, y+1, z-1, width, height, depth, color, pixels);
+//        pixels = floodfill(stack, x+1, y-1, z-1, width, height, depth, color, pixels);
         pixels = floodfill(stack, x+1, y, z, width, height, depth, color, pixels);
         pixels = floodfill(stack, x, y+1, z, width, height, depth, color, pixels);
         pixels = floodfill(stack, x+1, y+1, z, width, height, depth, color, pixels);
@@ -264,6 +194,8 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
         return pixels;
 
     }
+    
+    @Deprecated
     
     private int dilatefill3D(ImageStack stack, int x, int y, int z, int width, int height, int depth, double color){
         
@@ -328,28 +260,7 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
         return false;
     }
 
-    private ImageStack optimizeMask(ImageStack inputStack) {
-        int localwidth = inputStack.getWidth();
-        int localheight = inputStack.getHeight();  
 
-        ImagePlus localImp = new ImagePlus(null, inputStack);
-
-        IJ.run(localImp, "Subtract Background...", "rolling=50 stack");
-
-        StackProcessor sp = new StackProcessor(localImp.getStack());
-        ImageStack s1 = sp.resize(localwidth * 2, localheight * 2, true);
-        localImp.setStack(null, s1);
-
-        IJ.run(localImp, "Median...", "radius=2 stack");
-
-        sp = new StackProcessor(localImp.getStack());
-        ImageStack s2 = sp.resize(localwidth, localheight, true);
-
-        localImp.setStack("Mask Channel-Optimized", s2);
-        localImp.show();
-
-        return s2;
-    }
 
     private int[] calculateCartesian(int pixel, int width, int slice) {
         int[] result = new int[3];
@@ -394,6 +305,74 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
 
     public ArrayList getVolumesAsList() {
         return new ArrayList(alVolumes);
+    }
+    private class DerivedRegionForkPool extends RecursiveAction {
+        //class splits it self into new classes...  start with largest start and stop and subdivided recursively until start-stop is the number for the number of cores or remaineder.
+        private int[][] derivedRegionType;
+        int channels;
+        ImageStack[] stack;
+        ArrayList ResultsPointers;
+        int stop;
+        int start;
+        List<microVolume> volumes = Collections.synchronizedList(new ArrayList<microVolume>());
+        
+        //Thread t;
+        //private String threadName = "derivedregionmaker_" + System.nanoTime();
+        
+        DerivedRegionForkPool(int[][] ldrt, int c, ImageStack[] st, ArrayList rp, int start, int stop) {
+            derivedRegionType = ldrt;
+            channels = c;
+            stack = st;
+            ResultsPointers = rp;
+            this.stop = stop;
+            this.start = start;
+            
+            //System.out.println("PROFILING-DETAILS: ForkJoin Start and Stop points:" + start + ", " + stop);
+            //volumes = alVolumes.subList(start, stop);
+        }
+        
+        
+        
+        
+        private void defineDerivedRegions(){
+            ListIterator<MicroObject> itr = alVolumes.listIterator(start);
+            int i = start;
+            while(itr.hasNext() && i<=stop){
+                MicroObject mv = new MicroObject();
+                mv = itr.next();
+                
+                mv.makeDerivedRegions(derivedRegionType, channels, stack, ResultsPointers);
+                //System.out.println("PROFILING: making derived regions.  " + mv.getName() + ", getting " + mv.getNDRegions() + " derived regions and " + mv.getderivedConstants()[1][0]+ "  Giving: " + mv.getAnalysisResultsVolume()[0][2]);
+                i++;
+            }
+        }
+        
+        @Override
+        protected void compute() {
+            
+            int processors = Runtime.getRuntime().availableProcessors();
+            
+            //int processors = 1;
+            
+            int length = alVolumes.size()/processors;
+            
+            if(alVolumes.size() < processors){
+                length = alVolumes.size();
+            }
+            
+            
+            // System.out.println("PROFILING-DETAILS: Derived Regions Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
+            
+            if(stop-start > length){
+                invokeAll(new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start, start+((stop-start)/2)),
+                        new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start+((stop-start)/2)+1, stop));
+                //System.out.println("PROFILING-DETAILS: ForkJoin Splitting...");
+            }
+            else{
+                // System.out.println("PROFILING-DETAILS: ForkJoin Computing...");
+                defineDerivedRegions();
+            }
+        }
     }
 
 }

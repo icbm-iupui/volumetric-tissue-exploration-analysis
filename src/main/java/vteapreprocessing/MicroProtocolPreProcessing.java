@@ -58,20 +58,28 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
     }
     
     private void makePreviewImage() {
+        try{
+        Roi r = impOriginal.getRoi();
+        impPreview = r.getImage().duplicate(); 
         
-        impOriginal.resetStack();
-        impOriginal.setRoi(new Roi(0,0,255,255));
-        if(impOriginal.getWidth() < 255 || impOriginal.getHeight() < 255){
+        } catch(NullPointerException e){
+            impOriginal.resetStack();
+            impOriginal.setRoi(new Roi(0,0,255,255));
+            if(impOriginal.getWidth() < 255 || impOriginal.getHeight() < 255){
             impOriginal.setRoi(new Roi(0,0,impOriginal.getWidth(),impOriginal.getHeight()));
-        }
+            }
         impPreview = new Duplicator().run(impOriginal);
         impPreview.hide();
+        impPreview.setZ(impPreview.getNSlices()/2);
         impOriginal.deleteRoi();
-        
+        }
+
     }
 
     public ImagePlus ProcessImage() {
+        impOriginal.deleteRoi();
         impProcessed = impOriginal.duplicate();
+        impOriginal.restoreRoi();
         ListIterator<Object> litr = this.protocol.listIterator();
         while (litr.hasNext()) {
             ProcessManager((ArrayList) litr.next(), impProcessed);
@@ -85,7 +93,6 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         while (litr.hasNext()) {
             ProcessManager((ArrayList) litr.next(), impPreview);
         }
-       
         return impPreview;
     }
     
@@ -102,16 +109,18 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         if(protocol.get(0).toString().equals("Reduce Noise")) {testcase = 2;};  
         
        ChannelSplitter cs = new ChannelSplitter();
+
        RGBStackMerge rsm = new RGBStackMerge();
-       
-       ImagePlus temp_imp = new ImagePlus("Ch_" + (Integer)protocol.get(1) + "_modified", cs.getChannel(imp, (Integer)protocol.get(1)+1)); 
-       ImagePlus[] merged = new ImagePlus[imp.getNChannels()];
-       for(int i = 0; i < merged.length; i++){
-           merged[i] = new ImagePlus("Ch_" + i, cs.getChannel(imp, (Integer)protocol.get(1)+1));
-       }
-       merged[(Integer)protocol.get(1)] = temp_imp;
-       
-        switch (testcase) {
+       ImagePlus temp_imp = new ImagePlus();
+       if(imp.getNChannels() > 1){
+            temp_imp = new ImagePlus("Ch_" + (Integer)protocol.get(1) + "_modified", cs.getChannel(imp, (Integer)protocol.get(1)+1)); 
+            ImagePlus[] merged = new ImagePlus[imp.getNChannels()];
+            for(int i = 0; i < merged.length; i++){
+                merged[i] = new ImagePlus("Ch_" + i, cs.getChannel(imp, (Integer)protocol.get(1)+1));
+            }
+            merged[(Integer)protocol.get(1)] = temp_imp;
+            
+            switch (testcase) {
             case 0:
                 SubtractBackground(temp_imp,protocol);
                 //System.out.println("PROFILING: Running Background Subtraction...");
@@ -129,6 +138,32 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
             default: ;
                 break;
         }
+       }else{
+           temp_imp = new ImagePlus("Ch_" + (Integer)protocol.get(1) + "_modified", imp.getImageStack()); 
+           
+           switch (testcase) {
+            case 0:
+                SubtractBackground(temp_imp,protocol);
+                //System.out.println("PROFILING: Running Background Subtraction...");
+                //imp = temp_imp;
+                break;
+            case 1:
+                EnhanceContrast(temp_imp,protocol);
+               //System.out.println("PROFILING: Running Enhance Contrast...");
+               //imp = temp_imp;
+                break;
+            case 2:
+            //System.out.println("PROFILING: Denoising with median filter...");
+                DeNoise(temp_imp,protocol);
+                break;
+            default: ;
+                break;
+        }
+       }
+       
+        
+       
+        
     }
 
     private void SubtractBackground(ImagePlus imp, ArrayList variables) {
@@ -145,7 +180,13 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         
         ImageStack is;
         
-        is = cs.getChannel(imp, channel+1);
+        if(imp.getNChannels()>1){
+            is = cs.getChannel(imp, channel+1);
+        }else{
+            is = imp.getImageStack();
+        }
+        
+        
         
         for(int n = 1; n <= is.getSize(); n++){
         rbb.rollingBallBackground(is.getProcessor(n), Integer.parseInt(radius.getText()), false, false, false, true, true);
@@ -188,26 +229,17 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
         } else {
             stackhisto = "";
         }
-       // System.out.println("PROFILING: Enhance Contrast" + "saturated=" + fractionsaturated.getText() + " " + norm + " " + equal + " " + stackall + " " + stackhisto);
-        //IJ.run(imp, "Enhance Contrast...", "saturated=" + fractionsaturated.getText() + " " + norm + " " + equal + " " + stackall + " " + stackhisto);
+       //System.out.println("PROFILING: Enhance Contrast" + "saturated=" + fractionsaturated.getText() + " " + norm + " " + equal + " " + stackall + " " + stackhisto);
+        IJ.run(imp, "Enhance Contrast...", "saturated=" + fractionsaturated.getText() + " " + norm + " " + equal + " " + stackall + " " + stackhisto);
     }
 
     private void DeNoise(ImagePlus imp, ArrayList variables) {
         int channel = (Integer)variables.get(1);
         JTextField radius = (JTextField) variables.get(3);
-        //radius = (JTextField)variables.get(2);
+
         
-        ChannelSplitter cs = new ChannelSplitter();
-        
-        ImageStack is;
-        
-        is = cs.getChannel(imp, channel+1);
-        
-        for(int n = 1; n <= is.getSize(); n++){
             IJ.run(imp, "Median...", "radius="+radius.getText()+" stack");
-        }
-        //System.out.println("PROFILING: DeNoise, Median..." + "radius=" + radius.getText());
-        //IJ.run(imp, "Median...", "radius="+radius+" stack");
+
     }
 
     public ImagePlus getResult() {
@@ -215,7 +247,7 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
     }
 
     public ImagePlus getPreview() {
-        return this.impOriginal;
+        return this.impPreview;
     }
     
     public ArrayList getSteps() {

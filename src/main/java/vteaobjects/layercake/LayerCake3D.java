@@ -23,8 +23,6 @@ import java.util.*;
 import ij.ImagePlus;
 import java.awt.Color;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import vteaobjects.MicroObject;
@@ -48,6 +46,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
     private List<microVolume> alVolumes = Collections.synchronizedList(new ArrayList<microVolume>());
 
     private List<microRegion> alRegionsProcessed = Collections.synchronizedList(new ArrayList<microRegion>());
+    private List<microRegion> alRegionsParsing = Collections.synchronizedList(new ArrayList<microRegion>());
 
     private int[] minConstants; // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
 
@@ -68,14 +67,10 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         this.minConstants = minConstants;
         this.alRegions = Regions;
         this.nVolumes = 0;
-
         Collections.sort(alRegions, new ZComparator());
-        //defineVolumes();
-
         VolumeForkPool vf = new VolumeForkPool(alRegions, minConstants, 0, alRegions.size() - 1);
         ForkJoinPool pool = new ForkJoinPool();
         pool.invoke(vf);
-        cleanupVolumes();
     }
 
 //constructor for region building
@@ -249,12 +244,10 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
     private class RegionForkPool extends RecursiveAction {
 
         private int maxsize = 1;
-        //private microRegion[] Regions = new microRegion[(int) (maxsize / minConstants[0])];
         private ArrayList<microRegion> alResult = new ArrayList<microRegion>();
         private int[] start_pixel = new int[3];
         int x, y, z;
-        //int[] x_positions = new int[(int) minConstants[1]];
-        //int[] y_positions = new int[(int) minConstants[1]];
+
 
         ArrayList<Integer> x_positions = new ArrayList<Integer>();
         ArrayList<Integer> y_positions = new ArrayList<Integer>();
@@ -264,9 +257,6 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         int[] EOL = new int[5000];  //end of line position
         int[] row = new int[5000];  //line position
 
-//        ArrayList<Integer> BOL = new ArrayList<Integer>();
-//        ArrayList<Integer> EOL = new ArrayList<Integer>();
-//        ArrayList<Integer> row = new ArrayList<Integer>();
         int count = 0;
         private ImageStack stack;
         private ImageStack original;
@@ -318,25 +308,17 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
                             }
                             
                             // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
-                            //add region to array
-                            if (xPixels.length > (int) minConstants[0] && xPixels.length < (int) minConstants[1]) {
-                                alResult.add(new microRegion(xPixels, yPixels, xPixels.length, n, original));      
-                            } 
                             
-                            //reassign pixels from stack
+                            //if (xPixels.length > (int) minConstants[0] && xPixels.length < (int) minConstants[1]) {
+                                alResult.add(new microRegion(xPixels, yPixels, xPixels.length, n, original));      
+                            //} 
 
-//                            for (int i = 0; i <= xPixels.length - 1; i++) {
-//                                stack.setVoxel(xPixels[i], yPixels[i], n, color);
-//                            }
                             if (color < 253) {
                                 color++;
                             } else {
                                 color = 1;
                             }
 
-                            //reset	arrays
-
-                            //row.clear();
                             n_positions = 0;
                             count = 0;
                             region++;
@@ -345,10 +327,6 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
                     }
                 }
             }
-            //this.Regions = Regions;
-            //this.nRegions = nRegions;
-            //this.alRegions =+ ;
-            //this.nRegions =+ nRegions; 
             System.out.println("PROFILING: ...Regions found in thread:  " + alResult.size());
 
         }
@@ -359,8 +337,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         if(x < 0 || y < 0 || z < 0 || x >= width || y >= height || z >= depth || stack.getVoxel(x,y,z) < 255){
             return pixels;
         } else {
-        //|| stack.getVoxel(x, y, z) == color
-        //System.out.println("PROFILING: Adding point to object: " + color );
+
         stack.setVoxel(x, y, z, color);
         
         int[] pixel = new int[3];
@@ -370,24 +347,6 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         
         pixels.add(pixel);
         
-//        pixels = floodfill(stack, x, y, z+1, width, height, depth, color, pixels);
-//        pixels = floodfill(stack, x+1, y, z+1, width, height, depth, color, pixels);
-//        pixels = floodfill(stack, x, y+1, z+1, width, height, depth, color, pixels);
-//        pixels = floodfill(stack, x+1, y+1, z+1, width, height, depth, color, pixels);
-//        pixels = floodfill(stack, x-1, y, z+1, width, height, depth, color, pixels);
-//        pixels = floodfill(stack, x, y-1, z+1, width, height, depth, color, pixels);
-//        pixels = floodfill(stack, x-1, y-1, z+1, width, height, depth, color, pixels);
-//        pixels = floodfill(stack, x-1, y+1, z+1, width, height, depth, color, pixels);
-//        pixels = floodfill(stack, x+1, y-1, z+1, width, height, depth, color, pixels);
-//        floodfill3D(stack, x, y, z-1, width, height, depth, color);
-//        floodfill3D(stack, x+1, y, z-1, width, height, depth, color);
-//        floodfill3D(stack, x, y+1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x+1, y+1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x-1, y, z-1, width, height, depth, color);
-//        floodfill3D(stack, x, y-1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x-1, y-1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x-1, y+1, z-1, width, height, depth, color);
-//        floodfill3D(stack, x+1, y-1, z-1, width, height, depth, color);
         pixels = floodfill(stack, x+1, y, z, width, height, depth, color, pixels);
         pixels = floodfill(stack, x, y+1, z, width, height, depth, color, pixels);
         pixels = floodfill(stack, x+1, y+1, z, width, height, depth, color, pixels);
@@ -402,143 +361,6 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
     }
 
 
-        
-        
-        private void defineRegions3() {
-            //uses a line scan flood fill method with backfill
-            int color = 1;
-            for (int n = this.start; n <= this.stop; n++) {
-                //IJ.showProgress(n + 1, this.stop);
-                //loop through pixels to find starts for regions		
-                for (int p = 0; p <= stack.getWidth() - 1; p++) {
-                    for (int q = 0; q <= stack.getHeight() - 1; q++) {
-                        //start pixel selected if 255, new region
-
-                        if (getVoxelBounds(stack, p, q, n) == 255) {
-                            start_pixel[0] = p;
-                            start_pixel[1] = q;
-                            start_pixel[2] = n;
-
-                            //position being analyzed
-                            x = start_pixel[0];
-                            y = start_pixel[1];
-                            z = start_pixel[2];
-
-                            //052814 while(stack.getVoxel(x-1,y,z) == 255) {x--;}
-                            //start pixel is left most in first row
-                            //count is for the line in question
-                            BOL[count] = x;
-                            row[count] = y;
-                            //BOL.add(x);
-                            //row.add(y);
-                            //run until 0, end of first row
-
-                            while (getVoxelBounds(stack, x, y, z) == 255) {
-                                x++;
-                            }
-
-                            EOL[count] = x - 1;
-                            //EOL.add(x-1);
-                            count++;
-                            //second row start, search up
-                            // x = BOL.get(count - 1);
-                            x = BOL[count - 1];
-
-                            while (getVoxelBounds(stack, x, y, z) == 255) {
-
-                                if (getVoxelBounds(stack, x, y + 1, z) == 255) {
-
-                                    while (getVoxelBounds(stack, x - 1, y + 1, z) == 255) {
-                                        x--;
-                                    }
-
-                                    BOL[count] = x;
-                                    row[count] = y + 1;
-
-                                    while (getVoxelBounds(stack, x + 1, y + 1, z) == 255) {
-                                        x++;
-                                    }
-
-                                    EOL[count] = x;
-                                    y++;
-                                    x = BOL[count];
-                                    count++;
-                                }
-
-                                x++;
-                            }
-
-                            //reset start pixel and search down
-                            x = BOL[0];
-                            y = start_pixel[1];
-
-                            while (getVoxelBounds(stack, x, y, z) == 255) {
-
-                                if (getVoxelBounds(stack, x, y - 1, z) == 255) {
-
-                                    while (getVoxelBounds(stack, x - 1, y - 1, z) == 255) {
-                                        x--;
-                                    }
-
-                                    BOL[count] = x;
-                                    row[count] = y - 1;
-
-                                    while (getVoxelBounds(stack, x + 1, y - 1, z) == 255) {
-                                        x++;
-                                    }
-
-                                    EOL[count] = x;
-                                    y--;
-                                    x = BOL[count];
-                                    count++;
-                                }
-
-                                x++;
-                            }
-
-                            // }
-                            //parse tables
-                            //get whole region
-                            for (int a = 0; a <= count - 1; a++) {				//loop rows
-                                for (int c = BOL[a]; c <= EOL[a]; c++) {			//loop x or columns
-                                    x_positions.add(c);
-                                    y_positions.add(row[a]);
-                                }
-                            }
-                            //add region to array
-                            if (x_positions.size() > (int) minConstants[0] && x_positions.size() < (int) minConstants[1]) {
-                                alResult.add(new microRegion(convertPixelArrayList(x_positions), convertPixelArrayList(y_positions), x_positions.size(), n, original));
-                            }
-                            //reassign pixels from stack
-
-                            for (int i = 0; i <= x_positions.size() - 1; i++) {
-                                stack.setVoxel(x_positions.get(i), y_positions.get(i), n, color);
-                            }
-                            if (color < 253) {
-                                color++;
-                            } else {
-                                color = 1;
-                            }
-
-                            //reset	arrays
-                            row = new int[5000];
-                            //row.clear();
-                            x_positions.clear();
-                            y_positions.clear();
-                            n_positions = 0;
-                            count = 0;
-                        }
-                    }
-                }
-            }
-            //this.Regions = Regions;
-            //this.nRegions = nRegions;
-            //this.alRegions =+ ;
-            //this.nRegions =+ nRegions; 
-            System.out.println("PROFILING: ...Regions found in thread:  " + alResult.size());
-
-        }
-
         private double getVoxelBounds(ImageStack stack, int x, int y, int z) {
 
             try {
@@ -548,31 +370,6 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
             }
         }
  
-        private void defineRegions2() {
-//refining connected component labeling
-            ImageStack resultstack = stack;
-            double c = 256;
-            for (int n = 0; n <= stack.getSize() - 1; n++) {
-
-                //loop through pixels to find starts		
-                for (int p = 0; p <= stack.getWidth() - 1; p++) {
-                    for (int q = 0; q <= stack.getHeight() - 1; q++) {
-                        //start pixel selected if 255
-                        if (stack.getVoxel(p, q, n) == 0) {
-                            resultstack.setVoxel(p, q, n, 0);
-                        }
-                        if (stack.getVoxel(p, q, n) == 255) {
-                            int[] point = new int[4];
-                            point[0] = p;
-                            point[1] = q;
-                            point[2] = n;
-                            check8Neighbors(stack, point, c);
-                            resultstack.setVoxel(p, q, n, c);
-                        }
-                    }
-                }
-            }
-        }
 
         private void setRegions() {
             alRegions.addAll(alResult);
@@ -600,14 +397,11 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
             if (stack.getSize() < processors) {
                 length = stack.getSize();
             }
-
-            //int remainder = alRegions.size()%processors; 
-            //System.out.println("PROFILING-DETAILS: Region Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
             if (stop - start > length) {
-                // RegionForkPool(ImageStack st, ImageStack orig, int start, int stop)
+                
                 invokeAll(new RegionForkPool(stack, original, start, start + ((stop - start) / 2)),
                         new RegionForkPool(stack, original, start + ((stop - start) / 2) + 1, stop));
-                //System.out.println("PROFILING-DETAILS: Region Making ForkJoin Splitting...");
+                
             } else {
                 defineRegions();
                 setRegions();
@@ -672,7 +466,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
                 }
                 if (volume.getNRegions() > 0) {
                     volume.calculateVolumeMeasurements();
-                    if (volume.getPixelCount() >= minConstantsLocal[0]) {
+                    if (volume.getPixelCount() >= minConstantsLocal[0] && volume.getPixelCount() <= minConstantsLocal[1]) {
                         alVolumes.add(volume);
                     }
                 }
@@ -681,8 +475,8 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
 
         @Override
         protected void compute() {
-            //limited to four threads, odd unreproducible behaviour above 4 threads
-            int processors = 4;
+            
+            int processors = 1;
             int length = alRegions.size() / processors;
 
             if (alRegions.size() < processors) {
@@ -837,9 +631,12 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         int nVolumesLocal = 0;
 
         microRegion test = new microRegion();
+        
+        //ArrayList<microRegion> regions = new ArrayList<microRegion>();
+        alRegionsParsing.addAll(alRegions);
 
-        for (int i = 0; i < alRegions.size(); i++) {
-            test = alRegions.get(i);
+        for (int i = 0; i < alRegionsParsing.size(); i++) {
+            test = alRegionsParsing.get(i);
             if (!test.isAMember()) {
                 nVolumesLocal++;
                 startRegion[0] = test.getBoundCenterX();
@@ -877,8 +674,8 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         double[] testRegion = new double[2];
 
         microRegion test = new microRegion();
-        for (int i = 0; i < alRegions.size(); i++) {
-            test = alRegions.get(i);
+        for (int i = 0; i < alRegionsParsing.size(); i++) {
+            test = alRegionsParsing.get(i);
             testRegion[0] = test.getBoundCenterX();
             testRegion[1] = test.getBoundCenterY();
             double comparator = lengthCart(startRegion, testRegion);
@@ -890,7 +687,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
                     testRegion[0] = (testRegion[0] + startRegion[0]) / 2;
                     testRegion[1] = (testRegion[1] + startRegion[1]) / 2;
                     alRegionsProcessed.add(test);
-                    //alRegions.remove(i); 
+                    alRegionsParsing.remove(i); 
                     findConnectedRegions(volumeNumber, testRegion, z);
                     //System.out.println("PROFILING: Adding regions: " + i);
                 }

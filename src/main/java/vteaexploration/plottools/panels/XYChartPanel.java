@@ -22,7 +22,6 @@ import ij.gui.RoiListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -98,8 +97,8 @@ public class XYChartPanel implements RoiListener {
     private String yValuesText;
     private String lValuesText;
     private boolean imageGate;
-    
     private Color imageGateOutline;
+    
     public XYChartPanel() {
 
     }
@@ -175,7 +174,6 @@ public class XYChartPanel implements RoiListener {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
             @Override
@@ -235,7 +233,7 @@ public class XYChartPanel implements RoiListener {
         lAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         
         psl = new PaintScaleLegend(ps, lAxis);
-        psl.setBackgroundPaint(VTC._VTC.BACKGROUND);
+        psl.setBackgroundPaint(vtea._VTC.BACKGROUND);
         psl.setPosition(RectangleEdge.RIGHT);
         psl.setMargin(4, 4, 40, 4);
         psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
