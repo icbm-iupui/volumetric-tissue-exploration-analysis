@@ -12,9 +12,9 @@
         <relativePath/>
     </parent>
 
-    <groupId>sw_iupui</groupId>
-    <artifactId>VTC_</artifactId>
-    <version>0.3.63-SNAPSHOT</version>
+    <groupId>icbm-iupui</groupId>
+    <artifactId>vtea</artifactId>
+    <version>0.3.64-SNAPSHOT</version>
 
     <name>VTEA_Image Processing Bugs</name>
     <description>Volumetric analysis</description>
@@ -98,7 +98,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>VTC._VTC</mainClass>
+                    <mainClass>vtea._VTC</mainClass>
                 </configuration>
             </plugin>
             <plugin>

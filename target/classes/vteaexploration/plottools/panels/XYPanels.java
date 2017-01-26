@@ -19,7 +19,7 @@ package vteaexploration.plottools.panels;
 
 import vteaexploration.plotgatetools.listeners.ChangePlotAxesListener;
 import vteaobjects.layercake.microVolume;
-import VTC._VTC;
+import vtea._VTC;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
