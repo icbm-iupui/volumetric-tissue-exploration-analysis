@@ -27,6 +27,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /*
  * To change this template, choose Tools | Templates
@@ -75,7 +77,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
         comment = new javax.swing.JLabel();
 
         setTitle("VTC-Select Image");
-        setBackground(vtea._VTC.BACKGROUND);
+        setBackground(vtea._vtea.BACKGROUND);
         setIconImages(null);
         setLocation(new java.awt.Point(130, 180));
         setMinimumSize(new java.awt.Dimension(217, 320));
@@ -87,7 +89,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
             }
         });
 
-        Panel.setBackground(vtea._VTC.BACKGROUND);
+        Panel.setBackground(vtea._vtea.BACKGROUND);
         Panel.setMaximumSize(new java.awt.Dimension(305, 180));
         Panel.setMinimumSize(new java.awt.Dimension(305, 180));
         Panel.setPreferredSize(new java.awt.Dimension(305, 180));
@@ -259,6 +261,17 @@ public class OpenImageWindow extends javax.swing.JFrame {
     }
 
     private void notifyImageSelectionListeners(int i, int tab) {
+ if(WindowManager.getImage(i + 1).getNSlices() <= 1){
+                JFrame frame = new JFrame();
+                frame.setBackground(vtea._vtea.BUTTONBACKGROUND);  
+
+                    JOptionPane.showMessageDialog(frame,
+                    "Sorry, VTEA requires a 3D volume.",
+                        "File type warning",
+                    JOptionPane.WARNING_MESSAGE);
+        
+        }else{
+
         for (ImageSelectionListener listener : listeners) {
             
             Duplicator dup = new Duplicator();
@@ -268,6 +281,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
                }  
             listener.onSelect(imp, tab);
         }  
+        }
     }
 
    public void getImageFile(int i){

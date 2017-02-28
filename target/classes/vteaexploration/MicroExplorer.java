@@ -245,10 +245,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         DefaultXYPanels = new XYPanels(AvailableData);
         DefaultXYPanels.addChangePlotAxesListener(this);
 
-        this.getContentPane().setBackground(vtea._VTC.BACKGROUND);
+        this.getContentPane().setBackground(vtea._vtea.BACKGROUND);
         this.getContentPane().setPreferredSize(new Dimension(600, 600));
 
-        Main.setBackground(vtea._VTC.BACKGROUND);
+        Main.setBackground(vtea._vtea.BACKGROUND);
         ec.addResetSelectionListener(this);
         ec.getXYChartPanel().addUpdatePlotWindowListener(this);
         ec.setGatedOverlay(impoverlay);
@@ -321,7 +321,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         setTitle(getTitle());
-        setBackground(vtea._VTC.BACKGROUND);
+        setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {

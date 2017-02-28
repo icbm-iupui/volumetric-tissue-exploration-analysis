@@ -61,7 +61,7 @@ public abstract class DefaultExplorationPanel extends JFrame implements Explorat
 
     public DefaultExplorationPanel() {
         CenterPanel.setOpaque(false);
-        CenterPanel.setBackground(vtea._VTC.BACKGROUND);
+        CenterPanel.setBackground(vtea._vtea.BACKGROUND);
     }
 
     protected int keyLookUp(int x, int y, int l) {

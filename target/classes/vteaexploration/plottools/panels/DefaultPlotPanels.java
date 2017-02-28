@@ -32,10 +32,10 @@ public class DefaultPlotPanels implements PlotAxesPanels {
     protected JPanel RightPanel = new JPanel(true);
 
     public DefaultPlotPanels() {
-        HeaderPanel.setBackground(vtea._VTC.BACKGROUND);
-        FooterPanel.setBackground(vtea._VTC.BACKGROUND);
-        LeftPanel.setBackground(vtea._VTC.BACKGROUND);
-        RightPanel.setBackground(vtea._VTC.BACKGROUND);
+        HeaderPanel.setBackground(vtea._vtea.BACKGROUND);
+        FooterPanel.setBackground(vtea._vtea.BACKGROUND);
+        LeftPanel.setBackground(vtea._vtea.BACKGROUND);
+        RightPanel.setBackground(vtea._vtea.BACKGROUND);
     }
     
 

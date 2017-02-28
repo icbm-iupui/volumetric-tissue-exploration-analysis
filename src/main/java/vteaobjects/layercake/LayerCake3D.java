@@ -523,6 +523,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         }
     }
 
+    @Deprecated
     private synchronized void cleanupVolumes() {
 
         //loop through all volumes
@@ -623,6 +624,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         alVolumes.addAll(alVolumesTrim);
     }
 
+    @Deprecated
     private void defineVolumes() {
         int z;
         microVolume volume = new microVolume();
@@ -970,6 +972,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         return s2;
     }
 
+    @Deprecated
     private int[] calculateCartesian(int pixel, int width, int slice) {
         int[] result = new int[3];
         result[1] = (int) Math.ceil(pixel / width);
@@ -978,6 +981,7 @@ public class LayerCake3D extends Object implements Cloneable, java.io.Serializab
         return result;
     }
 
+    @Deprecated
     private int calculateLinear(int x, int y, int width) {
         int result = (width * y) - (width - x);
         return result;

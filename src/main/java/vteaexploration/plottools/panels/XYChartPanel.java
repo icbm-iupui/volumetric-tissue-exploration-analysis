@@ -233,7 +233,7 @@ public class XYChartPanel implements RoiListener {
         lAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         
         psl = new PaintScaleLegend(ps, lAxis);
-        psl.setBackgroundPaint(vtea._VTC.BACKGROUND);
+        psl.setBackgroundPaint(vtea._vtea.BACKGROUND);
         psl.setPosition(RectangleEdge.RIGHT);
         psl.setMargin(4, 4, 40, 4);
         psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);

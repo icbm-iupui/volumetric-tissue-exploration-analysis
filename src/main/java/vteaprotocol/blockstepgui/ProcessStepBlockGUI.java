@@ -24,6 +24,7 @@ import vteaprotocol.listeners.RebuildPanelListener;
 import vteaprotocol.setup.MicroBlockProcessSetup;
 import vteaprotocol.setup.MicroBlockSetup;
 import ij.ImagePlus;
+import ij.plugin.Duplicator;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -36,7 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
-import vteapreprocessing.MicroProtocolPreProcessing;
+import vteaimageprocessing.MicroProtocolPreProcessing;
 
 /**
  *
@@ -159,11 +160,11 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
         });
 
         DeleteButton.setSize(20, 20);
-        DeleteButton.setBackground(vtea._VTC.BUTTONBACKGROUND);
+        DeleteButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
 
         EditButton.setSize(20, 20);
-        EditButton.setBackground(vtea._VTC.BUTTONBACKGROUND);
+        EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
 
         step.setSize(205, 20);
@@ -273,22 +274,33 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
         
         
         protected void showThumbnail(int x, int y) {
-        thumb.setSize(255, 255);
+        
+            thumb.setSize(255, 255);
+            
+            
 
         if (this.OriginalImage.getWidth() < 255) {
             thumb.setSize(OriginalImage.getWidth(), OriginalImage.getHeight());
+            ThumbnailImage = new Duplicator().run(OriginalImage);
+        } else if(this.OriginalImage.getWidth() > 384) {
+            ThumbnailImage = new Duplicator().run(OriginalImage);
+        } else {
+            OriginalImage.setRoi((OriginalImage.getWidth()/2)-128, (OriginalImage.getHeight()/2)-128, 255, 255);
+            ThumbnailImage = new Duplicator().run(OriginalImage);
+            OriginalImage.deleteRoi();
         }
 
         if (position > 1 && updatePreviewImage) {
-            OriginalImage.deleteRoi();
-            ThumbnailImage = previewThumbnail(OriginalImage.duplicate());
-            OriginalImage.restoreRoi();
+
+            ThumbnailImage = previewThumbnail(ThumbnailImage);
+            ThumbnailImage.setZ(ThumbnailImage.getNSlices()/2);
+
 
             thumb.add(new ImagePanel(ThumbnailImage.getImage()));
 
             updatePreviewImage = false;
         } else {
-
+            ThumbnailImage.setZ(ThumbnailImage.getNSlices()/2);
             thumb.add(new ImagePanel(ThumbnailImage.getImage()));
         }
 
@@ -301,15 +313,14 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
 
         ArrayList options = new ArrayList();
 
-        options.add(settings);
-
-        System.out.println("imageProcessing: " + options);
-
-        MicroProtocolPreProcessing previewEngine = new MicroProtocolPreProcessing(imp, options);
-        previewEngine.ProcessPreviewImage();
-
-        //previewEngine.getPreview().show();
-        return previewEngine.getPreview();
+        if(Process.getText().equals("Process Step")){
+            return imp; 
+        }else{
+            options.add(settings);
+            //System.out.println("imageProcessing: " + options);
+            MicroProtocolPreProcessing previewEngine = new MicroProtocolPreProcessing(imp, options);
+            return previewEngine.ProcessPreviewImage();
+        }
     }
 
     protected void deleteStep(int type, int position) {

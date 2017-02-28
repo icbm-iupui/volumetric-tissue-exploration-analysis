@@ -25,7 +25,7 @@ import ij.ImagePlus;
 import java.util.ArrayList;
 import java.util.HashMap;
 import vteaobjects.MicroObjectModel;
-import vteapreprocessing.MicroProtocolPreProcessing;
+import vteaimageprocessing.MicroProtocolPreProcessing;
 
 import java.lang.IllegalArgumentException;
 import vteaobjects.MicroObject;

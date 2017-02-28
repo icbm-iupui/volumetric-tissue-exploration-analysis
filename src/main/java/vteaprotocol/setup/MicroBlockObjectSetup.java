@@ -51,7 +51,7 @@ import javax.swing.table.TableModel;
  */
 public final class MicroBlockObjectSetup extends MicroBlockSetup implements ChangeThresholdListener, RoiListener {
     public static String getMethod(int i) {
-        return vtea._VTC.PROCESSOPTIONS[i];
+        return vtea._vtea.PROCESSOPTIONS[i];
     }
 
     //static public String[] ProcessOptions = {"Select Method", "LayerCake 3D", "FloodFill 3D", "Assisted Detection 3D", "Auto Detection 3D"};
@@ -97,7 +97,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         
         makeProtocolPanel(step);
 
-        super.cbm = new DefaultComboBoxModel(vtea._VTC.PROCESSOPTIONS);
+        super.cbm = new DefaultComboBoxModel(vtea._vtea.PROCESSOPTIONS);
         setBounds(new java.awt.Rectangle(500, 160, 378, 282));
 
         TitleText.setText("Object_" + (step));
