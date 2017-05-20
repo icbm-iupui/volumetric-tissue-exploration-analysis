@@ -17,8 +17,10 @@ import vtea.VTEAModule;
 import org.scijava.Context;
 import org.scijava.InstantiableException;
 import org.scijava.log.LogService;
+import org.scijava.plugin.Plugin;
 import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
+import org.scijava.service.Service;
 
 
 /**
@@ -29,14 +31,15 @@ import org.scijava.plugin.PluginService;
  * a way to organize plugins using the SciJava framework.
  * @param <K>
  */
+@Plugin(type = Service.class)
 public abstract class AbstractService< K extends VTEAModule > 
 {
 	private final Class< K > cl;
 
-	public AbstractService( final Class< K > cl )
+	public AbstractService( final Class< K > cl , Context context)
 	{
 		this.cl = cl;
-		registerModules();
+		registerModules(context);
 	}
 
 	protected List< String > keys;
@@ -51,9 +54,9 @@ public abstract class AbstractService< K extends VTEAModule >
 
 	protected Map< String, K > implementations;
 
-	private void registerModules()
+	private void registerModules(Context context)
 	{
-		final Context context = new Context( LogService.class, PluginService.class );
+		//final Context context = new Context( LogService.class, PluginService.class );
 		final LogService log = context.getService( LogService.class );
 		final PluginService pluginService = context.getService( PluginService.class );
 		final List< PluginInfo< K >> infos = pluginService.getPluginsOfType( cl );

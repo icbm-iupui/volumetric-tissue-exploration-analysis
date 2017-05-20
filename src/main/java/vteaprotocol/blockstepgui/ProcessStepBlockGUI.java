@@ -160,11 +160,11 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
         });
 
         DeleteButton.setSize(20, 20);
-        DeleteButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
+        DeleteButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
         DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
 
         EditButton.setSize(20, 20);
-        EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
+        EditButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
         EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
 
         step.setSize(205, 20);
@@ -224,61 +224,32 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
         step.addMouseListener(new java.awt.event.MouseListener() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-            }
-
-            ;
+            };
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                //thumb.setVisible(false);
-            }
-
-            ;
+            };
             @Override
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                thumb.setVisible(false);
-            }
-
-            ;
+                thumb.setVisible(false);};
             @Override
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 if (!SwingUtilities.isRightMouseButton(evt)) {
                     showThumbnail(evt.getXOnScreen(), evt.getYOnScreen());
-                }
-            }
-
-            ;
+                }};
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-//                    if(SwingUtilities.isRightMouseButton(evt) && position == 1) { 
-//                        IJ.log("Rightclick detected on step: " + position);       
-//                        mfm.show(evt.getComponent(), evt.getX(), evt.getY());
-//                          }
-            }
-        ;
-
-    }
-
-    );
-
-        //step.
-            
-
+            public void mouseClicked(java.awt.event.MouseEvent evt) { };
+            });
 
         }
         
-//        private void deleteStep(int type, int position) {           
-//            this.notifyDeleteBlockListeners(type, position);
-//            this.notifyRebuildPanelListeners(type);
-//            
-//        }
-        
-        
-        protected void showThumbnail(int x, int y) {
-        
-            thumb.setSize(255, 255);
-            
-            
+        protected void makeThumbnail(){
+            ThumbnailImage = previewThumbnail(ThumbnailImage);
+            ThumbnailImage.setZ(ThumbnailImage.getNSlices()/2);
+            updatePreviewImage = false;
+        }
 
+        protected void showThumbnail(int x, int y) {        
+        thumb.setSize(255, 255);
         if (this.OriginalImage.getWidth() < 255) {
             thumb.setSize(OriginalImage.getWidth(), OriginalImage.getHeight());
             ThumbnailImage = new Duplicator().run(OriginalImage);
@@ -317,7 +288,6 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
             return imp; 
         }else{
             options.add(settings);
-            //System.out.println("imageProcessing: " + options);
             MicroProtocolPreProcessing previewEngine = new MicroProtocolPreProcessing(imp, options);
             return previewEngine.ProcessPreviewImage();
         }
@@ -326,7 +296,6 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
     protected void deleteStep(int type, int position) {
         this.notifyDeleteBlockListeners(type, position);
         this.notifyRebuildPanelListeners(type);
-
     }
 
     public void setPosition(int n) {
@@ -371,32 +340,41 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
     }
 
     public int getChannel() {
-
         return processChannel;
     }
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-
+        
         super.clone();
-
+        
+        System.out.println("PROFILING: Copying image processing: " + Process.getText());
+        
         ProcessStepBlockGUI Copy = new ProcessStepBlockGUI(Process.getText(), Comment.getText(), this.BlockColor, false, this.ThumbnailImage.duplicate(), OriginalImage.duplicate(), this.Channels, this.type, this.ProtocolAll, this.position);
 
+        Copy.OriginalImage = this.OriginalImage.duplicate(); 
+   
         Copy.mbs = (MicroBlockProcessSetup) this.mbs.clone();
+        Copy.mbs.setProtocolPosition(this.mbs.getProtocolPosition());
         Copy.mbs.MicroBlockSetupListeners.clear();
         Copy.mbs.addMicroBlockSetupListener(Copy);
-
-        Copy.settings = this.settings;
+        //Copy.settings = (ArrayList)this.settings.clone();
 
         ArrayList<RebuildPanelListener> rebuildpanelisteners = new ArrayList<RebuildPanelListener>();
         ArrayList<DeleteBlockListener> deleteblocklisteners = new ArrayList<DeleteBlockListener>();
-
+        
+        //Copy.previewThumbnail(Copy.OriginalImage);
+        
         return Copy;
+    }
+    
+    public MicroBlockSetup getSetup(){
+        return mbs;
     }
 
     @Override
     public void onChangeSetup(ArrayList al) {
-
+        
         Process.setText(al.get(0).toString());
         processChannel = (Integer) al.get(1);
         Comment.setText("On channel: " + ((Integer) al.get(1) + 1));
@@ -405,7 +383,5 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
 
         this.settings = al;
         updatePreviewImage = true;
-
     }
-
 }

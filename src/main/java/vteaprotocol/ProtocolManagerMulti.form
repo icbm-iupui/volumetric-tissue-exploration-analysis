@@ -71,8 +71,9 @@
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="2"/>
     <Property name="title" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-      <Connection code="&quot;VTEA-Protocols v.&quot; + vtea._vtea.VERSION" type="code"/>
+      <Connection code="&quot;vtea.VTEA-Protocols v.&quot; + vtea.VTEA.VERSION" type="code"/>
     </Property>
+    <Property name="autoRequestFocus" type="boolean" value="false"/>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
       <Color blue="cc" green="cc" red="cc" type="rgb"/>
     </Property>
@@ -122,7 +123,7 @@
     <Container class="javax.swing.JTabbedPane" name="ImageTabs">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="vtea._vtea.ACTIONPANELBACKGROUND" type="code"/>
+          <Connection code="vtea.VTEA.ACTIONPANELBACKGROUND" type="code"/>
         </Property>
         <Property name="tabPlacement" type="int" value="2"/>
         <Property name="toolTipText" type="java.lang.String" value=""/>

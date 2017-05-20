@@ -32,6 +32,7 @@ import vteaexploration.plottools.panels.XYPanels;
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
+import ij.gui.ImageWindow;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.measure.ResultsTable;
@@ -42,6 +43,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -237,7 +239,9 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         });
 
         this.imp = imp;
+        
         this.impoverlay = imp.duplicate();
+        
         this.impoverlay.setOpenAsHyperStack(true);
         this.impoverlay.setDisplayMode(IJ.COMPOSITE);
         this.impoverlay.setTitle(this.getTitle());
@@ -245,10 +249,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         DefaultXYPanels = new XYPanels(AvailableData);
         DefaultXYPanels.addChangePlotAxesListener(this);
 
-        this.getContentPane().setBackground(vtea._vtea.BACKGROUND);
+        this.getContentPane().setBackground(vtea.VTEA.BACKGROUND);
         this.getContentPane().setPreferredSize(new Dimension(600, 600));
 
-        Main.setBackground(vtea._vtea.BACKGROUND);
+        Main.setBackground(vtea.VTEA.BACKGROUND);
         ec.addResetSelectionListener(this);
         ec.getXYChartPanel().addUpdatePlotWindowListener(this);
         ec.setGatedOverlay(impoverlay);
@@ -321,7 +325,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         setTitle(getTitle());
-        setBackground(vtea._vtea.BACKGROUND);
+        setBackground(vtea.VTEA.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {

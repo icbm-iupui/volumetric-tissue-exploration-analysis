@@ -123,7 +123,7 @@ public class MicroThresholdAdjuster  implements Measurements,
         GridBagConstraints c = new GridBagConstraints();
         gui.setLayout(gridbag);
         gui.setPreferredSize(new Dimension(359,300));
-        gui.setBackground(vtea._vtea.BACKGROUND);
+        gui.setBackground(vtea.VTEA.BACKGROUND);
         
         // plot
         int y = 0;
@@ -199,7 +199,7 @@ public class MicroThresholdAdjuster  implements Measurements,
         
         // checkboxes
         panel = new JPanel();
-        panel.setBackground(vtea._vtea.BACKGROUND);
+        panel.setBackground(vtea.VTEA.BACKGROUND);
         //boolean db = Prefs.get(DARK_BACKGROUND, Prefs.blackBackground?true:false);
         darkBackground = new JCheckBox("Dark background");
         darkBackground.setSelected(true);
@@ -217,7 +217,7 @@ public class MicroThresholdAdjuster  implements Measurements,
                 
         // choices
         panel = new JPanel();
-        panel.setBackground(vtea._vtea.BACKGROUND);
+        panel.setBackground(vtea.VTEA.BACKGROUND);
         
         methodChoice = new JComboBox();
         for (int i=0; i<methodNames.length; i++)

@@ -5,6 +5,10 @@
  */
 package vtea.services;
 
+import org.scijava.Context;
+import org.scijava.plugin.AbstractPTService;
+import org.scijava.plugin.Plugin;
+import org.scijava.service.Service;
 import vtea.VTEAModule;
 import vteaimageprocessing.ImageProcessing;
 
@@ -13,10 +17,11 @@ import vteaimageprocessing.ImageProcessing;
  *
  * @author sethwinfree
  */
+@Plugin(type = Service.class)
 public class ImageProcessingService extends AbstractService< ImageProcessing >{
     
-    public ImageProcessingService() {
-        super( ImageProcessing.class );
+    public ImageProcessingService(Context context) {
+        super(ImageProcessing.class, context);
     }
     
 }

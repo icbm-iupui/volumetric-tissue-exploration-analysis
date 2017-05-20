@@ -120,17 +120,6 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
         
     }
     
-        
-    
-//    public void addBatchListener(BatchStateListener listener) {
-//        listeners.add(listener);
-//    }
-//
-//    public void notifyBatchListeners(boolean batch) {
-//        for (BatchStateListener listener : listeners) {
-//            listener.batchStateAdd(batch);
-//        }
-//    }
     
     public void addStepCopierListener(CopyBlocksListener listener){
          CopyListeners.add(listener);
@@ -140,8 +129,8 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
     public void notifyStepCopierListener(String source, int type){
         for (CopyBlocksListener listener : CopyListeners){
      //IJ.log(type + ", Event: " + source);
-    listener.onCopy(source, type);
-}
+            listener.onCopy(source, type);
+        }
     }
     
     public void addFileOperationListener(FileOperationListener listener) {
@@ -163,7 +152,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(this.getParent(),
 					"File was opened...",
-					vtea._vtea.VERSION,
+					vtea.VTEA.VERSION,
 					JOptionPane.WARNING_MESSAGE);
                                         System.out.println("PROFILING: "+ e.getMessage());
 					}
@@ -174,7 +163,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(this.getParent(),
 					"File was not saved...",
-					vtea._vtea.VERSION,
+					vtea.VTEA.VERSION,
 					JOptionPane.WARNING_MESSAGE);
                                         System.out.println("PROFILING: "+ e.getMessage());
 				}
@@ -184,7 +173,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(this.getParent(),
 					"File could not be exported...",
-					vtea._vtea.VERSION,
+					vtea.VTEA.VERSION,
 					JOptionPane.WARNING_MESSAGE);
                                         System.out.println("PROFILING: "+ e.getMessage());
 				}

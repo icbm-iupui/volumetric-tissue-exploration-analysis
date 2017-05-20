@@ -5,6 +5,9 @@
  */
 package vtea.services;
 
+import org.scijava.Context;
+import org.scijava.plugin.Plugin;
+import org.scijava.service.Service;
 import vtea.VTEAModule;
 import vteaobjects.Segmentation.Segmentation;
 
@@ -12,10 +15,11 @@ import vteaobjects.Segmentation.Segmentation;
  *
  * @author sethwinfree
  */
+@Plugin(type = Service.class)
 public class SegmentationService extends AbstractService< Segmentation > {
     
-    public SegmentationService() {
-        super(Segmentation.class);
+    public SegmentationService(Context context) {
+        super(Segmentation.class, context);
     }
     
 }

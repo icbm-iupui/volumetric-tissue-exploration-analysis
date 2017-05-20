@@ -8,15 +8,11 @@ package vteaobjects.Segmentation;
 import ij.IJ;
 import vteaexploration.Datasets;
 
-import vteaobjects.MicroObjectModel;
 import ij.ImageStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import org.scijava.plugin.Plugin;
-import vteaobjects.Segmentation.Segmentation;
 import vteaobjects.floodfill3D.FloodFill3D;
-import vteaobjects.layercake.LayerCake3D;
 import vteaobjects.layercake.LayerCake3D;
 
 /**

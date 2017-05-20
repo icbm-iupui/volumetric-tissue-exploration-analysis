@@ -125,12 +125,12 @@ public class MicroBlockStepGUI implements MicroBlockSetupListener {
         });
 
         DeleteButton.setSize(20, 20);
-        DeleteButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
+        DeleteButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
         DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
         DeleteButton.setToolTipText("Delete this step.");
 
         EditButton.setSize(20, 20);
-        EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
+        EditButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
         EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4_small.png")));
         DeleteButton.setToolTipText("Edit this step.");
 

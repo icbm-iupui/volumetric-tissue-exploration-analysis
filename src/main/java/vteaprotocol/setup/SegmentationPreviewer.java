@@ -72,7 +72,7 @@ static private boolean checkImage(ImagePlus imp){
        ImagePlus segmentationPreview = r.getImage().duplicate();
         }catch(NullPointerException e){
             JFrame frame = new JFrame();
-            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+            frame.setBackground(vtea.VTEA.BUTTONBACKGROUND);
             JOptionPane.showMessageDialog(frame,
             "Please select a region of the threshold preview image \nto preview the segmentation.",
             "Roi required.",

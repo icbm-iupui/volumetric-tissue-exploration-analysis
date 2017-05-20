@@ -19,7 +19,7 @@ package vteaexploration.plottools.panels;
 
 import vteaexploration.plotgatetools.listeners.ChangePlotAxesListener;
 import vteaobjects.layercake.microVolume;
-import vtea._vtea;
+import vtea.VTEA;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -116,10 +116,10 @@ public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
 //        Y_text.setBackground(defaults.getColor("Panel.background"));
         X_units.setBackground(defaults.getColor("Panel.background"));
 //        Y_units.setBackground(defaults.getColor("Panel.background"));
-        X_text.setBackground(_vtea.BACKGROUND);
-        //Y_text.setBackground(_vtea.BACKGROUND);
-        X_units.setBackground(_vtea.BACKGROUND);
-        //Y_units.setBackground(_vtea.BACKGROUND);
+        X_text.setBackground(VTEA.BACKGROUND);
+        //Y_text.setBackground(VTEAService.BACKGROUND);
+        X_units.setBackground(VTEA.BACKGROUND);
+        //Y_units.setBackground(VTEAService.BACKGROUND);
         X_units.setBorder(null);
         //Y_units.setBorder(null);
         X_text.setBorder(null);
@@ -203,10 +203,10 @@ public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
        Y_text.setBackground(defaults.getColor("Panel.background"));
 //        X_units.setBackground(defaults.getColor("Panel.background"));
        Y_units.setBackground(defaults.getColor("Panel.background"));
-//        X_text.setBackground(_vtea.BACKGROUND);
-        Y_text.setBackground(_vtea.BACKGROUND);
-//        X_units.setBackground(_vtea.BACKGROUND);
-        Y_units.setBackground(_vtea.BACKGROUND);
+//        X_text.setBackground(VTEAService.BACKGROUND);
+        Y_text.setBackground(VTEA.BACKGROUND);
+//        X_units.setBackground(VTEAService.BACKGROUND);
+        Y_units.setBackground(VTEA.BACKGROUND);
 //        X_units.setBorder(null);
         Y_units.setBorder(null);
 //        X_text.setBorder(null);

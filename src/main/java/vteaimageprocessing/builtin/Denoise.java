@@ -46,21 +46,14 @@ public class Denoise extends AbstractImageProcessing {
         int channel = (Integer)al.get(1);
         JTextField radius = (JTextField) al.get(3);
         
-        
         ChannelSplitter cs = new ChannelSplitter();
-        
+
         ImageStack is;
-        
-        
-        //Img<RealType> wrapImg = ImageJFunctions.wrapReal(imp);
-        
+      
         is = cs.getChannel(imp, channel+1);
         
-        //for(int n = 1; n <= is.getSize(); n++){
-            IJ.run(new ImagePlus("",is), "Median...", "radius="+radius.getText()+" stack");
-            
-            //imgResult = ImageJFunctions.wrapReal(imp);
-            
+        IJ.run(new ImagePlus("",is), "Median...", "radius="+radius.getText()+" stack");
+              
         return true;
     }
     

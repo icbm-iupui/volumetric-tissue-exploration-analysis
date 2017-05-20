@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static vtea._vtea.PROCESSINGMAP;
+import static vtea.VTEA.PROCESSINGMAP;
 
 /**
  *
@@ -88,11 +88,11 @@ public class MicroProtocolPreProcessing extends java.lang.Object {
                 iImp = con.newInstance();  
                 ((AbstractImageProcessing)iImp).getVersion();
 
-            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            } catch ( NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(MicroProtocolPreProcessing.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-        } catch (ClassNotFoundException ex) {
+        } catch (NullPointerException | ClassNotFoundException ex) {
             Logger.getLogger(MicroProtocolPreProcessing.class.getName()).log(Level.SEVERE, null, ex);
         }
         

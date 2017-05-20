@@ -12,7 +12,6 @@ import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import net.imglib2.img.Img;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import org.scijava.plugin.Plugin;
 import vteaimageprocessing.AbstractImageProcessing;
 import vteaimageprocessing.ImageProcessing;

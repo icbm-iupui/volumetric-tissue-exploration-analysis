@@ -106,12 +106,14 @@ public class AbstractImageProcessing<T extends Component, A extends RealType>  i
 
     @Override
     public boolean process(ArrayList al, ImagePlus imp) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    return false;
     }
 
     @Override
     public boolean process(ArrayList al, Img img) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    return false;
     }
 
     
