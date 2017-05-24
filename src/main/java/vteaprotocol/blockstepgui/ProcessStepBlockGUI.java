@@ -160,11 +160,11 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
         });
 
         DeleteButton.setSize(20, 20);
-        DeleteButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+        DeleteButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
 
         EditButton.setSize(20, 20);
-        EditButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+        EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
 
         step.setSize(205, 20);

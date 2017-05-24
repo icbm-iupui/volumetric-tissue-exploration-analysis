@@ -46,7 +46,7 @@ import javax.swing.table.TableModel;
  */
 public final class MicroBlockObjectSetup extends MicroBlockSetup implements ChangeThresholdListener, RoiListener {
     public static String getMethod(int i) {
-        return vtea.VTEA.PROCESSOPTIONS[i];
+        return vtea._vtea.PROCESSOPTIONS[i];
     }
 
     private DefaultCellEditor channelEditor = new DefaultCellEditor(new channelNumber());
@@ -88,7 +88,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         
         makeProtocolPanel(step);
 
-        super.cbm = new DefaultComboBoxModel(vtea.VTEA.PROCESSOPTIONS);
+        super.cbm = new DefaultComboBoxModel(vtea._vtea.PROCESSOPTIONS);
         setBounds(new java.awt.Rectangle(500, 160, 378, 282));
 
         TitleText.setText("Object_" + (step));

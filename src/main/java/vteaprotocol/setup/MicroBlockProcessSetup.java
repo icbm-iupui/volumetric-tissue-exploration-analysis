@@ -52,9 +52,9 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import static vtea.VTEA.PROCESSINGMAP;
-import static vtea.VTEA.PROCESSINGOPTIONS;
-import static vtea.VTEA.PROCESSOPTIONS;
+import static vtea._vtea.PROCESSINGMAP;
+import static vtea._vtea.PROCESSINGOPTIONS;
+import static vtea._vtea.PROCESSOPTIONS;
 import vteaimageprocessing.AbstractImageProcessing;
 import vteaimageprocessing.MicroProtocolPreProcessing;
 
@@ -95,7 +95,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         TitleText.setText("Processing, Step " + step);
         TitleText.setEditable(false);
         //String[] ProcessOptions = {"Select Method", "Background Subtraction", "Enhance Contrast", "Reduce Noise"};
-        cbm = new DefaultComboBoxModel(vtea.VTEA.PROCESSINGOPTIONS);
+        cbm = new DefaultComboBoxModel(vtea._vtea.PROCESSINGOPTIONS);
         cbm.setSelectedItem("Select Method");
         MethodDetails.repaint();
         jTextPane1.setText("");
@@ -119,7 +119,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         };
         imagePanel.setPreferredSize(new Dimension(256, 256));
         imagePanel.setMinimumSize(new Dimension(256, 256));
-        imagePanel.setBackground(vtea.VTEA.BACKGROUND);
+        imagePanel.setBackground(vtea._vtea.BACKGROUND);
 
         methodBuild.setLayout(new GridBagLayout());
 
@@ -152,7 +152,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         JPanel previewControlPanel = new JPanel();
 
         previewControlPanel.setMinimumSize(new Dimension(50, 280));
-        previewControlPanel.setBackground(vtea.VTEA.BACKGROUND);
+        previewControlPanel.setBackground(vtea._vtea.BACKGROUND);
 
         GridBagLayout gb = new GridBagLayout();
 
@@ -277,7 +277,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         //imagePanel.setBackground(Color.red);
         imagePanel.setPreferredSize(new Dimension(256, 256));
         imagePanel.setMinimumSize(new Dimension(256, 256));
-        imagePanel.setBackground(vtea.VTEA.BACKGROUND);
+        imagePanel.setBackground(vtea._vtea.BACKGROUND);
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 

@@ -177,7 +177,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         jPopUpAddParallelAnalysis.add(jMenuItem1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("VTEA-Protocols v." + vtea.VTEA.VERSION);
+        setTitle("VTEA-Protocols v." + vtea._vtea.VERSION);
         setAutoRequestFocus(false);
         setBackground(new java.awt.Color(204, 204, 204));
         setBounds(new java.awt.Rectangle(30, 100, 890, 400));
@@ -193,7 +193,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         });
         getContentPane().setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 1, 1));
 
-        ImageTabs.setBackground(vtea.VTEA.ACTIONPANELBACKGROUND);
+        ImageTabs.setBackground(vtea._vtea.ACTIONPANELBACKGROUND);
         ImageTabs.setTabPlacement(javax.swing.JTabbedPane.LEFT);
         ImageTabs.setToolTipText("");
         ImageTabs.setMaximumSize(new java.awt.Dimension(780, 460));
@@ -237,7 +237,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
        if (evt.getModifiersEx() == KeyEvent.VK_DELETE) {
             if (this.ImageTabs.getSelectedIndex() > 1) {
                 JFrame frame = new JFrame();
-                frame.setBackground(vtea.VTEA.BUTTONBACKGROUND);  
+                frame.setBackground(vtea._vtea.BUTTONBACKGROUND);  
                 String[] options = {"Delete","Cancel"}; 
             
                 int result = JOptionPane.showOptionDialog(null,frame,
@@ -449,7 +449,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         System.out.println(e.getActionCommand());
         if(e.getActionCommand().equals("Rename...")){
             JFrame frame = new JFrame();
-            frame.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
             String name = JOptionPane.showInputDialog(null,"Rename to:",
             ImageTabs.getTitleAt(this.ImageTabs.getSelectedIndex()));
             

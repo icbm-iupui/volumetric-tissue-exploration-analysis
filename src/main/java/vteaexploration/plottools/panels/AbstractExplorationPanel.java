@@ -62,7 +62,7 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
 
     public AbstractExplorationPanel() {
         CenterPanel.setOpaque(false);
-        CenterPanel.setBackground(vtea.VTEA.BACKGROUND);
+        CenterPanel.setBackground(vtea._vtea.BACKGROUND);
         
     }
 

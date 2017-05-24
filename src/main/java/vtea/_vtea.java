@@ -21,6 +21,7 @@ import ij.ImageJ;
 import vteaprotocol.ProtocolManagerMulti;
 import ij.ImageListener;
 import ij.ImagePlus;
+import ij.plugin.PlugIn;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -43,8 +44,8 @@ import vtea.services.SegmentationService;
 import vtear.RServe;
 import vtear.Renjin;
 
-@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "IU_Tools > VTEA")
-public class VTEA implements Runnable, RichPlugin, ImageListener, ActionListener {
+//@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
+public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
     public static Color BACKGROUND = new Color(204, 204, 204);
     public static Color BUTTONBACKGROUND = new Color(200, 200, 200);
@@ -66,22 +67,31 @@ public class VTEA implements Runnable, RichPlugin, ImageListener, ActionListener
     
     public ProtocolManagerMulti protocolWindow;
     
-    private Context context;
-    private double priority = Priority.HIGH_PRIORITY;
+    public Context context;
+    public double priority;
+    
+    public static void main(String[] args) {
+         //set the plugins.dir property to make the plugin appear in the Plugins menu
+        Class<?> clazz = _vtea.class;
+        String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
+        String pluginsDir = url.substring(5, url.length() - clazz.getName().length() - 6);
+        System.setProperty("plugins.dir", pluginsDir);
     
 
-    public static void main(String... args){
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {new ImageJ(); }
+        });
+    }
         
-		//ImageJ.main( args );
-                ImageJ ij = new ImageJ();
-		new VTEA().run();
-
-}
+	
 
     @Override
-    public void run(){
-
+    public void run(String str){
+        
+                
                 context = new Context( LogService.class, PluginService.class );
+                priority = Priority.FIRST_PRIORITY;
 
                 ImagePlus.addImageListener(this);
                 
@@ -138,7 +148,7 @@ public class VTEA implements Runnable, RichPlugin, ImageListener, ActionListener
                         //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
                         PROCESSINGMAP.put(PROCESSINGOPTIONS[i], o.getClass().getName());    
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                        Logger.getLogger(VTEA.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
                 
@@ -154,19 +164,19 @@ public class VTEA implements Runnable, RichPlugin, ImageListener, ActionListener
                         //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
                         SEGMENTATIONMAP.put(SEGMENTATIONOPTIONS[i], o.getClass().getName());
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                        Logger.getLogger(VTEA.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
                 
-              Renjin r = new Renjin();
+             // Renjin r = new Renjin();
                 
-            try {
-                RServe rS = new RServe();
-            } catch (RserveException ex) {
-               
-            } catch (REXPMismatchException ex) {
-                
-            }
+//            try {
+//                RServe rS = new RServe();
+//            } catch (RserveException ex) {
+//               
+//            } catch (REXPMismatchException ex) {
+//                
+//            }
     }
 
 
@@ -230,5 +240,5 @@ public class VTEA implements Runnable, RichPlugin, ImageListener, ActionListener
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
+ 
     }

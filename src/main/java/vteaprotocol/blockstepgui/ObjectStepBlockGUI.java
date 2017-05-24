@@ -117,15 +117,15 @@ import javax.swing.JPanel;
             });
 
             DeleteButton.setSize(20, 20);
-            DeleteButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+            DeleteButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
             DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
 
             EditButton.setSize(20, 20);
-            EditButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+            EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
             EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
             
             PreviewButton.setSize(20, 20);
-            PreviewButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+            PreviewButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
             PreviewButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/eye.png")));
             
             if(Comment.getText().isEmpty()){

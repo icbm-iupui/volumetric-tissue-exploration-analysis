@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static vtea.VTEA.PROCESSINGMAP;
+import static vtea._vtea.PROCESSINGMAP;
 
 /**
  *

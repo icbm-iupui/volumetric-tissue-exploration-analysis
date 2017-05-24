@@ -24,7 +24,7 @@
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-            <version>1.51m</version>
+            <version>1.51n</version>
             <type>jar</type>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.imagej/imagej-ui-swing -->

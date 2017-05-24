@@ -152,7 +152,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(this.getParent(),
 					"File was opened...",
-					vtea.VTEA.VERSION,
+					vtea._vtea.VERSION,
 					JOptionPane.WARNING_MESSAGE);
                                         System.out.println("PROFILING: "+ e.getMessage());
 					}
@@ -163,7 +163,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(this.getParent(),
 					"File was not saved...",
-					vtea.VTEA.VERSION,
+					vtea._vtea.VERSION,
 					JOptionPane.WARNING_MESSAGE);
                                         System.out.println("PROFILING: "+ e.getMessage());
 				}
@@ -173,7 +173,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(this.getParent(),
 					"File could not be exported...",
-					vtea.VTEA.VERSION,
+					vtea._vtea.VERSION,
 					JOptionPane.WARNING_MESSAGE);
                                         System.out.println("PROFILING: "+ e.getMessage());
 				}

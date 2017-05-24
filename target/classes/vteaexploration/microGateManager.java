@@ -216,12 +216,12 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
         setBackground(getBackgroundColor());
         setResizable(false);
 
-        jPanel1.setBackground(vtea.VTEA.BACKGROUND);
+        jPanel1.setBackground(vtea._vtea.BACKGROUND);
 
-        saveGateResult.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+        saveGateResult.setBackground(vtea._vtea.BUTTONBACKGROUND);
         saveGateResult.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save-2_24.png"))); // NOI18N
         saveGateResult.setToolTipText("Save selected gates");
-        saveGateResult.setPreferredSize(vtea.VTEA.SMALLBUTTONSIZE);
+        saveGateResult.setPreferredSize(vtea._vtea.SMALLBUTTONSIZE);
         saveGateResult.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveGateResultActionPerformed(evt);
@@ -239,17 +239,17 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
         });
         jScrollPane3.setViewportView(listGates);
 
-        addGate.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+        addGate.setBackground(vtea._vtea.BUTTONBACKGROUND);
         addGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
         addGate.setToolTipText("Add gate");
-        addGate.setPreferredSize(vtea.VTEA.SMALLBUTTONSIZE);
+        addGate.setPreferredSize(vtea._vtea.SMALLBUTTONSIZE);
         addGate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addGateActionPerformed(evt);
             }
         });
 
-        renameGate.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+        renameGate.setBackground(vtea._vtea.BUTTONBACKGROUND);
         renameGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-rename.png"))); // NOI18N
         renameGate.setToolTipText("Rename selected gate");
         renameGate.addActionListener(new java.awt.event.ActionListener() {
@@ -258,7 +258,7 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
             }
         });
 
-        deleteGate.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+        deleteGate.setBackground(vtea._vtea.BUTTONBACKGROUND);
         deleteGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_24.png"))); // NOI18N
         deleteGate.setToolTipText("Delete selected gate");
         deleteGate.addActionListener(new java.awt.event.ActionListener() {

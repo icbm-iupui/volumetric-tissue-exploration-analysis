@@ -1,5 +1,5 @@
-/* 
- * Copyright (C) 2016 Indiana University
+/*
+ * Copyright (C) 2017 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,26 +15,28 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vteaprotocol.setup;
+package vteaimage;
 
-import vteaprotocol.listeners.MicroBlockSetupListener;
-import vtea._vtea;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import ij.ImagePlus;
 
-public class ObjectStepBlock extends Object implements MicroBlockSetupListener {
+/**
+ *
+ * @author sethwinfree
+ */
+public abstract class ImageRepository {
+    
+private static ImagePlus imp;
+    
+public ImagePlus getReferenceToImage(){
+   return imp;
+}
 
-    @Override
-    public void onChangeSetup(ArrayList al) {
+public void setReferenceToImage(ImagePlus ip){
+   imp = ip;
+}
 
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
+public ImagePlus getCopyOfImage(){
+   return imp.duplicate();
+}
+    
 }

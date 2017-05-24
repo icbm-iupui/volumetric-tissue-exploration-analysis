@@ -191,7 +191,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
         Preprocessing_Header.setPreferredSize(new java.awt.Dimension(300, 36));
         Preprocessing_Header.setLayout(new java.awt.GridBagLayout());
 
-        OpenImage.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+        OpenImage.setBackground(vtea._vtea.BUTTONBACKGROUND);
         OpenImage.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         OpenImage.setText("Load Image");
         OpenImage.setToolTipText("Load image for processing.");
@@ -236,7 +236,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         Preprocessing_Header.add(AddStep_Preprocessing, gridBagConstraints);
 
-        DeleteAllSteps_PreProcessing.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+        DeleteAllSteps_PreProcessing.setBackground(vtea._vtea.BUTTONBACKGROUND);
         DeleteAllSteps_PreProcessing.setForeground(new java.awt.Color(102, 102, 102));
         DeleteAllSteps_PreProcessing.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-clear-list_24.png"))); // NOI18N
         DeleteAllSteps_PreProcessing.setToolTipText("Delete all processing");
@@ -267,7 +267,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
         PreProcessing_Panel.setMinimumSize(new java.awt.Dimension(300, 300));
         PreProcessing_Panel.setPreferredSize(new java.awt.Dimension(300, 300));
 
-        PreProcessingStepsPanel.setBackground(vtea.VTEA.ACTIONPANELBACKGROUND);
+        PreProcessingStepsPanel.setBackground(vtea._vtea.ACTIONPANELBACKGROUND);
         PreProcessingStepsPanel.setPreferredSize(new java.awt.Dimension(196, 245));
 
         javax.swing.GroupLayout PreProcessingStepsPanelLayout = new javax.swing.GroupLayout(PreProcessingStepsPanel);
@@ -281,7 +281,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
             .addGap(0, 245, Short.MAX_VALUE)
         );
 
-        PreProcessingGo.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+        PreProcessingGo.setBackground(vtea._vtea.BUTTONBACKGROUND);
         PreProcessingGo.setText("Process");
         PreProcessingGo.setToolTipText("Process the loaded image.");
         PreProcessingGo.setEnabled(false);
@@ -423,7 +423,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
         Object_Panel.setPreferredSize(new java.awt.Dimension(440, 300));
         Object_Panel.setRequestFocusEnabled(false);
 
-        ObjectStepsPanel.setBackground(vtea.VTEA.ACTIONPANELBACKGROUND);
+        ObjectStepsPanel.setBackground(vtea._vtea.ACTIONPANELBACKGROUND);
         ObjectStepsPanel.setPreferredSize(new java.awt.Dimension(160, 245));
 
         javax.swing.GroupLayout ObjectStepsPanelLayout = new javax.swing.GroupLayout(ObjectStepsPanel);
@@ -437,7 +437,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
             .addGap(0, 245, Short.MAX_VALUE)
         );
 
-        ObjectGo.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+        ObjectGo.setBackground(vtea._vtea.BUTTONBACKGROUND);
         ObjectGo.setText("Find Objects");
         ObjectGo.setToolTipText("Find segmented objects.");
         ObjectGo.setEnabled(false);
@@ -572,7 +572,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
     }).start();
 
         ObjectProcess.setValue(0);
-        this.FindObjectText.setForeground(vtea.VTEA.ACTIVETEXT);
+        this.FindObjectText.setForeground(vtea._vtea.ACTIVETEXT);
         this.AddStep_Object.setEnabled(true);
         
         if(this.ObjectStepsList.size() > 0){
@@ -923,17 +923,17 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
             
 
             DeleteButton.setSize(20, 20);
-            DeleteButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+            DeleteButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
             DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
             DeleteButton.setToolTipText("Delete this segmentation protocol.");
 
             EditButton.setSize(20, 20);
-            EditButton.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+            EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
             EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
             EditButton.setToolTipText("Edit this segmentation protocol.");
             
             UpdateExplorer.setSize(20, 20);
-            UpdateExplorer.setBackground(vtea.VTEA.BUTTONBACKGROUND);
+            UpdateExplorer.setBackground(vtea._vtea.BUTTONBACKGROUND);
             UpdateExplorer.setText("UPDATE");
             UpdateExplorer.setToolTipText("UPDATE");
 
@@ -1064,7 +1064,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
 
             MethodText = " " + al_key.get(0).toString() + ": " + al.get(3).toString() + " " + al_key.get(2).toString() + ": " + al.get(5).toString() + " " + al_key.get(3).toString() + ": " + al.get(6).toString();
 
-            Object.setText("Object_" +getPosition()+ ": " + vtea.VTEA.PROCESSOPTIONS[(Integer) al.get(1)] + ", by: " + Channels.get((Integer) al.get(0)).toString());
+            Object.setText("Object_" +getPosition()+ ": " + vtea._vtea.PROCESSOPTIONS[(Integer) al.get(1)] + ", by: " + Channels.get((Integer) al.get(0)).toString());
             Comment.setText(MethodText);
             
             RebuildPanelObject();

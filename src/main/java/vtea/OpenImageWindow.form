@@ -4,7 +4,7 @@
   <Properties>
     <Property name="title" type="java.lang.String" value="VTC-Select Image"/>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-      <Connection code="vtea.VTEA.BACKGROUND" type="code"/>
+      <Connection code="vtea._vtea.BACKGROUND" type="code"/>
     </Property>
     <Property name="iconImages" type="java.util.List" editor="org.netbeans.modules.form.ComponentChooserEditor">
       <ComponentRef name="null"/>
@@ -61,7 +61,7 @@
     <Container class="javax.swing.JPanel" name="Panel">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="vtea.VTEA.BACKGROUND" type="code"/>
+          <Connection code="vtea._vtea.BACKGROUND" type="code"/>
         </Property>
         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[305, 180]"/>
