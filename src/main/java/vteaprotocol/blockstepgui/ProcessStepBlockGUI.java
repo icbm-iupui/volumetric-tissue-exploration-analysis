@@ -248,30 +248,53 @@ public class ProcessStepBlockGUI extends Object implements Serializable, Cloneab
             updatePreviewImage = false;
         }
 
-        protected void showThumbnail(int x, int y) {        
-        thumb.setSize(255, 255);
-        if (this.OriginalImage.getWidth() < 255) {
-            thumb.setSize(OriginalImage.getWidth(), OriginalImage.getHeight());
-            ThumbnailImage = new Duplicator().run(OriginalImage);
-        } else if(this.OriginalImage.getWidth() > 384) {
-            ThumbnailImage = new Duplicator().run(OriginalImage);
-        } else {
-            OriginalImage.setRoi((OriginalImage.getWidth()/2)-128, (OriginalImage.getHeight()/2)-128, 255, 255);
+        protected void showThumbnail(int x, int y) {  
+            
+
+        
+        //either dimension smaller than 255
+        
+        if(this.OriginalImage.getWidth() < 255 || this.OriginalImage.getHeight() < 255 ) {
+            if(this.OriginalImage.getWidth() < 255){
+                thumb.setSize(OriginalImage.getWidth(),255);
+                ThumbnailImage = new Duplicator().run(OriginalImage);
+            }
+            if(this.OriginalImage.getHeight() < 255){
+                thumb.setSize(255, OriginalImage.getHeight());
+                ThumbnailImage = new Duplicator().run(OriginalImage);
+            }
+        }
+//        } else if(this.OriginalImage.getWidth() < 384 || this.OriginalImage.getWidth() < 384) {
+//            ThumbnailImage = new Duplicator().run(OriginalImage);
+        //both dimensions smaller than 255
+
+        if (this.OriginalImage.getWidth() > 255 && this.OriginalImage.getHeight() > 255 ){
+            thumb.setSize(255, 255);
+            OriginalImage.setRoi((OriginalImage.getWidth()/2)-128, (OriginalImage.getHeight()/2), 255, 255);
             ThumbnailImage = new Duplicator().run(OriginalImage);
             OriginalImage.deleteRoi();
         }
+        
+        //both dimensions smaller than 255
+            
+        if (this.OriginalImage.getWidth() < 255 && this.OriginalImage.getHeight() < 255 ) {
+            thumb.setSize(OriginalImage.getWidth(), OriginalImage.getHeight());
+            ThumbnailImage = new Duplicator().run(OriginalImage);}
 
         if (position > 1 && updatePreviewImage) {
-
             ThumbnailImage = previewThumbnail(ThumbnailImage);
             ThumbnailImage.setZ(ThumbnailImage.getNSlices()/2);
-
-
             thumb.add(new ImagePanel(ThumbnailImage.getImage()));
-
             updatePreviewImage = false;
+//        }
+//        
+//        else if (position == 1 && updatePreviewImage) {
+//            ThumbnailImage.setZ(ThumbnailImage.getNSlices()/2);
+//            thumb.add(new ImagePanel(ThumbnailImage.getImage()));
+//            updatePreviewImage = false;
         } else {
             ThumbnailImage.setZ(ThumbnailImage.getNSlices()/2);
+          //  thumb.removeAll();
             thumb.add(new ImagePanel(ThumbnailImage.getImage()));
         }
 

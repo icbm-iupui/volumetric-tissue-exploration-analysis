@@ -1223,7 +1223,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
         
         ProgressComment.setText("Processing image data...");
 
-        ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
+        ArrayList<ArrayList> protocol = new ArrayList<>();
 
         //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
         protocol = extractSteps(ProcessingStepsList, PROCESSBLOCKS);
@@ -1247,8 +1247,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
 
         ProgressComment.setText("Processing complete...");
         ProcessedShow.show();
-        //this.ObjectGo.setEnabled(true);
-        
+
         if(ObjectStepsList.size() > 0){
             me.FolderDrawer.clear(); 
             me.ExploreDrawer.clear(); 
@@ -1262,7 +1261,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements FileOpe
         this.PreProcessingGo.setEnabled(false);
         ProgressComment.setText("Finding objects...");
                
-        ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
+        ArrayList<ArrayList> protocol = new ArrayList<>();
         protocol = extractSteps(ObjectStepsList, OBJECTBLOCKS);
 
         System.out.println("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
@@ -1431,8 +1430,6 @@ static public ArrayList extractSteps(ArrayList sb_al, int blocktype) {
             listener.onUpdateImage(imp);
         }
     }
-    
-   
 
     @Override
     public void onSelect(ImagePlus imp, int tab) {

@@ -42,7 +42,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
     private ImagePlus imageOriginal;
     private ImagePlus imageResult;
     private ImageStack stackOriginal;
-    protected ImageStack stackResult;
+    //protected ImageStack stackResult;
 
     private boolean watershedImageJ = true;
 
@@ -89,7 +89,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         stackOriginal = stack;
         imageOriginal = new ImagePlus("Mask", stack);
 
-        stackResult = stack.duplicate();
+        ImageStack stackResult = stack.duplicate();
 
         System.out.println("PROFILING: parsing stack of dimensions: z, " + stackResult.getSize() + " for a threshold of " + minConstants[3]);
 
@@ -711,8 +711,10 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         private String threadName = "regionfinder_" + System.nanoTime();
         
         RegionForkPool(ImageStack st, ImageStack orig, int start, int stop) {
-            stackOriginal = stack = st;
-            stackResult = original = orig;
+            
+            stack = st;
+            original = orig;
+
             this.start = start;
             this.stop = stop;
             maxsize = stack.getSize() * stack.getWidth() * stack.getHeight();

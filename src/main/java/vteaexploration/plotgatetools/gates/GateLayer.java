@@ -139,7 +139,7 @@ public class GateLayer implements ActionListener, ItemListener {
                         g2.setPaint(Color.red);
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                 RenderingHints.VALUE_ANTIALIAS_ON);
-
+                                
                         double coords[] = new double[6];
 
                         ArrayList<Point2D> topaint = new ArrayList<Point2D>();

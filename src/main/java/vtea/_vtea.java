@@ -95,6 +95,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
                 ImagePlus.addImageListener(this);
                 
+                
                 protocolWindow = new ProtocolManagerMulti();
                 protocolWindow.setVisible(true);
                 
