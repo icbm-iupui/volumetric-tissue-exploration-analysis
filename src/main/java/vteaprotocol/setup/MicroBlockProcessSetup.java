@@ -34,24 +34,29 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JLabel;
+
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import vteapreprocessing.MicroProtocolPreProcessing;
+import static vtea._vtea.PROCESSINGMAP;
+import static vtea._vtea.PROCESSINGOPTIONS;
+import static vtea._vtea.PROCESSOPTIONS;
+import vteaimageprocessing.AbstractImageProcessing;
+import vteaimageprocessing.MicroProtocolPreProcessing;
 
 /**
  *
@@ -71,6 +76,11 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
     JToggleButton previousInclude;
 
     ArrayList<ProcessStepBlockGUI> ProtocolAll;
+    
+    public MicroBlockProcessSetup(){
+    
+    }
+    
 
     public MicroBlockProcessSetup(int step, ArrayList Channels, ArrayList<ProcessStepBlockGUI> Protocols, ImagePlus imp) {
 
@@ -84,8 +94,8 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         //subclass specific settings
         TitleText.setText("Processing, Step " + step);
         TitleText.setEditable(false);
-        String[] ProcessOptions = {"Select Method", "Background Subtraction", "Enhance Contrast", "Reduce Noise"};
-        cbm = new DefaultComboBoxModel(ProcessOptions);
+        //String[] ProcessOptions = {"Select Method", "Background Subtraction", "Enhance Contrast", "Reduce Noise"};
+        cbm = new DefaultComboBoxModel(vtea._vtea.PROCESSINGOPTIONS);
         cbm.setSelectedItem("Select Method");
         MethodDetails.repaint();
         jTextPane1.setText("");
@@ -109,7 +119,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         };
         imagePanel.setPreferredSize(new Dimension(256, 256));
         imagePanel.setMinimumSize(new Dimension(256, 256));
-        imagePanel.setBackground(vtea._VTC.BACKGROUND);
+        imagePanel.setBackground(vtea._vtea.BACKGROUND);
 
         methodBuild.setLayout(new GridBagLayout());
 
@@ -142,7 +152,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         JPanel previewControlPanel = new JPanel();
 
         previewControlPanel.setMinimumSize(new Dimension(50, 280));
-        previewControlPanel.setBackground(vtea._VTC.BACKGROUND);
+        previewControlPanel.setBackground(vtea._vtea.BACKGROUND);
 
         GridBagLayout gb = new GridBagLayout();
 
@@ -165,7 +175,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             previousInclude.setEnabled(true);
         }
 
-        //layoutConstraints.fill = GridBagConstraints.CENTER;
         layoutConstraints.gridx = 0;
         layoutConstraints.gridy = 1;
         layoutConstraints.ipadx = 5;
@@ -175,9 +184,9 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         gb.setConstraints(previewControl, layoutConstraints);
         previewControlPanel.add(previewControl);
 
-        //layoutConstraints.fill = GridBagConstraints.CENTER;
-        layoutConstraints.fill
-                = layoutConstraints.gridx = 0;
+      
+        
+        layoutConstraints.fill = layoutConstraints.gridx = 0;
         layoutConstraints.gridy = 2;
         layoutConstraints.ipadx = 5;
         layoutConstraints.weightx = 1;
@@ -198,9 +207,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         repaint();
         pack();
 
-    }
-
-    private void doPreviewInset() {
     }
 
     private void doPreview(int slice) {
@@ -229,9 +235,10 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             ProcessPreview.resetDisplayRange();
         }
         if (this.previousInclude.isSelected()) {
+            
             //make the new protocol list up to this step
 
-            makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
+          //  makeProtocolPanel(PROCESSOPTIONS[ProcessSelectComboBox.getSelectedIndex()]);
             CurrentStepProtocol = CurrentProcessList;
             super.notifyMicroBlockSetupListeners(CurrentStepProtocol);
 
@@ -270,7 +277,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         //imagePanel.setBackground(Color.red);
         imagePanel.setPreferredSize(new Dimension(256, 256));
         imagePanel.setMinimumSize(new Dimension(256, 256));
-        imagePanel.setBackground(vtea._VTC.BACKGROUND);
+        imagePanel.setBackground(vtea._vtea.BACKGROUND);
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
@@ -288,6 +295,13 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         pack();
 
     }
+    
+    public void updatePreviewImage(ImagePlus imp){
+        OriginalImage = imp;
+        doPreview(OriginalImage.getNSlices()/2);
+        repaint();
+        pack();
+    }
 
     private ArrayList ExtractSteps(ArrayList sb_al) {
 
@@ -300,7 +314,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             ppsb = (ProcessStepBlockGUI) litr.next();
             if (!(ppsb.Comment.getText()).equals("New Image")) {
                 Result.add(ppsb.getVariables());
-                //System.out.println("PROFILING: preprocessing constants" + ppsb.getVariables());
             }
         }
         return Result;
@@ -310,12 +323,8 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
     protected void updateProtocolPanel(ActionEvent evt) {
         if (evt.getSource() == this.ProcessSelectComboBox) {
             super.updateProtocolPanel(evt);
-            if (ProcessSelectComboBox.getSelectedIndex() > 0) {
-                previewControl.setEnabled(true);
-            } else {
-                previewControl.setEnabled(false);
-                previousInclude.setEnabled(false);
-            }
+            makeProtocolPanel(PROCESSINGOPTIONS[ProcessSelectComboBox.getSelectedIndex()]);
+            previewControl.setEnabled(true);
         } else if (!checkChannels()) {
             includePrevious = false;
             previousInclude.setEnabled(false);
@@ -323,17 +332,14 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             previousInclude.setEnabled(true);
             doPreview(currentSlice);
         }
-
     }
 
     private boolean checkChannels() {
-
         for (int i = 0; i < ProtocolAll.size(); i++) {
             if (ProtocolAll.get(i).getChannel() == this.ChannelComboBox.getSelectedIndex()) {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -342,10 +348,10 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         super.clone();
         MicroBlockProcessSetup Copy = new MicroBlockProcessSetup(this.step, this.Channels, this.ProtocolAll, this.OriginalImage);
         //Copy process items position by position
-
+        
         ArrayList<Component> ComponentSource;
         ArrayList<Component> ComponentDestination = new ArrayList<Component>();
-
+        
         Iterator<ArrayList> itr = this.CurrentProcessItems.iterator();
 
         while (itr.hasNext()) {
@@ -355,20 +361,23 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
                 while (itr2.hasNext()) {
                     ComponentDestination.add((Component) itr2.next());
                 }
-
                 Copy.CurrentProcessItems.add(ComponentDestination);
             } catch (NullPointerException npe) {
                 Copy.CurrentProcessItems.add(null);
             }
         }
-        Copy.ProcessSelectComboBox.setSelectedIndex(this.ProcessSelectComboBox.getSelectedIndex());
+       // Copy.ProcessSelectComboBox.setSelectedIndex(this.ProcessSelectComboBox.getSelectedIndex());
+
         Copy.updateProtocolPanel(new ActionEvent(new JMenuItem(), 0, "menubar"));
         Copy.pack();
+        Copy.CurrentStepProtocol = Copy.CurrentProcessList;
+        Copy.notifyMicroBlockSetupListeners(CurrentStepProtocol);
+        
         return Copy;
-    }
+        }
 
     @Override
-    protected JPanel makeProtocolPanel(int position) {
+    protected JPanel makeProtocolPanel(String str) {
 
         JPanel BuiltPanel = new JPanel();
         ArrayList ProcessComponents;
@@ -376,12 +385,8 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         notesPane.setVisible(true);
         tablePane.setVisible(false);
 
-        if (CurrentProcessItems.get(position) == null) {
-            ProcessComponents = CurrentProcessItems.set(position, makeMethodComponentsArray(position, ProcessVariables));
-            ProcessComponents = CurrentProcessItems.get(position);
-        } else {
-            ProcessComponents = CurrentProcessItems.get(position);
-        }
+        CurrentProcessItems.set(0, makeMethodComponentsArray(str, ProcessVariables));
+        ProcessComponents = CurrentProcessItems.get(0);
 
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
@@ -403,8 +408,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
             layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 0;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
             MethodDetails.add((Component) ProcessComponents.get(1), layoutConstraints);
         }
 
@@ -412,48 +415,36 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 2;
             layoutConstraints.gridy = 0;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
             MethodDetails.add((Component) ProcessComponents.get(2), layoutConstraints);
         }
         if (ProcessComponents.size() > 3) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
             layoutConstraints.gridx = 3;
             layoutConstraints.gridy = 0;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
             MethodDetails.add((Component) ProcessComponents.get(3), layoutConstraints);
         }
         if (ProcessComponents.size() > 4) {
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 0;
             layoutConstraints.gridy = 1;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
             MethodDetails.add((Component) ProcessComponents.get(4), layoutConstraints);
         }
         if (ProcessComponents.size() > 5) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
             layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 1;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
             MethodDetails.add((Component) ProcessComponents.get(5), layoutConstraints);
         }
         if (ProcessComponents.size() > 6) {
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 2;
             layoutConstraints.gridy = 1;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
             MethodDetails.add((Component) ProcessComponents.get(6), layoutConstraints);
         }
         if (ProcessComponents.size() > 7) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
             layoutConstraints.gridx = 3;
             layoutConstraints.gridy = 1;
-            //layoutConstraints.weightx = 1;
-            //layoutConstraints.weighty = 1;
             MethodDetails.add((Component) ProcessComponents.get(7), layoutConstraints);
         }
 
@@ -471,39 +462,36 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
     }
 
     @Override
-    protected ArrayList makeMethodComponentsArray(int position, String[][] str) {
+    protected ArrayList makeMethodComponentsArray(String method, String[][] str) {
+
+         Object iImp = new Object();
+
+        try {
+            Class<?> c;
+            c = Class.forName(PROCESSINGMAP.get(method));
+            Constructor<?> con;
+            try {
+                con = c.getConstructor();
+                iImp = con.newInstance();  
+                return ((AbstractImageProcessing)iImp).getOptions();
+
+            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                Logger.getLogger(vteaimageprocessing.MicroProtocolPreProcessing.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(vteaimageprocessing.MicroProtocolPreProcessing.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         ArrayList result = new ArrayList();
 
-        if (position == 1) {
-            result.add(new JLabel("Minimum dimension of object (pixels):"));
-            result.add(new JTextField("5", 5));
-        }
-        if (position == 2) {
-            result.add(new JLabel("saturation (%)"));
-            result.add(new JTextField("0.1", 5));
-            result.add(new JRadioButton("normalize", true));
-            result.add(new JRadioButton("equalize", false));
-            result.add(new JRadioButton("process_all", true));
-            result.add(new JRadioButton("use", false));
-        }
-        if (position == 3) {
-            result.add(new JLabel("Radius (pixels):"));
-            result.add(new JTextField("1", 5));
-        }
         return result;
     }
 
     @Override
     protected void blockSetupOKAction() {
-
-        //Object definition does not hold note value
-        //CurrentProcessList.set(1, "");
-        makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
-
         CurrentStepProtocol = CurrentProcessList;
-        super.notifyMicroBlockSetupListeners(this.CurrentStepProtocol);
-
+        super.notifyMicroBlockSetupListeners(CurrentStepProtocol);
         this.setVisible(false);
     }
 
@@ -528,11 +516,11 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             previousInclude.setSelected(false);
             currentSlice = sliceSlider.getValue();
             doPreview(currentSlice);
-        } else if (e.getSource() == this.ProcessSelectComboBox && this.ProcessSelectComboBox.getSelectedIndex() > 0) {
+        } else if (e.getSource() == ProcessSelectComboBox) {
+            System.out.println("PROFILING: Process position: " + this.ProcessSelectComboBox.getSelectedIndex());
             currentSlice = sliceSlider.getValue();
             updateProtocolPanel(e);
             doPreview(currentSlice);
         }
     }
-
 }

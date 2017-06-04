@@ -24,20 +24,15 @@ import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.plugin.ChannelSplitter;
 import java.awt.Component;
-import java.awt.Frame;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.LayoutManager;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -51,12 +46,8 @@ import javax.swing.table.TableModel;
  */
 public final class MicroBlockObjectSetup extends MicroBlockSetup implements ChangeThresholdListener, RoiListener {
     public static String getMethod(int i) {
-        return vtea._VTC.PROCESSOPTIONS[i];
+        return vtea._vtea.PROCESSOPTIONS[i];
     }
-
-    //static public String[] ProcessOptions = {"Select Method", "LayerCake 3D", "FloodFill 3D", "Assisted Detection 3D", "Auto Detection 3D"};
-
-
 
     private DefaultCellEditor channelEditor = new DefaultCellEditor(new channelNumber());
     private DefaultCellEditor analysisEditor = new DefaultCellEditor(new analysisType());
@@ -97,7 +88,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         
         makeProtocolPanel(step);
 
-        super.cbm = new DefaultComboBoxModel(vtea._VTC.PROCESSOPTIONS);
+        super.cbm = new DefaultComboBoxModel(vtea._vtea.PROCESSOPTIONS);
         setBounds(new java.awt.Rectangle(500, 160, 378, 282));
 
         TitleText.setText("Object_" + (step));
@@ -111,6 +102,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         tablePane.setVisible(true);
         
         CellValues = makeDerivedRegionTable();
+        
         secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
                 CellValues,
                 columnTitles
@@ -122,6 +114,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
                 return canEdit[columnIndex];
             }
         });
+        
+        
 
         channelColumn = secondaryTable.getColumnModel().getColumn(0);
         analysisColumn = secondaryTable.getColumnModel().getColumn(1);
@@ -132,7 +126,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         ProcessSelectComboBox.setModel(cbm);
         ProcessSelectComboBox.setVisible(true);
         
-        this.makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
+        makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
         
         PreviewButton.setVisible(true);
         PreviewButton.setEnabled(true);
@@ -179,6 +173,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     
     private Object[][] makeDerivedRegionTable(){
         Object[][] CellValues = new Object[this.Channels.size()][4];
+        
+        System.out.println("PROFILING: Number of channels: " + this.Channels.size());
         
         for(int i = 0; i < this.Channels.size(); i++){
             CellValues[i][0] = Channels.get(i);
@@ -363,10 +359,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         ChannelSplitter cs = new ChannelSplitter();
         ImagePlus imp = new ImagePlus("Threshold "+super.TitleText.getText(),cs.getChannel(ThresholdOriginal,this.ChannelComboBox.getSelectedIndex()+1).duplicate()){
 
-//            @Override
-//            public void close() {
-//                
-//            }
+
 
         };
         

@@ -18,6 +18,7 @@
 package vteaexploration.plottools.panels;
 
 import ij.ImagePlus;
+import ij.gui.ImageWindow;
 import java.awt.Color;
 import vteaexploration.plotgatetools.gates.Gate;
 import vteaexploration.plotgatetools.gates.GateLayer;
@@ -33,7 +34,7 @@ import vteaobjects.layercake.microVolume;
  *
  * @author vinfrais
  */
-public abstract class DefaultExplorationPanel extends JFrame implements ExplorationCenter {
+public abstract class AbstractExplorationPanel extends JFrame implements ExplorationCenter {
 
     protected JPanel CenterPanel = new JPanel();
     protected ArrayList<Gate> gates = new ArrayList<Gate>();
@@ -59,9 +60,10 @@ public abstract class DefaultExplorationPanel extends JFrame implements Explorat
     protected Color imageGateColor = new Color(0,177,76);
     
 
-    public DefaultExplorationPanel() {
+    public AbstractExplorationPanel() {
         CenterPanel.setOpaque(false);
-        CenterPanel.setBackground(vtea._VTC.BACKGROUND);
+        CenterPanel.setBackground(vtea._vtea.BACKGROUND);
+        
     }
 
     protected int keyLookUp(int x, int y, int l) {

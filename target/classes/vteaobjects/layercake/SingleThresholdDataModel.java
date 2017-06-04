@@ -165,11 +165,9 @@ public class SingleThresholdDataModel implements Datasets{
         IJ.log("PROFILING: 3D Floodfill time: " + ((end-start)/1000000) + " ms. ");
         
         Volumes = builder3DVolumes.getVolumesAsList();
-        
-        
-    
-    }
 
+    }
+    
     private ArrayList getResultsPointers(List details) {
 
         ArrayList<Integer> result = new ArrayList();

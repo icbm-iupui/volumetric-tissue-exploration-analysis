@@ -18,7 +18,7 @@
 package vteaprotocol;
 
 import vteaprotocol.listeners.BatchStateListener;
-import static vtea._VTC.PROCESSOPTIONS;
+import static vtea._vtea.PROCESSOPTIONS;
 import ij.IJ;
 import java.io.File;
 import java.util.ArrayList;
@@ -177,7 +177,7 @@ public class BatchImageProcessing extends javax.swing.JPanel implements BatchSta
         FileList_Panel.setPreferredSize(new java.awt.Dimension(220, 360));
         FileList_Panel.setLayout(new java.awt.GridBagLayout());
 
-        PreProcessingStepsPanel.setBackground(vtea._VTC.ACTIONPANELBACKGROUND);
+        PreProcessingStepsPanel.setBackground(vtea._vtea.ACTIONPANELBACKGROUND);
         PreProcessingStepsPanel.setPreferredSize(new java.awt.Dimension(196, 350));
 
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -245,7 +245,7 @@ public class BatchImageProcessing extends javax.swing.JPanel implements BatchSta
         Options_Panel.setPreferredSize(new java.awt.Dimension(440, 360));
         Options_Panel.setRequestFocusEnabled(false);
 
-        ObjectStepsPanel.setBackground(vtea._VTC.ACTIONPANELBACKGROUND);
+        ObjectStepsPanel.setBackground(vtea._vtea.ACTIONPANELBACKGROUND);
         ObjectStepsPanel.setMinimumSize(new java.awt.Dimension(320, 305));
         ObjectStepsPanel.setPreferredSize(new java.awt.Dimension(320, 305));
         ObjectStepsPanel.setLayout(new java.awt.GridBagLayout());

@@ -290,9 +290,7 @@ public class GateLayer implements ActionListener, ItemListener {
                 int onmask = e.SHIFT_DOWN_MASK;
                 int offmask = e.CTRL_DOWN_MASK;
 
-                //System.out.println("Gate Layer, Mouse clicked: " + e.getPoint());
-                //System.out.println("Gate Layer, Polygon Active: " + msPolygon);
-                //System.out.println("Gate Layer, Rectangle Active: " + msRectangle);
+
                 if (msPolygon || msRectangle || msQuadrant) {
                     if (msPolygon) {
                         if (e.getClickCount() == 2) {
@@ -300,7 +298,7 @@ public class GateLayer implements ActionListener, ItemListener {
                                 try {
                                     drawMicroSelection(e);
                                     makePolygonGate();
-                                    //add reset explorer interface here.
+                                   
                                 } catch (Throwable ex) {
                                     Logger.getLogger(GateLayer.class.getName()).log(Level.SEVERE, null, ex);
                                 }

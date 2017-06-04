@@ -63,7 +63,7 @@ import vteaobjects.MicroObjectModel;
  *
  * @author vinfrais
  */
-public class XYExplorationPanel extends DefaultExplorationPanel implements RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener  {
+public class XYExplorationPanel extends AbstractExplorationPanel implements RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener  {
 
     XYChartPanel cpd;
     private boolean useGlobal = false;
@@ -149,7 +149,7 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                 
                 gated = getGatedObjects(impoverlay);         
                 gatedSelected = getGatedSelected(impoverlay);
-
+                
                 for (int i = 0; i <= impoverlay.getNSlices(); i++) {
                     BufferedImage selections = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
@@ -164,22 +164,34 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
 
                             int[] x_pixels = vol.getXPixelsInRegion(i);
                             int[] y_pixels = vol.getYPixelsInRegion(i);
-
+                            
                             for (int c = 0; c < x_pixels.length; c++) {
 
                                 g2.setColor(gate.getColor());
                                 g2.drawRect(x_pixels[c], y_pixels[c], 1, 1);
                             }
                             ir = new ImageRoi(0, 0, selections);
+                            
+                            //ir.setPosition(i+1, 0, 0);
+                            //ir.setPosition(i+1);
                             count++;
+                            
 
                         } catch (NullPointerException e) {
                         }
                     }
 
-                    ir.setPosition(i+1);
+                    ir.setPosition(0, i+1, 0);  
+
+                    //old setPosition not functional as of imageJ 1.5m
+                    
                     ir.setOpacity(0.4);
+
                     overlay.add(ir);
+                    
+                    
+                    
+                    //System.out.println("PROFILING: adding ir, now at: " + ir.getZPosition());
 
                     gateOverlay.addSlice(ir.getProcessor());
                     
@@ -225,8 +237,11 @@ public class XYExplorationPanel extends DefaultExplorationPanel implements RoiLi
                     }
                 }
                 impoverlay.setOverlay(overlay);
-  
-                     gate.setGateOverlayStack(gateOverlay);
+                
+                
+                gate.setGateOverlayStack(gateOverlay);
+                
+                
 
             }
            

@@ -15,12 +15,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vteapreprocessing;
+package vteaimageprocessing;
+
+import ij.ImagePlus;
+import java.util.ArrayList;
 
 /**
  *
  * @author vinfrais
  */
-public class MicroProtocolPreProcessingFactory {
+public interface PreProcessingModule<T> {
+    
+    public boolean setOptions(ArrayList<T> al);
+    
+    public ArrayList<T> getOptions();
+    
+    public ImagePlus getResult();
+    
+    public ImagePlus getPreview();
+    
+    public String runImageJMacroCommand(String str);
+    
+    public void sendProgressComment();
     
 }

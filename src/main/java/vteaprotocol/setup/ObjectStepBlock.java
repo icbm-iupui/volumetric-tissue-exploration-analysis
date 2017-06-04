@@ -18,7 +18,7 @@
 package vteaprotocol.setup;
 
 import vteaprotocol.listeners.MicroBlockSetupListener;
-import vtea._VTC;
+import vtea._vtea;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;

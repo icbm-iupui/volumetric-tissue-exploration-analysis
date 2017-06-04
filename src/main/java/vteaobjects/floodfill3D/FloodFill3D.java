@@ -27,7 +27,9 @@ import java.util.concurrent.RecursiveAction;
 import vteaobjects.MicroObject;
 import vteaobjects.layercake.*;
 
-public class FloodFill3D extends Object implements Cloneable, java.io.Serializable {
+
+
+public class FloodFill3D implements Cloneable, java.io.Serializable {
 
     /**
      * Constants
@@ -61,7 +63,7 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
     public FloodFill3D() {}
     
      public FloodFill3D(ImageStack[] is, int maskStack, int[] min, boolean imageOptimize) {
-     
+
         minConstants = min;
         stackOriginal = is[maskStack];
         stackComplete = is;
@@ -306,6 +308,9 @@ public class FloodFill3D extends Object implements Cloneable, java.io.Serializab
     public ArrayList getVolumesAsList() {
         return new ArrayList(alVolumes);
     }
+
+   
+
     private class DerivedRegionForkPool extends RecursiveAction {
         //class splits it self into new classes...  start with largest start and stop and subdivided recursively until start-stop is the number for the number of cores or remaineder.
         private int[][] derivedRegionType;

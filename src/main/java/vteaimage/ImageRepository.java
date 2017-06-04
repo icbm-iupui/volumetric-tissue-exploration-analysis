@@ -1,5 +1,5 @@
-/* 
- * Copyright (C) 2016 Indiana University
+/*
+ * Copyright (C) 2017 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,27 +15,28 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vteapreprocessing;
+package vteaimage;
 
 import ij.ImagePlus;
-import java.util.ArrayList;
 
 /**
  *
- * @author vinfrais
+ * @author sethwinfree
  */
-public interface PreProcessingModule<T> {
+public abstract class ImageRepository {
     
-    public boolean setOptions(ArrayList<T> al);
+private static ImagePlus imp;
     
-    public ArrayList<T> getOptions();
-    
-    public ImagePlus getResult();
-    
-    public ImagePlus getPreview();
-    
-    public String runImageJMacroCommand(String str);
-    
-    public void sendProgressComment();
+public ImagePlus getReferenceToImage(){
+   return imp;
+}
+
+public void setReferenceToImage(ImagePlus ip){
+   imp = ip;
+}
+
+public ImagePlus getCopyOfImage(){
+   return imp.duplicate();
+}
     
 }
