@@ -969,7 +969,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         @Override
         public int compare(microRegion o1, microRegion o2) {
             if (o1.getZPosition() == o2.getZPosition()) {
-                return -1;
+                return 0;
              }
             else if (o1.getZPosition() > o2.getZPosition()) {
                 return 1;
