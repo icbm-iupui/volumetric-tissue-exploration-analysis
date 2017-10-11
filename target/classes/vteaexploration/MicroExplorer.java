@@ -17,22 +17,20 @@
  */
 package vteaexploration;
 
-import vteaprotocol.SingleImageProcessing;
-import vteaexploration.plottools.panels.VerticalLabelUI;
-import vteaexploration.plotgatetools.gates.Gate;
-import vteaexploration.plotgatetools.listeners.ChangePlotAxesListener;
-import vteaexploration.plotgatetools.listeners.MakeImageOverlayListener;
-import vteaexploration.plotgatetools.listeners.PopupMenuAxisListener;
-import vteaexploration.plotgatetools.listeners.ResetSelectionListener;
-import vteaexploration.plotgatetools.listeners.PopupMenuAxisLUTListener;
-import vteaexploration.plotgatetools.listeners.PopupMenuLUTListener;
-import vteaexploration.plottools.panels.ExplorationCenter;
-import vteaexploration.plottools.panels.PlotAxesPanels;
-import vteaexploration.plottools.panels.XYPanels;
+import vtea.exploration.plottools.panels.VerticalLabelUI;
+import vtea.exploration.plotgatetools.gates.Gate;
+import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
+import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
+import vtea.exploration.plotgatetools.listeners.PopupMenuAxisListener;
+import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
+import vtea.exploration.plotgatetools.listeners.PopupMenuAxisLUTListener;
+import vtea.exploration.plotgatetools.listeners.PopupMenuLUTListener;
+import vtea.exploration.plottools.panels.ExplorationCenter;
+import vtea.exploration.plottools.panels.PlotAxesPanels;
+import vtea.exploration.plottools.panels.XYPanels;
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
-import ij.gui.ImageWindow;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.measure.ResultsTable;
@@ -43,21 +41,27 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.lang.NullPointerException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
-import vteaexploration.listeners.PlotUpdateListener;
-import vteaexploration.listeners.UpdatePlotWindowListener;
+import javax.swing.SwingWorker;
+import vtea.exploration.listeners.PlotUpdateListener;
+import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vteaobjects.MicroObject;
+import vteaobjects.MicroObjectModel;
 
 /**
  *
@@ -238,13 +242,17 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             }
         });
 
-        this.imp = imp;
+        //this is were I can hook a windoweent for the close event, remake impoverlay
+                
+                
         
+        
+        this.imp = imp;
         this.impoverlay = imp.duplicate();
         
         this.impoverlay.setOpenAsHyperStack(true);
         this.impoverlay.setDisplayMode(IJ.COMPOSITE);
-        this.impoverlay.setTitle(this.getTitle());
+        this.impoverlay.setTitle(title);
 
         DefaultXYPanels = new XYPanels(AvailableData);
         DefaultXYPanels.addChangePlotAxesListener(this);
@@ -255,6 +263,9 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         Main.setBackground(vtea._vtea.BACKGROUND);
         ec.addResetSelectionListener(this);
         ec.getXYChartPanel().addUpdatePlotWindowListener(this);
+        
+        
+        
         ec.setGatedOverlay(impoverlay);
 
         ExplorationPanels.add(ec);
@@ -303,15 +314,13 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         totalLabel1 = new javax.swing.JLabel();
         SetGlobalToLocal = new javax.swing.JButton();
         UseGlobal = new javax.swing.JToggleButton();
-        jSeparator6 = new javax.swing.JToolBar.Separator();
-        totalLabel = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        plotGatedLabel = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
         jSeparator5 = new javax.swing.JToolBar.Separator();
         get3DProjection = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
         BWLUT = new javax.swing.JToggleButton();
+        jSeparator8 = new javax.swing.JToolBar.Separator();
+        exportCSV = new javax.swing.JButton();
+        importCSV = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         WestPanel = new javax.swing.JPanel();
         yTextPanel = new javax.swing.JPanel();
@@ -505,23 +514,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             }
         });
         toolbarGate.add(UseGlobal);
-        toolbarGate.add(jSeparator6);
-
-        totalLabel.setForeground(new java.awt.Color(204, 204, 204));
-        totalLabel.setText(" 000000");
-        toolbarGate.add(totalLabel);
-
-        jLabel8.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel8.setText(" Objects");
-        toolbarGate.add(jLabel8);
-
-        plotGatedLabel.setForeground(new java.awt.Color(204, 204, 204));
-        plotGatedLabel.setText(" 00000");
-        toolbarGate.add(plotGatedLabel);
-
-        jLabel10.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel10.setText(" Plot");
-        toolbarGate.add(jLabel10);
         toolbarGate.add(jSeparator5);
 
         get3DProjection.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cube.png"))); // NOI18N
@@ -553,8 +545,42 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             }
         });
         toolbarGate.add(BWLUT);
+        toolbarGate.add(jSeparator8);
 
-        jPanel1.setPreferredSize(new java.awt.Dimension(100, 500));
+        exportCSV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save-2_24.png"))); // NOI18N
+        exportCSV.setToolTipText("Export...");
+        exportCSV.setFocusable(false);
+        exportCSV.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        exportCSV.setMaximumSize(new java.awt.Dimension(35, 40));
+        exportCSV.setMinimumSize(new java.awt.Dimension(35, 40));
+        exportCSV.setName(""); // NOI18N
+        exportCSV.setPreferredSize(new java.awt.Dimension(35, 40));
+        exportCSV.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        exportCSV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportCSVActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(exportCSV);
+
+        importCSV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-open-folder_24.png"))); // NOI18N
+        importCSV.setToolTipText("Import...");
+        importCSV.setEnabled(false);
+        importCSV.setFocusable(false);
+        importCSV.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        importCSV.setMaximumSize(new java.awt.Dimension(35, 40));
+        importCSV.setMinimumSize(new java.awt.Dimension(35, 40));
+        importCSV.setName(""); // NOI18N
+        importCSV.setPreferredSize(new java.awt.Dimension(35, 40));
+        importCSV.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        importCSV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importCSVActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(importCSV);
+
+        jPanel1.setPreferredSize(new java.awt.Dimension(100, 100));
         toolbarGate.add(jPanel1);
 
         North.add(toolbarGate);
@@ -669,7 +695,36 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     }//GEN-LAST:event_jComboBoxPointSizePropertyChange
 
     private void get3DProjectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_get3DProjectionActionPerformed
-        ec.getZProjection();
+        
+        
+    new Thread(new Runnable() {
+      public void run() {
+          
+           ec.getZProjection();
+
+          try {
+            java.lang.Thread.sleep(100);
+          }
+          catch(Exception e) { }  
+      }
+    }).start();
+        
+//    new Thread(new Runnable() {
+//      public void run() {
+//          
+//          try {
+//              new ClearVolumeRenderer();
+//          } catch (InterruptedException ex) {
+//              Logger.getLogger(MicroExplorer.class.getName()).log(Level.SEVERE, null, ex);
+//          }
+//
+//          try {
+//            java.lang.Thread.sleep(100);
+//          }
+//          catch(Exception e) { }  
+//      }
+//    }).start();
+       
     }//GEN-LAST:event_get3DProjectionActionPerformed
 
     private void jLabel15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel15MouseClicked
@@ -696,6 +751,15 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             onRemoveLUTChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), -1, jComboBoxPointSize.getSelectedIndex(), imageGate);
         }
     }//GEN-LAST:event_BWLUTActionPerformed
+
+    private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
+       ExportCSV ex = new ExportCSV();
+       ex.export(this.availabledata, this.plotvalues);
+    }//GEN-LAST:event_exportCSVActionPerformed
+
+    private void importCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importCSVActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_importCSVActionPerformed
 
     /**
      * @param args the command line arguments
@@ -745,21 +809,21 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     protected javax.swing.JToggleButton addPolygonGate;
     protected javax.swing.JToggleButton addQuadrantGate;
     protected javax.swing.JToggleButton addRectangularGate;
+    private javax.swing.JButton exportCSV;
     private javax.swing.JButton get3DProjection;
+    private javax.swing.JButton importCSV;
     private javax.swing.JComboBox jComboBox1;
     protected javax.swing.JComboBox jComboBoxLUTPlot;
     private javax.swing.JComboBox jComboBoxPointSize;
     protected javax.swing.JComboBox jComboBoxXaxis;
     protected javax.swing.JComboBox jComboBoxYaxis;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JMenuBar jMenuBar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar.Separator jSeparator1;
@@ -767,12 +831,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
     private javax.swing.JToolBar.Separator jSeparator5;
-    private javax.swing.JToolBar.Separator jSeparator6;
     private javax.swing.JToolBar.Separator jSeparator7;
-    private javax.swing.JLabel plotGatedLabel;
+    private javax.swing.JToolBar.Separator jSeparator8;
     private javax.swing.JToolBar toolbarGate;
     private javax.swing.JToolBar toolbarPlot;
-    private javax.swing.JLabel totalLabel;
     private javax.swing.JLabel totalLabel1;
     private javax.swing.JPanel yTextPanel;
     // End of variables declaration//GEN-END:variables
@@ -1092,6 +1154,125 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                 listener.changeAxes(Axis, position);
             }
         }
+    }
+    
+    class ExportCSV {
+        
+        
+
+        public ExportCSV() {
+            
+            
+             
+        }
+
+        
+        protected void export(ArrayList header, List attributes) {
+           
+            
+            JFileChooser jf = new JFileChooser(new File("untitled.csv"));
+            
+            int returnVal = jf.showSaveDialog(Main);
+            
+            File file = jf.getSelectedFile(); 
+            
+            //int returnVal = chooser.showOpenDialog(parent);
+            
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                
+                try{
+                    
+                    
+               
+ 
+            
+            //plotvalues contains data,  get(1) -> array          
+            //availabledata contains the column data.          
+            
+//                private Number processPosition(int a, MicroObjectModel volume) {
+////        ArrayList ResultsPointer = volume.getResultPointer();
+////        int size = ResultsPointer.size();
+//        if (a <= 10) {
+//            //System.out.println("PROFILING: Object " + volume.getSerialID() + ", value:" + (Number) volume.getAnalysisMaskVolume()[a]);
+//            return (Number) volume.getAnalysisMaskVolume()[a];
+//        } else {
+//            int row = ((a) / 11) - 1;
+//            int column = a % 11;
+//            return (Number) volume.getAnalysisResultsVolume()[row][column];
+//        }
+//    }
+            try{
+                
+            PrintWriter pw = new PrintWriter(file);
+            StringBuilder sb = new StringBuilder();
+            
+            ListIterator itr = availabledata.listIterator();
+            sb.append("Object");
+            sb.append(',');
+            sb.append("PosX");
+            sb.append(',');
+            sb.append("PosY");
+            sb.append(',');
+            sb.append("PosZ");
+            sb.append(',');
+            while(itr.hasNext()){
+            sb.append((String)itr.next());
+                if(itr.hasNext()){
+                    sb.append(',');
+                }
+            }
+
+            sb.append('\n');
+
+            
+            ListIterator a_itr = ((ArrayList)plotvalues.get(1)).listIterator();
+            
+            while(a_itr.hasNext()){
+
+                sb.append(a_itr.nextIndex());
+                sb.append(',');
+                
+                
+                MicroObjectModel volume = (MicroObjectModel)a_itr.next();
+                
+                sb.append(volume.getCentroidX());
+                sb.append(',');
+                 sb.append(volume.getCentroidY());
+                sb.append(',');
+                 sb.append(volume.getCentroidZ());
+                sb.append(',');
+                
+                Object[] mask = volume.getAnalysisMaskVolume();
+                Object[][] data =volume.getAnalysisResultsVolume();
+
+                for(int i = 0; i < mask.length; i++){
+                    sb.append((Number)mask[i]);
+                    sb.append(',');
+                } 
+                
+                for(int j = 0; j < data.length; j++){
+                    for(int k = 0; k < data[j].length; k++){
+                        sb.append((Number)data[j][k]);
+                        sb.append(',');
+                    }   
+                }
+                sb.append('\n');
+            }
+           
+            
+            
+            pw.write(sb.toString());
+            pw.close();
+
+        
+            }catch(FileNotFoundException e){}
+        
+        }catch(NullPointerException ne){}
+                
+    } else {}
+    
+        } 
+        
     }
 
 }

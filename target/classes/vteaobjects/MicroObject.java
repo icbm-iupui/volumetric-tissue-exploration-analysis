@@ -24,7 +24,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import vteaobjects.layercake.microVolume;
+import vtea.objects.layercake.microVolume;
 
 
 /**
@@ -419,23 +419,13 @@ public class MicroObject implements MicroObjectModel {
     
     private ArrayList<ArrayList> dilatefill3D(ArrayList<ArrayList> al, int x, int y, int z, int width, int height, int size){
         
-        //System.out.println("Checking: (" + x + ", " + y + ", " + z +")");
-        
-        //ArrayList<ArrayList> al = new ArrayList<ArrayList>();
-        //System.out.println("What the what!");
-
-         //System.out.println("In range!");
-         if((containsPixel(this.x, this.y, this.z,x,y,z)) ){  
-                       //System.out.println("Voxel already in object or derived!");
+         if((containsPixel(this.x, this.y, this.z,x,y,z)) ){                    
             return al;
-         }
-          
+         }      
             al.get(0).add(x);
             al.get(1).add(y);
             al.get(2).add(z);
             return al;
-         
- 
     }
    
     private void setPixels(ArrayList<int[]> pixels){
