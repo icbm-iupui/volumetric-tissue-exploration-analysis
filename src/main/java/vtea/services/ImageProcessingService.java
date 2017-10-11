@@ -6,11 +6,9 @@
 package vtea.services;
 
 import org.scijava.Context;
-import org.scijava.plugin.AbstractPTService;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
-import vtea.VTEAModule;
-import vteaimageprocessing.ImageProcessing;
+import vtea.imageprocessing.ImageProcessing;
 
 
 /**

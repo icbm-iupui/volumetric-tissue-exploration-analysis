@@ -18,7 +18,7 @@
 package vteaexploration;
 
 import java.util.HashMap;
-import vteaexploration.plottools.panels.XYChartPanel;
+import vtea.exploration.plottools.panels.XYChartPanel;
 
 /**
  *

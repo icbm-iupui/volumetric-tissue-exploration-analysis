@@ -17,8 +17,8 @@
  */
 package vteaexploration;
 
-import vteaprotocol.listeners.BatchStateListener;
-import vteaprotocol.listeners.CopyBlocksListener;
+import vtea.protocol.listeners.BatchStateListener;
+import vtea.protocol.listeners.CopyBlocksListener;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
