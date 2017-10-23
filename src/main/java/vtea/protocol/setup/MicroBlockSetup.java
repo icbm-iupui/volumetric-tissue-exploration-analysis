@@ -454,9 +454,8 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     }//GEN-LAST:event_ProcessSelectComboBoxActionPerformed
 
     private void BlockSetupCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BlockSetupCancelActionPerformed
-           
+
         this.setVisible(false);
-        blockSetupCancelAction();
     }//GEN-LAST:event_BlockSetupCancelActionPerformed
 
     private void BlockSetupOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BlockSetupOKActionPerformed
@@ -694,16 +693,11 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         this.CurrentStepProtocol = CurrentProcessList;
         notifyMicroBlockSetupListeners(this.CurrentStepProtocol);
 
-        
-
     }
     
     protected void blockSetupCancelAction() {
 
-
-
     }
-    
     
     public ArrayList getProcessList(){
         return new ArrayList();

@@ -40,6 +40,10 @@ public interface Segmentation extends VTEAModule {
     
     public void setBuildTool(ArrayList al);
      
+    public ArrayList getBuildTool();
+    
+    public ArrayList getBuildOptions();
+    
     public ArrayList getOptions();
     
 }

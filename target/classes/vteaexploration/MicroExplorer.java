@@ -252,7 +252,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         
         
         this.imp = imp;
-        
         this.impoverlay = imp.duplicate();
         this.impoverlay.addImageListener(this);
         

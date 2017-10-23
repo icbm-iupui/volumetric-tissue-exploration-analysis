@@ -103,7 +103,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         Gate gate;
         ListIterator<Gate> gate_itr = gates.listIterator();
         
- 
+
 
         int total = 0;
         int gated = 0;

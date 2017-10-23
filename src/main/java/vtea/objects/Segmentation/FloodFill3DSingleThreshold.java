@@ -51,7 +51,7 @@ public FloodFill3DSingleThreshold(ImageStack stack, int[] min, boolean parameter
     VERSION = "0.1";
     AUTHOR = "Seth Winfree";
     COMMENT = "Flood fill in 3D algorithm for building objects.";
-    NAME = "FloodFill 3D";
+    NAME = "FloodFill3D";
     KEY = "FloodFill3D";
     
     protocol = new ArrayList();

@@ -105,7 +105,7 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     
     @Override
     public void setBuildTool(ArrayList al) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
     
     @Override
@@ -117,5 +117,15 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     @Override
     public ArrayList getOptions() {
         return protocol;
+    }
+
+    @Override
+    public ArrayList getBuildTool() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ArrayList getBuildOptions() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

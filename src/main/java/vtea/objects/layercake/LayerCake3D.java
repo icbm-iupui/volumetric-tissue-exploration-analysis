@@ -676,7 +676,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
 
         private int maxsize = 1;
         private ArrayList<microRegion> alResult = new ArrayList<microRegion>();
-        //private ArrayList<microRegion> alResultCopy = new ArrayList<microRegion>();
+        private ArrayList<microRegion> alResultCopy = new ArrayList<microRegion>();
         private int[] start_pixel = new int[3];
         int x, y, z;
 

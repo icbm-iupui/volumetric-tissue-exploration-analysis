@@ -1306,6 +1306,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         if(ObjectStepsList.size() > 0){
             me.FolderDrawer.clear(); 
             me.ExploreDrawer.clear(); 
+
             notifyUpdatedImageListeners(ProcessedImage); 
         }
     }

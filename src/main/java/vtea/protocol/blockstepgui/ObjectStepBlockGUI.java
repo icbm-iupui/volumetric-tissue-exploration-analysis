@@ -182,8 +182,8 @@ import vtea.protocol.listeners.RebuildPanelListener;
             layoutConstraints.gridy = 2;
             layoutConstraints.weightx = -1;
             layoutConstraints.weighty = -1;
-            layoutConstraints.ipadx = 20;
-            layoutConstraints.ipady = 20;
+            layoutConstraints.ipadx = -1;
+            layoutConstraints.ipady = -1;
             step.add(EditButton, layoutConstraints);
             
             layoutConstraints.fill = GridBagConstraints.BOTH;
@@ -191,8 +191,8 @@ import vtea.protocol.listeners.RebuildPanelListener;
             layoutConstraints.gridy = 1;
             layoutConstraints.weightx = -1;
             layoutConstraints.weighty = -1;
-            layoutConstraints.ipadx = 20;
-            layoutConstraints.ipady = 20;
+            layoutConstraints.ipadx = -1;
+            layoutConstraints.ipady = -1;
             step.add(PreviewButton, layoutConstraints);
 
             step.addMouseListener(new java.awt.event.MouseListener() {

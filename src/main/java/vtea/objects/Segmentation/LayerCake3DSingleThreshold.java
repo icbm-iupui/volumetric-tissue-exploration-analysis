@@ -152,14 +152,14 @@ public LayerCake3DSingleThreshold(ImageStack stack, int[] min, boolean imageOpti
         
         start = System.nanoTime(); 
         //builderVolumes.makeDerivedRegionsThreading(derivedRegionType, is.length, is, getResultsPointers(details));
-        
-         if(count){
+        if(count){
         builderVolumes.makeDerivedRegionsPool(derivedRegionType, is.length, is, getResultsPointers(details));
         }
         end = System.nanoTime();
         System.out.println("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getRegionsCount() + " regions.");
         IJ.log("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getRegionsCount() + " regions.");
         Volumes = builderVolumes.getVolumesAsList();
+
 
     }
     
