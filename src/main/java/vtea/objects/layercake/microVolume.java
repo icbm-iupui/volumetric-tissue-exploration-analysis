@@ -100,6 +100,9 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     public void makeDerivedRegions(int[][] derivedRegionType, int channels, ImageStack[] Stacks, ArrayList ResultsPointers) {
         derivedConstants = derivedRegionType;
         this.nChannels = channels;
+        
+        analysisResultsVolume = new Object[nChannels][11];
+        
         DerivedRegions = new microDerivedRegion[nChannels][alRegions.size()];
         this.ResultsPointer = ResultsPointers;
         

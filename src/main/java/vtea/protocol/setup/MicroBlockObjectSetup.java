@@ -72,6 +72,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         {"Channel_2", "Grow", 2},
         {"Channel_3", "Grow", 2},
         {null, null, null},
+        {null, null, null},
+        {null, null, null},
+        {null, null, null},
+        {null, null, null},
         {null, null, null}};
     
     MicroThresholdAdjuster mta;
@@ -187,6 +191,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         Object[][] CellValues = new Object[this.Channels.size()][4];
         
         System.out.println("PROFILING: Number of channels: " + this.Channels.size());
+        //System.out.println("PROFILING: Number of channels: " + this.Channels.size());
+        
         
         for(int i = 0; i < this.Channels.size(); i++){
             CellValues[i][0] = Channels.get(i);

@@ -105,6 +105,13 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 context = new Context( LogService.class, PluginService.class );
                 priority = Priority.FIRST_PRIORITY;
                 
+                
+                System.out.println("Starting up VTEA... ");
+                System.out.println("-------------------------------- ");
+                System.out.println("Available memory: " + getAvailableMemory()/(1000000000) + " GB");
+                System.out.println("Available processors: " + Runtime.getRuntime().availableProcessors());
+                System.out.println("-------------------------------- ");
+                
                 System.setProperty("java.util.Arrays.sort", "true");
 
                 ImagePlus.addImageListener(this);
@@ -342,6 +349,31 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
        
     
         
+    }
+    
+    public static long getPossibleThreads(double stackSize){
+        
+            long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            long freeMemory = Runtime.getRuntime().maxMemory() - usedMemory;
+            
+            double availMemory = freeMemory - (freeMemory*(0.25));
+            
+            if(Math.round(availMemory/stackSize) > Runtime.getRuntime().availableProcessors()){
+                //System.out.println("PROFILING:  Possible threads per dataset size: " + Runtime.getRuntime().availableProcessors());
+                return Runtime.getRuntime().availableProcessors();
+            } else {
+                //System.out.println("PROFILING:  Possible threads per dataset size: " + Math.round(availMemory/stackSize));
+                return Math.round(availMemory/stackSize);
+            }
+    }
+    
+    public static long getAvailableMemory(){
+        
+            long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            long freeMemory = Runtime.getRuntime().maxMemory() - usedMemory;
+            
+            return freeMemory;
+
     }
 
  

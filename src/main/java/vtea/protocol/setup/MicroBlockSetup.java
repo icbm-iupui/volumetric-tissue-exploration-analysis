@@ -260,10 +260,9 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         tablePane.add(secondaryObjects, gridBagConstraints);
 
-        tableScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tableScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         tableScrollPane.setMinimumSize(new java.awt.Dimension(360, 90));
-        tableScrollPane.setPreferredSize(new java.awt.Dimension(360, 110));
+        tableScrollPane.setPreferredSize(new java.awt.Dimension(360, 220));
+        tableScrollPane.setSize(new java.awt.Dimension(360, 220));
 
         secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -282,8 +281,10 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        secondaryTable.setMaximumSize(new java.awt.Dimension(2147483647, 1000));
         secondaryTable.setMinimumSize(new java.awt.Dimension(340, 70));
-        secondaryTable.setPreferredSize(new java.awt.Dimension(340, 90));
+        secondaryTable.setPreferredSize(new java.awt.Dimension(340, 220));
+        secondaryTable.setRequestFocusEnabled(false);
         tableScrollPane.setViewportView(secondaryTable);
 
         gridBagConstraints = new java.awt.GridBagConstraints();

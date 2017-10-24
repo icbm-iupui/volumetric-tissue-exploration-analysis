@@ -653,8 +653,15 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         @Override
         protected void compute() {
 
-            int processors = Runtime.getRuntime().availableProcessors();
-            int length = alVolumes.size() / processors;
+            //int processors = Runtime.getRuntime().availableProcessors();
+            
+            
+            double stackSize = stack.length*(stack[0].size() * stack[0].getHeight() * stack[0].getWidth() * stack[0].getBitDepth());
+            
+            long processors = vtea._vtea.getPossibleThreads(stackSize);
+            
+            
+            long length = alVolumes.size() / processors;
 
             if (alVolumes.size() < processors) {
                 length = alVolumes.size();
@@ -819,8 +826,9 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         @Override
         protected void compute() {
 
-            int processors = Runtime.getRuntime().availableProcessors();
-            int length = stack.getSize() / processors;
+            long processors = Runtime.getRuntime().availableProcessors();
+                                      
+            long length = stack.getSize() / processors;
 
             if (stack.getSize() < processors) {
                 length = stack.getSize();
