@@ -501,11 +501,11 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         JTextField placeholder;
 
         repeated.add(ChannelComboBox.getSelectedIndex());
-        repeated.add(ProcessSelectComboBox.getSelectedIndex());
+        repeated.add(ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()));
         key.addAll(Arrays.asList("minObjectSize", "maxObjectSize", "minOverlap", "minThreshold"));
         repeated.add(key);
 
-        if (ProcessSelectComboBox.getSelectedIndex() == 0) {
+        if (ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()).equals("LayerCake 3D")) {
             //build primary volume variables
             placeholder = (JTextField) CurrentStepProtocol.get(6);
             repeated.add(placeholder.getText());
@@ -532,7 +532,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
                 result.add(alDerived);
             }
         }
-        if (ProcessSelectComboBox.getSelectedIndex() == 1) {
+        if (ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()).equals("FloodFill 3D")) {
             //build primary volume variables
             placeholder = (JTextField) CurrentStepProtocol.get(6);
             repeated.add(placeholder.getText());

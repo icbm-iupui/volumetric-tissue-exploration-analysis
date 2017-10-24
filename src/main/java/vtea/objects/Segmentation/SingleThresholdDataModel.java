@@ -33,11 +33,11 @@ public class SingleThresholdDataModel implements Datasets{
     public SingleThresholdDataModel() {
     }
     
-    public SingleThresholdDataModel(ImageStack[] is, List details, int method) {
+    public SingleThresholdDataModel(ImageStack[] is, List details, String method) {
         
-        if(method == 1){
+        if(method.equals("LayerCake 3D")){
             this.processDataLayerCake(is, details);
-        }else if (method == 2){
+        }else if (method.equals("FloodFill 3D")){
             this.processData3DFloodFill(is, details);
         }
         

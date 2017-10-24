@@ -1108,7 +1108,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
             MethodText = " " + al_key.get(0).toString() + ": " + al.get(3).toString() + " " + al_key.get(2).toString() + ": " + al.get(5).toString() + " " + al_key.get(3).toString() + ": " + al.get(6).toString();
 
-            Object.setText("Object_" +getPosition()+ ": " + vtea._vtea.PROCESSOPTIONS[(Integer) al.get(1)] + ", by: " + Channels.get((Integer) al.get(0)).toString());
+            Object.setText("Object_" +getPosition()+ ": " + al.get(1) + ", by: " + Channels.get((Integer) al.get(0)).toString());
             Comment.setText(MethodText);
             
             RebuildPanelObject();
