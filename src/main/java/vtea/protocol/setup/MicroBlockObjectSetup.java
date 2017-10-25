@@ -394,7 +394,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
 
         ArrayList result = new ArrayList();
 
-        if (position == 0) {
+        if (this.ProcessSelectComboBox.getItemAt(position).equals("LayerCake 3D")) {
             result.add(new JLabel("Low Threshold"));
             result.add(new JTextField(values[0][0]));
             result.add(new JLabel("Centroid Offset"));
@@ -404,7 +404,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             result.add(new JLabel("Max Vol (vox)"));
             result.add(new JTextField(values[0][3]));
         }
-        if (position == 1) {
+        if (this.ProcessSelectComboBox.getItemAt(position).equals("FloodFill 3D")) {
             result.add(new JLabel("Low Threshold"));
             result.add(new JTextField(values[1][0]));
             result.add(new JLabel("High Threshold"));
