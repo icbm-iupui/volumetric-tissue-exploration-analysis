@@ -65,8 +65,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static String[] PROCESSINGOPTIONS;
     public static String[] WORKFLOWOPTIONS;
     public static String[] PROCESSOROPTIONS;
-    public static String[] FILETYPEOPTIONS;
-           
+    public static String[] FILETYPEOPTIONS;      
     
     public static ConcurrentHashMap<String, String> PROCESSINGMAP;
     public static ConcurrentHashMap<String, String> SEGMENTATIONMAP;
@@ -86,16 +85,13 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
         String pluginsDir = url.substring(5, url.length() - clazz.getName().length() - 6);
         System.setProperty("plugins.dir", pluginsDir);
-        
-    
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {new ImageJ(); }
         });
     }
-        
-	
+
 
     @Override
     public void run(String str){
@@ -191,9 +187,6 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                         Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                
-             
-                
                 
                 System.out.println("Loading Workflow Plugins: ");
                 //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
