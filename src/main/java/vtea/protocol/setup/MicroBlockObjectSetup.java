@@ -42,6 +42,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
+import vtea._vtea;
 import static vtea._vtea.SEGMENTATIONOPTIONS;
 
 /**
@@ -376,6 +377,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         return MethodDetails;
     }
     
+
     private ImagePlus getThresholdPreview(){
         ChannelSplitter cs = new ChannelSplitter();
         ImagePlus imp = new ImagePlus("Threshold "+super.TitleText.getText(),
@@ -396,23 +398,23 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
 
         if (this.ProcessSelectComboBox.getItemAt(position).equals("LayerCake 3D")) {
             result.add(new JLabel("Low Threshold"));
-            result.add(new JTextField(values[0][0]));
+            result.add(new JTextField(values[position][0]));
             result.add(new JLabel("Centroid Offset"));
-            result.add(new JTextField(values[0][1]));
+            result.add(new JTextField(values[position][1]));
             result.add(new JLabel("Min Vol (vox)"));
-            result.add(new JTextField(values[0][2]));
+            result.add(new JTextField(values[position][2]));
             result.add(new JLabel("Max Vol (vox)"));
-            result.add(new JTextField(values[0][3]));
+            result.add(new JTextField(values[position][3]));
         }
         if (this.ProcessSelectComboBox.getItemAt(position).equals("FloodFill 3D")) {
             result.add(new JLabel("Low Threshold"));
-            result.add(new JTextField(values[1][0]));
+            result.add(new JTextField(values[position][0]));
             result.add(new JLabel("High Threshold"));
-            result.add(new JTextField(values[1][1]));
+            result.add(new JTextField(values[position][1]));
             result.add(new JLabel("Min Vol (vox)"));
-            result.add(new JTextField(values[1][2]));
+            result.add(new JTextField(values[position][2]));
             result.add(new JLabel("Max Vol (vox)"));
-            result.add(new JTextField(values[1][3]));
+            result.add(new JTextField(values[position][3]));
         }
         if (position == 2) {
             result.add(new JLabel("Solution not supported"));
@@ -578,7 +580,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             return 0;
         }
     }
-
+ 
+    
     @Override
     public void thresholdChanged(double min, double max) {
         
@@ -602,7 +605,9 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         
         ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = String.valueOf(Math.round(min));
         
-        if(ProcessSelectComboBox.getSelectedIndex() == 1){
+       // if(ProcessSelectComboBox.getSelectedIndex() == 1){
+            
+        if(ProcessSelectComboBox.getSelectedItem().equals("FloodFill 3D")){
             ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][1] = String.valueOf(Math.round(max));
         }
         //ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][2] = ((JTextField)CurrentStepProtocol.get(6)).getText();
@@ -616,6 +621,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         
  
     }
+    
 
     @Override
     public void roiModified(ImagePlus ip, int i) {

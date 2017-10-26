@@ -571,10 +571,10 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     }
 
     protected JPanel makeProtocolPanel(String str) {
-        JPanel BuiltPanel = new JPanel();
+  JPanel BuiltPanel = new JPanel();
         return BuiltPanel;
-    }
-    
+        }
+
     protected JPanel makeProtocolPanel(int position) {
 
         
