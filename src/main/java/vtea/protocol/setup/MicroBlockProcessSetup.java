@@ -534,7 +534,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         
         CurrentProcessList.clear();
 
-        
         CurrentProcessList.add(cbm.getSelectedItem());
         CurrentProcessList.add(ccbm.getIndexOf(ccbm.getSelectedItem()));
         CurrentProcessList.addAll(ProcessComponents);

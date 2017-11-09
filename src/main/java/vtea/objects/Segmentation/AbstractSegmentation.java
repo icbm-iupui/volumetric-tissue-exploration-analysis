@@ -23,12 +23,13 @@ import java.awt.Component;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.event.ChangeEvent;
 import vteaobjects.MicroObject;
 
 /**
  *
  * @author sethwinfree
+ * @param <T>
+ * @param <K>
  */
 public class AbstractSegmentation<T extends Component, K extends Object> implements Segmentation {
     
@@ -39,6 +40,14 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     protected String KEY = "ND";
     
     protected ArrayList<T> protocol= new ArrayList();
+    
+            /**protocol is arraylist of segementation settings.
+             * (0) is the channel the segmentation is based on, as a zero order integer
+             * (1) is the name of the segmentation protocol
+             * (2) is an Arraylist of field names (this should be changed to a hashmap
+             * (3) is an ArrayList of the segmentation settings per the ArrayList in 2
+            **/
+    
     protected ArrayList buildtool = new ArrayList();
 
     

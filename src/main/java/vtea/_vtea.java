@@ -57,7 +57,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension SMALLBUTTONSIZE = new Dimension(32, 32);
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
-    public static String VERSION = new String("0.4.2");
+    public static String VERSION = new String("0.4.25");
 
     public static String[] PROCESSOPTIONS = {"LayerCake 3D", "FloodFill 3D"};
     

@@ -14,7 +14,7 @@
 
     <groupId>icbm-iupui</groupId>
     <artifactId>vtea</artifactId>
-    <version>0.4.2-SNAPSHOT</version>
+    <version>0.4.25-SNAPSHOT</version>
 
 
     <name>VTEA_SciJava</name>
