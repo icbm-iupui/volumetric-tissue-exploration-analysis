@@ -12,6 +12,9 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import org.scijava.plugin.Plugin;
 import vteaobjects.MicroObject;
@@ -43,6 +46,15 @@ public FloodFill3DSingleThreshold(){
     KEY = "FloodFill3D";
     
     protocol = new ArrayList();
+
+    protocol.add(new JLabel("Low Threshold"));
+    protocol.add(new JTextField(0));
+    protocol.add(new JLabel("High Threshold"));
+    protocol.add(new JTextField(4095));
+    protocol.add(new JLabel("Min Vol (vox)"));
+    protocol.add(new JTextField(20));
+    protocol.add(new JLabel("Max Vol (vox)"));
+    protocol.add(new JTextField(1000));
 }
 
     
@@ -54,7 +66,7 @@ public FloodFill3DSingleThreshold(ImageStack stack, int[] min, boolean parameter
     NAME = "FloodFill 3D";
     KEY = "FloodFill3D";
     
-    protocol = new ArrayList();
+
     
     watershedImageJ = parameter;
          

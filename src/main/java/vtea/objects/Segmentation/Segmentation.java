@@ -46,4 +46,6 @@ public interface Segmentation extends VTEAModule {
     
     public ArrayList getOptions();
     
+    public ArrayList getDefaultValues();
+    
 }

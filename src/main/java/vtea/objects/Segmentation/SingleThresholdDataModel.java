@@ -81,6 +81,7 @@ public class SingleThresholdDataModel implements Datasets{
         start = System.nanoTime();
         builderVolumes = new LayerCake3D(builderRegions.getRegions(), minConstants, is[Integer.parseInt(alprimary.get(0).toString())]);
         end = System.nanoTime();
+        
         System.out.println("PROFILING: Volume build time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getVolumesCount() + " volumes.");
         IJ.log("PROFILING: Volume build time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getVolumesCount() + " volumes.");
         
@@ -95,8 +96,8 @@ public class SingleThresholdDataModel implements Datasets{
         //builderVolumes.makeDerivedRegionsThreading(derivedRegionType, is.length, is, getResultsPointers(details));
         builderVolumes.makeDerivedRegionsPool(derivedRegionType, is.length, is, getResultsPointers(details));
         end = System.nanoTime();
-        System.out.println("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getRegionsCount() + " regions.");
-        IJ.log("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getRegionsCount() + " regions.");
+        System.out.println("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. ");
+        IJ.log("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. ");
         Volumes = builderVolumes.getVolumesAsList();
 
 //        start = System.nanoTime(); 
@@ -140,32 +141,13 @@ public class SingleThresholdDataModel implements Datasets{
         //make builder with all the detectable regions   
         System.out.println("PROFILING: ImageStack size: " + is[Integer.parseInt(alprimary.get(0).toString())].getSize() + " slices.");
         IJ.log("PROFILING: ImageStack size: " + is[Integer.parseInt(alprimary.get(0).toString())].getSize() + " slices.");
-        
-//        builderRegions = new LayerCake3D(is[Integer.parseInt(alprimary.get(0).toString())], minConstants, false);
- 
-//        System.out.println("PROFILING: Region find time: " + ((end-start)/1000000) + " ms. " + "Found " + builderRegions.getRegionsCount() + " regions.");
-//        IJ.log("PROFILING: Region find time: " + ((end-start)/1000000) + " ms. " + "Found " + builderRegions.getRegionsCount() + " regions.");
-//        //make builder with all the volumes from the detectable regions
- //start = System.nanoTime();
-//        builderVolumes = new LayerCake3D(builderRegions.getRegions(), minConstants, is[Integer.parseInt(alprimary.get(0).toString())]);
-//        end = System.nanoTime();
-//        System.out.println("PROFILING: Volume build time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getVolumesCount() + " volumes.");
-//        IJ.log("PROFILING: Volume build time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getVolumesCount() + " volumes.");
-//        
+         
         ListIterator itr = alsecondary.listIterator();
         while (itr.hasNext()) {
             Object[] derived = ((ArrayList) itr.next()).toArray();
             derivedRegionType[(Integer) derived[0]][0] = Integer.parseInt(derived[1].toString());
             derivedRegionType[(Integer) derived[0]][1] = Integer.parseInt(derived[2].toString());
         }
-//        
-//        start = System.nanoTime(); 
-//        //builderVolumes.makeDerivedRegionsThreading(derivedRegionType, is.length, is, getResultsPointers(details));
-//        builderVolumes.makeDerivedRegionsPool(derivedRegionType, is.length, is, getResultsPointers(details));
-//        end = System.nanoTime();
-//        System.out.println("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getRegionsCount() + " regions.");
-//        IJ.log("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getRegionsCount() + " regions.");
-//        Volumes = builderVolumes.getVolumesAsList();
 
         start = System.nanoTime(); 
         builder3DVolumes = new FloodFill3D(is, Integer.parseInt(alprimary.get(0).toString()), minConstants, false);

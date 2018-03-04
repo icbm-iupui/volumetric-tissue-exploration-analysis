@@ -17,17 +17,21 @@
  */
 package vtea.objects.layercake;
 
+import com.opencsv.CSVWriter;
 import ij.*;
 import ij.process.*;
 import java.util.*;
 import ij.ImagePlus;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
-import org.scijava.plugin.Plugin;
-import vteaobjects.MicroObject;
-import vtea.objects.Segmentation.AbstractSegmentation;
-import vtea.objects.Segmentation.Segmentation;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+//import org.apache.commons.math.linear.MatrixUtils;
+import org.apache.commons.math3.linear.MatrixUtils;
 
 public class LayerCake3D implements Cloneable, java.io.Serializable {
 
@@ -112,7 +116,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
     }
 
     @Deprecated
-    private synchronized void cleanupVolumes() {
+    public synchronized void cleanupVolumes() {
 
         //loop through all volumes
         List<microVolume> alVolumesTrim = Collections.synchronizedList(new ArrayList<microVolume>());
@@ -208,7 +212,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         }
 
         alVolumes.clear();
-        //System.out.println("PROFILING: Volumes found: " + alVolumesTrim.size());
+        System.out.println("PROFILING: Volumes found: " + alVolumesTrim.size());
         alVolumes.addAll(alVolumesTrim);
     }
 
@@ -658,7 +662,9 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             
             double stackSize = stack.length*(stack[0].size() * stack[0].getHeight() * stack[0].getWidth() * stack[0].getBitDepth());
             
-            long processors = vtea._vtea.getPossibleThreads(stackSize);
+            //long processors = vtea._vtea.getPossibleThreads(stackSize);
+            
+            long processors = Runtime.getRuntime().availableProcessors();
             
             
             long length = alVolumes.size() / processors;
@@ -852,6 +858,12 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
 
         private List<microRegion> alRegionsLocal = Collections.synchronizedList(new ArrayList<microRegion>());
         private List<microRegion> alRegionsProcessedLocal = Collections.synchronizedList(new ArrayList<microRegion>());
+        
+        
+        private short[][] linkProbability;
+        
+        
+        //private List<microRegion> alRegionsLocal = Collections.synchronizedList(new ArrayList<microRegion>());
 
         private int[] minConstantsLocal;
 
@@ -859,12 +871,179 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
 
         public VolumeForkPool(List<microRegion> Regions, int[] minConstants, int start, int stop) {
             this.minConstantsLocal = minConstants;
-            this.alRegionsLocal = Regions.subList(start, stop);
+            this.alRegionsLocal = Regions;
             this.nVolumesLocal = 0;
             this.start = start;
             this.stop = stop;
+            
+//SKETCH for adding probabilistic volume building
+            
+//            linkProbability = new short[alRegionsLocal.size()][alRegionsLocal.size()];
+//            
+//            
+//            calculateProbabilities((float)2);
+//            
+//            try {
+//                CSVWriter writer = new CSVWriter(new FileWriter("yourfile.csv"));
+//                
+//            
+//            String[] b = new String[linkProbability.length];
+//            for(int j = 0; j < alRegionsLocal.size(); j++){
+//                for ( int i = 0; i < alRegionsLocal.size(); i++) {
+//                    b[i] = String.valueOf(linkProbability[j][i]); 
+//                }
+//                writer.writeNext(b);
+//            }
+//            
+//
+//            
+//            
+//            
+//            writer.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(LayerCake3D.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//           
+     
+            
+        }
+        
+        private synchronized void calculateProbabilities(double sigma) {
+            
+        long start = System.currentTimeMillis();
+        
+        for(int i = 0; i < alRegionsLocal.size(); i++){
+                int[] testStartRegion = new int[3]; 
+                microRegion test;
+                test = alRegions.get(i);
+                testStartRegion[0] = test.getBoundCenterX();
+                testStartRegion[1] = test.getBoundCenterY();
+                testStartRegion[2] = test.getZPosition();
+                float sumCost = 0;
+                
+            for(int j = 0; j < alRegionsLocal.size(); j++){ 
+                if(j != i){
+                int[] compareStartRegion = new int[3];
+                microRegion compare;
+                compare = alRegions.get(j);
+                compareStartRegion[0] = compare.getBoundCenterX();
+                compareStartRegion[1] = compare.getBoundCenterY();
+                compareStartRegion[2] = compare.getZPosition();
+                short cost = costCalculation(testStartRegion[0], compareStartRegion[0],1, testStartRegion[1], 
+                    compareStartRegion[1], 1, testStartRegion[2], compareStartRegion[2],  0.8, sigma);
+                linkProbability[i][j] = cost;
+                sumCost = sumCost + cost;
+                }else{
+                    
+                }
+            }
+            for(int k = 0; k < alRegionsLocal.size(); k++){ 
+                linkProbability[i][k] = (short)(100*(linkProbability[i][k]/sumCost));
+            }
+           
+        }
+        
+        
+{
+        short probablity = 0;
+        for(int i=0; i<(linkProbability.length/2 + 1); i++){
+            for(int j=i; j<(linkProbability[0].length); j++){
+                probablity = linkProbability[i][j];
+                linkProbability[i][j] = linkProbability[j][i];
+                linkProbability[j][i] = probablity;
+            }
         }
 
+    }
+
+        long stop = System.currentTimeMillis();
+         //linkProbability = MatrixUtils.createRealMatrix(linkProbability).transpose().getData();   
+         System.out.println("PROFILING: Probability matrix time: " + (stop-start) + " ms for a " + linkProbability.length + " matrix.");
+        }
+ 
+        private synchronized short costCalculation(int x1, int x2, double xw, int y1, int y2, double yw, int z1, int z2, double zw, double sigma) {
+            //Gaussian with sigma
+            //return (Math.exp(-(xw*(Math.pow(x1-x2, 2))+yw*(Math.pow(y1-y2, 2))+zw*(Math.pow(z1-z2, 2))))/Math.pow(2*sigma,2));
+            //t-distribution 1 DOF
+            return (short)(100*(float)(1/(1+(((Math.pow(x1-x2, 2))+yw*(Math.pow(y1-y2, 2))+zw*(Math.pow(z1-z2, 2)))))));
+        }
+
+        private synchronized void volumeBuild(){
+            
+            microVolume volume = new microVolume();
+            
+            for(int i = 0; i < alRegionsLocal.size(); i++){
+                if(!(alRegionsLocal.get(i).isAMember())){
+                    alRegionsLocal.get(i).setMembership(i);
+                    volume = parseProbabilities(i,5);
+                    if (volume.getNRegions() > 1) {
+                        volume.calculateVolumeMeasurements();
+                        if (volume.getPixelCount() >= minConstantsLocal[0] && volume.getPixelCount() <= minConstantsLocal[1]) {
+                            alVolumes.add(volume);
+                        }
+                    }
+                }
+            }
+        }
+        
+        private synchronized microVolume parseProbabilities(int parent,double cutoff){           
+            microVolume volume = new microVolume();   
+            for(int i = 0; i < alRegionsLocal.size(); i++){
+                if (linkProbability[i][parent] > cutoff && !(alRegionsLocal.get(i).isAMember())){                  
+                    volume.addRegion(alRegionsLocal.get(i));   
+                    alRegionsLocal.get(i).setMembership(parent);
+                    System.out.println("PROFILING: Scanning Graph, Node: " + parent + ", position: " + i);
+                    parseRecursive(volume, parent, i, cutoff);
+                } 
+            }
+            return volume;
+        }
+        
+        private synchronized void parseRecursive(microVolume volume, int parent, int child, double cutoff){            
+            for(int i = 0; i < alRegionsLocal.size(); i++){
+                if (linkProbability[i][child] > cutoff && !(alRegionsLocal.get(i).isAMember())){                  
+                    volume.addRegion(alRegionsLocal.get(i));   
+                    alRegionsLocal.get(i).setMembership(parent);
+                    System.out.println("PROFILING: Scanning Graph, Node: " + parent + ", position: " + i);
+                    parseRecursive(volume, parent, i,cutoff);
+                } 
+            }
+        }
+        
+        private void resetMembership(int position, int newposition){
+            for(int i = 0; i < alRegionsLocal.size(); i++){
+                if(alRegionsLocal.get(i).getMembership() == position){
+                    alRegionsLocal.get(i).setMembership(newposition);
+                }
+            }
+        }
+
+        @Override
+        protected void compute() {
+
+            //multi-threading was leading to over segmentation errors.  One thread slows things down but is more accurate.
+            //long processors = Runtime.getRuntime().availableProcessors();
+            long processors = 1;
+            
+            long length = alRegions.size() / processors;
+
+            if (alRegions.size() < processors) {
+                length = alRegions.size();
+            }
+
+            //System.out.println("PROFILING-DETAILS: Volume Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
+            if (stop - start > length) {
+               
+                invokeAll(new VolumeForkPool(alRegions, minConstantsLocal, start, start + ((stop - start) / 2)),
+                        new VolumeForkPool(alRegions, minConstantsLocal, start + ((stop - start) / 2) + 1, stop));
+               
+            } else {
+                defineVolumes();
+                //volumeBuild();
+            }
+        }
+        
+        
         private synchronized void defineVolumes() {
             int z;
             microVolume volume = new microVolume();
@@ -909,27 +1088,27 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             }
         }
 
-        @Override
-        protected void compute() {
-
-            //multi-threading was leading to over segmentation errors.  One thread slows things down but is more accurate.
-            int processors = 1;
-            int length = alRegions.size() / processors;
-
-            if (alRegions.size() < processors) {
-                length = alRegions.size();
-            }
-
-            //System.out.println("PROFILING-DETAILS: Volume Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
-            if (stop - start > length) {
-               
-                invokeAll(new VolumeForkPool(alRegions, minConstantsLocal, start, start + ((stop - start) / 2)),
-                        new VolumeForkPool(alRegions, minConstantsLocal, start + ((stop - start) / 2) + 1, stop));
-               
-            } else {
-                defineVolumes();
-            }
-        }
+//        @Override
+//        protected void compute() {
+//
+//            //multi-threading was leading to over segmentation errors.  One thread slows things down but is more accurate.
+//            int processors = 1;
+//            int length = alRegions.size() / processors;
+//
+//            if (alRegions.size() < processors) {
+//                length = alRegions.size();
+//            }
+//
+//            //System.out.println("PROFILING-DETAILS: Volume Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
+//            if (stop - start > length) {
+//               
+//                invokeAll(new VolumeForkPool(alRegions, minConstantsLocal, start, start + ((stop - start) / 2)),
+//                        new VolumeForkPool(alRegions, minConstantsLocal, start + ((stop - start) / 2) + 1, stop));
+//               
+//            } else {
+//                defineVolumes();
+//            }
+//        }
 
         private synchronized void findConnectedRegions(int volumeNumber, double[] startRegion, int z) {
 
@@ -939,11 +1118,14 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             
             int i = start;
             while (i < stop - 1) {
+                
+                                             
                 microRegion test = new microRegion();
-                test = alRegions.get(i);
+                test = alRegionsLocal.get(i);
                 testRegion[0] = test.getBoundCenterX();
                 testRegion[1] = test.getBoundCenterY();
                 double comparator = lengthCart(startRegion, testRegion);
+
                 if (!test.isAMember()) {
                     if (comparator <= minConstants[2] && ((test.getZPosition() - z) == 1)) {
                         
@@ -955,13 +1137,16 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                         alRegionsProcessedLocal.add(test);
                         
                         //spped it up
-                        //alRegions.remove(i);
-                        //stop--;
+                        alRegionsLocal.remove(i);
+                        stop--;
                         //speed it up
+                        //System.out.println("PROFILING: Regions left: " + alRegionsLocal.size() + ", tested " + i + " regions.");
                         
                         findConnectedRegions(volumeNumber, testRegion, z);
-                        //System.out.println("PROFILING: Adding regions: " + i);
+                        
                     }
+                    
+                    
                 }
                 i++;
             }

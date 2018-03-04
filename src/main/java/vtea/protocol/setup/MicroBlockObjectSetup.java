@@ -29,8 +29,12 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -42,14 +46,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
-import vtea._vtea;
-import static vtea._vtea.SEGMENTATIONOPTIONS;
+import static vtea._vtea.SEGMENTATIONMAP;
+import vtea.objects.Segmentation.AbstractSegmentation;
+import vtea.processor.ImageProcessingProcessor;
 
 /**
  *
  * @author vinfrais
  */
 public final class MicroBlockObjectSetup extends MicroBlockSetup implements ChangeThresholdListener, ImageListener, RoiListener {
+
     public static String getMethod(int i) {
         return vtea._vtea.PROCESSOPTIONS[i];
     }
@@ -60,8 +66,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
 
     private Object[] columnTitles = {"Channel", "Method", "Distance(px)"};
     
-    private boolean imageClosed = false;
     
+
+    private boolean imageClosed = false;
+
     private boolean[] canEditColumns = new boolean[]{true, true, true, true};
     private TableColumn channelColumn;
     private TableColumn analysisColumn;
@@ -78,35 +86,34 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         {null, null, null},
         {null, null, null},
         {null, null, null}};
-    
+
     MicroThresholdAdjuster mta;
-    
+
     ImagePlus ThresholdOriginal = new ImagePlus();
     ImagePlus ThresholdPreview = new ImagePlus();
-    
-    
+
     public MicroBlockObjectSetup(int step, ArrayList Channels, ImagePlus imp) {
         super(step, Channels);
- 
+
         ThresholdOriginal = imp.duplicate();
         ThresholdPreview = getThresholdPreview();
-        
-        
+
         ThresholdPreview.addImageListener(this);
 
-        
         IJ.run(ThresholdPreview, "Grays", "");
-        
-        
-        
 
-        mta = new MicroThresholdAdjuster(ThresholdPreview); 
+        mta = new MicroThresholdAdjuster(ThresholdPreview);
         mta.addChangeThresholdListener(this);
         mta.notifyChangeThresholdListeners(mta.minThreshold, mta.maxThreshold);
-        
-        makeProtocolPanel(step);
 
+        //makeProtocolPanel(step);
         super.cbm = new DefaultComboBoxModel(vtea._vtea.SEGMENTATIONOPTIONS);
+
+        ProcessSelectComboBox.setModel(cbm);
+        ProcessSelectComboBox.setVisible(true);
+
+        makeProtocolPanel((String) ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()));
+
         setBounds(new java.awt.Rectangle(500, 160, 378, 282));
 
         TitleText.setText("Object_" + (step));
@@ -114,13 +121,12 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         PositionText.setText("Object_" + (step));
         PositionText.setVisible(false);
         ProcessText.setText("Object building method ");
-       
 
         comments.remove(notesPane);
         tablePane.setVisible(true);
-        
+
         CellValues = makeDerivedRegionTable();
-        
+
         secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
                 CellValues,
                 columnTitles
@@ -132,8 +138,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
                 return canEdit[columnIndex];
             }
         });
-        
-        
 
         channelColumn = secondaryTable.getColumnModel().getColumn(0);
         analysisColumn = secondaryTable.getColumnModel().getColumn(1);
@@ -141,40 +145,35 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         channelColumn.setCellEditor(channelEditor);
         analysisColumn.setCellEditor(analysisEditor);
 
-        ProcessSelectComboBox.setModel(cbm);
-        ProcessSelectComboBox.setVisible(true);
-        
         makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
-        
+
         PreviewButton.setVisible(true);
         PreviewButton.setEnabled(true);
-        
+
         repaint();
         pack();
     }
-    
-    public void updateNewImage(){
-        
-            Point p = new Point();
-            try{
-                p = ThresholdPreview.getWindow().getLocation();
-                ThresholdPreview.close();
-            }
-            catch(NullPointerException e){
-                GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-                p = new Point(gd.getDisplayMode().getWidth()/2, gd.getDisplayMode().getHeight()/2);
-            }
+
+    public void updateNewImage() {
+
+        Point p = new Point();
+        try {
+            p = ThresholdPreview.getWindow().getLocation();
             ThresholdPreview.close();
-            ThresholdPreview = getThresholdPreview();
-            IJ.run(ThresholdPreview, "Grays", "");
-            ThresholdPreview.updateImage();
-            ThresholdPreview.show();
-            ThresholdPreview.getWindow().setLocation(p);
-            
-            mta = new MicroThresholdAdjuster(ThresholdPreview); 
-            mta.addChangeThresholdListener(this);
-        
-        
+        } catch (NullPointerException e) {
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            p = new Point(gd.getDisplayMode().getWidth() / 2, gd.getDisplayMode().getHeight() / 2);
+        }
+        ThresholdPreview.close();
+        ThresholdPreview = getThresholdPreview();
+        IJ.run(ThresholdPreview, "Grays", "");
+        ThresholdPreview.updateImage();
+        ThresholdPreview.show();
+        ThresholdPreview.getWindow().setLocation(p);
+
+        mta = new MicroThresholdAdjuster(ThresholdPreview);
+        mta.addChangeThresholdListener(this);
+
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
@@ -185,92 +184,87 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         mta.doUpdate();
         mta.notifyChangeThresholdListeners(mta.minThreshold, mta.maxThreshold);
         pack();
-        
-}
-    
-    private Object[][] makeDerivedRegionTable(){
+
+    }
+
+    private Object[][] makeDerivedRegionTable() {
         Object[][] CellValues = new Object[this.Channels.size()][4];
-        
+
         System.out.println("PROFILING: Number of channels: " + this.Channels.size());
         //System.out.println("PROFILING: Number of channels: " + this.Channels.size());
-        
-        
-        for(int i = 0; i < this.Channels.size(); i++){
+
+        for (int i = 0; i < this.Channels.size(); i++) {
             CellValues[i][0] = Channels.get(i);
             CellValues[i][1] = "Grow";
             CellValues[i][2] = 2;
         }
         return CellValues;
     }
-    
+
     @Override
-    protected void getSegmentationPreview(){      
-        CurrentStepProtocol = CurrentProcessList;  
-        
+    protected void getSegmentationPreview() {
+        CurrentStepProtocol = CurrentProcessList;
+
         updateProcessVariables();
-        
+
         ThresholdOriginal.setRoi(ThresholdPreview.getRoi());
-        
+
         PreviewProgress.setText("Getting Preview...");
         PreviewButton.setEnabled(false);
-        
+
         SegmentationPreviewer p = new SegmentationPreviewer(ThresholdOriginal, getSettings());
 
         new Thread(p).start();
-        
+
         PreviewButton.setEnabled(true);
         PreviewProgress.setText("");
     }
 
-    
     @Override
-    public void setVisible(boolean b) {    
-        super.setVisible(b); 
-        if(b && !(ThresholdPreview.isVisible())){
-            ThresholdPreview.show(); 
+    public void setVisible(boolean b) {
+        super.setVisible(b);
+        if (b && !(ThresholdPreview.isVisible())) {
+            ThresholdPreview.show();
             ThresholdPreview.setTitle(this.TitleText.getText());
+        } else {
+            ThresholdPreview.hide();
         }
-        else {ThresholdPreview.hide();}
     }
-    
-    
 
     @Override
     protected void updateTitles() {
-         ThresholdPreview.setTitle(TitleText.getText()); 
+        ThresholdPreview.setTitle(TitleText.getText());
     }
-    
-   
+
     @Override
     protected void updateProtocolPanel(java.awt.event.ActionEvent evt) {
-   
-        if(evt.getSource() == ChannelComboBox){
-            
+
+        if (evt.getSource() == ChannelComboBox) {
+
             Point p = new Point();
-            try{
+            try {
                 p = ThresholdPreview.getWindow().getLocation();
                 ThresholdPreview.hide();
-            }
-            catch(NullPointerException e){
+            } catch (NullPointerException e) {
                 GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-                p = new Point(gd.getDisplayMode().getWidth()/2, gd.getDisplayMode().getHeight()/2);
+                p = new Point(gd.getDisplayMode().getWidth() / 2, gd.getDisplayMode().getHeight() / 2);
             }
-            
+
             ThresholdPreview.hide();
             ThresholdPreview = getThresholdPreview();
             IJ.run(ThresholdPreview, "Grays", "");
-            
+
             ThresholdPreview.updateImage();
             ThresholdPreview.show();
             ThresholdPreview.getWindow().setLocation(p);
-            mta = new MicroThresholdAdjuster(ThresholdPreview); 
+            mta = new MicroThresholdAdjuster(ThresholdPreview);
             mta.addChangeThresholdListener(this);
         }
-        
+
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
-        makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
+        makeProtocolPanel((String) ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()));
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
@@ -280,34 +274,28 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     }
 
     @Override
-    protected JPanel makeProtocolPanel(int position) {
-
+    protected JPanel makeProtocolPanel(String str) {
         ArrayList ProcessComponents;
-            
 
-            ProcessComponents = CurrentProcessItems.set(position, makeMethodComponentsArray(position, ProcessVariables));
-            ProcessComponents = CurrentProcessItems.get(position);
-
-        
+        CurrentProcessItems.set(0, makeMethodComponentsArray(str, ProcessVariables));
+        ProcessComponents = CurrentProcessItems.get(0);
 
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
+        methodBuild.removeAll();
+        methodBuild.add(mta.getPanel());
+        mta.removeChangeThresholdListeners();
+        mta.addChangeThresholdListener(this);
 
-            methodBuild.removeAll();
-            methodBuild.add(mta.getPanel());
-            mta.removeChangeThresholdListeners();
-            mta.addChangeThresholdListener(this);
-        
-            layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 0;
-            layoutConstraints.gridy = 0;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
- 
-        
+        layoutConstraints.fill = GridBagConstraints.CENTER;
+        layoutConstraints.gridx = 0;
+        layoutConstraints.gridy = 0;
+        layoutConstraints.weightx = 1;
+        layoutConstraints.weighty = 1;
+
         //MethodDetail
         if (ProcessComponents.size() > 0) {
             layoutConstraints.fill = GridBagConstraints.CENTER;
@@ -370,25 +358,143 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         }
         mta.doUpdate();
         pack();
-        MethodDetails.setVisible(true);    
+        MethodDetails.setVisible(true);
         CurrentProcessList.clear();
         CurrentProcessList.add(cbm.getSelectedItem());
         CurrentProcessList.addAll(ProcessComponents);
         return MethodDetails;
     }
-    
 
-    private ImagePlus getThresholdPreview(){
+    @Override
+    protected JPanel makeProtocolPanel(int position) {
+
+        ArrayList ProcessComponents;
+
+        ProcessComponents = CurrentProcessItems.set(position, makeMethodComponentsArray(position, ProcessVariables));
+        ProcessComponents = CurrentProcessItems.get(position);
+
+        MethodDetails.setVisible(false);
+        MethodDetails.removeAll();
+
+        GridBagConstraints layoutConstraints = new GridBagConstraints();
+
+        methodBuild.removeAll();
+        methodBuild.add(mta.getPanel());
+        mta.removeChangeThresholdListeners();
+        mta.addChangeThresholdListener(this);
+
+        layoutConstraints.fill = GridBagConstraints.CENTER;
+        layoutConstraints.gridx = 0;
+        layoutConstraints.gridy = 0;
+        layoutConstraints.weightx = 1;
+        layoutConstraints.weighty = 1;
+
+        //MethodDetail
+        if (ProcessComponents.size() > 0) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 1;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            MethodDetails.add((Component) ProcessComponents.get(0), layoutConstraints);
+        }
+
+        if (ProcessComponents.size() > 1) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 2;
+            layoutConstraints.gridy = 0;
+
+            MethodDetails.add((Component) ProcessComponents.get(1), layoutConstraints);
+        }
+
+        if (ProcessComponents.size() > 2) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 3;
+            layoutConstraints.gridy = 0;
+
+            MethodDetails.add((Component) ProcessComponents.get(2), layoutConstraints);
+        }
+        if (ProcessComponents.size() > 3) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 4;
+            layoutConstraints.gridy = 0;
+
+            MethodDetails.add((Component) ProcessComponents.get(3), layoutConstraints);
+        }
+        if (ProcessComponents.size() > 4) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 1;
+            layoutConstraints.gridy = 1;
+
+            MethodDetails.add((Component) ProcessComponents.get(4), layoutConstraints);
+        }
+        if (ProcessComponents.size() > 5) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 2;
+            layoutConstraints.gridy = 1;
+
+            MethodDetails.add((Component) ProcessComponents.get(5), layoutConstraints);
+        }
+        if (ProcessComponents.size() > 6) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 3;
+            layoutConstraints.gridy = 1;
+
+            MethodDetails.add((Component) ProcessComponents.get(6), layoutConstraints);
+        }
+        if (ProcessComponents.size() > 7) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 4;
+            layoutConstraints.gridy = 1;
+
+            MethodDetails.add((Component) ProcessComponents.get(7), layoutConstraints);
+        }
+        mta.doUpdate();
+        pack();
+        MethodDetails.setVisible(true);
+        CurrentProcessList.clear();
+        CurrentProcessList.add(cbm.getSelectedItem());
+        CurrentProcessList.addAll(ProcessComponents);
+        return MethodDetails;
+    }
+
+    private ImagePlus getThresholdPreview() {
         ChannelSplitter cs = new ChannelSplitter();
-        ImagePlus imp = new ImagePlus("Threshold "+super.TitleText.getText(),
-        cs.getChannel(ThresholdOriginal,
-        this.ChannelComboBox.getSelectedIndex()+1).duplicate()){};
+        ImagePlus imp = new ImagePlus("Threshold " + super.TitleText.getText(),
+                cs.getChannel(ThresholdOriginal,
+                        this.ChannelComboBox.getSelectedIndex() + 1).duplicate()) {
+        };
         imp.hide();
         return imp;
     }
-    
+
     private int getChannelIndex(String text) {
         return Channels.indexOf(text);
+    }
+
+    @Override
+    protected ArrayList makeMethodComponentsArray(String method, String[][] str) {
+        Object iImp = new Object();
+
+        try {
+            Class<?> c;
+            c = Class.forName(SEGMENTATIONMAP.get(method));
+            Constructor<?> con;
+            try {
+                con = c.getConstructor();
+                iImp = con.newInstance();
+                return ((AbstractSegmentation) iImp).getOptions();
+
+            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        ArrayList result = new ArrayList();
+        return result;
     }
 
     @Override
@@ -425,54 +531,48 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
 
     @Override
     protected ArrayList makeSecondaryComponentsArray(int position) {
-       
+
         ArrayList result = new ArrayList();
 
-   
-            result.add(new JLabel("Min. Size (vox)"));
-            result.add(new JTextField("20"));
-            result.add(new JLabel("Max. Size (vox)"));
-            result.add(new JTextField("100"));
+        result.add(new JLabel("Min. Size (vox)"));
+        result.add(new JTextField("20"));
+        result.add(new JLabel("Max. Size (vox)"));
+        result.add(new JTextField("100"));
 
         return result;
     }
-    
-    public void setProcessedImage(ImagePlus imp){
-        this.ThresholdOriginal = imp;            
-            ThresholdPreview = getThresholdPreview();
-            IJ.run(ThresholdPreview, "Grays", "");
-            
-            ThresholdPreview.updateImage();
 
-            mta.setImagePlus(ThresholdPreview);
-            mta.doUpdate();        
-    }
-    
-    public void cloneMethodComponentsArray(){
-        
+    public void setProcessedImage(ImagePlus imp) {
+        this.ThresholdOriginal = imp;
+        ThresholdPreview = getThresholdPreview();
+        IJ.run(ThresholdPreview, "Grays", "");
+
+        ThresholdPreview.updateImage();
+
+        mta.setImagePlus(ThresholdPreview);
+        mta.doUpdate();
     }
 
-    private void updateProcessVariables()
-    {
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = ((JTextField)CurrentStepProtocol.get(2)).getText();
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][1] = ((JTextField)CurrentStepProtocol.get(4)).getText();
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][2] = ((JTextField)CurrentStepProtocol.get(6)).getText();
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][3] = ((JTextField)CurrentStepProtocol.get(8)).getText();
+    private void updateProcessVariables() {
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = ((JTextField) CurrentStepProtocol.get(2)).getText();
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][1] = ((JTextField) CurrentStepProtocol.get(4)).getText();
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][2] = ((JTextField) CurrentStepProtocol.get(6)).getText();
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][3] = ((JTextField) CurrentStepProtocol.get(8)).getText();
     }
 
     @Override
-    protected void blockSetupOKAction() {       
- 
-        CurrentStepProtocol = CurrentProcessList;        
+    protected void blockSetupOKAction() {
+
+        CurrentStepProtocol = CurrentProcessList;
         updateProcessVariables();
         makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
-        notifyMicroBlockSetupListeners(getSettings());        
+        notifyMicroBlockSetupListeners(getSettings());
         this.setVisible(false);
     }
-    
+
     @Override
     protected void blockSetupCancelAction() {
-   
+
     }
 
     /**
@@ -499,7 +599,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         ArrayList key = new ArrayList();
         ArrayList<ArrayList> result = new ArrayList<ArrayList>();
 
-
         JTextField placeholder;
 
         repeated.add(ChannelComboBox.getSelectedIndex());
@@ -525,8 +624,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
 
             //add primary as first item in list
             result.add(repeated);
-             
-            for(int i = 0; i < secondaryTable.getRowCount(); i++){
+
+            for (int i = 0; i < secondaryTable.getRowCount(); i++) {
                 ArrayList alDerived = new ArrayList();
                 alDerived.add(getChannelIndex(secondaryTable.getValueAt(i, 0).toString()));
                 alDerived.add(getAnalysisTypeInt(i, secondaryTable.getModel()));
@@ -545,8 +644,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             placeholder = (JTextField) CurrentStepProtocol.get(2);
             repeated.add(placeholder.getText());
             result.add(repeated);
-             
-            for(int i = 0; i < secondaryTable.getRowCount(); i++){
+
+            for (int i = 0; i < secondaryTable.getRowCount(); i++) {
                 ArrayList alDerived = new ArrayList();
                 alDerived.add(getChannelIndex(secondaryTable.getValueAt(i, 0).toString()));
                 alDerived.add(getAnalysisTypeInt(i, secondaryTable.getModel()));
@@ -580,99 +679,88 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
             return 0;
         }
     }
- 
-    
+
     @Override
     public void thresholdChanged(double min, double max) {
-        
+
         //max = (this.ThresholdPreview.getProcessor().getMax()/255)*max;
         //min = (this.ThresholdPreview.getProcessor().getMax()/255)*min;
-        
- 
-                
-                
-            double ipmin = ThresholdPreview.getProcessor().getMin();
-            double ipmax = ThresholdPreview.getProcessor().getMax();
-            
-            
-            min = ipmin + (min/255.0)*(ipmax-ipmin);
-            max = ipmin + (max/255.0)*(ipmax-ipmin);
+        double ipmin = ThresholdPreview.getProcessor().getMin();
+        double ipmax = ThresholdPreview.getProcessor().getMax();
 
+        min = ipmin + (min / 255.0) * (ipmax - ipmin);
+        max = ipmin + (max / 255.0) * (ipmax - ipmin);
 
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
-        
+
         ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = String.valueOf(Math.round(min));
-        
-       // if(ProcessSelectComboBox.getSelectedIndex() == 1){
-            
-        if(ProcessSelectComboBox.getSelectedItem().equals("FloodFill 3D")){
+
+        // if(ProcessSelectComboBox.getSelectedIndex() == 1){
+        if (ProcessSelectComboBox.getSelectedItem().equals("FloodFill 3D")) {
             ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][1] = String.valueOf(Math.round(max));
         }
         //ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][2] = ((JTextField)CurrentStepProtocol.get(6)).getText();
         //ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][3] = ((JTextField)CurrentStepProtocol.get(8)).getText();
-        
+
         makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
         pack();
-        
- 
+
     }
-    
 
     @Override
     public void roiModified(ImagePlus ip, int i) {
-        if(ip.getID() == ThresholdPreview.getID()){
-            try{
+        if (ip.getID() == ThresholdPreview.getID()) {
+            try {
                 Roi r = ThresholdPreview.getRoi();
-            }catch(NullPointerException e){
-                
+            } catch (NullPointerException e) {
+
             }
-            
+
         }
     }
 
     @Override
     public void imageOpened(ImagePlus ip) {
- 
+
     }
 
     @Override
     public void imageClosed(ImagePlus ip) {
-    
 
-    if(this.isVisible() && ip.getID() == ThresholdPreview.getID()){
-   
-    JFrame frame = new JFrame();
-    frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
-    Object[] options = {"Yes", "No"};
-        int n = JOptionPane.showOptionDialog(frame,
-        "The threshold preview has been closed.  Reopen?",
-        "Preview closed.",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.QUESTION_MESSAGE,
-        null,
-        options,
-        options[0]);
-        
-        if (n == JOptionPane.YES_OPTION) {
-            ThresholdPreview = getThresholdPreview();
-            mta.setImagePlus(ThresholdPreview);
-            mta.doUpdate();
-           ThresholdPreview.setTitle(TitleText.toString());
-            ThresholdPreview.show();
-        } else {}
-        
-        
+        if (this.isVisible() && ip.getID() == ThresholdPreview.getID()) {
+
+            JFrame frame = new JFrame();
+            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+            Object[] options = {"Yes", "No"};
+            int n = JOptionPane.showOptionDialog(frame,
+                    "The threshold preview has been closed.  Reopen?",
+                    "Preview closed.",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
+
+            if (n == JOptionPane.YES_OPTION) {
+                ThresholdPreview = getThresholdPreview();
+                mta.setImagePlus(ThresholdPreview);
+                mta.doUpdate();
+                ThresholdPreview.setTitle(TitleText.toString());
+                ThresholdPreview.show();
+            } else {
+            }
+
         }
     }
 
     @Override
     public void imageUpdated(ImagePlus ip) {
- 
+
     }
 
     private class channelNumber extends javax.swing.JComboBox {

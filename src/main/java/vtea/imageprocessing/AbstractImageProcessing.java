@@ -21,6 +21,8 @@ import static vtea._vtea.PROCESSINGMAP;
 /**
  *
  * @author sethwinfree
+ * @param <T>
+ * @param <A>
  */
 public abstract class AbstractImageProcessing<T extends Component, A extends RealType>  implements ImageProcessing {
     

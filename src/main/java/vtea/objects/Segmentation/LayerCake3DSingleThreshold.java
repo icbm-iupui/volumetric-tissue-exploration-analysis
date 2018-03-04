@@ -11,6 +11,10 @@ import ij.ImageStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
 import vteaobjects.MicroObject;
 import vtea.objects.layercake.LayerCake3D;
@@ -45,6 +49,16 @@ public LayerCake3DSingleThreshold(){
     KEY = "LayerCake3D";
     
     protocol = new ArrayList();
+    
+            protocol.add(new JLabel("Low Threshold"));
+            protocol.add(new JTextField(0));
+            protocol.add(new JLabel("Centroid Offset"));
+            protocol.add(new JTextField(5));
+            protocol.add(new JLabel("Min Vol (vox)"));
+            protocol.add(new JTextField(20));
+            protocol.add(new JLabel("Max Vol (vox)"));
+            protocol.add(new JTextField(1000));
+    
 }    
 
     
@@ -55,17 +69,19 @@ public LayerCake3DSingleThreshold(ImageStack stack, int[] min, boolean imageOpti
             COMMENT = "Blob-slice algorithm for building objects.";
             NAME = "LayerCake 3D";
             KEY = "LayerCake3D";
+            
+            
+            minConstants = min;
+            
+            // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
+            
 
-            protocol = new ArrayList();
             
-            /**protocol is arraylist of segementation settings.
-             * (0) is the channel the segmentation is based on, as a zero order integer
-             * (1) is the name of the segmentation protocol
-             * (2) is an Arraylist of field names (this should be changed to a hashmap
-             * (3) is an ArrayList of the segmentation settings per the ArrayList in 2
-            **/
+
+
             
-        minConstants = min;
+      
+        
         stackOriginal = stack;
         imageOriginal = new ImagePlus("Mask", stack);
         stackResult = stackOriginal.duplicate();
@@ -131,6 +147,18 @@ public LayerCake3DSingleThreshold(ImageStack stack, int[] min, boolean imageOpti
         minConstants[1] = Integer.parseInt(alprimary.get(fieldnames.indexOf("maxObjectSize") + 3).toString());
         minConstants[2] = Integer.parseInt(alprimary.get(fieldnames.indexOf("minOverlap") + 3).toString());
         minConstants[0] = Integer.parseInt(alprimary.get(fieldnames.indexOf("minObjectSize") + 3).toString());
+        
+//            protocol = new ArrayList();
+//    
+//            protocol.add(new JLabel("Low Threshold"));
+//            protocol.add(new JTextField(0));
+//            protocol.add(new JLabel("Centroid Offset"));
+//            protocol.add(new JTextField(5));
+//            protocol.add(new JLabel("Min Vol (vox)"));
+//            protocol.add(new JTextField(20));
+//            protocol.add(new JLabel("Max Vol (vox)"));
+//            protocol.add(new JTextField(1000));
+    
 
         long start = System.nanoTime();
         
@@ -166,13 +194,6 @@ public LayerCake3DSingleThreshold(ImageStack stack, int[] min, boolean imageOpti
         System.out.println("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getRegionsCount() + " regions.");
         IJ.log("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getRegionsCount() + " regions.");
         Volumes = builderVolumes.getVolumesAsList();
-
-
-    }
-    
-    @Override
-    public ArrayList getOptions() {
-        return protocol;
     }
     
     @Override

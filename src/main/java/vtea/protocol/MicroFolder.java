@@ -73,7 +73,7 @@ public class MicroFolder extends java.lang.Object implements Runnable {
     
     
     
-    
+    //rewrite this to decided on class by mask(1)
 
     public void process() {
 

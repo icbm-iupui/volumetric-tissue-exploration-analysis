@@ -46,7 +46,7 @@ import org.jfree.chart.title.PaintScaleLegend;
 import org.jfree.data.xy.DefaultXYZDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYZDataset;
-import org.jfree.ui.RectangleEdge;
+import org.jfree.chart.ui.RectangleEdge;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
@@ -234,24 +234,25 @@ public class XYChartPanel implements RoiListener {
         
         psl = new PaintScaleLegend(ps, lAxis);
         psl.setBackgroundPaint(vtea._vtea.BACKGROUND);
+        
         psl.setPosition(RectangleEdge.RIGHT);
         psl.setMargin(4, 4, 40, 4);
         psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         
         } else {
-            
-            renderer.setBaseFillPaint(TENPERCENT);
+            renderer.setDefaultFillPaint(TENPERCENT);
+            //renderer.setBaseFillPaint(TENPERCENT);
         }
         
         Ellipse2D shape = new Ellipse2D.Double(0, 0, size, size);
         Ellipse2D shapeGate = new Ellipse2D.Double(-2, -2, size + 4, size + 4);
       
-
-        renderer.setBaseShape(shape);
+        renderer.setDefaultShape(shape);
+        //renderer.setBaseShape(shape);
         
         
-        
-        rendererGate.setBaseShape(shapeGate);
+        rendererGate.setDefaultShape(shapeGate);
+        //rendererGate.setBaseShape(shapeGate);
 
         NumberAxis xAxis = new NumberAxis("");
         NumberAxis yAxis = new NumberAxis("");

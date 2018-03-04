@@ -41,6 +41,8 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     
     protected ArrayList<T> protocol= new ArrayList();
     
+    protected ArrayList<Integer> defaultValues = new ArrayList();
+    
             /**protocol is arraylist of segementation settings.
              * (0) is the channel the segmentation is based on, as a zero order integer
              * (1) is the name of the segmentation protocol
@@ -48,7 +50,9 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
              * (3) is an ArrayList of the segmentation settings per the ArrayList in 2
             **/
     
-    protected ArrayList buildtool = new ArrayList();
+    //protected ArrayList<T> protocol = new ArrayList();
+    
+    protected ArrayList buildtool = new ArrayList();  //right this is where I am...
 
     
     @Override
@@ -136,5 +140,10 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     @Override
     public ArrayList getBuildOptions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ArrayList getDefaultValues() {
+        return defaultValues;
     }
 }
