@@ -14,17 +14,27 @@
 
     <groupId>icbm-iupui</groupId>
     <artifactId>vtea</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.4.30-SNAPSHOT</version>
 
 
     <name>VTEA_SciJava</name>
     <description>Volumetric analysis</description>
+    
+    <properties>
+        <clearcl.version>0.3.6</clearcl.version>
+        <cleargl.version>1.0.18</cleargl.version>
+        <clearvolume.version>1.3.20</clearvolume.version>
+        <CoreMem.version>0.3.2</CoreMem.version>
+        <enforcer.skip>true</enforcer.skip>
+        <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+        <netbeans.hint.license>gpl20</netbeans.hint.license>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-            <version>1.51n</version>
+            <version>1.51s</version>
             <type>jar</type>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.imagej/imagej-ui-swing -->
@@ -39,14 +49,24 @@
             <version>1.0.3</version>
         </dependency>
         <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.0.17</version>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>4.1</version>
+        </dependency>
+        <dependency>
+             <groupId>org.jfree</groupId>
+             <artifactId>jfreechart</artifactId>
+             <version>1.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.jfree</groupId>
             <artifactId>jcommon</artifactId>
             <version>1.0.21</version>
+        </dependency>
+        <dependency>
+	<groupId>hsqldb</groupId>
+	<artifactId>hsqldb</artifactId>
+	<version>1.8.0.10</version>
         </dependency>
         <dependency>
             <groupId>org.swinglabs</groupId>
@@ -69,33 +89,39 @@
             <artifactId>eclipselink</artifactId>
             <version>2.5.1</version>
         </dependency>
+        
         <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2</artifactId>
             <version>3.2.1</version>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>org.scijava</groupId>
             <artifactId>scijava-common</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2-ij</artifactId>
             <version>2.0.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij-ui-swing</artifactId>
             <version>2.0.0-beta-8.2-SNAPSHOT</version>
             <type>jar</type>
-        </dependency>	
+        </dependency>
+        	
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>imagej</artifactId>
             <version>2.0.0-rc-55</version>
-        </dependency>	
+        </dependency>
+        	
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>imagej-deprecated</artifactId>
@@ -126,6 +152,36 @@
             <groupId>org.rosuda.REngine</groupId>
             <artifactId>Rserve</artifactId>
             <version>1.8.1</version>
+            <type>jar</type>
+        </dependency>
+        
+        <!-- ClearVolume dependencies -->
+        <dependency>
+            <groupId>net.clearvolume</groupId>
+            <artifactId>clearvolume</artifactId>
+            <version>${clearvolume.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.apple</groupId>
+                    <artifactId>AppleJavaExtensions</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.coremem</groupId>
+            <artifactId>CoreMem</artifactId>
+            <version>${CoreMem.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jogamp.jogl</groupId>
+            <artifactId>newt</artifactId>
+            <version>2.3.2</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jogamp.jogl</groupId>
+            <artifactId>jogl-all</artifactId>
+            <version>2.3.2</version>
             <type>jar</type>
         </dependency>
     </dependencies>
@@ -195,6 +251,14 @@
         </plugins>
     </build>  
     <pluginRepositories>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-clearcontrol-ClearControl</id>
+            <name>bintray-plugins</name>
+            <url>http://dl.bintray.com/clearcontrol/ClearControl</url>
+        </pluginRepository>
 
     </pluginRepositories>  
     <developers>
@@ -215,6 +279,24 @@
 
     <!-- NB: for project parent -->
     <repositories>
+        <repository>
+            <id>bintray-CoreMem</id>
+            <name>bintray</name>
+            <url>https://dl.bintray.com/clearcontrol/ClearControl</url>
+        </repository>
+        <repository>
+            <id>bintray-clearvolume-ClearVolume</id>
+            <name>bintray</name>
+            <url>https://dl.bintray.com/clearvolume/ClearVolume</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-clearcontrol-ClearControl</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/clearcontrol/ClearControl</url>
+        </repository>
         <repository>
             <id>imagej.releases</id>
             <url>http://maven.imagej.net/content/repositories/releases</url>
@@ -240,7 +322,4 @@
         <tag>HEAD</tag>
         <url>https://github.com/imagej/minimal-ij1-plugin</url>
     </scm>
-    <properties>
-        <netbeans.hint.license>gpl20</netbeans.hint.license>
-    </properties>
 </project>
