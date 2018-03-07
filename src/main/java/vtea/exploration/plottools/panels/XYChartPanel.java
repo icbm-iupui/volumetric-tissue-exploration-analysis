@@ -123,7 +123,7 @@ public class XYChartPanel implements RoiListener {
 
     public void process(int x, int y, int l, String xText, String yText, String lText) {
 
-        chartPanel = createChart(x, y, l, xText, yText, lText, imageGateOutline);
+        chartPanel = createChart(x, y, l, xText, yText, lText, new Color(255, 255, 255, 255));
         JFrame f = new JFrame(title);
         f.setTitle(title);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -135,7 +135,7 @@ public class XYChartPanel implements RoiListener {
         chartPanel.setDomainZoomable(false);
         chartPanel.setRangeZoomable(false);
         chartPanel.setPreferredSize(new Dimension(550, 485));
-        chartPanel.setBackground(new Color(0, 0, 0, 0));
+        chartPanel.setBackground(new Color(255, 255, 255, 255));
         chartPanel.revalidate();
         chartPanel.repaint();
         //chartPanel.set
@@ -229,11 +229,14 @@ public class XYChartPanel implements RoiListener {
         ps.add(max, XYChartPanel.ALLPERCENT);
         
         
-        NumberAxis lAxis = new NumberAxis(lText);
+        NumberAxis lAxis = new NumberAxis();
+        
         lAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         
+        
+        
         psl = new PaintScaleLegend(ps, lAxis);
-        psl.setBackgroundPaint(vtea._vtea.BACKGROUND);
+        psl.setBackgroundPaint(new Color(255, 255, 255, 255));
         
         psl.setPosition(RectangleEdge.RIGHT);
         psl.setMargin(4, 4, 40, 4);
@@ -264,6 +267,8 @@ public class XYChartPanel implements RoiListener {
         
         plot.getDomainAxis();
         plot.getRangeAxis();
+        
+        
 
         plot.setDomainPannable(false);
         plot.setRangePannable(false);
@@ -312,7 +317,7 @@ public class XYChartPanel implements RoiListener {
 
         chart.removeLegend();
 
-
+        chart.setBackgroundPaint(new Color(255, 255, 255, 255));
         
         //LUT 
         if(l > 0)chart.addSubtitle(psl);
@@ -350,8 +355,6 @@ public class XYChartPanel implements RoiListener {
         return high.longValue() - low.longValue();
 
     }
-    
-    
 
     private double getMaximumOfData(ArrayList alVolumes, int x) {
 
@@ -395,7 +398,7 @@ public class XYChartPanel implements RoiListener {
     }
 
     private DefaultXYZDataset createXYZDataset(ArrayList alVolumes, int x, int y, int l) {
-        //System.out.println("PROFILING: New dataset, for  " + alVolumes.size() + " objects.");
+        
         DefaultXYZDataset result = new DefaultXYZDataset();
         int counter = 0;
 
@@ -406,7 +409,6 @@ public class XYChartPanel implements RoiListener {
         ListIterator litr = alVolumes.listIterator();
 
         while (litr.hasNext()) {
-//            try {
             MicroObjectModel volume = (MicroObjectModel) litr.next();
             xCorrected[counter] = processPosition(x, volume).doubleValue();
             yCorrected[counter] = processPosition(y, volume).doubleValue();
@@ -417,10 +419,7 @@ public class XYChartPanel implements RoiListener {
             }
 
             counter++;
-//            } 
-//            catch (NullPointerException e) {
-//                System.out.println("EXCEPTION:  Error building dataset.");
-//            }
+
         }
 
         double[][] series = new double[][]{xCorrected, yCorrected, lCorrected};
@@ -508,7 +507,7 @@ public class XYChartPanel implements RoiListener {
     }
 
     public void addUpdatePlotWindowListener(UpdatePlotWindowListener listener) {
-        //System.out.println("PROFILING: Added listener");
+
         UpdatePlotWindowListeners.add(listener);
     }
 
@@ -518,7 +517,5 @@ public class XYChartPanel implements RoiListener {
             listener.onUpdatePlotWindow();
         }
     }
-    
-   
 
 }

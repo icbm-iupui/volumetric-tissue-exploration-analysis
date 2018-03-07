@@ -70,8 +70,8 @@ public interface Gate {
     
     public void setColorizedGateOverlayStack(ImageStack is);
 
-     public ImageStack getGateOverlayStack();
+    public ImageStack getGateOverlayStack();
      
-      public ImageStack getColorizedGateOverlayStack();
+    public ImageStack getColorizedGateOverlayStack();
      
 }

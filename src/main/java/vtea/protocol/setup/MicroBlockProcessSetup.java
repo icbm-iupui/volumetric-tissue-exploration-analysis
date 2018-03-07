@@ -58,6 +58,7 @@ import static vtea._vtea.PROCESSINGOPTIONS;
 import vtea.imageprocessing.AbstractImageProcessing;
 import vtea.processor.ImageProcessingProcessor;
 import vtea.protocol.datastructure.ImageProcessingProtocol;
+import vteaexploration.PlotAxesSetup;
 
 /**
  *
@@ -604,7 +605,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             
             doPreview(currentSlice);
         } else if (e.getSource() == ProcessSelectComboBox) {
-            System.out.println("PROFILING: Process position: " + this.ProcessSelectComboBox.getSelectedIndex());
+            //System.out.println("PROFILING: Process position: " + this.ProcessSelectComboBox.getSelectedIndex());
             currentSlice = sliceSlider.getValue();
             updateProtocolPanel(e);
             doPreview(currentSlice);

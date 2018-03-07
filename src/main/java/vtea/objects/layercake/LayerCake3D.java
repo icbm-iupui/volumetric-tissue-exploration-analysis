@@ -22,16 +22,11 @@ import ij.*;
 import ij.process.*;
 import java.util.*;
 import ij.ImagePlus;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-//import org.apache.commons.math.linear.MatrixUtils;
-import org.apache.commons.math3.linear.MatrixUtils;
+
 
 public class LayerCake3D implements Cloneable, java.io.Serializable {
 
@@ -672,6 +667,12 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             if (alVolumes.size() < processors) {
                 length = alVolumes.size();
             }
+            
+            if (length > processors){
+                length = processors;
+            }
+            
+            //System.out.println("PROFILING: Derived region calculation on " + length + " threads.");
 
             //System.out.println("PROFILING-DETAILS: Derived Regions Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
             if (stop - start > length) {
