@@ -27,6 +27,7 @@ import ij.ImageStack;
     import java.awt.geom.Path2D;
     import java.awt.geom.Point2D;
     import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
     import java.util.ArrayList;
     import java.util.ListIterator;
     import org.jfree.chart.ChartPanel;
@@ -36,7 +37,7 @@ import ij.ImageStack;
     *
     * @author vinfrais
     */
-    public class PolygonGate extends Component implements Gate{
+    public class PolygonGate extends Component implements Gate {
 
     private ArrayList<Point2D.Double> vertices = new ArrayList<Point2D.Double>();
     private ArrayList<Point2D.Double> verticesInChartSpace = new ArrayList<Point2D.Double>();
@@ -59,13 +60,8 @@ import ij.ImageStack;
     vertices = points;
     path = createPath2D();
     boundingbox = path.getBounds2D();
-    //System.out.println("Polygon gate points: " + vertices);
-    //System.out.println("Bounding box: " + boundingbox);
-    //System.out.println("Path: " + path);
-
     this.setFocusable(true);
-    //Point getBoundingAnchor();
-
+ 
     }
 
     public Point getBoundingAnchor() {
@@ -116,6 +112,7 @@ import ij.ImageStack;
         xChartPoint = plot.getDomainAxis().java2DToValue(x1Points[index], plotArea, plot.getDomainAxisEdge());
         yChartPoint = plot.getRangeAxis().java2DToValue(y1Points[index], plotArea, plot.getRangeAxisEdge());
 
+        
         this.verticesInChartSpace.add(new Point2D.Double(xChartPoint, yChartPoint));
     }
 

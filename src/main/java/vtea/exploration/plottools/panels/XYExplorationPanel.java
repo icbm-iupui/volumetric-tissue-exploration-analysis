@@ -39,24 +39,49 @@ import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 import javax.swing.UIManager;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.axis.LogAxis;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.util.LogFormat;
 import vtea._vtea;
 import vteaexploration.IJ1Projector;
 import vtea.exploration.listeners.PlotUpdateListener;
@@ -74,6 +99,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
     XYChartPanel cpd;
     private boolean useGlobal = false;
+    private boolean useCustom = false;
     int selected = 0;
     int gated = 0;
     
@@ -102,8 +128,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
         Gate gate;
         ListIterator<Gate> gate_itr = gates.listIterator();
-        
-
 
         int total = 0;
         int gated = 0;
@@ -379,36 +403,44 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     public XYChartPanel getXYChartPanel() {
         return cpd;
     }
+    
+    
 
     @Override
     public JPanel addPlot(int x, int y, int l, int size, String xText, String yText, String lText) {
-
         currentX = x;
         currentY = y;
         currentL = l;       
         pointsize = size;
         CenterPanel.removeAll();
-
-        //setup chart values
-        
-        //System.out.println("PROFILING: Selected objects: " +  getSelectedObjects() + " and " + getGatedObjects(this.impoverlay) + " gated.");
-        
+ 
         cpd = new XYChartPanel(plotvalues, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
-        //if(imageGate){cpd.roiCreated(impoverlay);}
+        
         cpd.addUpdatePlotWindowListener(this);
-        //cpd.setOverlayImage(impoverlay);
+        
         chart = cpd.getChartPanel();
         chart.setOpaque(false);
         
-        if(this.useGlobal){
+        if(useGlobal){
             cpd.setChartPanelRanges(XYChartPanel.XAXIS, cpd.xMin, cpd.xMax);
             cpd.setChartPanelRanges(XYChartPanel.YAXIS, cpd.yMin, cpd.yMax);
-        } 
-        
+        }
+ 
+        if(useCustom){
+            
+            XYPlot plot = (XYPlot)cpd.getChartPanel().getChart().getPlot();
+            
+            cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0), AxesLimits.get(1));
+            cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2), AxesLimits.get(3));
+           
+            if(!xScaleLinear){plot.setDomainAxis(new LogAxis(""));}
+            if(!yScaleLinear){plot.setRangeAxis(new LogAxis(""));}
+        }
+
 
         //setup chart layer
         CenterPanel.setOpaque(false);
-        CenterPanel.setBackground(new Color(0, 0, 0, 0));
+        CenterPanel.setBackground(new Color(255, 255, 255, 255));
         CenterPanel.setPreferredSize(chart.getPreferredSize());
 
         //add overlay 
@@ -416,8 +448,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         gl.addPolygonSelectionListener(this);
         gl.addImageHighLightSelectionListener(this);
         gl.msActive = false;
-
-       // this.gates = new ArrayList();
+       
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates);
         gjlayer.setLocation(0, 0);
         CenterPanel.add(gjlayer);
@@ -425,36 +456,38 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         repaint();
         pack();
         
-        makeOverlayImage(gates, 0, 0, currentX, currentY);
-        //makeColorizedOverlayImage(gates, 0, 0, currentX, currentY);
+        //addExplorationGroup();
+
         return CenterPanel;
     }
     
     @Override
     public void addExplorationGroup() {
         ArrayList al = new ArrayList();
-        al.add(currentX + "_" + currentY + "_" + currentL);
-        al.add(this.chart);
+        al.add(currentX + "_" + currentY + "_" + currentL);  
+        al.add(this.cpd);
         al.add(gl.getGates());
         ExplorationItems.add(al);
     }
 
     @Override
     public void updatePlot(int x, int y, int l, int size) {
-        if (!(isMade(currentX, currentY, currentL, size))) {
-            addExplorationGroup();
-        }
+//        if (!(isMade(currentX, currentY, currentL, size))) {
+//            addExplorationGroup();
+//        }
+        
         String lText = "";
         if(l < 0){
             lText = "";
         }else{
             lText = hm.get(l);
         }
-        if (!(isMade(x, y, l, size))) {
+//        if (!(isMade(x, y, l, size))) {
             addPlot(x, y, l, size, hm.get(x), hm.get(y), lText);
-        } else { 
-            showPlot(x, y, l, size, hm.get(x), hm.get(y), lText);  
-        }
+//        } else { 
+//            showPlot(x, y, l, size, hm.get(x), hm.get(y), lText); 
+//            System.out.println("Showing not adding!");
+//        }
     }
 
     @Override
@@ -515,8 +548,19 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         this.chart = (ChartPanel) current.get(1);
         this.gates = (ArrayList) current.get(2);
         this.chart.setOpaque(false);
+        
+        if(this.useGlobal){
+            cpd.setChartPanelRanges(XYChartPanel.XAXIS, cpd.xMin, cpd.xMax);
+            cpd.setChartPanelRanges(XYChartPanel.YAXIS, cpd.yMin, cpd.yMax);
+        }
+        
+        if(this.useCustom){
+            cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0), AxesLimits.get(1));
+            cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2), AxesLimits.get(3));
+        }
+
         CenterPanel.setOpaque(false);
-        CenterPanel.setBackground(new Color(0, 0, 0, 0));
+        CenterPanel.setBackground(new Color(255, 255, 255,255));
         CenterPanel.setPreferredSize(chart.getPreferredSize());
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates);
         gjlayer.setLocation(0, 0);
@@ -575,16 +619,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
     @Override
     public void onChangeAxes(int x, int y, int l, int size, boolean imagegate) {
-        if (!(isMade(currentX, currentY, currentL, size))) {
-            addExplorationGroup();
-        }
-        if (!(isMade(x, y, l, size))) {
+//        if (!(isMade(currentX, currentY, currentL, size))) {
+//            addExplorationGroup();
+//        }
+//        if (!(isMade(x, y, l, size))) {
             addPlot(x, y, l, size, hm.get(x), hm.get(y), hm.get(l));
             //System.out.println("Change Axes, new plot: " + x + ", " + y + ", " + l);
-        } else {
-            showPlot(x, y, l, size,  hm.get(x), hm.get(y), hm.get(l));
-            //System.out.println("Change Axes: " + x + ", " + y + ", " + l);
-        }
+//        } else {
+//            showPlot(x, y, l, size,  hm.get(x), hm.get(y), hm.get(l));
+//            //System.out.println("Change Axes: " + x + ", " + y + ", " + l);
+//        }
     }
 
     @Override
@@ -627,7 +671,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
         //setup chart layer
         CenterPanel.setOpaque(false);
-        CenterPanel.setBackground(new Color(0, 0, 0, 0));
+        CenterPanel.setBackground(new Color(255, 255, 255, 255));
         CenterPanel.setPreferredSize(chart.getPreferredSize());
 
         //add overlay 
@@ -722,33 +766,49 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
        ImagePlus merged = mergeChannels(images, true);  
        merged.setDisplayMode(IJ.COMPOSITE);
         merged.show();
-        IJ1Projector projection = new IJ1Projector(merged);
-        return projection.getProjection();  
+        return merged;
+//        IJ1Projector projection = new IJ1Projector(merged);
+//        return projection.getProjection();  
     }
 
     @Override
     public void onPasteGate() {
-               this.getParent().validate();
+        this.getParent().validate();
         this.getParent().repaint();
     }
 
     @Override
-    public void setAxesToCurrent() {   
+    public void setAxesToCurrent() { 
+        useCustom = false;
         XYPlot plot = (XYPlot)cpd.getChartPanel().getChart().getPlot();
         XYChartPanel.xMin = plot.getDomainAxis().getLowerBound();
         XYChartPanel.xMax = plot.getDomainAxis().getUpperBound();
         XYChartPanel.yMin = plot.getRangeAxis().getLowerBound();
         XYChartPanel.yMax = plot.getRangeAxis().getUpperBound();     
     }
+    
+    @Override
+    public void setCustomRange(boolean state){
+        useCustom = state;
+    }
+    
+    @Override
+    public void setAxesTo(ArrayList al, boolean x, boolean y) {
+       AxesLimits = al;
+       xScaleLinear = x;
+       yScaleLinear = y;
+       useCustom = true;
+    }
 
     @Override
     public void setGlobalAxes(boolean state) {
-        this.useGlobal = state;
+        useGlobal = state;
+        useCustom = false;
     }
 
     @Override
     public boolean getGlobalAxes() {
-        return this.useGlobal;
+        return useGlobal;
     }
 
     @Override
@@ -831,4 +891,161 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     @Override
     public void windowDeactivated(WindowEvent e) {
     }
+
+    @Override
+    public ArrayList<Component>  getSettingsContent() {
+        ArrayList<Component> al = new ArrayList();
+        
+        XYPlot plot = (XYPlot)cpd.getChartPanel().getChart().getPlot();
+        
+        String[] cOptions = new String[2];
+        
+        cOptions[0] = "Lin";
+        cOptions[1] = "Log";
+        
+        
+        
+        
+        JComboBox j = new JComboBox(new DefaultComboBoxModel(cOptions));
+        
+ 
+        
+        al.add(new JLabel("X min"));
+        al.add(new JTextField(String.valueOf(plot.getDomainAxis().getLowerBound())));
+        al.add(new JLabel("X max"));
+        al.add(new JTextField(String.valueOf(plot.getDomainAxis().getUpperBound())));
+        al.add(new JComboBox(new DefaultComboBoxModel(cOptions)));
+        al.add(new JLabel("Y min"));
+        al.add(new JTextField(String.valueOf(plot.getRangeAxis().getLowerBound())));
+        al.add(new JLabel("Y max"));
+        al.add(new JTextField(String.valueOf(plot.getRangeAxis().getUpperBound())));
+        al.add(new JComboBox(new DefaultComboBoxModel(cOptions)));
+
+        return al;
+        
+    }
+
+    @Override
+    public BufferedImage getBufferedImage() {
+        Color color = CenterPanel.getBackground();
+        
+        
+        
+        BufferedImage image = new BufferedImage(CenterPanel.getWidth(), CenterPanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        CenterPanel.paint(image.getGraphics());
+        
+        JFrame j = new JFrame();
+        
+         JFileChooser jf = new JFileChooser(new File("untitled.png"));          
+            int returnVal = jf.showSaveDialog(CenterPanel);
+            File file = jf.getSelectedFile(); 
+
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                
+                try{
+ 
+            try{               
+            ImageIO.write(image, "png", file);
+            }catch(IOException e){}      
+        }catch(NullPointerException ne){}
+                
+    } else {}
+    
+       
+        
+//        try {
+//        File outputfile = new File("saved.png");
+//        ImageIO.write(image, "png", outputfile);
+//}       catch (IOException ex) {
+//            Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
+//        }       
+    
+        
+        
+        return image;
+    }
+
+    @Override
+    public void exportGates() {
+            ExportGates eg = new ExportGates();
+            
+            ArrayList<ArrayList<Point2D.Double>> al = new ArrayList();
+            
+            ListIterator<Gate> itr = gates.listIterator();
+            while(itr.hasNext()){
+                Gate gt = itr.next();
+                al.add(gt.getGateAsPoints());
+            }            
+            eg.export(al);
+    }
+    
+    @Override
+    public void importGates() {     
+            ImportGates ig = new ImportGates();
+
+            ArrayList<ArrayList<Point2D.Double>> al  = ig.importGates();
+            
+            ListIterator<ArrayList<Point2D.Double>> itr = al.listIterator();
+            
+            while(itr.hasNext()){
+                ArrayList<Point2D.Double> alp = itr.next();
+                PolygonGate pg = new PolygonGate(alp);
+                pg.createInChartSpace(this.chart);
+                gates.add(pg);
+            }
+    }
+    
+    class ExportGates {
+
+        public ExportGates() {}
+
+        public void export(ArrayList<ArrayList<Point2D.Double>> al) {
+          
+            JFileChooser jf = new JFileChooser("untitled.vtg");          
+            int returnVal = jf.showSaveDialog(CenterPanel);
+            File file = jf.getSelectedFile();
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                try{
+                    try{
+                        FileOutputStream fos = new FileOutputStream(file);
+                        ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(al);
+			oos.close();
+                        }catch(IOException e){  System.out.println("ERROR: IOException in Gate Export" + e);}
+                }catch(NullPointerException ne){  System.out.println("ERROR: NPE in Gate Export");}
+            } else {}
+        } 
+        
+    }
+
+
+    class ImportGates {
+
+        public ImportGates() {}
+
+        protected ArrayList<ArrayList<Point2D.Double>> importGates() {
+          
+            JFileChooser jf = new JFileChooser();          
+            int returnVal = jf.showOpenDialog(CenterPanel);
+            File file = jf.getSelectedFile(); 
+           
+            ArrayList<ArrayList<Point2D.Double>> result = new ArrayList();
+            
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                try{
+            try{     
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            result = (ArrayList<ArrayList<Point2D.Double>>) ois.readObject();
+            ois.close();
+            }catch(IOException e){ System.out.println("ERROR: IOException in Gate import");}
+            }catch(ClassNotFoundException ne){ System.out.println("ERROR: Not Found in Gate Export");}            
+            } else {}
+            return result;
+        } 
+        
+    }
+  
+
+
 }
