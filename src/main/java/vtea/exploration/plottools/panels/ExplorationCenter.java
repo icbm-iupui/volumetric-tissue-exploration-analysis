@@ -18,6 +18,8 @@
 package vtea.exploration.plottools.panels;
 
 import ij.ImagePlus;
+import java.awt.Component;
+import java.awt.image.BufferedImage;
 import vtea.exploration.plotgatetools.gates.Gate;
 import vtea.exploration.plotgatetools.gates.MicroSelection;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
@@ -83,11 +85,18 @@ public interface ExplorationCenter {
     
     public int getGatedSelected(ImagePlus ip);
     
+    
     public void setGatedOverlay(ImagePlus ip);
     
     public void setAxesToCurrent();
     
+    public void setAxesTo(ArrayList<Double> al, boolean x, boolean y);
+    
+    public void setCustomRange(boolean state);
+    
     public void setGlobalAxes(boolean state);
+    
+    public ArrayList<Component> getSettingsContent();
     
     public boolean getGlobalAxes();
     
@@ -100,4 +109,10 @@ public interface ExplorationCenter {
     public void addResetSelectionListener(ResetSelectionListener listener);
 
     public void notifyResetSelectionListeners();
+    
+    public BufferedImage getBufferedImage();
+    
+    public void exportGates();
+    
+    public void importGates();
 }
