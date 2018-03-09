@@ -451,7 +451,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
     public void makeRectangleGate() throws Throwable {
         this.msRectangle = false;
-        notifyPolygonSelectionListeners(points);
+        notifyPolygonSelectionListeners(points);    
         this.points.clear();
         this.finalize();
     }

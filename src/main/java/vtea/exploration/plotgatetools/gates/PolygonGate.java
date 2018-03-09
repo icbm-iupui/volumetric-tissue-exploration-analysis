@@ -58,6 +58,7 @@ import java.io.Serializable;
     public PolygonGate(ArrayList<Point2D.Double> points) {
     super();
     vertices = points;
+    System.out.println("PROFILING: PolygonGate: " + vertices);
     path = createPath2D();
     boundingbox = path.getBounds2D();
     this.setFocusable(true);

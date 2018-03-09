@@ -86,6 +86,7 @@ import vtea._vtea;
 import vteaexploration.IJ1Projector;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
+import vtea.exploration.plotgatetools.gates.GateImporter;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vteaobjects.MicroObject;
@@ -443,7 +444,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         CenterPanel.setBackground(new Color(255, 255, 255, 255));
         CenterPanel.setPreferredSize(chart.getPreferredSize());
 
-        //add overlay 
+        //add o verlay 
         this.gl = new GateLayer();
         gl.addPolygonSelectionListener(this);
         gl.addImageHighLightSelectionListener(this);
@@ -602,7 +603,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     public void polygonGate(ArrayList points) {
         PolygonGate pg = new PolygonGate(points);
         pg.createInChartSpace(chart);
+        if(pg.getGateAsPoints().size() == 0) System.out.println("PROFILING: What happened to my points?");
         gates.add(pg);
+        System.out.println("PROFILING: in gate arraylist: " + gates.get(gates.lastIndexOf(pg)).getGateAsPoints());
+        
         this.notifyResetSelectionListeners();
     }
     
@@ -970,28 +974,30 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             ExportGates eg = new ExportGates();
             
             ArrayList<ArrayList<Point2D.Double>> al = new ArrayList();
+
             
-            ListIterator<Gate> itr = gates.listIterator();
-            while(itr.hasNext()){
-                Gate gt = itr.next();
-                al.add(gt.getGateAsPoints());
-            }            
+            for(int i = 0; i < gates.size(); i++)
+                {
+                al.add(gates.get(i).getGateAsPointsInChart());  //this is returning the Point2D.doubles from the polygongate
+                System.out.println("PROFILING: Gate export java points: " + gates.get(i).getGateAsPoints());
+                System.out.println("PROFILING: Gate export points in chart: " + gates.get(i).getGateAsPointsInChart());
+                }            
             eg.export(al);
+            System.out.println("PROFILING: Export ArrayList size: "+ al.size());        
     }
     
     @Override
     public void importGates() {     
             ImportGates ig = new ImportGates();
-
             ArrayList<ArrayList<Point2D.Double>> al  = ig.importGates();
-            
-            ListIterator<ArrayList<Point2D.Double>> itr = al.listIterator();
+            System.out.println("PROFILING: Import ArrayList size: "+ al.size());
+            ListIterator itr = al.listIterator();
             
             while(itr.hasNext()){
-                ArrayList<Point2D.Double> alp = itr.next();
-                PolygonGate pg = new PolygonGate(alp);
-                pg.createInChartSpace(this.chart);
-                gates.add(pg);
+                ArrayList<Point2D.Double> al1 = new ArrayList();
+                al1 = (ArrayList<Point2D.Double>)itr.next();
+                System.out.println("PROFILING: Polygon size: "+ al1.size());
+                gl.notifyPolygonSelectionListeners(GateImporter.importGates(al1, chart));
             }
     }
     
@@ -1004,6 +1010,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             JFileChooser jf = new JFileChooser("untitled.vtg");          
             int returnVal = jf.showSaveDialog(CenterPanel);
             File file = jf.getSelectedFile();
+            System.out.println("PROFILING: Number of gates exporting: "+ al.size());
+            System.out.println("PROFILING: Gate polygon size: " + al.get(0).size());
             if(returnVal == JFileChooser.APPROVE_OPTION) {
                 try{
                     try{
