@@ -422,20 +422,47 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         chart = cpd.getChartPanel();
         chart.setOpaque(false);
         
+        XYPlot plot = (XYPlot)cpd.getChartPanel().getChart().getPlot();
+        
         if(useGlobal){
             cpd.setChartPanelRanges(XYChartPanel.XAXIS, cpd.xMin, cpd.xMax);
             cpd.setChartPanelRanges(XYChartPanel.YAXIS, cpd.yMin, cpd.yMax);
+            
+            if(!XYChartPanel.xLinear){
+                LogAxis xcLog = new LogAxis();
+                xcLog.setRange(cpd.xMin, cpd.xMax);
+                xcLog.setMinorTickCount(9);
+                plot.setDomainAxis(xcLog);
+            }
+            if(!XYChartPanel.yLinear){
+                LogAxis ycLog = new LogAxis();
+                ycLog.setRange(cpd.yMin, cpd.yMax);
+                ycLog.setMinorTickCount(9);
+                plot.setRangeAxis(ycLog);
+            }
         }
  
         if(useCustom){
             
-            XYPlot plot = (XYPlot)cpd.getChartPanel().getChart().getPlot();
+            
             
             cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0), AxesLimits.get(1));
             cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2), AxesLimits.get(3));
-           
-            if(!xScaleLinear){plot.setDomainAxis(new LogAxis(""));}
-            if(!yScaleLinear){plot.setRangeAxis(new LogAxis(""));}
+            
+
+            if(!xScaleLinear){
+                LogAxis xcLog = new LogAxis();
+//                xcLog.setRange(AxesLimits.get(0), AxesLimits.get(1));
+                xcLog.setMinorTickCount(9);
+                plot.setDomainAxis(xcLog);
+            }
+            if(!yScaleLinear){
+                LogAxis ycLog = new LogAxis();
+//                ycLog.setRange(AxesLimits.get(2), AxesLimits.get(3));
+                ycLog.setMinorTickCount(9);
+                plot.setRangeAxis(ycLog);
+            }
+
         }
 
 
@@ -788,7 +815,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         XYChartPanel.xMin = plot.getDomainAxis().getLowerBound();
         XYChartPanel.xMax = plot.getDomainAxis().getUpperBound();
         XYChartPanel.yMin = plot.getRangeAxis().getLowerBound();
-        XYChartPanel.yMax = plot.getRangeAxis().getUpperBound();     
+        XYChartPanel.yMax = plot.getRangeAxis().getUpperBound();  
+        
+        XYChartPanel.xLinear = xScaleLinear;
+        XYChartPanel.yLinear = yScaleLinear;
     }
     
     @Override

@@ -65,6 +65,9 @@ public class XYChartPanel implements RoiListener {
     public static double yMin = -1;
     public static double yMax = -1;
     
+    public static boolean xLinear = true;
+    public static boolean yLinear = true;
+    
     public static boolean globalAxes = false;
 
 
