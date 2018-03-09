@@ -29,9 +29,9 @@ import org.jfree.chart.plot.XYPlot;
  */
 public abstract class GateImporter {
     
-public Gate importGates(Gate gate, ChartPanel chart){
+public static ArrayList<Point2D.Double> importGates(ArrayList<Point2D.Double> original, ChartPanel chart){
     
-    ArrayList<Point2D.Double> original = gate.getGateAsPointsInChart();
+    //ArrayList<Point2D.Double> original = gate.getGateAsPointsInChart();
     ArrayList<Point2D.Double> vertices = new ArrayList();
  
     int[] x1Points = new int[original.size()];
@@ -55,7 +55,7 @@ public Gate importGates(Gate gate, ChartPanel chart){
         vertices.add(new Point2D.Double(xJava2DPoint, yJava2DPoint));
     }
 
-    return new PolygonGate(vertices);
+    return vertices;
 
 }   
 }

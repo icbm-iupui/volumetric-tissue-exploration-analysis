@@ -42,11 +42,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -84,6 +86,7 @@ import vtea._vtea;
 import vteaexploration.IJ1Projector;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
+import vtea.exploration.plotgatetools.gates.GateImporter;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vteaobjects.MicroObject;
@@ -419,20 +422,47 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         chart = cpd.getChartPanel();
         chart.setOpaque(false);
         
+        XYPlot plot = (XYPlot)cpd.getChartPanel().getChart().getPlot();
+        
         if(useGlobal){
             cpd.setChartPanelRanges(XYChartPanel.XAXIS, cpd.xMin, cpd.xMax);
             cpd.setChartPanelRanges(XYChartPanel.YAXIS, cpd.yMin, cpd.yMax);
+            
+            if(!XYChartPanel.xLinear){
+                LogAxis xcLog = new LogAxis();
+                xcLog.setRange(cpd.xMin, cpd.xMax);
+                xcLog.setMinorTickCount(9);
+                plot.setDomainAxis(xcLog);
+            }
+            if(!XYChartPanel.yLinear){
+                LogAxis ycLog = new LogAxis();
+                ycLog.setRange(cpd.yMin, cpd.yMax);
+                ycLog.setMinorTickCount(9);
+                plot.setRangeAxis(ycLog);
+            }
         }
  
         if(useCustom){
             
-            XYPlot plot = (XYPlot)cpd.getChartPanel().getChart().getPlot();
+            
             
             cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0), AxesLimits.get(1));
             cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2), AxesLimits.get(3));
-           
-            if(!xScaleLinear){plot.setDomainAxis(new LogAxis(""));}
-            if(!yScaleLinear){plot.setRangeAxis(new LogAxis(""));}
+            
+
+            if(!xScaleLinear){
+                LogAxis xcLog = new LogAxis();
+//                xcLog.setRange(AxesLimits.get(0), AxesLimits.get(1));
+                xcLog.setMinorTickCount(9);
+                plot.setDomainAxis(xcLog);
+            }
+            if(!yScaleLinear){
+                LogAxis ycLog = new LogAxis();
+//                ycLog.setRange(AxesLimits.get(2), AxesLimits.get(3));
+                ycLog.setMinorTickCount(9);
+                plot.setRangeAxis(ycLog);
+            }
+
         }
 
 
@@ -441,7 +471,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         CenterPanel.setBackground(new Color(255, 255, 255, 255));
         CenterPanel.setPreferredSize(chart.getPreferredSize());
 
-        //add overlay 
+        //add o verlay 
         this.gl = new GateLayer();
         gl.addPolygonSelectionListener(this);
         gl.addImageHighLightSelectionListener(this);
@@ -600,7 +630,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     public void polygonGate(ArrayList points) {
         PolygonGate pg = new PolygonGate(points);
         pg.createInChartSpace(chart);
+        if(pg.getGateAsPoints().size() == 0) System.out.println("PROFILING: What happened to my points?");
         gates.add(pg);
+        System.out.println("PROFILING: in gate arraylist: " + gates.get(gates.lastIndexOf(pg)).getGateAsPoints());
+        
         this.notifyResetSelectionListeners();
     }
     
@@ -764,8 +797,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
        ImagePlus merged = mergeChannels(images, true);  
        merged.setDisplayMode(IJ.COMPOSITE);
         merged.show();
-        IJ1Projector projection = new IJ1Projector(merged);
-        return projection.getProjection();  
+        return merged;
+//        IJ1Projector projection = new IJ1Projector(merged);
+//        return projection.getProjection();  
     }
 
     @Override
@@ -781,7 +815,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         XYChartPanel.xMin = plot.getDomainAxis().getLowerBound();
         XYChartPanel.xMax = plot.getDomainAxis().getUpperBound();
         XYChartPanel.yMin = plot.getRangeAxis().getLowerBound();
-        XYChartPanel.yMax = plot.getRangeAxis().getUpperBound();     
+        XYChartPanel.yMax = plot.getRangeAxis().getUpperBound();  
+        
+        XYChartPanel.xLinear = xScaleLinear;
+        XYChartPanel.yLinear = yScaleLinear;
     }
     
     @Override
@@ -965,46 +1002,56 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     @Override
     public void exportGates() {
             ExportGates eg = new ExportGates();
-            eg.export(gates);
+            
+            ArrayList<ArrayList<Point2D.Double>> al = new ArrayList();
+
+            
+            for(int i = 0; i < gates.size(); i++)
+                {
+                al.add(gates.get(i).getGateAsPointsInChart());  //this is returning the Point2D.doubles from the polygongate
+                //System.out.println("PROFILING: Gate export java points: " + gates.get(i).getGateAsPoints());
+                //System.out.println("PROFILING: Gate export points in chart: " + gates.get(i).getGateAsPointsInChart());
+                }            
+            eg.export(al);
+            //System.out.println("PROFILING: Export ArrayList size: "+ al.size());        
     }
     
     @Override
-    public void importGates() {
+    public void importGates() {     
             ImportGates ig = new ImportGates();
-            ArrayList<Gate> imported = ig.importGates();
-            gates.addAll(imported);
+            ArrayList<ArrayList<Point2D.Double>> al  = ig.importGates();
+            //System.out.println("PROFILING: Import ArrayList size: "+ al.size());
+            ListIterator itr = al.listIterator();
+            
+            while(itr.hasNext()){
+                ArrayList<Point2D.Double> al1 = new ArrayList();
+                al1 = (ArrayList<Point2D.Double>)itr.next();
+                //System.out.println("PROFILING: Polygon size: "+ al1.size());
+                gl.notifyPolygonSelectionListeners(GateImporter.importGates(al1, chart));
+            }
     }
     
     class ExportGates {
 
         public ExportGates() {}
 
-        protected void export(ArrayList<Gate> al) {
+        public void export(ArrayList<ArrayList<Point2D.Double>> al) {
           
-            JFileChooser jf = new JFileChooser();          
+            JFileChooser jf = new JFileChooser("untitled.vtg");          
             int returnVal = jf.showSaveDialog(CenterPanel);
-            File file = jf.getSelectedFile(); 
-
+            File file = jf.getSelectedFile();
+           // System.out.println("PROFILING: Number of gates exporting: "+ al.size());
+            //System.out.println("PROFILING: Gate polygon size: " + al.get(0).size());
             if(returnVal == JFileChooser.APPROVE_OPTION) {
-                
                 try{
- 
-            try{
-                
-            FileOutputStream fos = new FileOutputStream(file);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
+                    try{
+                        FileOutputStream fos = new FileOutputStream(file);
+                        ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(al);
 			oos.close();
-
-            
-
-        
-            }catch(IOException e){  System.out.println("ERROR: IOException in Gate Export");}
-        
-        }catch(NullPointerException ne){  System.out.println("ERROR: NPE in Gate Export");}
-                
-    } else {}
-    
+                        }catch(IOException e){  System.out.println("ERROR: Could not save the file" + e);}
+                }catch(NullPointerException ne){  System.out.println("ERROR: NPE in Gate Export");}
+            } else {}
         } 
         
     }
@@ -1014,29 +1061,23 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
         public ImportGates() {}
 
-        protected ArrayList<Gate> importGates() {
+        protected ArrayList<ArrayList<Point2D.Double>> importGates() {
           
             JFileChooser jf = new JFileChooser();          
             int returnVal = jf.showOpenDialog(CenterPanel);
             File file = jf.getSelectedFile(); 
+           
+            ArrayList<ArrayList<Point2D.Double>> result = new ArrayList();
             
-            ArrayList<Gate> result = new ArrayList();
-
             if(returnVal == JFileChooser.APPROVE_OPTION) {
-                
                 try{
- 
-            try{
-                
+            try{     
             FileInputStream fis = new FileInputStream(file);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            result = (ArrayList<Gate>) ois.readObject();
+            result = (ArrayList<ArrayList<Point2D.Double>>) ois.readObject();
             ois.close();
-        
-            }catch(IOException e){ System.out.println("ERROR: IOException in Gate import");}
-        
-            }catch(ClassNotFoundException ne){ System.out.println("ERROR: Not Found in Gate Export");}
-                
+            }catch(IOException e){ System.out.println("ERROR: Could not open the file.");}
+            }catch(ClassNotFoundException ne){ System.out.println("ERROR: Not Found in Gate Export");}            
             } else {}
             return result;
         } 
