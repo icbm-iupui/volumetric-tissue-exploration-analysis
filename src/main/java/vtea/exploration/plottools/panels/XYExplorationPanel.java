@@ -979,24 +979,24 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             for(int i = 0; i < gates.size(); i++)
                 {
                 al.add(gates.get(i).getGateAsPointsInChart());  //this is returning the Point2D.doubles from the polygongate
-                System.out.println("PROFILING: Gate export java points: " + gates.get(i).getGateAsPoints());
-                System.out.println("PROFILING: Gate export points in chart: " + gates.get(i).getGateAsPointsInChart());
+                //System.out.println("PROFILING: Gate export java points: " + gates.get(i).getGateAsPoints());
+                //System.out.println("PROFILING: Gate export points in chart: " + gates.get(i).getGateAsPointsInChart());
                 }            
             eg.export(al);
-            System.out.println("PROFILING: Export ArrayList size: "+ al.size());        
+            //System.out.println("PROFILING: Export ArrayList size: "+ al.size());        
     }
     
     @Override
     public void importGates() {     
             ImportGates ig = new ImportGates();
             ArrayList<ArrayList<Point2D.Double>> al  = ig.importGates();
-            System.out.println("PROFILING: Import ArrayList size: "+ al.size());
+            //System.out.println("PROFILING: Import ArrayList size: "+ al.size());
             ListIterator itr = al.listIterator();
             
             while(itr.hasNext()){
                 ArrayList<Point2D.Double> al1 = new ArrayList();
                 al1 = (ArrayList<Point2D.Double>)itr.next();
-                System.out.println("PROFILING: Polygon size: "+ al1.size());
+                //System.out.println("PROFILING: Polygon size: "+ al1.size());
                 gl.notifyPolygonSelectionListeners(GateImporter.importGates(al1, chart));
             }
     }
@@ -1010,8 +1010,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             JFileChooser jf = new JFileChooser("untitled.vtg");          
             int returnVal = jf.showSaveDialog(CenterPanel);
             File file = jf.getSelectedFile();
-            System.out.println("PROFILING: Number of gates exporting: "+ al.size());
-            System.out.println("PROFILING: Gate polygon size: " + al.get(0).size());
+           // System.out.println("PROFILING: Number of gates exporting: "+ al.size());
+            //System.out.println("PROFILING: Gate polygon size: " + al.get(0).size());
             if(returnVal == JFileChooser.APPROVE_OPTION) {
                 try{
                     try{
@@ -1019,7 +1019,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                         ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(al);
 			oos.close();
-                        }catch(IOException e){  System.out.println("ERROR: IOException in Gate Export" + e);}
+                        }catch(IOException e){  System.out.println("ERROR: Could not save the file" + e);}
                 }catch(NullPointerException ne){  System.out.println("ERROR: NPE in Gate Export");}
             } else {}
         } 
@@ -1046,7 +1046,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             ObjectInputStream ois = new ObjectInputStream(fis);
             result = (ArrayList<ArrayList<Point2D.Double>>) ois.readObject();
             ois.close();
-            }catch(IOException e){ System.out.println("ERROR: IOException in Gate import");}
+            }catch(IOException e){ System.out.println("ERROR: Could not open the file.");}
             }catch(ClassNotFoundException ne){ System.out.println("ERROR: Not Found in Gate Export");}            
             } else {}
             return result;
