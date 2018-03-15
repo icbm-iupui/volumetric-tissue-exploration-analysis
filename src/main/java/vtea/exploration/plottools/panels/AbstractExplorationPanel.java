@@ -20,15 +20,20 @@ package vtea.exploration.plottools.panels;
 import ij.ImagePlus;
 import ij.gui.ImageWindow;
 import java.awt.Color;
+import java.awt.Component;
 import vtea.exploration.plotgatetools.gates.Gate;
 import vtea.exploration.plotgatetools.gates.GateLayer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 import org.jfree.chart.ChartPanel;
 import vtea.objects.layercake.microVolume;
+import vteaexploration.PlotAxesSetup;
 
 /**
  *
@@ -51,6 +56,11 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected ImagePlus impoverlayCopy;
     protected boolean imageGate = false;
     
+    protected ArrayList<Double> AxesLimits;
+    
+    protected boolean xScaleLinear = true;
+    protected boolean yScaleLinear = true;
+   
     
     
     protected int currentX;
@@ -62,7 +72,8 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
 
     public AbstractExplorationPanel() {
         CenterPanel.setOpaque(false);
-        CenterPanel.setBackground(vtea._vtea.BACKGROUND);
+        CenterPanel.setBackground(new Color(255, 255, 255, 255));
+        
         
     }
 
@@ -79,6 +90,24 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
             }
         }
         return 0;
+    }
+    
+    @Override
+    public ArrayList<Component>  getSettingsContent() {
+        ArrayList<Component> al = new ArrayList();
+        
+//        al.add(new JLabel("X axis minimum: "));
+//        al.add(new JTextField());
+//        al.add(new JLabel("X axis maximum: "));
+//        al.add(new JTextField());
+//        al.add(new JPopupMenu());
+//        al.add(new JLabel("Y axis minimum: "));
+//        al.add(new JTextField());
+//        al.add(new JLabel("Y axis maximum: "));
+//        al.add(new JTextField());
+        
+        
+        return al;
     }
 
 

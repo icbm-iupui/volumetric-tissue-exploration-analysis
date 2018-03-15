@@ -14,10 +14,10 @@
 
     <groupId>icbm-iupui</groupId>
     <artifactId>vtea</artifactId>
-    <version>0.4.30-SNAPSHOT</version>
+    <version>0.5.2-SNAPSHOT</version>
 
 
-    <name>VTEA_SciJava</name>
+    <name>VTEA</name>
     <description>Volumetric analysis</description>
     
     <properties>
@@ -116,7 +116,7 @@
             <type>jar</type>
         </dependency>
         	
-        <dependency>
+        <!--dependency>
             <groupId>net.imagej</groupId>
             <artifactId>imagej</artifactId>
             <version>2.0.0-rc-55</version>
@@ -126,7 +126,7 @@
             <groupId>net.imagej</groupId>
             <artifactId>imagej-deprecated</artifactId>
             <version>0.1.1</version>
-        </dependency>
+        </dependency-->
         
         <!-- Renjin cran packages -->
         

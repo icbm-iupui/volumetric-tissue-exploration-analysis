@@ -24,6 +24,8 @@ import ij.plugin.PlugIn;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.sql.Connection;
 import static java.sql.DriverManager.println;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +34,8 @@ import java.util.logging.Logger;
 import javax.swing.JScrollBar;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
+import org.hsqldb.Server;
+import org.hsqldb.persist.HsqlProperties;
 import org.scijava.Context;
 import org.scijava.Prioritized;
 import org.scijava.Priority;
@@ -57,7 +61,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension SMALLBUTTONSIZE = new Dimension(32, 32);
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
-    public static String VERSION = new String("0.4.30");
+    public static String VERSION = new String("0.5.2");
 
     public static String[] PROCESSOPTIONS = {"LayerCake 3D", "FloodFill 3D"};
     
@@ -91,6 +95,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
             public void run() {new ImageJ(); }
         });
     }
+    private Server sonicServer;
 
 
     @Override
@@ -253,8 +258,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                     }
                 }
                 
-             // Renjin r = new Renjin();
-                
+//              Renjin r = new Renjin();
+//                
 //            try {
 //                RServe rS = new RServe();
 //            } catch (RserveException ex) {
@@ -262,6 +267,25 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 //            } catch (REXPMismatchException ex) {
 //                
 //            }
+            
+ 
+  
+//    final String dbLocation = System.getProperty("user.dir")+File.separator; 
+//
+//    Connection dbConn = null;
+//  
+//  HsqlProperties props = new HsqlProperties();
+//    props.setProperty("server.database.0", "file:" + dbLocation + "mydb;");
+//    props.setProperty("server.dbname.0", "vteadb");
+//    sonicServer = new org.hsqldb.Server();
+//    try {
+//        sonicServer.setProperties(props);
+//    } catch (Exception e) {
+//        return;
+//    }
+//    sonicServer.start();
+//     System.out.println("HPSQL started in directory: " + dbLocation);
+//            
     }
 
 

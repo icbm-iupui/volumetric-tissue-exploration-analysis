@@ -102,7 +102,7 @@ public class GateLayer implements ActionListener, ItemListener {
         // wrap chart component
         JXLayer layer = new JXLayer(chart);
 
-        creatPopUpMenu(layer);
+        createPopUpMenu(layer);
 
         // create custom LayerUI
         AbstractLayerUI layerUI = new AbstractLayerUI() {
@@ -115,8 +115,8 @@ public class GateLayer implements ActionListener, ItemListener {
 
                 Gate gp;
                 //for gate drawing
-                Point p = new Point();
-                Point next = new Point();
+                Point p;
+                Point next;
 
                 Point2D pPrevious = new Point();
                 Point2D pCurrent = new Point();
@@ -168,12 +168,12 @@ public class GateLayer implements ActionListener, ItemListener {
                         }
                         g2.draw(new Line2D.Double(pCurrent, p0));
                     }else if (gp.getSelected()) {
-                            g2.setPaint(Color.blue);
+                            g2.setPaint(Color.red);
                             g2.draw(gp.getGateAsShape());
                     } else {
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                 RenderingHints.VALUE_ANTIALIAS_ON);
-                        g2.setPaint(Color.cyan);
+                        g2.setPaint(Color.blue);
                         g2.draw(gp.getGateAsShape());
                     }
                 }
@@ -273,13 +273,13 @@ public class GateLayer implements ActionListener, ItemListener {
                     if (msQuadrant && points.size() > 0) {
                         points.clear();
                         points.add(new Point(e.getX(), e.getY()));
-                        points.add(new Point(e.getX(), 31));
+                        points.add(new Point(e.getX(), 32));
                         points.add(new Point(e.getX(), e.getY()));
-                        points.add(new Point(46, e.getY()));
+                        points.add(new Point(42, e.getY()));
                         points.add(new Point(e.getX(), e.getY()));
-                        points.add(new Point(e.getX(), 461));
+                        points.add(new Point(e.getX(), 460));
                         points.add(new Point(e.getX(), e.getY()));
-                        points.add(new Point(460, e.getY()));
+                        points.add(new Point(480, e.getY()));
 
                     }
                 }
@@ -451,7 +451,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
     public void makeRectangleGate() throws Throwable {
         this.msRectangle = false;
-        notifyPolygonSelectionListeners(points);
+        notifyPolygonSelectionListeners(points);    
         this.points.clear();
         this.finalize();
     }
@@ -464,25 +464,25 @@ public class GateLayer implements ActionListener, ItemListener {
         ArrayList<Point> Q3 = new ArrayList<Point>();
         ArrayList<Point> Q4 = new ArrayList<Point>();
 
-        Q1.add(new Point(46, 31));
-        Q1.add(new Point(points.get(0).x, 31));
+        Q1.add(new Point(42, 42));
+        Q1.add(new Point(points.get(0).x, 42));
         Q1.add(points.get(0));
-        Q1.add(new Point(46, points.get(0).y));
+        Q1.add(new Point(42, points.get(0).y));
 
-        Q2.add(new Point(points.get(0).x, 31));
-        Q2.add(new Point(460, 31));
-        Q2.add(new Point(460, points.get(0).y));
+        Q2.add(new Point(points.get(0).x, 42));
+        Q2.add(new Point(480, 42));
+        Q2.add(new Point(480, points.get(0).y));
         Q2.add(points.get(0));
 
         Q3.add(points.get(0));
-        Q3.add(new Point(460, points.get(0).y));
-        Q3.add(new Point(460, 461));
-        Q3.add(new Point(points.get(0).x, 461));
+        Q3.add(new Point(480, points.get(0).y));
+        Q3.add(new Point(480, 460));
+        Q3.add(new Point(points.get(0).x, 460));
 
-        Q4.add(new Point(46, points.get(0).y));
+        Q4.add(new Point(42, points.get(0).y));
         Q4.add(points.get(0));
-        Q4.add(new Point(points.get(0).x, 461));
-        Q4.add(new Point(46, 461));
+        Q4.add(new Point(points.get(0).x, 460));
+        Q4.add(new Point(42, 460));
 
         notifyPolygonSelectionListeners(Q1);
         notifyPolygonSelectionListeners(Q2);
@@ -569,7 +569,7 @@ public class GateLayer implements ActionListener, ItemListener {
         }
     }
 
-    private void creatPopUpMenu(JXLayer layer) {
+    private void createPopUpMenu(JXLayer layer) {
         this.menu = new JPopupMenu();
         JMenuItem menuItem = new JMenuItem("Color...");
 
@@ -606,6 +606,9 @@ public class GateLayer implements ActionListener, ItemListener {
         
         menuItem.addActionListener(this);
         menu.add(menuItem);
+        
+        
+        
 
         //Add listener to the text area so the popup menu can come up.
 //        MouseListener popupListener = new PopupListener(menu);
@@ -614,7 +617,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println(e.getActionCommand());
+        //System.out.println(e.getActionCommand());
         if(e.getActionCommand().equals("Delete")){
             
         ListIterator<Gate> gt = gates.listIterator();
