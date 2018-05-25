@@ -95,7 +95,7 @@ import vtea.protocol.listeners.RebuildPanelListener;
 
             mbs = new MicroBlockObjectSetup(position, Channels, Image);
 
-            mbs.setVisible(false);
+            mbs.setVisible(true);
             mbs.addMicroBlockSetupListener(this);
 
             DeleteButton = new JButton();

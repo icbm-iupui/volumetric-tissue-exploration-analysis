@@ -63,7 +63,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     private DefaultCellEditor channelEditor = new DefaultCellEditor(new channelNumber());
     private DefaultCellEditor analysisEditor = new DefaultCellEditor(new analysisType());
     //private SpinnerEditor thresEditor = new SpinnerEditor();
-
+    
     private Object[] columnTitles = {"Channel", "Method", "Distance(px)"};
     
     
