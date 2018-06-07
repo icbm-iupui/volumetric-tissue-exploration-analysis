@@ -24,7 +24,7 @@ import vtea.objects.floodfill3D.FloodFill3D;
  *
  * @author winfrees
  */
-@Plugin (type = Segmentation.class)
+//@Plugin (type = Segmentation.class)
 
 public class FloodFill3DSingleThreshold extends AbstractSegmentation {
     
