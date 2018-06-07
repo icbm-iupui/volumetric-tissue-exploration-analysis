@@ -1,43 +1,49 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2018 SciJava
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.imageprocessing;
+package vtea.featureprocessing;
 
-import ij.ImagePlus;
 import java.awt.Component;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.imglib2.img.Img;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
-import vtea.imageprocessing.ImageProcessing;
-import static vtea._vtea.PROCESSINGMAP;
 
 /**
  *
- * @author sethwinfree
+ * @author drewmcnutt
+ * 
  * @param <T>
  * @param <A>
+ * 
  */
-public abstract class AbstractImageProcessing<T extends Component, A extends RealType>  implements ImageProcessing {
+public abstract class AbstractFeatureProcessing<T extends Component, A extends RealType> implements FeatureProcessing{
     
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
-    protected String NAME = "ABSTRACTIMAGEPROCESSING";
-    protected String KEY = "ABSTRACTIMAGEPROCESSING";
+    protected String NAME = "ABSTRACTFEATUREPROCESSING";
+    protected String KEY = "ABSTRACTFEATUREPROCESSING";
+    protected String TYPE = "";
 
     protected ArrayList<T> protocol= new ArrayList();
     
-    protected Img imgResult;
+    protected double[] dataResult;
     
     @Override
-    public boolean setOptions(ArrayList al) {
+    public boolean setOptions(ArrayList al, double[][] proximity) {
         protocol = al;
         return true;
     }
@@ -48,21 +54,14 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
     }
 
     @Override
-    public Img getResult() {
+    public double[] getResult() {
         
-       return imgResult; 
-        
-    }
-    
-        @Override
-    public ImagePlus getImpResult() {
-        
-       return ImageJFunctions.wrapUnsignedShort(imgResult, NAME); 
+       return dataResult; 
         
     }
 
     @Override
-    public Img getPreview() {
+    public double[] getPreview() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
@@ -110,16 +109,21 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
     public String getComment() {
         return COMMENT;
     }
-
+    
     @Override
-    public boolean process(ArrayList al, ImagePlus imp) {
+    public String getType(){
+        return TYPE;
+    }
+    
+    @Override
+    public boolean process(ArrayList al, double[][] feature) {
         return false;
     }
 
-    @Override
-    public boolean process(ArrayList al, Img img) {
-        return false;
-    }
+//    @Override
+//    public boolean process(ArrayList al, Img img) {
+//        return false;
+//    }
 
     @Override
     public boolean copyComponentParameter(int index, ArrayList dComponents, ArrayList sComponents) {
@@ -135,6 +139,4 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
             return false;
         }
     }
-
-    
 }

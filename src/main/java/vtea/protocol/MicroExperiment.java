@@ -120,24 +120,10 @@ public class MicroExperiment implements Runnable{
 
     public void addExplore(ImagePlus imp, String title, ArrayList<MicroObjectModel> alvolumes, ArrayList AvailableData) {
 
-        int[] plotDataReference = new int[5];
-
-        plotDataReference[0] = 0;
-        plotDataReference[1] = 0;
-        plotDataReference[2] = 0;
-        plotDataReference[3] = 0;
-        plotDataReference[4] = 0;
-
         ArrayList plotvalues = new ArrayList();
 
-        plotvalues.add(imp);
+        plotvalues.add(null);
         plotvalues.add(alvolumes);
-        plotvalues.add(0.0);
-        plotvalues.add(0.0);
-        plotvalues.add("x_axis");
-        plotvalues.add("y_axis");
-        plotvalues.add(imp.getTitle());
-        plotvalues.add(plotDataReference);
 
         HashMap<Integer, String> hm = new HashMap<Integer,String>();
 
