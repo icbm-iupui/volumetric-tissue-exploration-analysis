@@ -18,21 +18,33 @@
 package vtea.protocol.setup;
 
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import vtea.featureprocessing.AbstractFeatureProcessing;
 /**
  *
  * @author drewmcnutt
  */
-public class MicroBlockFeatureSetup extends MicroBlockSetup {
+public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionListener{
     ArrayList availabledata = new ArrayList();
-    String FEATUREGROUPS[] = {"Cluster", "Dimensionality Reduction", "Other"};
+    String[] FEATUREOPTIONS = vtea._vtea.FEATUREOPTIONS;
+    String[] FEATUREGROUPS = vtea._vtea.FEATURETYPE;
+    ArrayList CLUSTER = new ArrayList();
+    ArrayList REDUCTION = new ArrayList();
+    ArrayList OTHER = new ArrayList();
     JComboBox jComboBoxData = new JComboBox();
     
     
-    public MicroBlockFeatureSetup(int step, ArrayList AvailableData, List plotvalues){
+    public MicroBlockFeatureSetup(int step, ArrayList AvailableData){
         super(step);
         this.availabledata = AvailableData;
         this.setLocation(400, 0);
@@ -44,6 +56,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup {
         ccbm = new DefaultComboBoxModel(FEATUREGROUPS);
         ChannelSelection.setText("Type of feature");
         ProcessText.setText("");
+        ProcessSelectComboBox.setVisible(false);
         comments.removeAll();
         methodMorphology.removeAll();
         PreviewButton.setVisible(false);
@@ -63,6 +76,42 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup {
         getContentPane().remove(methodMorphology);
         getContentPane().add(methodMorphology, gbc);
         
+        ChannelComboBox.setModel(ccbm);
+        
+        for(String feature : FEATUREOPTIONS){
+            try{
+                Class<?> c;
+                c = Class.forName(vtea._vtea.FEATUREMAP.get(feature));
+                Constructor<?> con;
+                con = c.getConstructor();
+                Object temp = new Object();
+                temp = con.newInstance();
+                String type = ((AbstractFeatureProcessing)temp).getType();
+                if(type.equals(FEATUREGROUPS[0])){
+                    CLUSTER.add(feature);
+                }else if(type.equals(FEATUREGROUPS[1])){
+                    REDUCTION.add(feature);
+                }else{
+                    OTHER.add(feature);
+                }
+            }catch (NullPointerException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException ex) {
+                Logger.getLogger(MicroBlockFeatureSetup.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        }
+        setSpecificComboBox(ChannelComboBox.getSelectedIndex());
+        
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e){
+        if(e.getSource() == ChannelComboBox){
+            int ind = ChannelComboBox.getSelectedIndex();
+            setSpecificComboBox(ind);
+            this.BlockSetupOK.setEnabled(false);
+        }else if(e.getSource() == ProcessSelectComboBox){
+            updateProtocolPanel(e);
+        }
     }
     @Override
     protected void updateTitles(){
@@ -71,12 +120,17 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup {
     }
     
     @Override
-    protected void updateProtocolPanel(java.awt.event.ActionEvent evt) {
-        if(evt.getSource() == ChannelComboBox){
-            setSpecificComboBox();
-        }else{
-            setupPanels();
+    protected void updateProtocolPanel(ActionEvent evt) {
+        if(evt.getSource() == ProcessSelectComboBox){
+            //makeProtocolPanel(FEATUREOPTIONS[ProcessSelectComboBox.getSelectedIndex()]);
+        } else if(evt.getSource() == this.ChannelComboBox){
+            setSpecificComboBox(ChannelComboBox.getSelectedIndex());
         }
+    }
+    
+    @Override
+    protected JPanel makeProtocolPanel(String str){
+        return new JPanel();
     }
     
     public void setupPanels(){
@@ -84,7 +138,42 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup {
         //add code for setting up parameters panel and data selection panel
     }
     
-    public void setSpecificComboBox(){
+    public void setSpecificComboBox(int index){
+        CurrentProcessList.clear();
+        CurrentProcessList.add(ChannelComboBox.getSelectedItem());
         
+        ProcessSelectComboBox.removeAllItems();
+        cbm.removeAllElements();
+        
+        switch (index){
+            case 0:
+                ProcessText.setText("Clustering Method");
+                cbm = new DefaultComboBoxModel(CLUSTER.toArray());
+                //ProcessSelectComboBox.setModel(new DefaultComboBoxModel(CLUSTER.toArray()));
+                break;
+            case 1:
+                ProcessText.setText("Reduction Method");
+                cbm = new DefaultComboBoxModel(REDUCTION.toArray());
+                //ProcessSelectComboBox.setModel(new DefaultComboBoxModel(REDUCTION.toArray()));
+                break;
+            default:
+                ProcessText.setText("Other Method");
+                cbm = new DefaultComboBoxModel(OTHER.toArray());
+                //ProcessSelectComboBox.setModel(new DefaultComboBoxModel(OTHER.toArray()));
+        }
+        
+        ProcessSelectComboBox.setModel(cbm);
+        ProcessSelectComboBox.setVisible(true);
+        
+        CurrentProcessList.add(ProcessSelectComboBox.getSelectedItem());
+        
+        this.revalidate();
+        this.repaint();
+        this.pack();
+    }
+    
+    public void updateProtocol(){
+        CurrentStepProtocol = CurrentProcessList;
+        super.notifyMicroBlockSetupListeners(CurrentStepProtocol);
     }
 }

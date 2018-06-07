@@ -3,14 +3,8 @@
 <Form version="1.8" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="2"/>
-    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-      <Dimension value="[380, 360]"/>
-    </Property>
     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
       <Dimension value="[380, 360]"/>
-    </Property>
-    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-      <Dimension value="[380, 410]"/>
     </Property>
     <Property name="resizable" type="boolean" value="false"/>
     <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -372,7 +366,7 @@
             <Property name="requestFocusEnabled" type="boolean" value="false"/>
           </Properties>
           <SubComponents>
-            <Component class="javax.swing.JLabel" name="ProgressComment">
+            <Component class="javax.swing.JLabel" name="FeatureComment">
               <Properties>
                 <Property name="horizontalAlignment" type="int" value="11"/>
               </Properties>
@@ -462,11 +456,11 @@
                 <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component"/>
               </StatementProvider>
               <Parameters>
-                <CodeExpression id="7_ProgressComment">
-                  <CodeVariable name="ProgressComment" type="8193" declaredType="javax.swing.JLabel"/>
+                <CodeExpression id="7_FeatureComment">
+                  <CodeVariable name="FeatureComment" type="8193" declaredType="javax.swing.JLabel"/>
                   <ExpressionOrigin>
                     <ExpressionProvider type="ComponentRef">
-                      <ComponentRef name="ProgressComment"/>
+                      <ComponentRef name="FeatureComment"/>
                     </ExpressionProvider>
                   </ExpressionOrigin>
                 </CodeExpression>

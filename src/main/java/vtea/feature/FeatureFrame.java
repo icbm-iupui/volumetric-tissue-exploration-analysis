@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
+import vtea.processor.FeatureProcessor;
 import vtea.protocol.listeners.DeleteBlockListener;
 
 /**
@@ -39,15 +39,15 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     
     protected ArrayList<FeatureStepBlockGUI> FeatureStepsList;
     ArrayList availabledata;
-    List plotvalues;
+    double[][] features;
     
     protected GridLayout FeatureLayout = new GridLayout(4, 1, 0, 0);
     /**
      * Creates new form FeatureFrame
      */
-    public FeatureFrame(ArrayList AvailableData, List plotvalues) {
+    public FeatureFrame(ArrayList AvailableData, double[][] table) {
         this.availabledata = AvailableData;
-        this.plotvalues = plotvalues;
+        this.features = table;
                 
         this.FeatureStepsList = new ArrayList<FeatureStepBlockGUI>();
         initComponents();
@@ -78,13 +78,11 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         FeatureStepsPanel = new javax.swing.JPanel();
         FeatureGo = new javax.swing.JButton();
         ProgressPanel = new javax.swing.JPanel();
-        ProgressComment = new javax.swing.JLabel();
+        FeatureComment = new javax.swing.JLabel();
         VTEAProgressBar = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setMaximumSize(new java.awt.Dimension(380, 360));
         setMinimumSize(new java.awt.Dimension(380, 360));
-        setPreferredSize(new java.awt.Dimension(380, 410));
         setResizable(false);
         setSize(new java.awt.Dimension(30, 381));
         getContentPane().setLayout(new java.awt.FlowLayout());
@@ -269,8 +267,8 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         flowLayout1.setAlignOnBaseline(true);
         ProgressPanel.setLayout(flowLayout1);
 
-        ProgressComment.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        ProgressPanel.add(ProgressComment);
+        FeatureComment.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        ProgressPanel.add(FeatureComment);
 
         VTEAProgressBar.setPreferredSize(new java.awt.Dimension(200, 20));
         ProgressPanel.add(VTEAProgressBar);
@@ -284,7 +282,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
 
     private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
         //this.setVisible(false);
-        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,FeatureStepsList.size() + 1, availabledata, plotvalues);
+        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,FeatureStepsList.size() + 1, availabledata);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
         //this.notifyRepaintFeatureListeners();
@@ -320,28 +318,18 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     }//GEN-LAST:event_DeleteAllStepsActionPerformed
 
     private void FeatureGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FeatureGoActionPerformed
+        FeatureComment.setText("Processing data...");
 
-        new Thread(new Runnable() {
-            public void run() {
-                VTEAProgressBar.setIndeterminate(true);
-                FeatureGo.setEnabled(false);
-                VTEAProgressBar.setIndeterminate(false);
-                // Runs inside of the Swing UI thread
-                //          SwingUtilities.invokeLater(new Runnable() {
-                    //            public void run() {
-                        //                for(int i = 0; i < 100; i++){
-                            //
-                            //              ObjectProcess.setValue(i);
-                            //                ObjectProcess.updateUI();}
-                        //            }
-                    //          });
+        ArrayList<ArrayList> protocol = new ArrayList<>();
 
-            try {
-                java.lang.Thread.sleep(100);
-            }
-            catch(Exception e) { }
-        }
-        }).start();
+        //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
+        
+        protocol = extractSteps(FeatureStepsList);
+        
+        FeatureComment.setText("Processing data...");
+        FeatureProcessor fp = new FeatureProcessor(features, protocol);
+        fp.addPropertyChangeListener(this);
+        fp.execute();
     }//GEN-LAST:event_FeatureGoActionPerformed
 
     private void jPanel1formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPanel1formKeyPressed
@@ -367,7 +355,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         VTEAProgressBar.setMinimum(min);
         VTEAProgressBar.setMaximum(max);
         VTEAProgressBar.setValue(position);
-        ProgressComment.setText(text);    
+        FeatureComment.setText(text);    
     }
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -375,11 +363,11 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         if (evt.getPropertyName().equals("progress")) {
             int progress = (Integer) evt.getNewValue();
             VTEAProgressBar.setValue(progress);
-            ProgressComment.setText(String.format(
+            FeatureComment.setText(String.format(
                     "Completed %d%%...\n", progress));
         } 
         if (evt.getPropertyName().equals("comment")){
-            ProgressComment.setText((String)evt.getNewValue());
+            FeatureComment.setText((String)evt.getNewValue());
         }
         if (evt.getPropertyName().equals("escape") && (Boolean)evt.getNewValue()){
             
@@ -387,7 +375,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
             //ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
             ProcessedShow.setTitle(this.getName() + "_Processed");
 
-            ProgressComment.setText("Processing complete...");
+            FeatureComment.setText("Processing complete...");
             ProcessedShow.show();
             
 
@@ -416,12 +404,12 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     private javax.swing.JLabel AnalyzeDataText;
     private javax.swing.JButton DeleteAllSteps;
     private javax.swing.JPanel FeatureAnalysis;
+    public javax.swing.JLabel FeatureComment;
     public javax.swing.JButton FeatureGo;
     private javax.swing.JLabel FeatureLabel;
     public javax.swing.JPanel FeatureStepsPanel;
     private javax.swing.JPanel Feature_Header;
     private javax.swing.JPanel Feature_Panel;
-    public javax.swing.JLabel ProgressComment;
     private javax.swing.JPanel ProgressPanel;
     public javax.swing.JProgressBar VTEAProgressBar;
     private javax.swing.JLabel exploreText;
@@ -449,7 +437,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     
     private void executeFeatures() {
         
-        ProgressComment.setText("Finding Features...");
+        FeatureComment.setText("Finding Features...");
 
         ArrayList<ArrayList> protocol = new ArrayList<>();
 
@@ -457,7 +445,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         
         protocol = extractSteps(FeatureStepsList);
         
-        ProgressComment.setText("Processing data...");
+        FeatureComment.setText("Processing data...");
 
         /*if(protocol.size() > 0){
         
@@ -543,13 +531,13 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         }*/
         
 
-        FeatureStepBlockGUI osb;
+        FeatureStepBlockGUI fsb;
         ListIterator<Object> litr = sb_al.listIterator();
         while (litr.hasNext()) {
-            osb = (FeatureStepBlockGUI) litr.next();
+            fsb = (FeatureStepBlockGUI) litr.next();
 
-            Result.add(osb.getVariables());
-            System.out.println("OSB variables: " + Result);
+            Result.add(fsb.getVariables());
+            //System.out.println("FSB variables: " + Result);
         }
 
         return Result;

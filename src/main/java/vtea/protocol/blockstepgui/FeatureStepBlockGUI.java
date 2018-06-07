@@ -51,7 +51,6 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
 
     JButton DeleteButton;
     JButton EditButton;
-    //JButton PreviewButton;
 
     MicroBlockSetup mbs;
 
@@ -63,13 +62,13 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
     public FeatureStepBlockGUI() {
     }
     
-    public FeatureStepBlockGUI(String FeatureText, String CommentText, Color BlockColor, int position, ArrayList AvailableData, List plotvalues) {
-            BuildStepBlock(FeatureText, CommentText, Color.GRAY, position, AvailableData, plotvalues);
+    public FeatureStepBlockGUI(String FeatureText, String CommentText, Color BlockColor, int position, ArrayList AvailableData) {
+            BuildStepBlock(FeatureText, CommentText, Color.GRAY, position, AvailableData);
     }
     
-    private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, final int position, ArrayList AvailableData, List plotvalues) {
+    private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, final int position, ArrayList AvailableData) {
         this.position = position;
-        Feature.setText(ProcessText);
+        Feature.setText("");
 
         //Comment.setText(CommentText);
         step.setBackground(BlockColor);
@@ -89,7 +88,7 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         Feature.setFont(FeatureFont);
         Comment.setFont(CommentFont);
 
-        mbs = new MicroBlockFeatureSetup(position, AvailableData, plotvalues);
+        mbs = new MicroBlockFeatureSetup(position, AvailableData);
 
         mbs.setVisible(true);
         mbs.addMicroBlockSetupListener(this);
@@ -140,7 +139,7 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         layoutConstraints.gridy = 0;
         layoutConstraints.weightx = 20;
         layoutConstraints.weighty = 20;
-        step.add(new JLabel(""), layoutConstraints);
+        step.add(Feature, layoutConstraints);
 
         layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
         layoutConstraints.gridx = 1;
@@ -200,29 +199,52 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
 
         );
         }    
-            @Override
-        public void setPosition(int n) {
-            position = n;
-            Position.setText(position + ".");
-        }
+    @Override
+    public void setPosition(int n) {
+        position = n;
+        Position.setText(position + ".");
+    }
 
-        @Override
-        public JPanel getPanel() {
-            return step;
-        }
+    @Override
+    public JPanel getPanel() {
+        return step;
+    }
 
-        @Override
-        public int getPosition() {
-            return position;
-        }
+    @Override
+    public int getPosition() {
+        return position;
+    }
 
-        @Override
-        public ArrayList getVariables() {
-            return settings;
-        }
+    @Override
+    public ArrayList getVariables() {
+        return settings;
+    }
     
     public void repaintWindow(){
         mbs.repaint();
+    }
+    
+    public MicroBlockSetup getSetup(){
+        return mbs;
+    }
+    
+    public void updateSetup(){
+        ((MicroBlockFeatureSetup)mbs).updateProtocol();
+    }
+    
+    @Override
+    public void onChangeSetup(ArrayList al){
+        Feature.setText(al.get(0).toString());
+        
+        if(al.get(1) == null){
+            Comment.setText("");
+        }else{
+            Comment.setText(al.get(1).toString());
+        }
+        
+        notifyRebuildPanelListeners(4);
+        
+        this.settings = al;
     }
     
     @Override
