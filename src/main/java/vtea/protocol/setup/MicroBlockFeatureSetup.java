@@ -17,6 +17,7 @@
  */
 package vtea.protocol.setup;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,10 +26,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import org.apache.commons.lang3.ArrayUtils;
+import static vtea._vtea.FEATUREMAP;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 /**
  *
@@ -53,52 +55,30 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         TitleText.setText("Feature_" + step);
         TitleText.setEditable(true);
         
-        ccbm = new DefaultComboBoxModel(FEATUREGROUPS);
         ChannelSelection.setText("Type of feature");
-        ProcessText.setText("");
-        ProcessSelectComboBox.setVisible(false);
+        ccbm = new DefaultComboBoxModel(FEATUREGROUPS);
+        ChannelComboBox.setModel(ccbm);
         comments.removeAll();
-        methodMorphology.removeAll();
         PreviewButton.setVisible(false);
                 
-        methodBuild.setMaximumSize(new java.awt.Dimension(400, 300));
-        methodBuild.setMinimumSize(new java.awt.Dimension(359, 300));
-        methodBuild.setPreferredSize(new java.awt.Dimension(359, 300));
-        GridBagConstraints gbc = new java.awt.GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 13;
-        getContentPane().remove(methodBuild);
-        getContentPane().add(methodBuild, gbc);
+//        methodBuild.setMaximumSize(new java.awt.Dimension(400, 300));
+//        methodBuild.setMinimumSize(new java.awt.Dimension(359, 300));
+//        methodBuild.setPreferredSize(new java.awt.Dimension(359, 300));
+//        GridBagConstraints gbc = new java.awt.GridBagConstraints();
+//        gbc.gridx = 0;
+//        gbc.gridy = 13;
+//        getContentPane().add(methodBuild, gbc);
         
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-        getContentPane().remove(methodMorphology);
-        getContentPane().add(methodMorphology, gbc);
+//        gbc = new GridBagConstraints();
+//        gbc.gridx = 0;
+//        gbc.gridy = 6;
+//        getContentPane().remove(methodMorphology);
+//        getContentPane().add(methodMorphology, gbc);
         
-        ChannelComboBox.setModel(ccbm);
+        pack();
         
-        for(String feature : FEATUREOPTIONS){
-            try{
-                Class<?> c;
-                c = Class.forName(vtea._vtea.FEATUREMAP.get(feature));
-                Constructor<?> con;
-                con = c.getConstructor();
-                Object temp = new Object();
-                temp = con.newInstance();
-                String type = ((AbstractFeatureProcessing)temp).getType();
-                if(type.equals(FEATUREGROUPS[0])){
-                    CLUSTER.add(feature);
-                }else if(type.equals(FEATUREGROUPS[1])){
-                    REDUCTION.add(feature);
-                }else{
-                    OTHER.add(feature);
-                }
-            }catch (NullPointerException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException ex) {
-                Logger.getLogger(MicroBlockFeatureSetup.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-        }
+        setupGroups();
+        
         setSpecificComboBox(ChannelComboBox.getSelectedIndex());
         
     }
@@ -122,7 +102,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     @Override
     protected void updateProtocolPanel(ActionEvent evt) {
         if(evt.getSource() == ProcessSelectComboBox){
-            //makeProtocolPanel(FEATUREOPTIONS[ProcessSelectComboBox.getSelectedIndex()]);
+            makeProtocolPanel(FEATUREOPTIONS[ProcessSelectComboBox.getSelectedIndex()]);
         } else if(evt.getSource() == this.ChannelComboBox){
             setSpecificComboBox(ChannelComboBox.getSelectedIndex());
         }
@@ -130,7 +110,80 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     
     @Override
     protected JPanel makeProtocolPanel(String str){
-        return new JPanel();
+        ArrayList FeatureComponents;
+        
+        CurrentProcessItems.set(0, makeMethodComponentsArray(str, ProcessVariables));
+        FeatureComponents = CurrentProcessItems.get(0);
+        
+        MethodDetails.setVisible(false);
+        MethodDetails.removeAll();
+        
+        GridBagConstraints layoutConstraints = new GridBagConstraints();
+        if (FeatureComponents.size() > 0) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 0;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            MethodDetails.add((Component) FeatureComponents.get(0), layoutConstraints);
+        }
+
+        if (FeatureComponents.size() > 1) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 1;
+            layoutConstraints.gridy = 0;
+            MethodDetails.add((Component) FeatureComponents.get(1), layoutConstraints);
+        }
+
+        if (FeatureComponents.size() > 2) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 2;
+            layoutConstraints.gridy = 0;
+            MethodDetails.add((Component) FeatureComponents.get(2), layoutConstraints);
+        }
+        if (FeatureComponents.size() > 3) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 3;
+            layoutConstraints.gridy = 0;
+            MethodDetails.add((Component) FeatureComponents.get(3), layoutConstraints);
+        }
+        if (FeatureComponents.size() > 4) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 0;
+            layoutConstraints.gridy = 1;
+            MethodDetails.add((Component) FeatureComponents.get(4), layoutConstraints);
+        }
+        if (FeatureComponents.size() > 5) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 1;
+            layoutConstraints.gridy = 1;
+            MethodDetails.add((Component) FeatureComponents.get(5), layoutConstraints);
+        }
+        if (FeatureComponents.size() > 6) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 2;
+            layoutConstraints.gridy = 1;
+            MethodDetails.add((Component) FeatureComponents.get(6), layoutConstraints);
+        }
+        if (FeatureComponents.size() > 7) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 3;
+            layoutConstraints.gridy = 1;
+            MethodDetails.add((Component) FeatureComponents.get(7), layoutConstraints);
+        }
+        
+        
+        MethodDetails.setVisible(true);
+        repaint();
+        pack();
+        
+        CurrentProcessList.clear();
+        
+        CurrentProcessList.add(cbm.getSelectedItem());
+        CurrentProcessList.add(ccbm.getSelectedItem());
+        CurrentProcessList.addAll(FeatureComponents);
+        
+        return MethodDetails;
     }
     
     public void setupPanels(){
@@ -140,10 +193,9 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     
     public void setSpecificComboBox(int index){
         CurrentProcessList.clear();
-        CurrentProcessList.add(ChannelComboBox.getSelectedItem());
         
-        ProcessSelectComboBox.removeAllItems();
-        cbm.removeAllElements();
+        //ProcessSelectComboBox.removeAllItems();
+        //cbm.removeAllElements();
         
         switch (index){
             case 0:
@@ -166,12 +218,65 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         ProcessSelectComboBox.setVisible(true);
         
         CurrentProcessList.add(ProcessSelectComboBox.getSelectedItem());
+        CurrentProcessList.add(ChannelComboBox.getSelectedItem());
         
         this.revalidate();
         this.repaint();
         this.pack();
+        if(ProcessSelectComboBox.getSelectedItem() != null)
+            makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
+        else
+            makeProtocolPanel("");
     }
     
+    @Override
+    protected ArrayList makeMethodComponentsArray(String method, String[][] str){
+        Object iFeatp = new Object();
+        
+        try{
+            Class<?> c;
+            c = Class.forName(FEATUREMAP.get(method));
+            Constructor<?> con;
+            con = c.getConstructor();
+            iFeatp = con.newInstance();
+            return ((AbstractFeatureProcessing)iFeatp).getOptions();        
+        }catch(Exception e){
+            
+        }
+        return new ArrayList();
+    }
+    
+    private void setupGroups(){
+        for(String feature : FEATUREOPTIONS){
+            try{
+                Class<?> c;
+                c = Class.forName(vtea._vtea.FEATUREMAP.get(feature));
+                Constructor<?> con;
+                con = c.getConstructor();
+                Object temp = new Object();
+                temp = con.newInstance();
+                String type = ((AbstractFeatureProcessing)temp).getType();
+                if(type.equals(FEATUREGROUPS[0])){
+                    CLUSTER.add(feature);
+                }else if(type.equals(FEATUREGROUPS[1])){
+                    REDUCTION.add(feature);
+                }else{
+                    OTHER.add(feature);
+                }
+            }catch (NullPointerException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException ex) {
+                Logger.getLogger(MicroBlockFeatureSetup.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        }
+        
+        if(CLUSTER.isEmpty())
+            FEATUREGROUPS = ArrayUtils.removeElement(FEATUREGROUPS,0);
+        if(REDUCTION.isEmpty())
+            FEATUREGROUPS = ArrayUtils.removeElement(FEATUREGROUPS, 1);
+        if(OTHER.isEmpty())
+            FEATUREGROUPS = ArrayUtils.removeElement(FEATUREGROUPS, 2);
+                
+    }
     public void updateProtocol(){
         CurrentStepProtocol = CurrentProcessList;
         super.notifyMicroBlockSetupListeners(CurrentStepProtocol);

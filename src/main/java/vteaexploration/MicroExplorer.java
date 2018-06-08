@@ -1348,7 +1348,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                 //System.out.println("PROFILING: loops done: " + (a_itr.nextIndex()-1));
 
                 for(int k = 0; k < mask.length && j < this.availabledata.size() + 1; k++, j++){
-                    this.ObjectIDs[i][j] = ((Number)mask[k]).doubleValue();
+                    if(!(((Number)mask[k]) == null))    
+                        this.ObjectIDs[i][j] = ((Number)mask[k]).doubleValue();
+                    else
+                        this.ObjectIDs[i][j] = 0;
                 }
                 for(int k = 0; k < data.length && j < this.availabledata.size() + 1; k++){
                     for(int l = 0; l < data[k].length && j < this.availabledata.size() + 1; l++, j++){
@@ -1360,6 +1363,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                 i++;
             }
         }catch(NullPointerException ex){
+            System.out.println(ex);
         }
     }
 
@@ -1418,7 +1422,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         
         protected void export(ArrayList header, List attributes) {
            
-            System.out.println("csving");
             JFileChooser jf = new JFileChooser(new File("untitled.csv"));
             
             int returnVal = jf.showSaveDialog(Main);

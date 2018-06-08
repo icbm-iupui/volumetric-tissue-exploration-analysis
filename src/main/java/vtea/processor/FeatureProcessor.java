@@ -17,9 +17,19 @@
  */
 package vtea.processor;
 
+import java.io.File;
+import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import org.scijava.plugin.Plugin;
 import java.util.ArrayList;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import static vtea._vtea.FEATUREMAP;
+import vtea.featureprocessing.AbstractFeatureProcessing;
 
 /**
  *
@@ -30,10 +40,12 @@ public class FeatureProcessor extends AbstractProcessor{
     
     ArrayList protocol;
     double[][] features;
+    static int step;
+    ArrayList result;
     
     public FeatureProcessor(){
         VERSION = "0.1";
-        AUTHOR = "Drew McNutt";
+        AUTHOR = "Andrew McNutt";
         COMMENT = "Converting to SciJava plugin architecture";
         NAME = "Feature Processor";
         KEY = "FeatureProcessor";
@@ -46,58 +58,59 @@ public class FeatureProcessor extends AbstractProcessor{
     }
     
     public double[][] process() {
-        
+        double[][] featdupl = features;
         ListIterator<Object> litr = protocol.listIterator();
         while (litr.hasNext()) {
-            ProcessManager((ArrayList) litr.next(), features);
+            ProcessManager((ArrayList) litr.next(), featdupl);
         }
-        return (new double[4][]);
+        return featdupl;
     }
     
     private void ProcessManager(ArrayList protocol, double[][] features) {
 
-        //Object iImp = new Object();
-        /*
+        Object iFeatp = new Object();
+        
         try {
             Class<?> c;
-            c = Class.forName(PROCESSINGMAP.get(protocol.get(0).toString()));
+            c = Class.forName(FEATUREMAP.get(protocol.get(0).toString()));
             Constructor<?> con;
             try {
                 con = c.getConstructor();
-                iImp = con.newInstance();  
-                ((AbstractImageProcessing)iImp).getVersion();
+                iFeatp = con.newInstance();  
+                ((AbstractFeatureProcessing)iFeatp).getVersion();
 
             } catch ( NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FeatureProcessor.class.getName()).log(Level.SEVERE, null, ex);
             }
             
         } catch (NullPointerException | ClassNotFoundException ex) {
-            Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FeatureProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
-        */
+        ((AbstractFeatureProcessing)iFeatp).process(protocol,features);
+        result = ((AbstractFeatureProcessing)iFeatp).getResult();
        
     }
     
     @Override
     protected Void doInBackground() throws Exception{
-        int progress = 0;
-   
+        setProgress(0);
         try{       
-            firePropertyChange("comment", "", "Starting image processing...");
+            firePropertyChange("comment", "", "Starting feature Analysis...");
             firePropertyChange("progress", 0, 5);
             ListIterator<Object> litr = this.protocol.listIterator();
             
-            int step = 100/protocol.size();
+            step = 100/protocol.size();
                     
         while (litr.hasNext()) {
-            setProgress(progress);
             ProcessManager((ArrayList) litr.next(), features);
-            progress += step;
+            setProgress(getProgress() + step);
         }
+        outputResults();
         setProgress(100);
         firePropertyChange("comment", "", "Done.");
         }catch(Exception e){
-        throw e;
+            System.out.println(e);
+            throw e;
         }
         return null;
     }
@@ -111,4 +124,42 @@ public class FeatureProcessor extends AbstractProcessor{
     public String getChange() {
         return "";
     }
+    
+    public static int getStep(){
+        return step;
+    }
+    
+    public void outputResults(){
+        JFileChooser jf = new JFileChooser(new File("untitled.csv"));
+        jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
+            
+        int returnVal = jf.showSaveDialog(null);
+            
+        File file = jf.getSelectedFile(); 
+
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+//            if(file.getName().length() < 5 | file.getName().length() >= 5 && (file.getName().substring(file.getName().length()-3)).equals(".csv"))
+//                file.renameTo(file + ".csv");
+            try{
+
+                        PrintWriter pw = new PrintWriter(file);
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Object,Membership\n");
+                        for(int i = 0; i < result.size(); i++){
+                            sb.append(features[i][0]);
+                            sb.append(',');
+                            sb.append(result.get(i));
+                            sb.append('\n');
+                        }
+                        pw.write(sb.toString());
+                        pw.close();
+                        
+            }catch(Exception e){
+                
+            }
+        }else{
+            
+        }
+    }
+            
 }

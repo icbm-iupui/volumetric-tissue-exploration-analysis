@@ -318,18 +318,10 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     }//GEN-LAST:event_DeleteAllStepsActionPerformed
 
     private void FeatureGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FeatureGoActionPerformed
-        FeatureComment.setText("Processing data...");
-
-        ArrayList<ArrayList> protocol = new ArrayList<>();
-
-        //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
         
-        protocol = extractSteps(FeatureStepsList);
+        findFeatures();
+        VTEAProgressBar.setValue(0);
         
-        FeatureComment.setText("Processing data...");
-        FeatureProcessor fp = new FeatureProcessor(features, protocol);
-        fp.addPropertyChangeListener(this);
-        fp.execute();
     }//GEN-LAST:event_FeatureGoActionPerformed
 
     private void jPanel1formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPanel1formKeyPressed
@@ -597,6 +589,18 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         FeatureStepsPanel.repaint();
         pack();
 
+    }
+    
+    private void findFeatures(){
+        FeatureComment.setText("Finding features...");
+        ArrayList<ArrayList> protocol = new ArrayList<>();
+        //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
+        protocol = extractSteps(FeatureStepsList);
+        
+        FeatureProcessor fp = new FeatureProcessor(features, protocol);
+        fp.addPropertyChangeListener(this);
+        fp.execute();
+        
     }
 
 }

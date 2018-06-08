@@ -40,7 +40,8 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
 
     protected ArrayList<T> protocol= new ArrayList();
     
-    protected double[] dataResult;
+    protected ArrayList dataResult = new ArrayList();
+    protected int progress;
     
     @Override
     public boolean setOptions(ArrayList al, double[][] proximity) {
@@ -54,26 +55,26 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
     }
 
     @Override
-    public double[] getResult() {
+    public ArrayList getResult() {
         
        return dataResult; 
         
     }
 
-    @Override
-    public double[] getPreview() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+//    @Override
+//    public double[] getPreview() {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
     
-    @Override
-    public String getImageJMacroCommand(){
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String runImageJMacroCommand(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+//    @Override
+//    public String getImageJMacroCommand(){
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
+//
+//    @Override
+//    public String runImageJMacroCommand(String str) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 
     @Override
     public void sendProgressComment() {
@@ -82,7 +83,8 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
 
     @Override
     public String getProgressComment() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return String.valueOf(progress);
     }
 
     @Override

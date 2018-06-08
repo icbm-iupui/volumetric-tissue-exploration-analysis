@@ -39,15 +39,15 @@ public interface FeatureProcessing<T extends Component, A extends RealType> exte
     
     //public boolean process(ArrayList al);
     
-    public double[] getResult();
+    public ArrayList getResult();
     
     //public double[][] getImpResult();
     
-    public double[] getPreview();
+    //public double[] getPreview();
     
-    public String getImageJMacroCommand();
-    
-    public String runImageJMacroCommand(String str);
+//    public String getImageJMacroCommand();
+//    
+//    public String runImageJMacroCommand(String str);
     
     public String getVersion();
     
