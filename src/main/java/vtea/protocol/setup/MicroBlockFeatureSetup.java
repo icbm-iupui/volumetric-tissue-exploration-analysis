@@ -44,11 +44,13 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     ArrayList REDUCTION = new ArrayList();
     ArrayList OTHER = new ArrayList();
     JComboBox jComboBoxData = new JComboBox();
+    int nvol;
     
     
-    public MicroBlockFeatureSetup(int step, ArrayList AvailableData){
+    public MicroBlockFeatureSetup(int step, ArrayList AvailableData, int nvol){
         super(step);
         this.availabledata = AvailableData;
+        this.nvol = nvol;
         this.setLocation(400, 0);
         this.setResizable(false);
         
@@ -237,11 +239,11 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
             Class<?> c;
             c = Class.forName(FEATUREMAP.get(method));
             Constructor<?> con;
-            con = c.getConstructor();
-            iFeatp = con.newInstance();
+            con = c.getDeclaredConstructor(int.class);
+            iFeatp = con.newInstance(new Object[]{this.nvol});
             return ((AbstractFeatureProcessing)iFeatp).getOptions();        
         }catch(Exception e){
-            
+            System.out.println(e);
         }
         return new ArrayList();
     }
@@ -270,12 +272,14 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         }
         
         if(CLUSTER.isEmpty())
-            FEATUREGROUPS = ArrayUtils.removeElement(FEATUREGROUPS,0);
+            this.FEATUREGROUPS = ArrayUtils.removeElement(this.FEATUREGROUPS,"Cluster");
         if(REDUCTION.isEmpty())
-            FEATUREGROUPS = ArrayUtils.removeElement(FEATUREGROUPS, 1);
+            this.FEATUREGROUPS = ArrayUtils.removeElement(this.FEATUREGROUPS, "Reduction");
         if(OTHER.isEmpty())
-            FEATUREGROUPS = ArrayUtils.removeElement(FEATUREGROUPS, 2);
-                
+            this.FEATUREGROUPS = ArrayUtils.removeElement(this.FEATUREGROUPS, "Other");
+        
+        ccbm = new DefaultComboBoxModel(this.FEATUREGROUPS);
+        ChannelComboBox.setModel(ccbm);
     }
     public void updateProtocol(){
         CurrentStepProtocol = CurrentProcessList;

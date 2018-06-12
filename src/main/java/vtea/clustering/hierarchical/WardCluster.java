@@ -17,10 +17,12 @@
  */
 package vtea.clustering.hierarchical;
 
+import ij.IJ;
 import java.util.ArrayList;
 import javax.swing.JLabel;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
-import smile.clustering.HierarchicalClustering;
+import javax.swing.SpinnerNumberModel;
 import smile.clustering.linkage.WardLinkage;
 import org.scijava.plugin.Plugin;
 import vtea.featureprocessing.FeatureProcessing;
@@ -39,12 +41,21 @@ public class WardCluster extends AbstractHierarchical{
         NAME = "Ward Hierarchical Clustering";
         KEY = "WardHierarchicalClustering";
         TYPE = "Cluster";
+    }
+    
+    public WardCluster(int max){
+        VERSION = "0.1";
+        AUTHOR = "Andrew McNutt";
+        COMMENT = "Implements the plugin from SMILE";
+        NAME = "Ward Hierarchical Clustering";
+        KEY = "WardHierarchicalClustering";
+        TYPE = "Cluster";
         
         protocol = new ArrayList();
 
         protocol.add(new JLabel("Amount of clusters:"));
 
-        protocol.add(new JTextField("5", 5));
+        protocol.add(new JSpinner(new SpinnerNumberModel(5,0,max,1)));
     }
     
     /*Calculates the proximity matrix of the features and using Ward Hierarchical Clustering returns true when complete*/
@@ -55,10 +66,11 @@ public class WardCluster extends AbstractHierarchical{
         int nclusters;
         double[][] proximity;
         
-        JTextField clust = (JTextField)al.get(3);
-        nclusters = Integer.parseInt(clust.getText());
-        
+        JSpinner clust = (JSpinner)al.get(3);
+        nclusters = ((Integer)clust.getValue());
+        IJ.log("PROFILING: Calculating Proximity Matrix for " + feature.length + " volumes in "+ feature[1].length + "-D space" );
         proximity = calculateProximity(feature);
+        IJ.log("PROFILING: Creating Ward Linkage");
         WardLinkage wl = new WardLinkage(proximity);
         calculateClusters(wl, nclusters);
         

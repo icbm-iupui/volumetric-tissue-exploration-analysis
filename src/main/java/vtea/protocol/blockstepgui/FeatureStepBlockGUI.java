@@ -23,10 +23,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MicroBlockSetupListener;
 import vtea.protocol.listeners.RebuildPanelListener;
@@ -62,11 +63,11 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
     public FeatureStepBlockGUI() {
     }
     
-    public FeatureStepBlockGUI(String FeatureText, String CommentText, Color BlockColor, int position, ArrayList AvailableData) {
-            BuildStepBlock(FeatureText, CommentText, Color.GRAY, position, AvailableData);
+    public FeatureStepBlockGUI(String FeatureText, String CommentText, Color BlockColor, int position, ArrayList AvailableData, int nvol) {
+            BuildStepBlock(FeatureText, CommentText, Color.GRAY, position, AvailableData, nvol);
     }
     
-    private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, final int position, ArrayList AvailableData) {
+    private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, final int position, ArrayList AvailableData, final int nvol) {
         this.position = position;
         Feature.setText("");
 
@@ -79,16 +80,13 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         
         Comment.setText("");
 
-        if (Feature.getText().length() < 12) {
-            FeatureFont = new Font("Arial", Font.BOLD, 8);
-        }
-        if (Comment.getText().length() > 12) {
-            CommentFont = new Font("Arial", Font.BOLD, 5);
-        }
+        FeatureFont = new Font("Arial", Font.BOLD, 14);
+        CommentFont = new Font("Arial", Font.ITALIC, 10);
+        
         Feature.setFont(FeatureFont);
         Comment.setFont(CommentFont);
 
-        mbs = new MicroBlockFeatureSetup(position, AvailableData);
+        mbs = new MicroBlockFeatureSetup(position, AvailableData, nvol);
 
         mbs.setVisible(true);
         mbs.addMicroBlockSetupListener(this);
@@ -238,8 +236,20 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         
         if(al.get(1) == null){
             Comment.setText("");
+        }else if(al.get(0).toString().contains("Clustering")){
+            JSpinner nclust = (JSpinner)al.get(3);
+            JLabel lab = (JLabel)al.get(2);
+            Comment.setText(lab.getText() + ((Integer)nclust.getValue()).toString());
         }else{
-            Comment.setText(al.get(1).toString());
+            JLabel lab1 = (JLabel)al.get(2);
+            JLabel lab2 = (JLabel)al.get(4);
+            JLabel lab3 = (JLabel)al.get(6);
+            JLabel lab4 = (JLabel)al.get(8);
+            JTextField val1 = (JTextField)al.get(3);
+            JTextField val2 = (JTextField)al.get(5);
+            JTextField val3 = (JTextField)al.get(7);
+            JTextField val4 = (JTextField)al.get(9);
+            Comment.setText("<html>" + lab1.getText() + ": " + (Integer.parseInt(val1.getText())) + ", " +  lab2.getText() + ": " + (Integer.parseInt(val2.getText())) + ", " +  lab3.getText() + ": " + (Integer.parseInt(val3.getText())) + ", " +  lab4.getText() + ": " + (Integer.parseInt(val4.getText())) + "</html>");
         }
         
         notifyRebuildPanelListeners(4);

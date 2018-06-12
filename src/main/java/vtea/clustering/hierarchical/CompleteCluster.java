@@ -17,9 +17,12 @@
  */
 package vtea.clustering.hierarchical;
 
+import ij.IJ;
 import java.util.ArrayList;
 import javax.swing.JLabel;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import org.scijava.plugin.Plugin;
 import smile.clustering.linkage.CompleteLinkage;
 import vtea.featureprocessing.FeatureProcessing;
@@ -35,7 +38,16 @@ public class CompleteCluster extends AbstractHierarchical{
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from SMILE";
-        NAME = "Complete Link Hierarchical Clustering";
+        NAME = "Complete-Link Hierarchical Clustering";
+        KEY = "CompleteLinkHierarchicalClustering";
+        TYPE = "Cluster";
+    }
+    
+    public CompleteCluster(int max){
+        VERSION = "0.1";
+        AUTHOR = "Andrew McNutt";
+        COMMENT = "Implements the plugin from SMILE";
+        NAME = "Complete-Link Hierarchical Clustering";
         KEY = "CompleteLinkHierarchicalClustering";
         TYPE = "Cluster";
         
@@ -43,7 +55,7 @@ public class CompleteCluster extends AbstractHierarchical{
 
         protocol.add(new JLabel("Amount of clusters:"));
 
-        protocol.add(new JTextField("5", 5));
+        protocol.add(new JSpinner(new SpinnerNumberModel(5,0,max,1)));
     
     }
     
@@ -56,10 +68,12 @@ public class CompleteCluster extends AbstractHierarchical{
 
         
         dataResult.ensureCapacity(feature.length);
-        JTextField clust = (JTextField)al.get(3);
-        nclusters = Integer.parseInt(clust.getText());
+        JSpinner clust = (JSpinner)al.get(3);
+        nclusters = ((Integer)clust.getValue());
         
+        IJ.log("PROFILING: Calculating Proximity Matrix for " + feature[1].length + " features");
         proximity = calculateProximity(feature);
+        IJ.log("PROFILING: Creating Complete-Link Linkage");
         CompleteLinkage cl = new CompleteLinkage(proximity);
         calculateClusters(cl, nclusters);
 

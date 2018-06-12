@@ -17,6 +17,7 @@
  */
 package vtea.clustering.hierarchical;
 
+import ij.IJ;
 import smile.clustering.HierarchicalClustering;
 import smile.clustering.linkage.Linkage;
 import vtea.featureprocessing.AbstractFeatureProcessing;
@@ -30,9 +31,10 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
     /*Given the linkage calculates the membership of all the volumes*/
     protected void calculateClusters(Linkage l, int n){
         int[] membership;
-        
+        IJ.log("PROFILING: Creating Hierarchical Tree");
         HierarchicalClustering hc = new HierarchicalClustering(l);
         
+        IJ.log("PROFILING: Finding membership of volumes in " + n + " clusters");
         membership = hc.partition(n);
         
         for(int i = 0; i < membership.length; i++){

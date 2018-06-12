@@ -40,6 +40,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     protected ArrayList<FeatureStepBlockGUI> FeatureStepsList;
     ArrayList availabledata;
     double[][] features;
+    int nvol;           //number of volumes
     
     protected GridLayout FeatureLayout = new GridLayout(4, 1, 0, 0);
     /**
@@ -48,6 +49,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     public FeatureFrame(ArrayList AvailableData, double[][] table) {
         this.availabledata = AvailableData;
         this.features = table;
+        this.nvol = table.length;
                 
         this.FeatureStepsList = new ArrayList<FeatureStepBlockGUI>();
         initComponents();
@@ -282,7 +284,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
 
     private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
         //this.setVisible(false);
-        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,FeatureStepsList.size() + 1, availabledata);
+        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,FeatureStepsList.size() + 1, availabledata, nvol);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
         //this.notifyRepaintFeatureListeners();

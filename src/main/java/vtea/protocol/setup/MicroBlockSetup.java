@@ -737,7 +737,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 //        }
     }
     
-    @Override
+    @Override    
     public Object clone() throws CloneNotSupportedException {
         return super.clone(); //To change body of generated methods, choose Tools | Templates.
     }

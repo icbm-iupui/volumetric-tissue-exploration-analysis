@@ -17,9 +17,12 @@
  */
 package vtea.clustering.hierarchical;
 
+import ij.IJ;
 import java.util.ArrayList;
 import javax.swing.JLabel;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import org.scijava.plugin.Plugin;
 import smile.clustering.HierarchicalClustering;
 import smile.clustering.linkage.SingleLinkage;
@@ -36,7 +39,16 @@ public class SingleCluster extends AbstractHierarchical{
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from SMILE";
-        NAME = "Single Link Hierarchical Clustering";
+        NAME = "Single-Link Hierarchical Clustering";
+        KEY = "SingleLinkHierarchicalClustering";
+        TYPE = "Cluster";
+    }
+    
+    public SingleCluster(int max){
+        VERSION = "0.1";
+        AUTHOR = "Andrew McNutt";
+        COMMENT = "Implements the plugin from SMILE";
+        NAME = "Single-Link Hierarchical Clustering";
         KEY = "SingleLinkHierarchicalClustering";
         TYPE = "Cluster";
         
@@ -44,7 +56,7 @@ public class SingleCluster extends AbstractHierarchical{
 
         protocol.add(new JLabel("Amount of clusters:"));
 
-        protocol.add(new JTextField("5", 5));
+        protocol.add(new JSpinner(new SpinnerNumberModel(5,0,max,1)));
     }
     
     /*Calculates the proximity matrix of the features and using Single-Link Hierarchical Clustering returns true when complete*/
@@ -56,10 +68,12 @@ public class SingleCluster extends AbstractHierarchical{
 
         
         dataResult.ensureCapacity(feature.length);
-        JTextField clust = (JTextField)al.get(3);
-        nclusters = Integer.parseInt(clust.getText());
+        JSpinner clust = (JSpinner)al.get(3);
+        nclusters = ((Integer)clust.getValue());
         
+        IJ.log("PROFILING: Calculating Proximity Matrix for " + feature[1].length + " features");
         proximity = calculateProximity(feature);
+        IJ.log("PROFILING: Creating Single-Link Linkage");
         SingleLinkage sl = new SingleLinkage(proximity);
         calculateClusters(sl, nclusters);
 

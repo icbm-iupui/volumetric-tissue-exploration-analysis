@@ -55,6 +55,7 @@ public class FeatureProcessor extends AbstractProcessor{
 
         this.features = features;
         this.protocol = protocol;
+        result = new ArrayList(2);
     }
     
     public double[][] process() {
@@ -87,13 +88,19 @@ public class FeatureProcessor extends AbstractProcessor{
             Logger.getLogger(FeatureProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
         ((AbstractFeatureProcessing)iFeatp).process(protocol,features);
-        result = ((AbstractFeatureProcessing)iFeatp).getResult();
+        result.add((ArrayList)((AbstractFeatureProcessing)iFeatp).getResult());
        
     }
     
     @Override
     protected Void doInBackground() throws Exception{
         setProgress(0);
+        ArrayList ID = new ArrayList(features.length);
+        for(double[] feature : features) {
+            ID.add(feature[0]);
+        }
+        result.add(ID);
+        System.out.println("Done");
         try{       
             firePropertyChange("comment", "", "Starting feature Analysis...");
             firePropertyChange("progress", 0, 5);
@@ -105,6 +112,7 @@ public class FeatureProcessor extends AbstractProcessor{
             ProcessManager((ArrayList) litr.next(), features);
             setProgress(getProgress() + step);
         }
+        System.out.println("Done");
         outputResults();
         setProgress(100);
         firePropertyChange("comment", "", "Done.");
@@ -144,13 +152,30 @@ public class FeatureProcessor extends AbstractProcessor{
 
                         PrintWriter pw = new PrintWriter(file);
                         StringBuilder sb = new StringBuilder();
-                        sb.append("Object,Membership\n");
-                        for(int i = 0; i < result.size(); i++){
-                            sb.append(features[i][0]);
+                        
+                        //Header
+                        sb.append("Object,");
+                        for(Object methods: protocol){
+                            String header = ((ArrayList)methods).get(0).toString();
+                            header = header.replaceFirst(" Hierarchical", "");
+                            header = header.replaceFirst(" Clustering", "");
+                            header = header.replaceFirst(" Reduction", "");
+                            sb.append(header);
                             sb.append(',');
-                            sb.append(result.get(i));
+                        }
+                        sb.append("\n");
+                        
+                        //Data
+                        for(int i = 0; i < features.length; i++){
+                            //Each object in result is a different analysis
+                            for(Object data: result){
+                                ArrayList al = (ArrayList)data;
+                                sb.append(al.get(i));
+                                sb.append(',');
+                            }
                             sb.append('\n');
                         }
+                        
                         pw.write(sb.toString());
                         pw.close();
                         
