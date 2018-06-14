@@ -23,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import org.apache.commons.lang.ArrayUtils;
 import smile.clustering.linkage.WardLinkage;
 import org.scijava.plugin.Plugin;
 import vtea.featureprocessing.FeatureProcessing;
@@ -66,7 +67,11 @@ public class WardCluster extends AbstractHierarchical{
         int nclusters;
         double[][] proximity;
         
-        JSpinner clust = (JSpinner)al.get(3);
+        ArrayList selectData = (ArrayList)al.get(0);
+        feature = selectColumns(feature, selectData);
+
+        
+        JSpinner clust = (JSpinner)al.get(4);
         nclusters = ((Integer)clust.getValue());
         IJ.log("PROFILING: Calculating Proximity Matrix for " + feature.length + " volumes in "+ feature[1].length + "-D space" );
         proximity = calculateProximity(feature);

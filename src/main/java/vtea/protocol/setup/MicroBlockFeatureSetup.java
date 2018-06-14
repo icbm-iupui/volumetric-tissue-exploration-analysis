@@ -18,17 +18,24 @@
 package vtea.protocol.setup;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import org.apache.commons.lang3.ArrayUtils;
 import static vtea._vtea.FEATUREMAP;
 import vtea.featureprocessing.AbstractFeatureProcessing;
@@ -45,7 +52,11 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     ArrayList OTHER = new ArrayList();
     JComboBox jComboBoxData = new JComboBox();
     int nvol;
-    
+    JPanel  dataPanel;
+    JScrollPane dataScroll;
+    JCheckBox all;
+    ArrayList FeatureComponents = new ArrayList();
+    //ArrayList seldata = new ArrayList();
     
     public MicroBlockFeatureSetup(int step, ArrayList AvailableData, int nvol){
         super(step);
@@ -62,7 +73,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         ChannelComboBox.setModel(ccbm);
         comments.removeAll();
         PreviewButton.setVisible(false);
-                
+
 //        methodBuild.setMaximumSize(new java.awt.Dimension(400, 300));
 //        methodBuild.setMinimumSize(new java.awt.Dimension(359, 300));
 //        methodBuild.setPreferredSize(new java.awt.Dimension(359, 300));
@@ -80,6 +91,8 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         pack();
         
         setupGroups();
+        
+        setupDataBox();
         
         setSpecificComboBox(ChannelComboBox.getSelectedIndex());
         
@@ -112,7 +125,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     
     @Override
     protected JPanel makeProtocolPanel(String str){
-        ArrayList FeatureComponents;
+        
         
         CurrentProcessItems.set(0, makeMethodComponentsArray(str, ProcessVariables));
         FeatureComponents = CurrentProcessItems.get(0);
@@ -179,11 +192,8 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         repaint();
         pack();
         
-        CurrentProcessList.clear();
-        
-        CurrentProcessList.add(cbm.getSelectedItem());
-        CurrentProcessList.add(ccbm.getSelectedItem());
-        CurrentProcessList.addAll(FeatureComponents);
+        updateProcessList();
+        //CurrentProcessList.addAll(FeatureComponents);
         
         return MethodDetails;
     }
@@ -194,10 +204,6 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     }
     
     public void setSpecificComboBox(int index){
-        CurrentProcessList.clear();
-        
-        //ProcessSelectComboBox.removeAllItems();
-        //cbm.removeAllElements();
         
         switch (index){
             case 0:
@@ -219,8 +225,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         ProcessSelectComboBox.setModel(cbm);
         ProcessSelectComboBox.setVisible(true);
         
-        CurrentProcessList.add(ProcessSelectComboBox.getSelectedItem());
-        CurrentProcessList.add(ChannelComboBox.getSelectedItem());
+        updateProcessList();
         
         this.revalidate();
         this.repaint();
@@ -284,5 +289,79 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     public void updateProtocol(){
         CurrentStepProtocol = CurrentProcessList;
         super.notifyMicroBlockSetupListeners(CurrentStepProtocol);
+    }
+    
+    private void setupDataBox(){
+        Object[] features = (this.availabledata.toArray());
+        //int colsize = features.length / 2;
+        
+        dataPanel = new JPanel();
+        dataPanel.setPreferredSize(new Dimension(350,13 * features.length));
+        dataPanel.setMinimumSize(new Dimension(350,700));
+        //System.out.printf("Vgap = %d and HGap = %d", gl.getVgap(), gl.getHgap());
+        dataPanel.setLayout(new java.awt.GridLayout(0, 2, 0, 1));
+        dataPanel.setAlignmentY(JComponent.LEFT_ALIGNMENT);
+        dataScroll = new JScrollPane();
+        dataScroll.setViewportView(dataPanel);
+        dataScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        methodBuild.setVisible(false);
+        methodBuild.removeAll();
+        
+        all = new JCheckBox("Select All Data");
+        all.addActionListener(new java.awt.event.ActionListener(){
+            public void actionPerformed(java.awt.event.ActionEvent evt){
+                checkAllBoxes();
+            }
+        });
+        
+        methodBuild.setLayout(new javax.swing.BoxLayout(methodBuild,BoxLayout.Y_AXIS));
+        all.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        methodBuild.add(all);
+
+        for(int i = 0; i < features.length; i++){
+            JCheckBox cb = new JCheckBox(features[i].toString());
+            cb.addItemListener(new ItemListener(){
+                @Override
+                public void itemStateChanged(ItemEvent evt) {
+                        //System.out.println("Box for " + cb.getText());
+                        updateProcessList();
+                }
+            });
+            //this.seldata.add(cb);
+            dataPanel.add(cb);
+        }
+        methodBuild.add(dataScroll);
+        methodBuild.setVisible(true);
+        methodBuild.repaint();
+        repaint();
+        pack();
+    }
+    
+    public void checkAllBoxes(){
+        boolean set = all.isSelected();
+        for(Component c: dataPanel.getComponents()){
+                ((JCheckBox)c).setSelected(set);
+        }
+        repaint();
+    }
+    
+    public ArrayList getSelectedData(){
+        ArrayList selected = new ArrayList();
+        for(Component c: dataPanel.getComponents()){
+                selected.add(((JCheckBox)c).isSelected());
+        }
+//        for(Object cb: seldata){
+//            selected.add(((JCheckBox)cb).isSelected());
+//        }
+        return selected;
+    }
+    
+    private void updateProcessList(){
+        CurrentProcessList.clear();
+        CurrentProcessList.add(getSelectedData());
+        CurrentProcessList.add(ProcessSelectComboBox.getSelectedItem());
+        CurrentProcessList.add(ChannelComboBox.getSelectedItem());
+        if(!FeatureComponents.isEmpty())
+            CurrentProcessList.addAll(FeatureComponents);
     }
 }

@@ -31,6 +31,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.github.lejon.T-SNE-Java</groupId>
+            <artifactId>tsne</artifactId>
+            <version>v2.5.0</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-core -->
         <dependency>
             <groupId>com.github.haifengl</groupId>
@@ -319,6 +324,10 @@
             <id>bedatadriven</id>
             <name>bedatadriven public repo</name>
             <url>https://nexus.bedatadriven.com/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 

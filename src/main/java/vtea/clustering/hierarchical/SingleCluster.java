@@ -65,10 +65,12 @@ public class SingleCluster extends AbstractHierarchical{
         progress = 0;
         int nclusters;
         double[][] proximity;
-
+        
+        ArrayList selectData = (ArrayList)al.get(0);
+        feature = selectColumns(feature, selectData);
         
         dataResult.ensureCapacity(feature.length);
-        JSpinner clust = (JSpinner)al.get(3);
+        JSpinner clust = (JSpinner)al.get(4);
         nclusters = ((Integer)clust.getValue());
         
         IJ.log("PROFILING: Calculating Proximity Matrix for " + feature[1].length + " features");

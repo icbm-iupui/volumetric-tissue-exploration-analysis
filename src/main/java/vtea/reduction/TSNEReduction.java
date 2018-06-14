@@ -17,12 +17,17 @@
  */
 package vtea.reduction;
 
+import com.jujutsu.tsne.TSneConfiguration;
 import ij.IJ;
 import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
-import smile.manifold.TSNE;
+import com.jujutsu.tsne.barneshut.BHTSne;
+import com.jujutsu.tsne.barneshut.BarnesHutTSne;
+import com.jujutsu.utils.TSneUtils;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
 
@@ -30,7 +35,7 @@ import vtea.featureprocessing.FeatureProcessing;
  *
  * @author drewmcnutt
  */
-//@Plugin (type = FeatureProcessing.class)
+@Plugin (type = FeatureProcessing.class)
 public class TSNEReduction extends AbstractFeatureProcessing{
     
     public TSNEReduction(){
@@ -60,13 +65,17 @@ public class TSNEReduction extends AbstractFeatureProcessing{
         
         protocol.add( new JTextField("1000",1000));
         
-        protocol.add(new JLabel("Learning Rate"));
+        //protocol.add(new JLabel("Learning Rate"));
         
-        protocol.add(new JTextField("200",200));
+        //protocol.add(new JTextField("200",200));
         
         protocol.add(new JLabel("Perplexity"));
         
         protocol.add(new JTextField("20",20));
+        
+        protocol.add(new JLabel("PCA Preprocessing"));
+        
+        protocol.add(new JCheckBox());
     }
     
     @Override
@@ -75,22 +84,36 @@ public class TSNEReduction extends AbstractFeatureProcessing{
         double[][] results;
         
         //dissimilarity = calculateProximity(feature);
-        int dim = Integer.parseInt(((JTextField)al.get(3)).getText());
-        int itr = Integer.parseInt(((JTextField)al.get(5)).getText());
-        int lr = Integer.parseInt(((JTextField)al.get(7)).getText());
-        int perpl = Integer.parseInt(((JTextField)al.get(9)).getText());
+        int dim = Integer.parseInt(((JTextField)al.get(4)).getText());
+        int itr = Integer.parseInt(((JTextField)al.get(6)).getText());
+        int perpl = Integer.parseInt(((JTextField)al.get(8)).getText());
+        boolean pca = ((JCheckBox)al.get(10)).isSelected();
+        
+        ArrayList selectData = (ArrayList)al.get(0);
+        feature = selectColumns(feature, selectData);
+        
+        double[][] fortsne = new double[feature.length][feature[0].length-1];
+        int i = 0;
+        for(double[] r: feature){
+            for(int j = 1; j < r.length; j++){
+                fortsne[i][j-1] = feature[i][j];
+            }
+            i++;
+        }
         
         IJ.log("PROFILING: Training tSNE for " + itr + " iterations");
         long start = System.nanoTime();
-        TSNE tsne = new TSNE(feature, dim, perpl, lr,  itr);
+        BarnesHutTSne tsne = new BHTSne();
+        TSneConfiguration config = TSneUtils.buildConfig(fortsne,dim,fortsne[0].length,perpl,itr, pca, 0.5, false);
+        double[][] Y = tsne.tsne(config);
+        
         
         IJ.log("PROFILING: Extracting results");
-        results = tsne.getCoordinates();
         
-        for(int i = 0; i < results.length; i++){
+        for(i = 0; i < Y.length; i++){
             ArrayList obj = new ArrayList();
-            for(int j = 0; j < results[i].length; j++){
-                obj.add(results[i][j]);
+            for(int j = 0; j < Y[i].length; j++){
+                obj.add(Y[i][j]);
             }
             dataResult.add(obj);
         }
@@ -100,38 +123,38 @@ public class TSNEReduction extends AbstractFeatureProcessing{
         return true;
     }
     
-    private double[][] calculateProximity(double[][] feature){
-        int n = feature.length;
-        int feat = feature[0].length;
-        
-        double[][] proximity = new double[n][n];
-        
-        int i = 0;
-        for(double[] sample : feature){
-            for(int j = 0; j <= i; j++){
-                if(i == j){
-                    proximity[i][j] = 0;
-                    continue;
-                }
-                double d = calcDistance(feat,sample,feature[j]);
-                proximity[i][j] = d;
-                proximity[j][i] = d;
-            }
-            i++;
-            //System.out.println(i + "objects done");
-        }
-        return proximity;
-    }
-    
-    /*Calculates the distance between two objects based on the amount of
-    dimensions given as dim*/
-    private double calcDistance(int dim, double[] n, double[] m){
-        double d = 0;
-        for(int i = 1; i < dim; i++){
-            double val = n[i] - m[i];
-            d += val * val;
-        }
-        d = Math.sqrt(d);
-        return d;
-    }
+//    private double[][] calculateProximity(double[][] feature){
+//        int n = feature.length;
+//        int feat = feature[0].length;
+//        
+//        double[][] proximity = new double[n][n];
+//        
+//        int i = 0;
+//        for(double[] sample : feature){
+//            for(int j = 0; j <= i; j++){
+//                if(i == j){
+//                    proximity[i][j] = 0;
+//                    continue;
+//                }
+//                double d = calcDistance(feat,sample,feature[j]);
+//                proximity[i][j] = d;
+//                proximity[j][i] = d;
+//            }
+//            i++;
+//            //System.out.println(i + "objects done");
+//        }
+//        return proximity;
+//    }
+//    
+//    /*Calculates the distance between two objects based on the amount of
+//    dimensions given as dim*/
+//    private double calcDistance(int dim, double[] n, double[] m){
+//        double d = 0;
+//        for(int i = 1; i < dim; i++){
+//            double val = n[i] - m[i];
+//            d += val * val;
+//        }
+//        d = Math.sqrt(d);
+//        return d;
+//    }
 }

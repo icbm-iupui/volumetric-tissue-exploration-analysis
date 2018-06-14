@@ -24,6 +24,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -232,24 +234,28 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
     
     @Override
     public void onChangeSetup(ArrayList al){
-        Feature.setText(al.get(0).toString());
+        int len = al.size();
+//        System.out.printf("The length is %d", len);
+//        for(Object o: al)
+//            System.out.println(o.toString());
+        Feature.setText(al.get(1).toString());
         
-        if(al.get(1) == null){
+        if(len == 2){
             Comment.setText("");
-        }else if(al.get(0).toString().contains("Clustering")){
-            JSpinner nclust = (JSpinner)al.get(3);
-            JLabel lab = (JLabel)al.get(2);
+        }else if(al.get(1).toString().contains("Clustering")){
+            JSpinner nclust = (JSpinner)al.get(4);
+            JLabel lab = (JLabel)al.get(3);
             Comment.setText(lab.getText() + ((Integer)nclust.getValue()).toString());
-        }else{
-            JLabel lab1 = (JLabel)al.get(2);
-            JLabel lab2 = (JLabel)al.get(4);
-            JLabel lab3 = (JLabel)al.get(6);
-            JLabel lab4 = (JLabel)al.get(8);
-            JTextField val1 = (JTextField)al.get(3);
-            JTextField val2 = (JTextField)al.get(5);
-            JTextField val3 = (JTextField)al.get(7);
-            JTextField val4 = (JTextField)al.get(9);
-            Comment.setText("<html>" + lab1.getText() + ": " + (Integer.parseInt(val1.getText())) + ", " +  lab2.getText() + ": " + (Integer.parseInt(val2.getText())) + ", " +  lab3.getText() + ": " + (Integer.parseInt(val3.getText())) + ", " +  lab4.getText() + ": " + (Integer.parseInt(val4.getText())) + "</html>");
+        }else if(len == 11){
+            JLabel lab1 = (JLabel)al.get(3);
+            JLabel lab2 = (JLabel)al.get(5);
+            JLabel lab3 = (JLabel)al.get(7);
+            JLabel lab4 = (JLabel)al.get(9);
+            JTextField val1 = (JTextField)al.get(4);
+            JTextField val2 = (JTextField)al.get(6);
+            JTextField val3 = (JTextField)al.get(8);
+            JCheckBox val4 = (JCheckBox)al.get(10);
+            Comment.setText("<html>" + lab1.getText() + ": " + (Integer.parseInt(val1.getText())) + ", " +  lab2.getText() + ": " + (Integer.parseInt(val2.getText())) + ", " +  lab3.getText() + ": " + (Integer.parseInt(val3.getText())) + ", " +  lab4.getText() + ": " + val4.isSelected() + "</html>");
         }
         
         notifyRebuildPanelListeners(4);

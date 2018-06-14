@@ -73,7 +73,7 @@ public class FeatureProcessor extends AbstractProcessor{
         
         try {
             Class<?> c;
-            c = Class.forName(FEATUREMAP.get(protocol.get(0).toString()));
+            c = Class.forName(FEATUREMAP.get(protocol.get(1).toString()));
             Constructor<?> con;
             try {
                 con = c.getConstructor();
@@ -100,7 +100,6 @@ public class FeatureProcessor extends AbstractProcessor{
             ID.add(feature[0]);
         }
         result.add(ID);
-        System.out.println("Done");
         try{       
             firePropertyChange("comment", "", "Starting feature Analysis...");
             firePropertyChange("progress", 0, 5);
@@ -108,17 +107,16 @@ public class FeatureProcessor extends AbstractProcessor{
             
             step = 100/protocol.size();
                     
-        while (litr.hasNext()) {
-            ProcessManager((ArrayList) litr.next(), features);
-            setProgress(getProgress() + step);
-        }
-        System.out.println("Done");
-        outputResults();
-        setProgress(100);
-        firePropertyChange("comment", "", "Done.");
-        }catch(Exception e){
-            System.out.println(e);
-            throw e;
+            while (litr.hasNext()) {
+                ProcessManager((ArrayList) litr.next(), features);
+                setProgress(getProgress() + step);
+            }
+            System.out.println("Done");
+            outputResults();
+            setProgress(100);
+            firePropertyChange("comment", "", "Done.");
+        }catch(ClassCastException cce){
+            System.out.println(cce + " in doInBackground");
         }
         return null;
     }
@@ -156,7 +154,7 @@ public class FeatureProcessor extends AbstractProcessor{
                         //Header
                         sb.append("Object,");
                         for(Object methods: protocol){
-                            String header = ((ArrayList)methods).get(0).toString();
+                            String header = ((ArrayList)methods).get(1).toString();
                             header = header.replaceFirst(" Hierarchical", "");
                             header = header.replaceFirst(" Clustering", "");
                             header = header.replaceFirst(" Reduction", "");
