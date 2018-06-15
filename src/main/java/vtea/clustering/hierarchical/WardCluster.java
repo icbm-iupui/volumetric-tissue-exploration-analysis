@@ -34,7 +34,10 @@ import vtea.featureprocessing.FeatureProcessing;
  */
 @Plugin (type = FeatureProcessing.class)
 public class WardCluster extends AbstractHierarchical{
-    
+    /**
+     * Constructor.
+     * Sets the author, version, etc.
+     */
     public WardCluster(){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -44,6 +47,12 @@ public class WardCluster extends AbstractHierarchical{
         TYPE = "Cluster";
     }
     
+   /**
+    * Constructor.
+    * Creates an ArrayList protocol and fills it with a JLabel 
+    * and a JSpinner that has a max value of the number of volumes
+    * @param max the number of volumes segmented in the image
+    */
     public WardCluster(int max){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -59,7 +68,11 @@ public class WardCluster extends AbstractHierarchical{
         protocol.add(new JSpinner(new SpinnerNumberModel(5,0,max,1)));
     }
     
-    /*Calculates the proximity matrix of the features and using Ward Hierarchical Clustering returns true when complete*/
+    /**
+     * Calculates the proximity matrix of the features and using 
+     * Ward Hierarchical Clustering returns true when complete
+     * @return true when complete
+     */
     @Override
     public boolean process(ArrayList al, double[][] feature){
         dataResult.ensureCapacity(feature.length);
@@ -73,19 +86,14 @@ public class WardCluster extends AbstractHierarchical{
         
         JSpinner clust = (JSpinner)al.get(4);
         nclusters = ((Integer)clust.getValue());
-        IJ.log("PROFILING: Calculating Proximity Matrix for " + feature.length + " volumes in "+ feature[1].length + "-D space" );
+        IJ.log("PROFILING: Calculating Proximity Matrix for " + feature.length + " volumes in "+ (feature[1].length - 1) + "-D space" );
+        
         proximity = calculateProximity(feature);
         IJ.log("PROFILING: Creating Ward Linkage");
         WardLinkage wl = new WardLinkage(proximity);
         calculateClusters(wl, nclusters);
         
         return true;
-    }
-    
-    
-    @Override
-    public void sendProgressComment(){
-        
     }
 
 }
