@@ -48,17 +48,30 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
     protected ArrayList dataResult = new ArrayList();
     protected int progress;
     
+    /**
+     * Sets parameters for the feature method.
+     * @param al List of parameters
+     * @return true
+     */
     @Override
-    public boolean setOptions(ArrayList al, double[][] proximity) {
+    public boolean setOptions(ArrayList al) {
         protocol = al;
         return true;
     }
-
+    
+    /**
+     * Provides the parameters for the feature method.
+     * @return the parameters
+     */
     @Override
     public ArrayList getOptions() {
         return protocol;
     }
-
+    
+    /**
+     * Provides the newly calculated feature.
+     * @return value of the new feature for each object
+     */
     @Override
     public ArrayList getResult() {
         
@@ -66,21 +79,7 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         
     }
 
-//    @Override
-//    public double[] getPreview() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
     
-//    @Override
-//    public String getImageJMacroCommand(){
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-//
-//    @Override
-//    public String runImageJMacroCommand(String str) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-
     @Override
     public void sendProgressComment() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -91,48 +90,77 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         return String.valueOf(progress);
     }
-
+    
+    /**
+     * Provides name of the feature.
+     * @return the name of the feature
+     */
     @Override
     public String getName() {
         return NAME;
     }
 
+    /**
+     * Provides key of the feature.
+     * @return the key of the feature
+     */
     @Override
     public String getKey() {
         return KEY;
     }
 
+    /**
+     * The version of the feature.
+     * @return the version of the feature
+     */
     @Override
     public String getVersion() {
         return VERSION;
     }
-
+    
+    /**
+     * The author of the feature.
+     * @return the author of the feature
+     */
     @Override
     public String getAuthor() {
         return AUTHOR;
     }
 
+    /**
+     * Provides any comments about the feature.
+     * @return the comment about the feature
+     */
     @Override
     public String getComment() {
         return COMMENT;
     }
     
+    /**
+     * Provides the feature's type.
+     * @return the feature's type(Cluster,Dimensionality Reduction, etc.)
+     */
     @Override
     public String getType(){
         return TYPE;
     }
     
-    public double[][] selectColumns(double[][] feature, ArrayList al){
+    /**
+     * Deletes columns from feature array.  
+     * @param feature the original 2D feature array with columns denoting features
+     * and rows denoting objects
+     * @param keep corresponds to the columns of the array(true means keep and 
+     * false means delete)
+     * @return the new 2D feature array with the selected columns deleted.
+     */
+    public double[][] selectColumns(double[][] feature, ArrayList keep){
         ArrayList delcol = new ArrayList();
-        for(int i = 0; i < al.size(); i++){
-            if(((boolean)al.get(i)) == false)
+        for(int i = 0; i < keep.size(); i++){
+            if(((boolean)keep.get(i)) == false)
                 delcol.add(i+1);
         }
-        delcol.add(feature[0].length);
-        for(Object c: delcol)
-            System.out.println(c.toString());
-        
-        double[][] newfeature = new double[feature.length][feature[0].length-delcol.size() + 1];
+
+        double[][] newfeature = new double[feature.length][feature[0].length-delcol.size()];
         
         int count = 0;
         int j = 0;
@@ -142,6 +170,7 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         else{
             /*newfeature is filled with all of the elements of feature that were
             selected by the user*/
+            delcol.add(feature[0].length);
             for(Object col: delcol){
                 int c = (int)col;
                 for(int i = 0; i < feature.length; i++){
@@ -198,15 +227,16 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         return newfeature;
     }
     
+    /**
+     * Method is overwritten by each analysis method.
+     * @param al parameters of analysis method
+     * @param feature 2D feature array of the objects
+     * @return always false
+     */
     @Override
     public boolean process(ArrayList al, double[][] feature) {
         return false;
     }
-
-//    @Override
-//    public boolean process(ArrayList al, Img img) {
-//        return false;
-//    }
 
     @Override
     public boolean copyComponentParameter(int index, ArrayList dComponents, ArrayList sComponents) {

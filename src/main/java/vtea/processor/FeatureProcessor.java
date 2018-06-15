@@ -32,17 +32,34 @@ import static vtea._vtea.FEATUREMAP;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 
 /**
- *
+ * Feature Processor. Using the analysis methods and settings provided 
+ * it computes the new features for the selected data.
+ * @see AbstractFeatureProcessing
  * @author drewmcnutt
  */
 @Plugin(type = Processor.class)
 public class FeatureProcessor extends AbstractProcessor{
-    
+    /**
+     * Features to be analyzed with their settings
+     */
     ArrayList protocol;
+    /**
+     * 2D array of objects and features
+     */
     double[][] features;
+    /**
+     * the size of one feature in comparison to total progress
+     */
     static int step;
+    /**
+     * The newly computed features
+     */
     ArrayList result;
     
+    /**
+     * Constructor.
+     * Provides version, author, etc.
+     */
     public FeatureProcessor(){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -51,6 +68,15 @@ public class FeatureProcessor extends AbstractProcessor{
         KEY = "FeatureProcessor";
     }
     
+    /**
+     * Constructor.
+     * Sets up the processor to begin computing the new features
+     * @param features the 2D array with each row denoting a new object and each
+     * column a different feature. The first column is the unique serialID for 
+     * each object.
+     * @param protocol the list of all of the feature processing requested by 
+     * the user with the user specified options
+     */
     public FeatureProcessor(double[][] features, ArrayList protocol) {
 
         this.features = features;
@@ -58,15 +84,27 @@ public class FeatureProcessor extends AbstractProcessor{
         result = new ArrayList(2);
     }
     
-    public double[][] process() {
-        double[][] featdupl = features;
-        ListIterator<Object> litr = protocol.listIterator();
-        while (litr.hasNext()) {
-            ProcessManager((ArrayList) litr.next(), featdupl);
-        }
-        return featdupl;
-    }
+    /**
+     * Method.
+     * Does nothing I think.
+     * @return 
+     */
+//    public double[][] process() {
+//        double[][] featdupl = features;
+//        ListIterator<Object> litr = protocol.listIterator();
+//        while (litr.hasNext()) {
+//            ProcessManager((ArrayList) litr.next(), featdupl);
+//        }
+//        return featdupl;
+//    }
     
+    /**
+     * Method.
+     * Using the feature name, processes the feature with the given settings and
+     * adds the results to result
+     * @param protocol the settings of the specific feature that is being analyzed
+     * @param features 2D array of objects and features
+     */
     private void ProcessManager(ArrayList protocol, double[][] features) {
 
         Object iFeatp = new Object();
@@ -91,7 +129,13 @@ public class FeatureProcessor extends AbstractProcessor{
         result.add((ArrayList)((AbstractFeatureProcessing)iFeatp).getResult());
        
     }
-    
+    /**
+     * Method.
+     * Process that runs outside of the Swing event thread to compute all of the
+     * new features and update the progress bar.
+     * @return
+     * @throws Exception Prints out the exception that was thrown
+     */
     @Override
     protected Void doInBackground() throws Exception{
         setProgress(0);
@@ -115,26 +159,47 @@ public class FeatureProcessor extends AbstractProcessor{
             outputResults();
             setProgress(100);
             firePropertyChange("comment", "", "Done.");
-        }catch(ClassCastException cce){
-            System.out.println(cce + " in doInBackground");
+        }catch(Exception e){
+            System.out.println(e + " in doInBackground");
         }
         return null;
     }
-    
+    /**
+     * Method.
+     * Currently useless
+     * @param al
+     * @param str
+     * @return 
+     */
     @Override
     public int process(ArrayList al, String... str) {
         return 0;
     }
     
+    /**
+     * Method.
+     * Currently useless
+     * @return empty string
+     */
     @Override
     public String getChange() {
         return "";
     }
     
+    /**
+     * Method.
+     * Retrieves the step size
+     * @return the size of one feature analysis in terms of total progress
+     */
     public static int getStep(){
         return step;
     }
     
+    /**
+     * Method.
+     * Uses a file chooser to output the newly computed features next to the 
+     * unique serial ID
+     */
     public void outputResults(){
         JFileChooser jf = new JFileChooser(new File("untitled.csv"));
         jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));

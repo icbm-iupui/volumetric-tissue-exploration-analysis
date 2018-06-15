@@ -23,12 +23,16 @@ import smile.clustering.linkage.Linkage;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 
 /**
- *
+ * Clusters using Hierarchical clustering with ambiguous linkage method. 
  * @author drewmcnutt
  */
 public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
     
-    /*Given the linkage calculates the membership of all the volumes*/
+    /**
+     * Calculates the membership of all the volumes
+     * @param l linkage method for merging of clusters
+     * @param n number of clusters
+     */
     protected void calculateClusters(Linkage l, int n){
         int[] membership;
         IJ.log("PROFILING: Creating Hierarchical Tree");
@@ -43,8 +47,11 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
         
     }
     
-    /*Calculates the proximity matrix based on all of the features of the 
-    objects*/
+    /**
+     * Calculates the proximity matrix of the objects. Using Euclidean space
+     * @param feature feature array(rows are objects and columns are features)
+     * @return proximity matrix
+     */
     protected double[][] calculateProximity(double[][] feature){
         int n = feature.length;
         int feat = feature[0].length;
@@ -70,8 +77,13 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
         
     }
     
-    /*Calculates the distance between two objects based on the amount of
-    dimensions given as dim*/
+    /**
+     * Calculates the distance between two objects.
+     * @param dim dimension in which to calculate distance
+     * @param n object1
+     * @param m object2
+     * @return 
+     */
     private double calcDistance(int dim, double[] n, double[] m){
         double d = 0;
         for(int i = 1; i < dim; i++){
