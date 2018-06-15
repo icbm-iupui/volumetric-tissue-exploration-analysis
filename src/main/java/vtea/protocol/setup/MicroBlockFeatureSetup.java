@@ -56,8 +56,15 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     JScrollPane dataScroll;
     JCheckBox all;
     ArrayList FeatureComponents = new ArrayList();
-    //ArrayList seldata = new ArrayList();
-    
+
+    /**
+     * Constructor.
+     * Sets up the MicroBlockFeatureSetup GUI and initializes all of the proper 
+     * variables to allow the proper functioning of the window
+     * @param step value of what step it is in the list
+     * @param AvailableData contains the names of all of the computed features
+     * @param nvol the total number of volumes segmented from the image
+     */
     public MicroBlockFeatureSetup(int step, ArrayList AvailableData, int nvol){
         super(step);
         this.availabledata = AvailableData;
@@ -97,7 +104,10 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         setSpecificComboBox(ChannelComboBox.getSelectedIndex());
         
     }
-    
+    /**
+     * Updates the panel based on what combo box was altered
+     * @param e 
+     */
     @Override
     public void actionPerformed(ActionEvent e){
         if(e.getSource() == ChannelComboBox){
@@ -108,12 +118,19 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
             updateProtocolPanel(e);
         }
     }
+    
+    /**
+     * Updates the label at the top of the Window
+     */
     @Override
     protected void updateTitles(){
         TitleText.setText("Feature_" + step);
         this.repaint();
     }
-    
+    /**
+     * Updates the proper panel based on which combo box was altered
+     * @param evt 
+     */
     @Override
     protected void updateProtocolPanel(ActionEvent evt) {
         if(evt.getSource() == ProcessSelectComboBox){
@@ -122,7 +139,12 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
             setSpecificComboBox(ChannelComboBox.getSelectedIndex());
         }
     }
-    
+    /**
+     * Changes the components in MethodDetails so that they pertain to the 
+     * selected method
+     * @param str passed to makeMethodComponentsArray to get the components for the method
+     * @return JPanel
+     */
     @Override
     protected JPanel makeProtocolPanel(String str){
         
@@ -198,12 +220,11 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         return MethodDetails;
     }
     
-    public void setupPanels(){
-        //jComboBoxData.setModel(new DefaultComboBoxModel(this.availabledata.toArray()));
-        //add code for setting up parameters panel and data selection panel
-    }
-    
-    public void setSpecificComboBox(int index){
+    /**
+     * 
+     * @param index 
+     */
+    private void setSpecificComboBox(int index){
         
         switch (index){
             case 0:
@@ -236,6 +257,12 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
             makeProtocolPanel("");
     }
     
+    /**
+     * 
+     * @param method
+     * @param str
+     * @return 
+     */
     @Override
     protected ArrayList makeMethodComponentsArray(String method, String[][] str){
         Object iFeatp = new Object();
@@ -253,6 +280,9 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         return new ArrayList();
     }
     
+    /**
+     * 
+     */
     private void setupGroups(){
         for(String feature : FEATUREOPTIONS){
             try{
@@ -286,11 +316,18 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         ccbm = new DefaultComboBoxModel(this.FEATUREGROUPS);
         ChannelComboBox.setModel(ccbm);
     }
+    
+    /**
+     * 
+     */
     public void updateProtocol(){
         CurrentStepProtocol = CurrentProcessList;
         super.notifyMicroBlockSetupListeners(CurrentStepProtocol);
     }
     
+    /**
+     * 
+     */
     private void setupDataBox(){
         Object[] features = (this.availabledata.toArray());
         //int colsize = features.length / 2;
@@ -313,13 +350,14 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
                 checkAllBoxes();
             }
         });
-        
+        all.setSelected(true);
         methodBuild.setLayout(new javax.swing.BoxLayout(methodBuild,BoxLayout.Y_AXIS));
         all.setAlignmentX(JComponent.CENTER_ALIGNMENT);
         methodBuild.add(all);
 
         for(int i = 0; i < features.length; i++){
             JCheckBox cb = new JCheckBox(features[i].toString());
+            cb.setSelected(true);
             cb.addItemListener(new ItemListener(){
                 @Override
                 public void itemStateChanged(ItemEvent evt) {
@@ -337,7 +375,10 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         pack();
     }
     
-    public void checkAllBoxes(){
+    /**
+     * 
+     */
+    private void checkAllBoxes(){
         boolean set = all.isSelected();
         for(Component c: dataPanel.getComponents()){
                 ((JCheckBox)c).setSelected(set);
@@ -345,6 +386,10 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         repaint();
     }
     
+    /**
+     * 
+     * @return 
+     */
     public ArrayList getSelectedData(){
         ArrayList selected = new ArrayList();
         for(Component c: dataPanel.getComponents()){
@@ -356,6 +401,9 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         return selected;
     }
     
+    /**
+     * 
+     */
     private void updateProcessList(){
         CurrentProcessList.clear();
         CurrentProcessList.add(getSelectedData());

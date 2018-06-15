@@ -359,7 +359,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
         setMinimumSize(new java.awt.Dimension(638, 715));
-        setPreferredSize(new java.awt.Dimension(638, 710));
         setSize(new java.awt.Dimension(638, 715));
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
@@ -452,6 +451,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
         jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
         jButtonFeature.setText("Feature");
+        jButtonFeature.setToolTipText("Add more features");
         jButtonFeature.setFocusable(false);
         jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -1325,27 +1325,28 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
     }
     
-    /* Makes a data table with the first column containing the object IDs and
-    the subsequent columns containing all of the different calculated features
-    of the objects*/
-    
+    /**
+     * Creates 2D feature array. The first column is the unique SerialID and the
+     * subsequent columns are different computed features.
+     */
     private void makeDataTable(){
         ListIterator a_itr = ((ArrayList)plotvalues.get(1)).listIterator();
-        this.ObjectIDs = new double[((ArrayList)this.plotvalues.get(1)).size()][this.availabledata.size()+1];
+        //ObjectIDs = (number of volumes)x(calculated features + serialID + Xpos + Ypos + Z pos)
+        this.ObjectIDs = new double[((ArrayList)this.plotvalues.get(1)).size()][this.availabledata.size() + 4]; 
         
         try{
             int i = 0;
             while(a_itr.hasNext()){
-                int j = 1;
+                int j = 4;
                 MicroObjectModel volume = (MicroObjectModel)a_itr.next();
-                //double SID = (double)volume.getSerialID();
-                //int iSID = volume.getSerialID();
-                this.ObjectIDs[i][0] = (double)volume.getSerialID();
 
+                this.ObjectIDs[i][0] = (double)volume.getSerialID();
+                this.ObjectIDs[i][1] = volume.getCentroidX();
+                this.ObjectIDs[i][2] = volume.getCentroidY();
+                this.ObjectIDs[i][3] = volume.getCentroidZ();
+                
                 Object[] mask = volume.getAnalysisMaskVolume();
                 Object[][] data = volume.getAnalysisResultsVolume();
-
-                //System.out.println("PROFILING: loops done: " + (a_itr.nextIndex()-1));
 
                 for(int k = 0; k < mask.length && j < this.availabledata.size() + 1; k++, j++){
                     if(!(((Number)mask[k]) == null))    
@@ -1355,7 +1356,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                 }
                 for(int k = 0; k < data.length && j < this.availabledata.size() + 1; k++){
                     for(int l = 0; l < data[k].length && j < this.availabledata.size() + 1; l++, j++){
-                        //System.out.println("PROFILING: small loops done: " + (k * data.length + l));
                         this.ObjectIDs[i][j] = ((Number)data[k][l]).doubleValue();
                     }   
                 }

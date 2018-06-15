@@ -52,13 +52,15 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
     boolean ProcessTypeSet = false;
     int position;
 
+
     JButton DeleteButton;
     JButton EditButton;
 
     MicroBlockSetup mbs;
 
     private ArrayList settings;
-
+    ArrayList ad;
+    
     public ArrayList<RebuildPanelListener> rebuildpanelisteners = new ArrayList<>();
     public ArrayList<DeleteBlockListener> deleteblocklisteners = new ArrayList<>();
 
@@ -87,7 +89,8 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         
         Feature.setFont(FeatureFont);
         Comment.setFont(CommentFont);
-
+        
+        ad = AvailableData;
         mbs = new MicroBlockFeatureSetup(position, AvailableData, nvol);
 
         mbs.setVisible(true);
@@ -260,7 +263,9 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         
         notifyRebuildPanelListeners(4);
         
+
         this.settings = al;
+        addToolTip();
     }
     
     @Override
@@ -294,4 +299,27 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         }
     }
     
+    private void addToolTip(){
+        String tt = "<html>";
+        ArrayList data = (ArrayList)this.settings.get(0);
+        String curline = "";
+        
+        for(int i = 0; i < data.size(); i++){
+            if((boolean)data.get(i)){
+                String f = ad.get(i).toString();
+                int flen = f.length();
+                if(curline.length() + flen > 67){
+                    curline = curline.concat("<br>");
+                    tt = tt.concat(curline);
+                    curline = "";
+                }
+                curline = curline.concat(f);
+                if(curline.length() > 0){
+                    curline = curline.concat(", ");
+                }
+            }
+        }
+        tt = tt.concat("</html>");
+        step.setToolTipText(tt);
+    }
 }

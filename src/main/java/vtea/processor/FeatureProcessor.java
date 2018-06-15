@@ -155,7 +155,6 @@ public class FeatureProcessor extends AbstractProcessor{
                 ProcessManager((ArrayList) litr.next(), features);
                 setProgress(getProgress() + step);
             }
-            System.out.println("Done");
             outputResults();
             setProgress(100);
             firePropertyChange("comment", "", "Done.");

@@ -43,10 +43,20 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     int nvol;           //number of volumes
     
     protected GridLayout FeatureLayout = new GridLayout(4, 1, 0, 0);
+
     /**
+     * Constructor.
      * Creates new form FeatureFrame
+     * @param AvailableData
+     * @param table 
      */
     public FeatureFrame(ArrayList AvailableData, double[][] table) {
+        ArrayList pos = new ArrayList();
+        pos.add("PosX");
+        pos.add("PosY");
+        pos.add("PosZ");
+        
+        AvailableData.addAll(0,pos);
         this.availabledata = AvailableData;
         this.features = table;
         this.nvol = table.length;
@@ -54,7 +64,6 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         this.FeatureStepsList = new ArrayList<FeatureStepBlockGUI>();
         initComponents();
         FeatureStepsPanel.setLayout(FeatureLayout);
-        //addFeaturePanel();
     }
 
     /**
@@ -315,6 +324,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         AddStep.setEnabled(true);
         DeleteAllSteps.setEnabled(false);
         FeatureGo.setEnabled(false);
+        VTEAProgressBar.setValue(0);
         FeatureStepsPanel.repaint();
         //pack();
     }//GEN-LAST:event_DeleteAllStepsActionPerformed
@@ -371,15 +381,6 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
 
             FeatureComment.setText("Processing complete...");
             ProcessedShow.show();
-            
-
-            /*
-            if(ObjectStepsList.size() > 0){
-                me.FolderDrawer.clear(); 
-                me.ExploreDrawer.clear(); 
-                notifyUpdatedImageListeners(ProcessedImage); 
-            }
-            */
         }
         if ("escape" == evt.getPropertyName() && !(Boolean)evt.getNewValue()){
            
@@ -440,74 +441,8 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         protocol = extractSteps(FeatureStepsList);
         
         FeatureComment.setText("Processing data...");
-
-        /*if(protocol.size() > 0){
-        
-            ProcessedImage = OriginalImage.duplicate();
-            ImageProcessingProcessor ipp = new ImageProcessingProcessor(ProcessedImage, protocol);
-            ipp.addPropertyChangeListener(this);    
-            ipp.execute();
-        
-        }else{
-            
-            OriginalImage.deleteRoi();
-            ProcessedImage = OriginalImage.duplicate();
-            OriginalImage.restoreRoi();
-            
-            ImagePlus ProcessedShow = new ImagePlus("Processed");
-            //ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
-            ProcessedShow.setTitle(this.getName() + "_Processed");
-
-            ProgressComment.setText("Processing complete...");
-            ProcessedShow.show();
-        }
-        */
-        /*if(ObjectStepsList.size() > 0){
-            me.FolderDrawer.clear(); 
-            me.ExploreDrawer.clear(); 
-
-            notifyUpdatedImageListeners(ProcessedImage); 
-        }*/
     }
-/*
-    private synchronized void executeObjectFinding() {
 
-        this.PreProcessingGo.setEnabled(false);
-        ProgressComment.setText("Finding objects...");
-               
-        ArrayList<ArrayList> protocol = new ArrayList<>();
-        protocol = extractSteps(ObjectStepsList, OBJECTBLOCKS);
-
-        System.out.println("PROFILING: From tab, '" + this.tabName + "' Found " + ObjectStepsList.size() + " object definitions to process.");
-        me.start(ProcessedImage, protocol, true);
-        
-        this.exploreText.setForeground(new java.awt.Color(0, 0, 0));
-        
-        for(int i = 0; i < ObjectStepsList.size(); i++){
-            if(((MicroFolder)me.FolderDrawer.get(i)).getAvailableData().size() > 0){
-            executeExploring(i);
-            ProgressComment.setText("Finding objects complete...");
-            } else {
-              ProgressComment.setText("No objects found...");  
-            }
-        } 
-            VTEAProgressBar.setMaximum(255);
-            VTEAProgressBar.setMinimum(0);
-            VTEAProgressBar.setValue(0);
-            ObjectGo.setEnabled(false);
-        System.gc();
-    }
-*/
-/*
-    private void executeExploring(int i) {  
-        System.out.println("PROFILING: Explorer setup for Object_" + i);
-        System.out.println("PROFILING: Explorer getting " +  me.getFolderVolumes(i).size() + " volumes for Object_" + i);
-        VTEAProgressBar.setMaximum(me.getFolderVolumes(i).size() + 100);
-        me.addExplore(ProcessedImage,  "Object_" + (i+1), me.getFolderVolumes(i), me.getAvailableFolderData(i));
-       
-    }
-    ;
-*/
     static public ArrayList extractSteps(ArrayList sb_al) {
 
         ArrayList<ArrayList> Result = new ArrayList<ArrayList>();

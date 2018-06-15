@@ -29,7 +29,7 @@ import vtea.VTEAModule;
  */
 public interface FeatureProcessing<T extends Component, A extends RealType> extends VTEAModule {
     
-    public boolean setOptions(ArrayList<T> al, double[][] feature);
+    public boolean setOptions(ArrayList<T> al);
     
     public ArrayList<T> getOptions();
     
