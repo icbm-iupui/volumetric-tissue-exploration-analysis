@@ -28,12 +28,17 @@ import smile.clustering.linkage.CompleteLinkage;
 import vtea.featureprocessing.FeatureProcessing;
 
 /**
- *
+ * Hierarchical Clustering using Complete-Link. After merging two clusters the
+ * new cluster is given a dissimilarity value based on the maximum distance
+ * between elements of this cluster with another cluster.
  * @author drewmcnutt
  */
 @Plugin (type =FeatureProcessing.class)
 public class CompleteCluster extends AbstractHierarchical{
     
+    /**
+     * Constructor. Sets basic information of the class.
+     */
     public CompleteCluster(){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -43,23 +48,28 @@ public class CompleteCluster extends AbstractHierarchical{
         TYPE = "Cluster";
     }
     
+    /**
+     * Constructor. Calls the super constructor and sets basic information of
+     * the class.
+     * @param max the number of objects in the volume
+     */
     public CompleteCluster(int max){
+        super(max);
+        
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from SMILE";
         NAME = "Complete-Link Hierarchical Clustering";
         KEY = "CompleteLinkHierarchicalClustering";
         TYPE = "Cluster";
-        
-        protocol = new ArrayList();
-
-        protocol.add(new JLabel("Amount of clusters:"));
-
-        protocol.add(new JSpinner(new SpinnerNumberModel(5,0,max,1)));
-    
     }
     
-    /*Calculates the proximity matrix of the features and using Complete-Link Hierarchical Clustering returns true when complete*/
+    /**
+     * Calculates the hierarchical tree using Complete-Link Clustering.
+     * @param al holds the settings for the clustering
+     * @param feature the feature array
+     * @return true.
+     */
     @Override
     public boolean process(ArrayList al, double[][] feature){
         progress = 0;

@@ -23,31 +23,39 @@ import net.imglib2.type.numeric.RealType;
 import vtea.VTEAModule;
 
 /**
- *
+ * Basic Feature Interface. Sets up all of the methods that all features must employ.
  * @author drewmcnutt
- * 
  */
 public interface FeatureProcessing<T extends Component, A extends RealType> extends VTEAModule {
-    
+    /**
+     * Sets the parameters to the specified values.
+     * @param al ArrayList of parameters of the feature
+     * @return whether completed or not
+     */
     public boolean setOptions(ArrayList<T> al);
-    
+    /**
+     * Retrieves the currently set parameters.
+     * @return value of the parameters
+     */
     public ArrayList<T> getOptions();
-    
+    /**
+     * Completes the feature computation.
+     * @param al contains all of the parameters of the feature
+     * @param feature 2D array of features
+     */
     public boolean process(ArrayList al, double[][] feature);
     
+    /**
+     * Retrieves the feature type.
+     * @return "cluster", "Reduction" or "Other"
+     */
     public String getType();
     
-    //public boolean process(ArrayList al);
-    
+    /**
+     * Retrieves the results of the feature
+     * @return new 
+     */
     public ArrayList getResult();
-    
-    //public double[][] getImpResult();
-    
-    //public double[] getPreview();
-    
-//    public String getImageJMacroCommand();
-//    
-//    public String runImageJMacroCommand(String str);
     
     public String getVersion();
     
@@ -60,5 +68,7 @@ public interface FeatureProcessing<T extends Component, A extends RealType> exte
     public String getProgressComment();
     
     public boolean copyComponentParameter(int index, ArrayList<T> dComponents, ArrayList<T> sComponents);
+    
+    public ArrayList getBlockCommentLocation();
     
 }

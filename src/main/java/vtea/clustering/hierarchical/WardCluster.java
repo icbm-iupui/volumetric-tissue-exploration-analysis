@@ -29,7 +29,9 @@ import org.scijava.plugin.Plugin;
 import vtea.featureprocessing.FeatureProcessing;
 
 /**
- *
+ * Hierarchical Clustering using Ward. After merging two clusters the
+ * new cluster is given a dissimilarity value based on the error sum of squares
+ * between elements of this cluster with another cluster.
  * @author drewmcnutt
  */
 @Plugin (type = FeatureProcessing.class)
@@ -49,23 +51,19 @@ public class WardCluster extends AbstractHierarchical{
     
    /**
     * Constructor.
-    * Creates an ArrayList protocol and fills it with a JLabel 
-    * and a JSpinner that has a max value of the number of volumes
-    * @param max the number of volumes segmented in the image
+    * Calls the super constructor and sets basic information of
+     * the class.
+    * @param max the number of objects segmented in the volume
     */
     public WardCluster(int max){
+        super(max);
+        
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from SMILE";
         NAME = "Ward Hierarchical Clustering";
         KEY = "WardHierarchicalClustering";
         TYPE = "Cluster";
-        
-        protocol = new ArrayList();
-
-        protocol.add(new JLabel("Amount of clusters:"));
-
-        protocol.add(new JSpinner(new SpinnerNumberModel(5,0,max,1)));
     }
     
     /**
@@ -75,14 +73,14 @@ public class WardCluster extends AbstractHierarchical{
      */
     @Override
     public boolean process(ArrayList al, double[][] feature){
-        dataResult.ensureCapacity(feature.length);
+
         progress = 0;
         int nclusters;
         double[][] proximity;
         
         ArrayList selectData = (ArrayList)al.get(0);
         feature = selectColumns(feature, selectData);
-
+        dataResult.ensureCapacity(feature.length);
         
         JSpinner clust = (JSpinner)al.get(4);
         nclusters = ((Integer)clust.getValue());

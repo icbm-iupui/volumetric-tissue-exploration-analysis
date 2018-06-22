@@ -186,44 +186,44 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
                 }
             }
         }
-        /*Take the bstuff below out, just for debugging */
-        JFileChooser jf = new JFileChooser(new File("untitled.csv"));
-        jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
-            
-        int returnVal = jf.showSaveDialog(null);
-            
-        File file = jf.getSelectedFile(); 
-
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-//            if(file.getName().length() < 5 | file.getName().length() >= 5 && (file.getName().substring(file.getName().length()-3)).equals(".csv"))
-//                file.renameTo(file + ".csv");
-            try{
-
-                        PrintWriter pw = new PrintWriter(file);
-                        StringBuilder sb = new StringBuilder();
-                        
-                        //Header
-                        sb.append("Object,");
-                        sb.append("\n");
-                        
-                        //Data
-                        for(int i = 0; i < newfeature.length; i++){
-                            for(int k = 0; k < newfeature[i].length; k++){
-                                sb.append(newfeature[i][k]);
-                                sb.append(',');
-                            }
-                            sb.append('\n');
-                        }
-                        
-                        pw.write(sb.toString());
-                        pw.close();
-                        
-            }catch(Exception e){
-                
-            }
-        }else{
-            
-        }
+//        /*Take the bstuff below out, just for debugging */
+//        JFileChooser jf = new JFileChooser(new File("untitled.csv"));
+//        jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
+//            
+//        int returnVal = jf.showSaveDialog(null);
+//            
+//        File file = jf.getSelectedFile(); 
+//
+//        if(returnVal == JFileChooser.APPROVE_OPTION) {
+////            if(file.getName().length() < 5 | file.getName().length() >= 5 && (file.getName().substring(file.getName().length()-3)).equals(".csv"))
+////                file.renameTo(file + ".csv");
+//            try{
+//
+//                        PrintWriter pw = new PrintWriter(file);
+//                        StringBuilder sb = new StringBuilder();
+//                        
+//                        //Header
+//                        sb.append("Object,");
+//                        sb.append("\n");
+//                        
+//                        //Data
+//                        for(int i = 0; i < newfeature.length; i++){
+//                            for(int k = 0; k < newfeature[i].length; k++){
+//                                sb.append(newfeature[i][k]);
+//                                sb.append(',');
+//                            }
+//                            sb.append('\n');
+//                        }
+//                        
+//                        pw.write(sb.toString());
+//                        pw.close();
+//                        
+//            }catch(Exception e){
+//                
+//            }
+//        }else{
+//            
+//        }
         return newfeature;
     }
     
@@ -251,5 +251,10 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
             
             return false;
         }
+    }
+    
+    @Override
+    public ArrayList getBlockCommentLocation(){
+        return new ArrayList();
     }
 }

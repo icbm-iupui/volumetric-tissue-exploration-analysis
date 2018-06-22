@@ -58,24 +58,18 @@ public class TSNEReduction extends AbstractFeatureProcessing{
         protocol = new ArrayList();
         
         protocol.add(new JLabel("New Dimension"));
-        
         protocol.add(new JTextField("2",2));
         
         protocol.add( new JLabel("Iterations"));
-        
         protocol.add( new JTextField("1000",1000));
         
         //protocol.add(new JLabel("Learning Rate"));
-        
         //protocol.add(new JTextField("200",200));
         
         protocol.add(new JLabel("Perplexity"));
-        
         protocol.add(new JTextField("20",20));
         
-        protocol.add(new JLabel("PCA Preprocessing"));
-        
-        protocol.add(new JCheckBox());
+        protocol.add(new JCheckBox("PCA Preprocessing"));
     }
     
     @Override
@@ -87,7 +81,7 @@ public class TSNEReduction extends AbstractFeatureProcessing{
         int dim = Integer.parseInt(((JTextField)al.get(4)).getText());
         int itr = Integer.parseInt(((JTextField)al.get(6)).getText());
         int perpl = Integer.parseInt(((JTextField)al.get(8)).getText());
-        boolean pca = ((JCheckBox)al.get(10)).isSelected();
+        boolean pca = ((JCheckBox)al.get(9)).isSelected();
         
         ArrayList selectData = (ArrayList)al.get(0);
         feature = selectColumns(feature, selectData);
@@ -121,6 +115,30 @@ public class TSNEReduction extends AbstractFeatureProcessing{
         long end = System.nanoTime();
         IJ.log("PROFILING: tSNE completed in " + (end-start)/1000000 + " ms" );
         return true;
+    }
+    
+    @Override
+    public ArrayList getBlockCommentLocation(){
+        ArrayList commentLocat =  new ArrayList();
+        
+        commentLocat.add(0);    //0 for JLabel
+        commentLocat.add(0);    
+        commentLocat.add(2);    //2 for JTextField
+        commentLocat.add(1);    //
+        commentLocat.add(0);    //0 for JLabel
+        commentLocat.add(2);    //
+        commentLocat.add(2);    //2 for JTextField
+        commentLocat.add(3);
+        commentLocat.add(0);    //0 for JLabel
+        commentLocat.add(4);
+        commentLocat.add(2);    //2 for JTextField
+        commentLocat.add(5);
+        commentLocat.add(3);    //3 for JCheckBox
+        commentLocat.add(6);
+        commentLocat.add(true);    //keep going through list if enabled
+        
+        
+        return commentLocat;
     }
     
 //    private double[][] calculateProximity(double[][] feature){

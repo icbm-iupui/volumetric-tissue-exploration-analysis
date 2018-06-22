@@ -363,6 +363,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
                 public void itemStateChanged(ItemEvent evt) {
                         //System.out.println("Box for " + cb.getText());
                         updateProcessList();
+                        checkSelected();
                 }
             });
             //this.seldata.add(cb);
@@ -401,6 +402,16 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         return selected;
     }
     
+    private void checkSelected(){
+        int true_count = 0;
+        for(Component c: dataPanel.getComponents()){
+            true_count += (((JCheckBox)c).isSelected()) ? 1 : 0;
+        }
+        if(true_count == 0)
+            BlockSetupOK.setEnabled(false);
+        else
+            BlockSetupOK.setEnabled(true);
+    }
     /**
      * 
      */
@@ -411,5 +422,23 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         CurrentProcessList.add(ChannelComboBox.getSelectedItem());
         if(!FeatureComponents.isEmpty())
             CurrentProcessList.addAll(FeatureComponents);
+    }
+    
+    public ArrayList setupComment(){
+        Object iFeatp = new Object();
+        
+        try{
+            Class<?> c;
+            c = Class.forName(FEATUREMAP.get((ProcessSelectComboBox.getSelectedItem()).toString()));
+            Constructor<?> con;
+            con = c.getDeclaredConstructor(int.class);
+            iFeatp = con.newInstance(new Object[]{600});
+            return ((AbstractFeatureProcessing)iFeatp).getBlockCommentLocation();        
+        }catch(Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+        }
+        
+        return new ArrayList();
     }
 }

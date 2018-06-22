@@ -29,12 +29,17 @@ import smile.clustering.linkage.SingleLinkage;
 import vtea.featureprocessing.FeatureProcessing;
 
 /**
- *
+ * Hierarchical Clustering using Single-Link. After merging two clusters the
+ * new cluster is given a dissimilarity value based on the minimum distance
+ * between elements of this cluster with another cluster.
  * @author drewmcnutt
  */
 @Plugin (type= FeatureProcessing.class)
 public class SingleCluster extends AbstractHierarchical{
     
+    /**
+     * Constructor. Sets basic information of the class.
+     */
     public SingleCluster(){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -44,22 +49,28 @@ public class SingleCluster extends AbstractHierarchical{
         TYPE = "Cluster";
     }
     
+    /**
+     * Constructor. Calls the super constructor and sets basic information of
+     * the class.
+     * @param max the number of objects in the volume
+     */
     public SingleCluster(int max){
+        super(max);
+        
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from SMILE";
         NAME = "Single-Link Hierarchical Clustering";
         KEY = "SingleLinkHierarchicalClustering";
         TYPE = "Cluster";
-        
-        protocol = new ArrayList();
-
-        protocol.add(new JLabel("Amount of clusters:"));
-
-        protocol.add(new JSpinner(new SpinnerNumberModel(5,0,max,1)));
     }
     
-    /*Calculates the proximity matrix of the features and using Single-Link Hierarchical Clustering returns true when complete*/
+    /**
+     * Using Single-Link Hierarchical Clustering calculates the hierarchical tree.
+     * @param al contains the parameters of the clustering
+     * @param feature the 2D feature array
+     * @return true
+     */
     @Override
     public boolean process(ArrayList al, double[][] feature){
         progress = 0;

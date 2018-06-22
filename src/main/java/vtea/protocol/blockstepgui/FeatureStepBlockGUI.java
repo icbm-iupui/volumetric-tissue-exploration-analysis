@@ -37,7 +37,7 @@ import vtea.protocol.setup.MicroBlockFeatureSetup;
 import vtea.protocol.setup.MicroBlockSetup;
 
 /**
- *
+ * Block for Analysis Steps in FeatureFrame.
  * @author drewmcnutt
  */
 public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements MicroBlockSetupListener{
@@ -63,10 +63,22 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
     
     public ArrayList<RebuildPanelListener> rebuildpanelisteners = new ArrayList<>();
     public ArrayList<DeleteBlockListener> deleteblocklisteners = new ArrayList<>();
-
+    
+    /**
+     * Constructor. Empty
+     */
     public FeatureStepBlockGUI() {
     }
     
+    /**
+     * Constructor. Creates block with specified features.
+     * @param FeatureText text for title of block
+     * @param CommentText text for subtitle of block
+     * @param BlockColor color of the block
+     * @param position position of the block in order
+     * @param AvailableData all of the current feature names
+     * @param nvol number of volumes
+     */
     public FeatureStepBlockGUI(String FeatureText, String CommentText, Color BlockColor, int position, ArrayList AvailableData, int nvol) {
             BuildStepBlock(FeatureText, CommentText, Color.GRAY, position, AvailableData, nvol);
     }
@@ -170,44 +182,41 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         layoutConstraints.ipadx = -1;
         layoutConstraints.ipady = -1;
         step.add(EditButton, layoutConstraints);
-            step.addMouseListener(new java.awt.event.MouseListener() {
-                @Override
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                }
-
-                ;
+        step.addMouseListener(new java.awt.event.MouseListener() {
             @Override
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    //thumb.setVisible(false);
-                }
-
-                ;
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+            };
             @Override
-                public void mouseReleased(java.awt.event.MouseEvent evt) {
-                    //thumb.setVisible(false);
-                }
-
-                ;
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                //thumb.setVisible(false);
+            };
             @Override
-                public void mousePressed(java.awt.event.MouseEvent evt) {
-
-                }
-
-                ;
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                //thumb.setVisible(false);
+            };
             @Override
-                public void mouseClicked(java.awt.event.MouseEvent evt) {
-                }
-            ;
-        }
-
-        );
-        }    
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+            };
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            };
+        });
+    }    
+    
+    /**
+     * Sets position of block.
+     * @param n new position for the block
+     */
     @Override
     public void setPosition(int n) {
         position = n;
         Position.setText(position + ".");
     }
 
+    /**
+     * Retrieves GUI of the block.
+     * @return 
+     */
     @Override
     public JPanel getPanel() {
         return step;
@@ -238,28 +247,47 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
     @Override
     public void onChangeSetup(ArrayList al){
         int len = al.size();
-//        System.out.printf("The length is %d", len);
-//        for(Object o: al)
-//            System.out.println(o.toString());
+        
         Feature.setText(al.get(1).toString());
         
-        if(len == 2){
-            Comment.setText("");
-        }else if(al.get(1).toString().contains("Clustering")){
-            JSpinner nclust = (JSpinner)al.get(4);
-            JLabel lab = (JLabel)al.get(3);
-            Comment.setText(lab.getText() + ((Integer)nclust.getValue()).toString());
-        }else if(len == 11){
-            JLabel lab1 = (JLabel)al.get(3);
-            JLabel lab2 = (JLabel)al.get(5);
-            JLabel lab3 = (JLabel)al.get(7);
-            JLabel lab4 = (JLabel)al.get(9);
-            JTextField val1 = (JTextField)al.get(4);
-            JTextField val2 = (JTextField)al.get(6);
-            JTextField val3 = (JTextField)al.get(8);
-            JCheckBox val4 = (JCheckBox)al.get(10);
-            Comment.setText("<html>" + lab1.getText() + ": " + (Integer.parseInt(val1.getText())) + ", " +  lab2.getText() + ": " + (Integer.parseInt(val2.getText())) + ", " +  lab3.getText() + ": " + (Integer.parseInt(val3.getText())) + ", " +  lab4.getText() + ": " + val4.isSelected() + "</html>");
+        ArrayList whatwhere = ((MicroBlockFeatureSetup)mbs).setupComment();
+        int size = whatwhere.size();
+        String comment = "<html>";
+        boolean keepGoing = true;
+        for(int i = 0; i < size && keepGoing; i += 2){
+            switch ((int)whatwhere.get(i)) {
+                case 0:                     //JLabel == 0
+                    JLabel lab = (JLabel)al.get(3 + (int)whatwhere.get(i+1));
+                    if(i != 0)
+                        comment = comment.concat(", ");
+                    comment = comment.concat(lab.getText() + ": ");
+                    break;
+                case 1:                     //JSpinner == 1
+                    JSpinner jspin = (JSpinner)al.get(3 + (int)whatwhere.get(i+1));
+                    comment = comment.concat(jspin.getValue().toString());
+                    break;
+                case 2:                     //JTextField == 2
+                    JTextField jtf = (JTextField)al.get(3 + (int)whatwhere.get(i+1));
+                    comment = comment.concat(jtf.getText());
+                    break;
+                case 3:                     //JCheckBox == 3
+                    JCheckBox jcb = (JCheckBox)al.get(3 + (int)whatwhere.get(i+1));
+                    if(i != 0)
+                        comment = comment.concat(", ");
+                    comment = comment.concat(jcb.getText() + (jcb.isSelected()? ": Enabled" : ": Disabled"));
+                    
+                    keepGoing = (boolean)whatwhere.get(i+2) || !jcb.isSelected();
+                    if(keepGoing)
+                        i++;
+                    break;
+                default:
+                    System.out.println("Unsupported Element");
+                    break;
+            }
+
         }
+        comment = comment.concat("</html>");
+        Comment.setText(comment);
         
         notifyRebuildPanelListeners(4);
         
@@ -319,7 +347,11 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
                 }
             }
         }
+        tt = tt.concat(curline);
+        
+        tt = tt.substring(0, tt.lastIndexOf(",")); //removes trailing ','
         tt = tt.concat("</html>");
+        
         step.setToolTipText(tt);
     }
 }
