@@ -32,7 +32,8 @@ import vtea.processor.FeatureProcessor;
 import vtea.protocol.listeners.DeleteBlockListener;
 
 /**
- *
+ * Window for analysis methods. Keeps track of analysis methods that are added 
+ * and removed and submits the methods with parameters to get results. 
  * @author drewmcnutt
  */
 public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
@@ -290,7 +291,11 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    /**
+     * Adds analysis step.
+     * @param evt clicking of AddStep button
+     */
     private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
         //this.setVisible(false);
         FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,FeatureStepsList.size() + 1, availabledata, nvol);
@@ -317,7 +322,11 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         
         FeatureGo.setEnabled(true);
     }//GEN-LAST:event_AddStepActionPerformed
-
+    
+    /**
+     * Delete all analysis steps.
+     * @param evt clicking of DeleteAll button
+     */
     private void DeleteAllStepsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteAllStepsActionPerformed
         FeatureStepsList.clear();
         FeatureStepsPanel.removeAll();
@@ -328,7 +337,11 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         FeatureStepsPanel.repaint();
         //pack();
     }//GEN-LAST:event_DeleteAllStepsActionPerformed
-
+    
+    /**
+     * Sets up for analysis.
+     * @param evt clicking of FeatureGo button
+     */
     private void FeatureGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FeatureGoActionPerformed
         
         findFeatures();
@@ -340,12 +353,20 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
 
     }//GEN-LAST:event_jPanel1formKeyPressed
 
-    
+    /**
+     * Rebuilds the panel.
+     * @param type 
+     */
     @Override
     public void rebuildPanel(int type) {
         this.RebuildPanelFeature();
     }
-
+    
+    /**
+     * Deletes specific step.
+     * @param type useless(left over from DeleteBlockListener)
+     * @param position the order number of the step
+     */
     @Override
     public void deleteBlock(int type, int position) {
         this.deleteFeatureStep(position);
@@ -353,7 +374,14 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
             FeatureGo.setEnabled(false);
         }
     }
-
+    
+    /**
+     * Sets progress bar reading.
+     * @param text string next to progress bar
+     * @param min minimum value for progress bar
+     * @param max maximum value for progress bar
+     * @param position value to set progress bar to
+     */
     @Override
     public void changeProgress(String text, int min, int max, int position) {      
         VTEAProgressBar.setMinimum(min);
@@ -361,9 +389,13 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         VTEAProgressBar.setValue(position);
         FeatureComment.setText(text);    
     }
+    
+    /**
+     * Changes progress bar or text.
+     * @param evt details what the property change is for
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-
         if (evt.getPropertyName().equals("progress")) {
             int progress = (Integer) evt.getNewValue();
             VTEAProgressBar.setValue(progress);
@@ -373,23 +405,14 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         if (evt.getPropertyName().equals("comment")){
             FeatureComment.setText((String)evt.getNewValue());
         }
-        if (evt.getPropertyName().equals("escape") && (Boolean)evt.getNewValue()){
-            
-            ImagePlus ProcessedShow = new ImagePlus("Processed");
-            //ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
-            ProcessedShow.setTitle(this.getName() + "_Processed");
-
-            FeatureComment.setText("Processing complete...");
-            ProcessedShow.show();
-        }
-        if ("escape" == evt.getPropertyName() && !(Boolean)evt.getNewValue()){
-           
-            
-         System.out.println("PROFILING: Error is processing, thread terminated early...");
-           
+        if (evt.getPropertyName().equals("escape") && !(Boolean)evt.getNewValue()){
+            System.out.println("PROFILING: Error is processing, thread terminated early...");
         }
     }
 
+    /**
+     * Repaint the window.
+     */
     @Override
     public void repaintFeature(){
         this.repaint();
@@ -411,6 +434,10 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
+    
+    /**
+     * Reconstruct the blocks.
+     */
     public void RebuildPanelFeature() {
         FeatureStepBlockGUI sb;
         ListIterator litr = FeatureStepsList.listIterator();
@@ -421,91 +448,61 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         }
     }
     
-    public void UpdatePositionFeature(int position) {
-        FeatureStepBlockGUI sb;
-            for (int i = 1; i < FeatureStepsList.size(); i++) {
-                sb = (FeatureStepBlockGUI) FeatureStepsList.get(i);
-                sb.setPosition(i);
-                FeatureStepsList.set(i, sb);
-            }
-    }
-    
-    private void executeFeatures() {
-        
-        FeatureComment.setText("Finding Features...");
-
-        ArrayList<ArrayList> protocol = new ArrayList<>();
-
-        //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
-        
-        protocol = extractSteps(FeatureStepsList);
-        
-        FeatureComment.setText("Processing data...");
-    }
-
+    /**
+     * Extracts the Steps. (Not sure if this actually works)
+     * @param sb_al
+     * @return 
+     */
     static public ArrayList extractSteps(ArrayList sb_al) {
 
         ArrayList<ArrayList> Result = new ArrayList<ArrayList>();
-
-        //if (blocktype == PROCESSBLOCKS) {
-
-        FeatureStepBlockGUI ppsb;
-
-        /*ListIterator<Object> litr = sb_al.listIterator();
-        while (litr.hasNext()) {
-            ppsb = (FeatureStepBlockGUI) litr.next();
-            if (!(ppsb.Comment.getText()).equals("New Image")) {
-                Result.add(ppsb.getVariables());
-            }
-        }*/
         
-
         FeatureStepBlockGUI fsb;
         ListIterator<Object> litr = sb_al.listIterator();
         while (litr.hasNext()) {
             fsb = (FeatureStepBlockGUI) litr.next();
-
             Result.add(fsb.getVariables());
-            //System.out.println("FSB variables: " + Result);
         }
 
         return Result;
     }
     
-    private int getBlockPosition() {
-        int position;
-        if (FeatureStepsList.isEmpty()) {
-            position = 1;
-        } else {
-            position = FeatureStepsList.size() + 1;
-        }
-        return position;
-    }
+//    private int getBlockPosition() {
+//        int position;
+//        if (FeatureStepsList.isEmpty()) {
+//            position = 1;
+//        } else {
+//            position = FeatureStepsList.size() + 1;
+//        }
+//        return position;
+//    }
     
+    /**
+     * Retrieve all of the steps.
+     * @return list of all of the steps
+     */
     public ArrayList getFeatureSteps() {
         return this.FeatureStepsList;
     }
 
-    public ArrayList getProProcessingProtocol() {
-        return extractSteps(FeatureStepsList);
-    }
+//    public ArrayList getProProcessingProtocol() {
+//        return extractSteps(FeatureStepsList);
+//    }
+//
+//    public void setProcessSteps(ArrayList FeatureStepsList) {
+//        FeatureStepsList.trimToSize();
+//        this.FeatureStepsList.addAll(FeatureStepsList);
+//        this.RebuildPanelFeature();
+//    }
     
-    public ArrayList getProcessingProtocolList() {
-        return this.FeatureStepsList;
-    }
-
-    public void setProcessSteps(ArrayList FeatureStepsList) {
-        FeatureStepsList.trimToSize();
-        this.FeatureStepsList.addAll(FeatureStepsList);
-        UpdatePositionFeature(0);
-        this.RebuildPanelFeature();
-    }
-    
+    /**
+     * Deletes specific step.
+     * @param position the position of the step to delete
+     */
     private void deleteFeatureStep(int position) {
 
         //remove from FeatureStepsList
         FeatureStepsList.remove(position - 1);
-        UpdatePositionFeature(position); 
         FeatureStepsList.trimToSize();
         
         FeatureStepsPanel.removeAll();
@@ -528,6 +525,9 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
 
     }
     
+    /**
+     * Starts the analysis of the features.
+     */
     private void findFeatures(){
         FeatureComment.setText("Finding features...");
         ArrayList<ArrayList> protocol = new ArrayList<>();
