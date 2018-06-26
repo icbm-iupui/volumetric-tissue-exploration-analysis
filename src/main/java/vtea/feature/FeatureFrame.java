@@ -61,7 +61,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         this.features = table;
         this.nvol = table.length;
                 
-        this.FeatureStepsList = new ArrayList<FeatureStepBlockGUI>();
+        this.FeatureStepsList = new ArrayList<>();
         initComponents();
         FeatureStepsPanel.setLayout(FeatureLayout);
     }
@@ -454,7 +454,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
      */
     static public ArrayList extractSteps(ArrayList sb_al) {
 
-        ArrayList<ArrayList> Result = new ArrayList<ArrayList>();
+        ArrayList<ArrayList> Result = new ArrayList<>();
         
         FeatureStepBlockGUI fsb;
         ListIterator<Object> litr = sb_al.listIterator();

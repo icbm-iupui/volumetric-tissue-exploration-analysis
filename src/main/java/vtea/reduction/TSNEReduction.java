@@ -39,7 +39,6 @@ import static java.lang.Math.max;
 import static java.lang.Math.sqrt;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 import javax.swing.JCheckBox;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;

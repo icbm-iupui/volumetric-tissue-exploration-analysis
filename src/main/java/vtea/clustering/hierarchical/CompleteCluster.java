@@ -19,10 +19,7 @@ package vtea.clustering.hierarchical;
 
 import ij.IJ;
 import java.util.ArrayList;
-import javax.swing.JLabel;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
 import org.scijava.plugin.Plugin;
 import smile.clustering.linkage.CompleteLinkage;
 import vtea.featureprocessing.FeatureProcessing;
