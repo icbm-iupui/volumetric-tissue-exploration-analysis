@@ -21,7 +21,6 @@ import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.protocol.listeners.RebuildPanelListener;
 import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
 import vtea.protocol.listeners.UpdateProgressListener;
-import ij.ImagePlus;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.ArrayList;

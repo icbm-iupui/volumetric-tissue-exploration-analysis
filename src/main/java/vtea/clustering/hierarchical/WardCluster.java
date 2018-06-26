@@ -19,11 +19,7 @@ package vtea.clustering.hierarchical;
 
 import ij.IJ;
 import java.util.ArrayList;
-import javax.swing.JLabel;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
-import org.apache.commons.lang.ArrayUtils;
 import smile.clustering.linkage.WardLinkage;
 import org.scijava.plugin.Plugin;
 import vtea.featureprocessing.FeatureProcessing;
@@ -93,5 +89,5 @@ public class WardCluster extends AbstractHierarchical{
         
         return true;
     }
-
+    
 }

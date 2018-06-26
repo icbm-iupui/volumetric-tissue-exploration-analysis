@@ -19,13 +19,15 @@ package vtea.clustering.hierarchical;
 
 import ij.IJ;
 import java.util.ArrayList;
-import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import smile.clustering.HierarchicalClustering;
 import smile.clustering.linkage.Linkage;
 import vtea.featureprocessing.AbstractFeatureProcessing;
+import smile.plot.Dendrogram;
+import smile.plot.PlotCanvas;
 
 /**
  * Clusters using Hierarchical clustering with ambiguous linkage method. 
@@ -63,7 +65,14 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
         protocol.add(new JLabel("Amount of clusters"));
         protocol.add(new JSpinner(new SpinnerNumberModel(5,0,max,1)));
         
-        //protocol.add(new JButton("Determine number of clusters"));
+//        JButton preview = new JButton("Determine number of clusters");
+//        preview.addActionListener(new ActionListener(){
+//            @Override
+//            public void actionPerformed(ActionEvent evt){
+//                createDendogram();
+//            }
+//        });
+//        protocol.add(preview);
     }
     
     /**
@@ -82,6 +91,7 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
         for(int i = 0; i < membership.length; i++){
             dataResult.add(membership[i] * 1.0);
         }
+        createDendrogram(hc);
         
     }
     
@@ -143,5 +153,18 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
             commentLocat.add(1);    //1 for JSpinner
             commentLocat.add(1);    //Location in ArrayList
         return commentLocat;
+    }
+    
+    public void createDendrogram(HierarchicalClustering hc){
+        JFrame dendroFrame = new JFrame();
+        dendroFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        dendroFrame.setVisible(false);
+        dendroFrame.setSize(500, 1000);
+        PlotCanvas plot = Dendrogram.plot(hc.getTree(), hc.getHeight());
+        plot.setAxisLabel(0, "");
+        plot.setAxisLabel(1, "Height");
+        plot.setTitle("Dendrogram");
+        dendroFrame.getContentPane().add(plot);
+        dendroFrame.setVisible(true);
     }
 }
