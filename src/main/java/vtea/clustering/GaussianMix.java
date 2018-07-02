@@ -46,7 +46,7 @@ public class GaussianMix extends AbstractFeatureProcessing{
     public GaussianMix(){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
-        COMMENT = "Gaussian Mixture";
+        COMMENT = "Implements the plugin from SMILE";
         NAME = "Gaussian Mixture";
         KEY = "GaussianMixture";
         TYPE = "Cluster";
@@ -86,13 +86,17 @@ public class GaussianMix extends AbstractFeatureProcessing{
         JCheckBox auto_clust;
         long start;
         
-        ArrayList selectData = (ArrayList)al.get(0);
+        components = new ArrayList<>();
+        
+        ArrayList selectData = (ArrayList)al.get(1);
+        boolean znorm = (boolean)al.get(0);
         feature = selectColumns(feature, selectData);
+        feature = normalizeColumns(feature, znorm);
         dataResult.ensureCapacity(feature.length);
         
-        auto_clust = (JCheckBox)al.get(5);
+        auto_clust = (JCheckBox)al.get(6);
         if(!auto_clust.isSelected()){
-            JSpinner clust = (JSpinner)al.get(4);
+            JSpinner clust = (JSpinner)al.get(5);
             n_clust = ((Integer)clust.getValue()); 
             IJ.log("PROFILING: Finding Gaussian Mixture Model for " + n_clust + " clusters on " + feature[0].length + " features");
             start = System.nanoTime();
@@ -284,20 +288,18 @@ public class GaussianMix extends AbstractFeatureProcessing{
             dataResult.add(j);
         }
     }
-    
-    @Override
-    public ArrayList getBlockCommentLocation(){
-        ArrayList commentLocat =  new ArrayList();
-        
-        commentLocat.add(3);    //3 for JCheckBox
-        commentLocat.add(2);    //Location in ArrayList
-        commentLocat.add(false);    //keep going through list if enabled
-        commentLocat.add(0);    //0 for JLabel
-        commentLocat.add(0);    //Location in ArrayList
-        commentLocat.add(1);    //1 for JSpinner
-        commentLocat.add(1);    //Location in ArrayList
-        
-        return commentLocat;
+
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        JCheckBox jcb = (JCheckBox)comComponents.get(6);
+        if(jcb.isSelected())
+            comment = comment.concat(jcb.getText() + ": Enabled");
+        else{
+            comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+            comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
+            comment = comment.concat("</html>");
+        }
+        return comment;
     }
     
     double EM(List<MultivariateMixture.Component> components, double[][] x , double gamma, int maxIter) {

@@ -448,7 +448,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     }
     
     /**
-     * Extracts the Steps. (Not sure if this actually works)
+     * Extracts the Steps.
      * @param sb_al
      * @return 
      */

@@ -19,6 +19,7 @@ package vtea.clustering.hierarchical;
 
 import ij.IJ;
 import java.util.ArrayList;
+import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import org.scijava.plugin.Plugin;
 import smile.clustering.linkage.CompleteLinkage;
@@ -73,12 +74,13 @@ public class CompleteCluster extends AbstractHierarchical{
         int nclusters;
         double[][] proximity;
         
-        ArrayList selectData = (ArrayList)al.get(0);
+        ArrayList selectData = (ArrayList)al.get(1);
+        boolean znorm = (boolean)al.get(0);
         feature = selectColumns(feature, selectData);
-
+        feature = normalizeColumns(feature, znorm);
         
         dataResult.ensureCapacity(feature.length);
-        JSpinner clust = (JSpinner)al.get(4);
+        JSpinner clust = (JSpinner)al.get(5);
         nclusters = ((Integer)clust.getValue());
         
         IJ.log("PROFILING: Calculating Proximity Matrix for " + feature[1].length + " features");
@@ -88,6 +90,14 @@ public class CompleteCluster extends AbstractHierarchical{
         calculateClusters(cl, nclusters);
 
         return true;
+    }
+    
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
+        comment = comment.concat("</html>");
+        return comment;
     }
     
 }

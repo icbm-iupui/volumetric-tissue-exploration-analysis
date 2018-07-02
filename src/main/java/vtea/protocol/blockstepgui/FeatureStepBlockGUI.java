@@ -22,14 +22,16 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import static vtea._vtea.FEATUREMAP;
+import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MicroBlockSetupListener;
 import vtea.protocol.listeners.RebuildPanelListener;
@@ -248,46 +250,20 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
     public void onChangeSetup(ArrayList al){
         int len = al.size();
         
-        Feature.setText(al.get(1).toString());
+        Feature.setText(al.get(2).toString());
         
-        ArrayList whatwhere = ((MicroBlockFeatureSetup)mbs).setupComment();
-        int size = whatwhere.size();
-        String comment = "<html>";
-        boolean keepGoing = true;
-        for(int i = 0; i < size && keepGoing; i += 2){
-            switch ((int)whatwhere.get(i)) {
-                case 0:                     //JLabel == 0
-                    JLabel lab = (JLabel)al.get(3 + (int)whatwhere.get(i+1));
-                    if(i != 0)
-                        comment = comment.concat(", ");
-                    comment = comment.concat(lab.getText() + ": ");
-                    break;
-                case 1:                     //JSpinner == 1
-                    JSpinner jspin = (JSpinner)al.get(3 + (int)whatwhere.get(i+1));
-                    comment = comment.concat(jspin.getValue().toString());
-                    break;
-                case 2:                     //JTextField == 2
-                    JTextField jtf = (JTextField)al.get(3 + (int)whatwhere.get(i+1));
-                    comment = comment.concat(jtf.getText());
-                    break;
-                case 3:                     //JCheckBox == 3
-                    JCheckBox jcb = (JCheckBox)al.get(3 + (int)whatwhere.get(i+1));
-                    if(i != 0)
-                        comment = comment.concat(", ");
-                    comment = comment.concat(jcb.getText() + (jcb.isSelected()? ": Enabled" : ": Disabled"));
-                    
-                    keepGoing = (boolean)whatwhere.get(i+2) || !jcb.isSelected();
-                    if(keepGoing)
-                        i++;
-                    break;
-                default:
-                    System.out.println("Unsupported Element");
-                    break;
-            }
-
+        String text;
+        try{
+            Class<?> c;
+            c = Class.forName(FEATUREMAP.get((al.get(2)).toString()));
+            Method getBlockComment = c.getMethod("getBlockComment", ArrayList.class);
+            text = getBlockComment.invoke(null, (Object)al).toString();
+        }catch(Exception e){
+            e.printStackTrace();
+            text = "Text not available...";
         }
-        comment = comment.concat("</html>");
-        Comment.setText(comment);
+        
+        Comment.setText(text);
         
         notifyRebuildPanelListeners(4);
         
@@ -329,7 +305,7 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
     
     private void addToolTip(){
         String tt = "<html>";
-        ArrayList data = (ArrayList)this.settings.get(0);
+        ArrayList data = (ArrayList)this.settings.get(1);
         String curline = "";
         
         for(int i = 0; i < data.size(); i++){

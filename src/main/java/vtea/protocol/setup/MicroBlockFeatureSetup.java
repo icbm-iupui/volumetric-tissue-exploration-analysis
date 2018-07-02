@@ -55,6 +55,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     JPanel  dataPanel;
     JScrollPane dataScroll;
     JCheckBox all;
+    JCheckBox normalize;
     ArrayList FeatureComponents = new ArrayList();
 
     /**
@@ -78,8 +79,10 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         ChannelSelection.setText("Type of feature");
         ccbm = new DefaultComboBoxModel(FEATUREGROUPS);
         ChannelComboBox.setModel(ccbm);
-        comments.removeAll();
+        getContentPane().remove(comments);
         PreviewButton.setVisible(false);
+        
+
 
 //        methodBuild.setMaximumSize(new java.awt.Dimension(400, 300));
 //        methodBuild.setMinimumSize(new java.awt.Dimension(359, 300));
@@ -134,7 +137,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     @Override
     protected void updateProtocolPanel(ActionEvent evt) {
         if(evt.getSource() == ProcessSelectComboBox){
-            makeProtocolPanel(FEATUREOPTIONS[ProcessSelectComboBox.getSelectedIndex()]);
+            makeProtocolPanel(ProcessSelectComboBox.getSelectedItem().toString());
         } else if(evt.getSource() == this.ChannelComboBox){
             setSpecificComboBox(ChannelComboBox.getSelectedIndex());
         }
@@ -351,9 +354,14 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
             }
         });
         all.setSelected(true);
+        
+        normalize = new JCheckBox("Z-scale all data");
+        
         methodBuild.setLayout(new javax.swing.BoxLayout(methodBuild,BoxLayout.Y_AXIS));
         all.setAlignmentX(JComponent.CENTER_ALIGNMENT);
         methodBuild.add(all);
+        normalize.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        methodBuild.add(normalize);
 
         for(int i = 0; i < features.length; i++){
             JCheckBox cb = new JCheckBox(features[i].toString());
@@ -417,6 +425,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
      */
     private void updateProcessList(){
         CurrentProcessList.clear();
+        CurrentProcessList.add(normalize.isSelected());
         CurrentProcessList.add(getSelectedData());
         CurrentProcessList.add(ProcessSelectComboBox.getSelectedItem());
         CurrentProcessList.add(ChannelComboBox.getSelectedItem());
@@ -424,21 +433,4 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
             CurrentProcessList.addAll(FeatureComponents);
     }
     
-    public ArrayList setupComment(){
-        Object iFeatp = new Object();
-        
-        try{
-            Class<?> c;
-            c = Class.forName(FEATUREMAP.get((ProcessSelectComboBox.getSelectedItem()).toString()));
-            Constructor<?> con;
-            con = c.getDeclaredConstructor(int.class);
-            iFeatp = con.newInstance(new Object[]{600});
-            return ((AbstractFeatureProcessing)iFeatp).getBlockCommentLocation();        
-        }catch(Exception e){
-            System.out.println(e);
-            e.printStackTrace();
-        }
-        
-        return new ArrayList();
-    }
 }

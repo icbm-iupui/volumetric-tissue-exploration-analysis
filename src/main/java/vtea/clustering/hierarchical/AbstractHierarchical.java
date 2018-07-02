@@ -133,28 +133,14 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
      */
     private double calcDistance(int dim, double[] n, double[] m){
         double d = 0;
-        for(int i = 1; i < dim; i++){   //starting at i=1 does not include the ID in the calculation
+        for(int i = 0; i < dim; i++){   //starting at i=1 does not include the ID in the calculation
             double val = n[i] - m[i];
             d += val * val;
         }
         d = Math.sqrt(d);
         return d;
     }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public ArrayList getBlockCommentLocation(){
-            ArrayList commentLocat =  new ArrayList();
-            commentLocat.add(0);    //0 for JLabel
-            commentLocat.add(0);    //Location in ArrayList
-            commentLocat.add(1);    //1 for JSpinner
-            commentLocat.add(1);    //Location in ArrayList
-        return commentLocat;
-    }
-    
+
     public void createDendrogram(HierarchicalClustering hc){
         JFrame dendroFrame = new JFrame();
         dendroFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

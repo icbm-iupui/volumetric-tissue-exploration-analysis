@@ -18,7 +18,6 @@
 package vtea.clustering;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
@@ -60,41 +59,100 @@ public class KMeans extends AbstractFeatureProcessing{
     @Override
     public boolean process(ArrayList al, double[][] feature){
         int n_clust;
-        int n; int dim;
-        ArrayList clusters;
+        int numTrials = 20;
         
-        ArrayList selectData = (ArrayList)al.get(0);
+        ArrayList selectData = (ArrayList)al.get(1);
+        boolean znorm = (boolean)al.get(0);
         feature = selectColumns(feature, selectData);
+        feature = normalizeColumns(feature, znorm);
         dataResult.ensureCapacity(feature.length);
         
-        JSpinner clust = (JSpinner)al.get(4);
+        JSpinner clust = (JSpinner)al.get(5);
         n_clust = ((Integer)clust.getValue());
         
-        n = feature.length;
-        dim = feature[0].length;
-        clusters = new ArrayList(n_clust);
+        Centroids best = calculateClusters(n_clust,feature);
+        for(int t = 0; t < numTrials; t++){
+            Centroids C= calculateClusters(n_clust,feature);
+            if(C.getDissimilarity() < best.getDissimilarity())
+                best = C;
+        }
+        for(int memb: best.getMembership())
+            dataResult.add(memb);
+        return true;
+    }
+    
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
+        comment = comment.concat("</html>");
+        return comment;
+    }
+    
+    
+    double calculateDistanceSq(double[] n1, double[] n2){
+        double dist = 0;
+        if(n1.length != n2.length)
+            throw new RuntimeException("The dimensions of the two vectors are not the same");
+        
+        int dim = n1.length;
+        
+        for(int i = 0; i < dim; i++){
+            dist += (n1[i] - n2[i]) * (n1[i] - n2[i]);
+        }
+        
+        return dist;
+    }
+    
+    class Centroids{
+        ArrayList<double[]> centers;
+        int[] membership;
+        double dissimilarity; 
+        Centroids(ArrayList<double[]> cents, int[] memb){
+            centers = cents;
+            membership = memb;
+        }
+        
+        public double getDissimilarity(){return dissimilarity;}
+        public int[] getMembership(){return membership;}
+        public void setDissimilarity(double[][] feature){
+            dissimilarity = 0;
+            for(int i = 0; i < membership.length; i++){
+                dissimilarity += calculateDistanceSq(centers.get(i),feature[i]);
+            }
+        }
+                
+        
+    }
+    
+    private Centroids calculateClusters(int n_clust, double[][] feature){
+        double dissimilarity = 0;
+        int n = feature.length;
+        int dim = feature[0].length;
+        ArrayList<double[]> clusters = new ArrayList<>(n_clust);
         long randomSeed = System.nanoTime();
         Random randomGen = new Random(randomSeed);
         
-        for(int i = 0; i < n_clust; i++)
-            clusters.add(new Centroid(feature[randomGen.nextInt(n)]));
-        int[] oldmembership = new int[n];  
-        Arrays.fill(oldmembership, Integer.MIN_VALUE);
+        int iterCount = 0;
+        for(int i = 0; i < n_clust; i++){
+            double[] row = feature[randomGen.nextInt(n)];
+            clusters.add(row);
+        }
         int[] membership = new int[n];
-        while(oldmembership != membership){
-            oldmembership = membership;
+        while(true){
             for(int i = 0; i < n; i++){
-                double dist = Double.MAX_VALUE;
+                double distSq = Double.MAX_VALUE;
                 for(int j = 0; j < n_clust; j++){
-                    double d = calculateDistance(feature[i],((Centroid)clusters.get(j)).getLocation());
-                    if(d < dist){
+                    double d = calculateDistanceSq(feature[i],clusters.get(j));
+                    if(d < distSq){
                         membership[i] = j;
-                        dist = d;
+                        distSq = d;
                     }
 
                 }
+                dissimilarity += distSq;
             }
-
+            double clustDif = 0;
             for(int i = 0; i < n_clust; i++){
                 int count = 0;
                 ArrayList center = new ArrayList(dim);
@@ -109,52 +167,24 @@ public class KMeans extends AbstractFeatureProcessing{
                     }
                 }
                 double[] newCentroid = new double[dim];
-                for(int k = 0; k < dim; k++)
+                double[] oldCentroid = clusters.get(i);
+                for(int k = 0; k < dim; k++){
                     newCentroid[k] = (double)center.get(k)/count;
+                    clustDif += (oldCentroid[k] - newCentroid[k]) * (oldCentroid[k] - newCentroid[k]);
+                }
 
-                clusters.set(i, new Centroid(newCentroid));
+                clusters.set(i, newCentroid);
 
             }
+            if(clustDif == 0)
+                break;
+            iterCount++;
+            //System.out.printf("%d Iteration(s) complete, Centroids moved by %f%n", iterCount, clustDif);
         }
-        for(int memb: membership)
-            dataResult.add(memb);
-        return true;
+        
+        Centroids c = new Centroids(clusters,membership);
+        c.setDissimilarity(feature);
+        return c;
     }
     
-    @Override
-    public ArrayList getBlockCommentLocation(){
-        ArrayList comment = new ArrayList();
-        comment.add(0);
-        comment.add(0);
-        comment.add(1);
-        comment.add(1);
-        
-        return comment;
-    }
-    
-    class Centroid{
-        double[] location;
-        
-        Centroid(double[] coord){
-            location = coord;
-        }
-        
-        public double[] getLocation(){
-            return location;
-        }
-    }
-    
-    double calculateDistance(double[] n1, double[] n2){
-        double dist = 0;
-        if(n1.length != n2.length)
-            throw new RuntimeException("The dimensions of the two vectors are not the same");
-        
-        int dim = n1.length;
-        
-        for(int i = 0; i < dim; i++){
-            dist += (n1[i] - n2[i]) * (n1[i] - n2[i]);
-        }
-        
-        return dist;
-    }
 }
