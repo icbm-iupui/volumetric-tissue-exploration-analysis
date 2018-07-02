@@ -81,7 +81,7 @@ public class FeatureProcessor extends AbstractProcessor{
 
         this.features = features;
         this.protocol = protocol;
-        result = new ArrayList(2);
+        result = new ArrayList(protocol.size());
     }
     
     /**
@@ -111,13 +111,13 @@ public class FeatureProcessor extends AbstractProcessor{
         
         try {
             Class<?> c;
-            c = Class.forName(FEATUREMAP.get(protocol.get(1).toString()));
+            c = Class.forName(FEATUREMAP.get(protocol.get(2).toString()));
             Constructor<?> con;
             try {
                 con = c.getConstructor();
                 iFeatp = con.newInstance();  
-                ((AbstractFeatureProcessing)iFeatp).getVersion();
-
+                //((AbstractFeatureProcessing)iFeatp).getVersion();
+                ((AbstractFeatureProcessing)iFeatp).process(protocol,features);
             } catch ( NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(FeatureProcessor.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -125,7 +125,6 @@ public class FeatureProcessor extends AbstractProcessor{
         } catch (NullPointerException | ClassNotFoundException ex) {
             Logger.getLogger(FeatureProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
-        ((AbstractFeatureProcessing)iFeatp).process(protocol,features);
         result.add((ArrayList)((AbstractFeatureProcessing)iFeatp).getResult());
        
     }

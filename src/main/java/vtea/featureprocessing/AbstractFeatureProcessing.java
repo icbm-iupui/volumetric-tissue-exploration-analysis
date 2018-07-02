@@ -20,11 +20,11 @@ package vtea.featureprocessing;
 import java.awt.Component;
 import java.io.File;
 import java.io.PrintWriter;
+import static java.lang.Math.sqrt;
 import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.imglib2.type.numeric.RealType;
-import org.apache.commons.lang.ArrayUtils;
 
 /**
  *
@@ -146,7 +146,8 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
     }
     
     /**
-     * Deletes columns from feature array.  
+     * Deletes columns from feature array. Deletes the ObjectID column as well 
+     * as selected columns
      * @param feature the original 2D feature array with columns denoting features
      * and rows denoting objects
      * @param keep corresponds to the columns of the array(true means keep and 
@@ -155,6 +156,7 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
      */
     public double[][] selectColumns(double[][] feature, ArrayList keep){
         ArrayList delcol = new ArrayList();
+        delcol.add(0);
         for(int i = 0; i < keep.size(); i++){
             if(((boolean)keep.get(i)) == false)
                 delcol.add(i+1);
@@ -186,7 +188,26 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
                 }
             }
         }
-//        /*Take the bstuff below out, just for debugging */
+        return newfeature;
+    }
+    
+    public double[][] normalizeColumns(double[][] feature, boolean normalize){
+        double[][] normalized = new double[feature.length][feature[0].length];
+        if(normalize){
+            for(int j = 0; j < feature[0].length; j++){
+                double mu = 0;
+                double var = 0;
+                for(int i = 0; i < feature.length; i++){
+                    mu += feature[i][j];
+                }
+                mu /= feature.length;
+                for(int i = 0; i < feature.length; i++)
+                    var += (feature[i][j] - mu) * (feature[i][j] - mu);
+                var /= feature.length;
+                for(int i = 0; i < feature.length; i++)
+                    normalized[i][j] = (feature[i][j] - mu) / sqrt(var);
+            }
+            /*Take the bstuff below out, just for debugging */
 //        JFileChooser jf = new JFileChooser(new File("untitled.csv"));
 //        jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
 //            
@@ -207,9 +228,9 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
 //                        sb.append("\n");
 //                        
 //                        //Data
-//                        for(int i = 0; i < newfeature.length; i++){
-//                            for(int k = 0; k < newfeature[i].length; k++){
-//                                sb.append(newfeature[i][k]);
+//                        for(int i = 0; i < normalized.length; i++){
+//                            for(int k = 0; k < normalized[i].length; k++){
+//                                sb.append(normalized[i][k]);
 //                                sb.append(',');
 //                            }
 //                            sb.append('\n');
@@ -224,7 +245,11 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
 //        }else{
 //            
 //        }
-        return newfeature;
+            return normalized;
+            
+        }else{
+            return normalized;
+        }
     }
     
     /**
