@@ -377,6 +377,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         channelSelection.setBackground(vtea._vtea.BACKGROUND);
         channelSelection.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        channelSelection.setMinimumSize(new java.awt.Dimension(359, 31));
         channelSelection.setPreferredSize(new java.awt.Dimension(359, 33));
         channelSelection.setLayout(new java.awt.GridBagLayout());
 
@@ -800,7 +801,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     protected javax.swing.JTextPane jTextPane1;
     protected javax.swing.JPanel methodBuild;
     protected javax.swing.JPanel methodMorphology;
-    private javax.swing.JPanel methodSelection;
+    protected javax.swing.JPanel methodSelection;
     protected javax.swing.JPanel notesPane;
     private javax.swing.JLabel secondaryObjects;
     protected javax.swing.JTable secondaryTable;
