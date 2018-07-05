@@ -106,7 +106,7 @@ public class GaussianMix extends AbstractFeatureProcessing{
         else{
             start = System.nanoTime();
             IJ.log("PROFILING: Finding Gaussian Mixture Model on " + feature[0].length + " features with lowest BIC");
-            mgm = new MultivariateGaussianMixture(feature);
+            run(feature, 5);
         }
         IJ.log("PROFILING: Extracting membership of clusters");
         getMembership(feature);
@@ -394,7 +394,7 @@ public class GaussianMix extends AbstractFeatureProcessing{
     
     private void split(List<MultivariateMixture.Component> mixture) {
         // Find most dispersive cluster (biggest sigma)
-        MultivariateMixture.Component componentToSplit = null;
+        MultivariateMixture.Component componentToSplit = new MultivariateMixture.Component();
 
         double maxSigma = 0.0;
         for (MultivariateMixture.Component c : mixture) {

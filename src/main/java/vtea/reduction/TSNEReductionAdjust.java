@@ -33,6 +33,9 @@ import com.jujutsu.tsne.barneshut.Distance;
 import com.jujutsu.tsne.barneshut.EuclideanDistance;
 import com.jujutsu.tsne.barneshut.VpTree;
 import com.jujutsu.utils.MatrixOps;
+import java.awt.Color;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
 import static java.lang.Math.max;
@@ -56,19 +59,13 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from Leif Jonsson";
-        NAME = "tSNE";
+        NAME = "tSNE Adjustable";
         KEY = "tSNE";
         TYPE = "Reduction";
     }
     
     public TSNEReductionAdjust(int n){
-        VERSION = "0.1";
-        AUTHOR = "Andrew McNutt";
-        COMMENT = "Implements the plugin from Leif Jonsson";
-        NAME = "tSNE";
-        KEY = "tSNE";
-        TYPE = "Reduction";
-        
+        this();
         protocol = new ArrayList();
         
         protocol.add(new JLabel("New Dimension"));
@@ -83,35 +80,50 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         protocol.add(new JLabel("Perplexity"));
         protocol.add(new JTextField("20",20));
         
-        protocol.add(new JCheckBox("PCA Preprocessing"));
+        protocol.add(new JLabel("PCA Preprocessing"));
+        JCheckBox pca = new JCheckBox();
+        JTextField jtf = new JTextField(null,2);
+        JLabel inputD = new JLabel("Input Dimensions");
+        pca.addItemListener(new ItemListener(){
+            @Override
+            public void itemStateChanged(ItemEvent ie){
+                if(jtf.isEditable()){
+                    jtf.setForeground(Color.LIGHT_GRAY);
+                    inputD.setForeground(Color.LIGHT_GRAY);
+                    jtf.setEditable(false);
+                }else{
+                    jtf.setForeground(Color.BLACK);
+                    inputD.setForeground(Color.BLACK);
+                    jtf.setEditable(true);
+                }
+                
+            }
+        });
+        protocol.add(pca);
+        inputD.setForeground(Color.LIGHT_GRAY);
+        protocol.add(inputD);
+        jtf.setForeground(Color.LIGHT_GRAY);
+        protocol.add(jtf);
     }
     
     @Override
     public boolean process(ArrayList al, double[][] feature){
         
-        int dim = Integer.parseInt(((JTextField)al.get(5)).getText());
+        int outDim = Integer.parseInt(((JTextField)al.get(5)).getText());
         int itr = Integer.parseInt(((JTextField)al.get(7)).getText());
         int perpl = Integer.parseInt(((JTextField)al.get(9)).getText());
-        boolean pca = ((JCheckBox)al.get(10)).isSelected();
+        boolean pca = ((JCheckBox)al.get(11)).isSelected();
+        String inD = ((JTextField)al.get(13)).getText();
+        int inDim = pca? (inD.equals("") ? feature[0].length : Integer.parseInt(inD)) : feature[0].length;
         
         ArrayList selectData = (ArrayList)al.get(1);
         boolean znorm = (boolean)al.get(0);
         feature = selectColumns(feature, selectData);
         feature = normalizeColumns(feature, znorm);
         
-//        double[][] fortsne = new double[feature.length][feature[0].length-1];
-//        int i = 0;
-//        for(double[] r: feature){
-//            for(int j = 1; j < r.length; j++){
-//                fortsne[i][j-1] = feature[i][j];
-//            }
-//            i++;
-//        }
-        
         IJ.log("PROFILING: Training tSNE for " + itr + " iterations");
         long start = System.nanoTime();
-        BarnesHutTSne tsne = new BHTSne();
-        TSneConfiguration config = TSneUtils.buildConfig(feature,dim,feature[0].length,perpl,itr, pca, 0.5, false);
+        TSneConfiguration config = TSneUtils.buildConfig(feature,outDim,inDim,perpl,itr, pca, 0.5, false);
         double[][] Y = run(config, 5);
         
         
@@ -138,8 +150,13 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         comment = comment.concat(((JTextField)comComponents.get(7)).getText() + ", ");
         comment = comment.concat(((JLabel)comComponents.get(8)).getText() + ": ");
         comment = comment.concat(((JTextField)comComponents.get(9)).getText() + ", ");
-        comment = comment.concat(((JCheckBox)comComponents.get(10)).getText());
-        comment = comment.concat(((JCheckBox)comComponents.get(10)).isSelected()? ": Enabled" : ": Disabled");
+        comment = comment.concat(((JLabel)comComponents.get(10)).getText());
+        boolean pca = ((JCheckBox)comComponents.get(11)).isSelected();
+        comment = comment.concat(pca? ": Enabled" : ": Disabled");
+        if(pca){
+            comment = comment.concat(((JLabel)comComponents.get(12)).getText() + ": ");
+            comment = comment.concat(((JTextField)comComponents.get(13)).getText());
+        }
         comment = comment.concat("</html>");
         return comment;
     }
@@ -155,7 +172,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
                 PrincipalComponentAnalysis pca = new PrincipalComponentAnalysis();
                 Xin = pca.pca(Xin, parameterObject.getInitialDims());
                 D = parameterObject.getInitialDims();
-                System.out.println("X:Shape after PCA is = " + Xin.length + " x " + Xin[0].length);
+                IJ.log("X:Shape after PCA is = " + Xin.length + " x " + Xin[0].length);
         }
 
         double [] X = flatten(Xin);	
@@ -163,11 +180,11 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         int no_dims = parameterObject.getOutputDims();
 
         double [] Y = new double[N*no_dims];
-        System.out.println("X:Shape is = " + N + " x " + D);
+        IJ.log("X:Shape is = " + N + " x " + D);
         // Determine whether we are using an exact algorithm
         double perplexity = parameterObject.getPerplexity();
         if(N - 1 < 3 * perplexity) { throw new IllegalArgumentException("Perplexity too large for the number of data points!\n"); }
-        System.out.printf("Using no_dims = %d, perplexity = %f, and theta = %f\n", no_dims, perplexity, parameterObject.getTheta());
+        IJ.log("Using no_dims = " + no_dims + ", perplexity = " + perplexity + ", and theta = " + parameterObject.getTheta());
 
         // Set learning parameters
         double total_time = 0;
@@ -182,7 +199,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         for(int i = 0; i < N * no_dims; i++) gains[i] = 1.0;
 
         // Normalize input data (to prevent numerical problems)
-        System.out.println("Computing input similarities...");
+        IJ.log("Computing input similarities...");
         long start = System.currentTimeMillis();
         //zeroMean(X, N, D);
         double max_X = .0;
@@ -208,7 +225,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
                 computeGaussianPerplexity(X, N, D, P, perplexity);
 
                 // Symmetrize input similarities
-                System.out.println("Symmetrizing...");
+                IJ.log("Symmetrizing...");
                 int nN = 0;
                 for(int n = 0; n < N; n++) {
                         int mN = 0;
@@ -253,8 +270,8 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         for(int i = 0; i < N * no_dims; i++) Y[i] = randGen.nextDouble() * 0.0001;
 
         // Perform main training loop
-        if(exact) System.out.printf("Done in %4.2f seconds!\nLearning embedding...\n", (end - start) / 1000.0);
-        else System.out.printf("Done in %4.2f seconds (sparsity = %f)!\nLearning embedding...\n", (end - start) / 1000.0, (double) row_P[N] / ((double) N * (double) N));
+        if(exact) IJ.log("Done in " + IJ.d2s((end - start) / 1000.0, 2) +  " seconds!\nLearning embedding...\n");
+        else IJ.log("Done in " + IJ.d2s((end - start) / 1000.0, 2) +  " seconds (sparsity = " + IJ.d2s((double) row_P[N] / ((double) N * (double) N) , 2) +")!\nLearning embedding...\n");
         start = System.currentTimeMillis();
         for(int iter = 0; iter < parameterObject.getMaxIter() && !abort; iter++) {
 
@@ -285,17 +302,17 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
                                 err_string = "" + C;
                         }
                         if(iter == 0)
-                                System.out.printf("Iteration %d: error is %s\n", iter + 1, err_string);
+                                IJ.log("Iteration " + (iter + 1) + ": error is " + err_string);
                         else {
                                 total_time += (end - start) / 1000.0;
-                                System.out.printf("Iteration %d: error is %s (50 iterations in %4.2f seconds)\n", iter, err_string, (end - start) / 1000.0);
+                                IJ.log("Iteration " + iter + ": error is " + err_string + " (50 iterations in " + IJ.d2s((end - start) / 1000.0, 2) + " seconds)");
                         }
                         start = System.currentTimeMillis();
                 }
         }
         end = System.currentTimeMillis(); total_time += (end - start) / 1000.0;
 
-        System.out.printf("Fitting performed in %4.2f seconds.\n", total_time);
+        IJ.log("Fitting performed in " + IJ.d2s(total_time) + " seconds");
         return expand(Y,N,no_dims);
     }
     
@@ -375,7 +392,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
     }
     
     private void computeGaussianPerplexity(double [] X, int N, int D, int [] _row_P, int [] _col_P, double [] _val_P, double perplexity, int K){
-        if(perplexity > K) System.out.println("Perplexity should be lower than K!");
+        if(perplexity > K) IJ.log("Perplexity should be lower than K!");
 
             // Allocate the memory we need
             /**_row_P = (int*)    malloc((N + 1) * sizeof(int));
@@ -411,12 +428,12 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
             //			printer.printTreeHorizontal(tree.getRoot());
 
             // Loop over all points to find nearest neighbors
-            System.out.println("Building tree...");
+            IJ.log("Building tree...");
             List<DataPoint> indices = new ArrayList<>();
             List<Double> distances = new ArrayList<>();
             for(int n = 0; n < N; n++) {
 
-                    if(n % 10000 == 0) System.out.printf(" - point %d of %d\n", n, N);
+                    if(n % 10000 == 0) IJ.log(" - point " + n + " of " + N);
 
                     // Find nearest neighbors
                     indices.clear();

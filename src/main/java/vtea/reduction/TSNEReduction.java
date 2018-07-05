@@ -22,6 +22,7 @@ import com.jujutsu.tsne.barneshut.BHTSne;
 import com.jujutsu.tsne.barneshut.BarnesHutTSne;
 import com.jujutsu.utils.TSneUtils;
 import ij.IJ;
+import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -62,16 +63,29 @@ public class TSNEReduction extends AbstractFeatureProcessing{
         
         protocol.add(new JLabel("Perplexity"));
         protocol.add(new JTextField("20",20));
-        JCheckBox pca = new JCheckBox("PCA Preprocessing");
-        JTextField jtf = new JTextField(Integer.toString(max),2);
+        
+        protocol.add(new JLabel("PCA Preprocessing"));
+        JCheckBox pca = new JCheckBox();
+        JTextField jtf = new JTextField(null,2);
+        JLabel inputD = new JLabel("Input Dimensions");
         pca.addItemListener(new ItemListener(){
             @Override
             public void itemStateChanged(ItemEvent ie){
-                jtf.setEditable(true);
+                if(jtf.isEditable()){
+                    jtf.setForeground(Color.LIGHT_GRAY);
+                    inputD.setForeground(Color.LIGHT_GRAY);
+                    jtf.setEditable(false);
+                }else{
+                    jtf.setForeground(Color.BLACK);
+                    inputD.setForeground(Color.BLACK);
+                    jtf.setEditable(true);
+                }
+                
             }
         });
         protocol.add(pca);
-        protocol.add(new JLabel("Input Dimensions"));
+        
+        protocol.add(inputD);
         jtf.setEditable(false);
         protocol.add(jtf);
     }
@@ -81,8 +95,9 @@ public class TSNEReduction extends AbstractFeatureProcessing{
         int outDim = Integer.parseInt(((JTextField)al.get(5)).getText());
         int itr = Integer.parseInt(((JTextField)al.get(7)).getText());
         int perpl = Integer.parseInt(((JTextField)al.get(9)).getText());
-        boolean pca = ((JCheckBox)al.get(10)).isSelected();
-        int inDim = Integer.parseInt(((JTextField)al.get(12)).getText());
+        boolean pca = ((JCheckBox)al.get(11)).isSelected();
+        String inD = ((JTextField)al.get(13)).getText();
+        int inDim = inD.equals("")? feature[0].length :Integer.parseInt(inD);
         
         ArrayList selectData = (ArrayList)al.get(1);
         boolean znorm = (boolean)al.get(0);
@@ -120,12 +135,12 @@ public class TSNEReduction extends AbstractFeatureProcessing{
         comment = comment.concat(((JTextField)comComponents.get(7)).getText() + ", ");
         comment = comment.concat(((JLabel)comComponents.get(8)).getText() + ": ");
         comment = comment.concat(((JTextField)comComponents.get(9)).getText() + ", ");
-        comment = comment.concat(((JCheckBox)comComponents.get(10)).getText());
-        boolean pca = ((JCheckBox)comComponents.get(10)).isSelected();
+        comment = comment.concat(((JLabel)comComponents.get(10)).getText());
+        boolean pca = ((JCheckBox)comComponents.get(11)).isSelected();
         comment = comment.concat(pca? ": Enabled" : ": Disabled");
         if(pca){
-            comment = comment.concat(((JLabel)comComponents.get(11)).getText() + ": ");
-            comment = comment.concat(((JTextField)comComponents.get(12)).getText());
+            comment = comment.concat(((JLabel)comComponents.get(12)).getText() + ": ");
+            comment = comment.concat(((JTextField)comComponents.get(13)).getText());
         }
         comment = comment.concat("</html>");
         return comment;

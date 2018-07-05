@@ -45,12 +45,7 @@ public class PCAReduction extends AbstractFeatureProcessing{
     }
     
     public PCAReduction(int max){
-        VERSION = "0.1";
-        AUTHOR = "Andrew McNutt";
-        COMMENT = "Implements the plugin from SMILE";
-        NAME = "Principal Component Analysis";
-        KEY = "PCA";
-        TYPE = "Reduction";
+        this();
         
         protocol = new ArrayList();
         String[] combobox = {"New Dimension", "Desired Variance"};
@@ -91,7 +86,7 @@ public class PCAReduction extends AbstractFeatureProcessing{
             newdim = Integer.parseInt(input.getText());
             pca.setProjection(newdim);
             double[] cumvar = pca.getCumulativeVarianceProportion();
-            IJ.log("PROFILING: Projecting the data onto " + newdim + " dimensions covering " + IJ.d2s(cumvar[newdim] * 100) + "% of the variance");
+            IJ.log("PROFILING: Projecting the data onto " + newdim + " dimensions covering " + IJ.d2s(cumvar[newdim - 1] * 100) + "% of the variance");
         }else{
             variance = Double.parseDouble(input.getText());
             pca.setProjection(variance);
@@ -99,8 +94,10 @@ public class PCAReduction extends AbstractFeatureProcessing{
             newdim = 0;
             for(double cum: cumvar){
                 newdim++;
-                if(cum >= variance)
+                if(cum >= variance){
+                    variance = cum;
                     break;
+                }
             }
             IJ.log("PROFILING: Projecting the data onto " + newdim + " dimensions covering " + IJ.d2s(variance * 100) + "% of the variance");
         }

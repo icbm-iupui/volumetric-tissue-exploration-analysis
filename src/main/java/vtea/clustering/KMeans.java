@@ -118,7 +118,7 @@ public class KMeans extends AbstractFeatureProcessing{
         public void setDissimilarity(double[][] feature){
             dissimilarity = 0;
             for(int i = 0; i < membership.length; i++){
-                dissimilarity += calculateDistanceSq(centers.get(i),feature[i]);
+                dissimilarity += calculateDistanceSq(centers.get(membership[i]),feature[i]);
             }
         }
                 

@@ -218,7 +218,7 @@ public class FeatureProcessor extends AbstractProcessor{
                         //Header
                         sb.append("Object,");
                         for(Object methods: protocol){
-                            String header = ((ArrayList)methods).get(1).toString();
+                            String header = ((ArrayList)methods).get(2).toString();
                             header = header.replaceFirst(" Hierarchical", "");
                             header = header.replaceFirst(" Clustering", "");
                             header = header.replaceFirst(" Reduction", "");
