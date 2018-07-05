@@ -23,8 +23,6 @@
     <properties>
         <clearcl.version>0.3.6</clearcl.version>
         <cleargl.version>1.0.18</cleargl.version>
-        <clearvolume.version>1.3.20</clearvolume.version>
-        <CoreMem.version>0.3.2</CoreMem.version>
         <enforcer.skip>true</enforcer.skip>
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
         <netbeans.hint.license>gpl20</netbeans.hint.license>
@@ -42,6 +40,12 @@
             <artifactId>smile-core</artifactId>
             <version>1.5.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-plot -->
+        <dependency>
+            <groupId>com.github.haifengl</groupId>
+            <artifactId>smile-plot</artifactId>
+            <version>1.5.1</version>
+        </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
@@ -49,11 +53,6 @@
             <type>jar</type>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.imagej/imagej-ui-swing -->
-        <dependency>
-            <groupId>org.renjin</groupId>
-            <artifactId>renjin-script-engine</artifactId>
-            <version>0.8.2356</version>
-        </dependency>
         <dependency>
             <groupId>org.swinglabs</groupId>
             <artifactId>swing-layout</artifactId>
@@ -91,110 +90,42 @@
             <version>2.1</version>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.persistence</groupId>
-            <artifactId>eclipselink</artifactId>
-            <version>2.5.1</version>
-        </dependency>
-        
-        <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2</artifactId>
             <version>3.2.1</version>
             <type>jar</type>
         </dependency>
-        
         <dependency>
             <groupId>org.scijava</groupId>
             <artifactId>scijava-common</artifactId>
         </dependency>
-        
         <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2-ij</artifactId>
             <version>2.0.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
-        
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij-ui-swing</artifactId>
             <version>2.0.0-beta-8.2-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
-        	
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+        </dependency>
         <!--dependency>
             <groupId>net.imagej</groupId>
             <artifactId>imagej</artifactId>
             <version>2.0.0-rc-55</version>
         </dependency>
-        	
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>imagej-deprecated</artifactId>
             <version>0.1.1</version>
         </dependency-->
-        
-        <!-- Renjin cran packages -->
-        
-
-        <dependency>
-            <groupId>org.renjin.cran</groupId>
-            <artifactId>tsne</artifactId>
-            <version>0.1-2-b248</version>
-        </dependency>
-      
-        <dependency>
-            <groupId>org.renjin.cran</groupId>
-            <artifactId>Rtsne</artifactId>
-            <version>0.11-b14</version>
-        </dependency>
-        <dependency>
-            <groupId>org.rosuda.REngine</groupId>
-            <artifactId>REngine</artifactId>
-            <version>2.1.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.rosuda.REngine</groupId>
-            <artifactId>Rserve</artifactId>
-            <version>1.8.1</version>
-            <type>jar</type>
-        </dependency>
-        
-        <!-- ClearVolume dependencies -->
-        <dependency>
-            <groupId>net.clearvolume</groupId>
-            <artifactId>clearvolume</artifactId>
-            <version>${clearvolume.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.apple</groupId>
-                    <artifactId>AppleJavaExtensions</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.coremem</groupId>
-            <artifactId>CoreMem</artifactId>
-            <version>${CoreMem.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>newt</artifactId>
-            <version>2.3.2</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all</artifactId>
-            <version>2.3.2</version>
-            <type>jar</type>
-        </dependency>
     </dependencies>
 
     <build>
@@ -290,16 +221,6 @@
 
     <!-- NB: for project parent -->
     <repositories>
-        <repository>
-            <id>bintray-CoreMem</id>
-            <name>bintray</name>
-            <url>https://dl.bintray.com/clearcontrol/ClearControl</url>
-        </repository>
-        <repository>
-            <id>bintray-clearvolume-ClearVolume</id>
-            <name>bintray</name>
-            <url>https://dl.bintray.com/clearvolume/ClearVolume</url>
-        </repository>
         <repository>
             <snapshots>
                 <enabled>false</enabled>
