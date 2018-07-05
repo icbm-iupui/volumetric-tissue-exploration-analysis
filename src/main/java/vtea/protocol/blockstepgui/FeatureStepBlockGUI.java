@@ -259,7 +259,6 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
             Method getBlockComment = c.getMethod("getBlockComment", ArrayList.class);
             text = getBlockComment.invoke(null, (Object)al).toString();
         }catch(Exception e){
-            e.printStackTrace();
             text = "Text not available...";
         }
         

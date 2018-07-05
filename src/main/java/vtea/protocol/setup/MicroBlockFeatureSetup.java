@@ -80,24 +80,13 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         ccbm = new DefaultComboBoxModel(FEATUREGROUPS);
         ChannelComboBox.setModel(ccbm);
         getContentPane().remove(comments);
+        getContentPane().remove(this.methodSelection);
         PreviewButton.setVisible(false);
         
-
-
-//        methodBuild.setMaximumSize(new java.awt.Dimension(400, 300));
-//        methodBuild.setMinimumSize(new java.awt.Dimension(359, 300));
-//        methodBuild.setPreferredSize(new java.awt.Dimension(359, 300));
-//        GridBagConstraints gbc = new java.awt.GridBagConstraints();
-//        gbc.gridx = 0;
-//        gbc.gridy = 13;
-//        getContentPane().add(methodBuild, gbc);
-        
-//        gbc = new GridBagConstraints();
-//        gbc.gridx = 0;
-//        gbc.gridy = 6;
-//        getContentPane().remove(methodMorphology);
-//        getContentPane().add(methodMorphology, gbc);
-        
+        methodMorphology.setMaximumSize(new Dimension(359, 500));
+        methodMorphology.setPreferredSize(new Dimension(359,150));
+        this.MethodDetails.setPreferredSize(new Dimension(340,125));
+        repaint();
         pack();
         
         setupGroups();
@@ -150,8 +139,6 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
      */
     @Override
     protected JPanel makeProtocolPanel(String str){
-        
-        
         CurrentProcessItems.set(0, makeMethodComponentsArray(str, ProcessVariables));
         FeatureComponents = CurrentProcessItems.get(0);
         
@@ -159,64 +146,21 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         MethodDetails.removeAll();
         
         GridBagConstraints layoutConstraints = new GridBagConstraints();
-        if (FeatureComponents.size() > 0) {
-            layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 0;
-            layoutConstraints.gridy = 0;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            MethodDetails.add((Component) FeatureComponents.get(0), layoutConstraints);
-        }
+        layoutConstraints.weightx = 1;
+        layoutConstraints.weighty = 1;
 
-        if (FeatureComponents.size() > 1) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 1;
-            layoutConstraints.gridy = 0;
-            MethodDetails.add((Component) FeatureComponents.get(1), layoutConstraints);
-        }
+        for(int i = 0; i < FeatureComponents.size(); i++){
+            layoutConstraints.fill = 10 / (1 + 4 * (i % 2));
+            layoutConstraints.gridx = i % 4;
+            layoutConstraints.gridy = i / 4;
 
-        if (FeatureComponents.size() > 2) {
-            layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 2;
-            layoutConstraints.gridy = 0;
-            MethodDetails.add((Component) FeatureComponents.get(2), layoutConstraints);
-        }
-        if (FeatureComponents.size() > 3) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 3;
-            layoutConstraints.gridy = 0;
-            MethodDetails.add((Component) FeatureComponents.get(3), layoutConstraints);
-        }
-        if (FeatureComponents.size() > 4) {
-            layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 0;
-            layoutConstraints.gridy = 1;
-            MethodDetails.add((Component) FeatureComponents.get(4), layoutConstraints);
-        }
-        if (FeatureComponents.size() > 5) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 1;
-            layoutConstraints.gridy = 1;
-            MethodDetails.add((Component) FeatureComponents.get(5), layoutConstraints);
-        }
-        if (FeatureComponents.size() > 6) {
-            layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 2;
-            layoutConstraints.gridy = 1;
-            MethodDetails.add((Component) FeatureComponents.get(6), layoutConstraints);
-        }
-        if (FeatureComponents.size() > 7) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 3;
-            layoutConstraints.gridy = 1;
-            MethodDetails.add((Component) FeatureComponents.get(7), layoutConstraints);
+            MethodDetails.add((Component) FeatureComponents.get(i), layoutConstraints);
         }
         
-        
-        MethodDetails.setVisible(true);
-        repaint();
+        MethodDetails.repaint();
         pack();
-        
+        MethodDetails.setVisible(true);
+
         updateProcessList();
         //CurrentProcessList.addAll(FeatureComponents);
         
@@ -356,6 +300,12 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         all.setSelected(true);
         
         normalize = new JCheckBox("Z-scale all data");
+        normalize.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateProcessList();
+            }
+        });
         
         methodBuild.setLayout(new javax.swing.BoxLayout(methodBuild,BoxLayout.Y_AXIS));
         all.setAlignmentX(JComponent.CENTER_ALIGNMENT);
