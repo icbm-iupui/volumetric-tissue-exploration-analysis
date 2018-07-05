@@ -197,57 +197,59 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
             for(int j = 0; j < feature[0].length; j++){
                 double mu = 0;
                 double var = 0;
-                for(int i = 0; i < feature.length; i++){
-                    mu += feature[i][j];
+                for (double[] feat : feature) {
+                    mu += feat[j];
                 }
                 mu /= feature.length;
-                for(int i = 0; i < feature.length; i++)
-                    var += (feature[i][j] - mu) * (feature[i][j] - mu);
+                for (double[] feat : feature) {
+                    var += (feat[j] - mu) * (feat[j] - mu);
+                }
                 var /= feature.length;
                 for(int i = 0; i < feature.length; i++)
-                    normalized[i][j] = (feature[i][j] - mu) / sqrt(var);
+                    normalized[i][j] = (var == 0? 1 : (feature[i][j] - mu) / sqrt(var)) ;
             }
             /*Take the bstuff below out, just for debugging */
-//        JFileChooser jf = new JFileChooser(new File("untitled.csv"));
-//        jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
-//            
-//        int returnVal = jf.showSaveDialog(null);
-//            
-//        File file = jf.getSelectedFile(); 
-//
-//        if(returnVal == JFileChooser.APPROVE_OPTION) {
-////            if(file.getName().length() < 5 | file.getName().length() >= 5 && (file.getName().substring(file.getName().length()-3)).equals(".csv"))
-////                file.renameTo(file + ".csv");
-//            try{
-//
-//                        PrintWriter pw = new PrintWriter(file);
-//                        StringBuilder sb = new StringBuilder();
-//                        
-//                        //Header
-//                        sb.append("Object,");
-//                        sb.append("\n");
-//                        
-//                        //Data
-//                        for(int i = 0; i < normalized.length; i++){
-//                            for(int k = 0; k < normalized[i].length; k++){
-//                                sb.append(normalized[i][k]);
-//                                sb.append(',');
-//                            }
-//                            sb.append('\n');
-//                        }
-//                        
-//                        pw.write(sb.toString());
-//                        pw.close();
-//                        
-//            }catch(Exception e){
-//                
-//            }
-//        }else{
-//            
-//        }
+        JFileChooser jf = new JFileChooser(new File("untitled.csv"));
+        jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
+            
+        int returnVal = jf.showSaveDialog(null);
+            
+        File file = jf.getSelectedFile(); 
+
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+//            if(file.getName().length() < 5 | file.getName().length() >= 5 && (file.getName().substring(file.getName().length()-3)).equals(".csv"))
+//                file.renameTo(file + ".csv");
+            try{
+
+                        PrintWriter pw = new PrintWriter(file);
+                        StringBuilder sb = new StringBuilder();
+                        
+                        //Header
+                        sb.append("Object,");
+                        sb.append("\n");
+                        
+                        //Data
+                        for(int i = 0; i < normalized.length; i++){
+                            for(int k = 0; k < normalized[i].length; k++){
+                                sb.append(normalized[i][k]);
+                                sb.append(',');
+                            }
+                            sb.append('\n');
+                        }
+                        
+                        pw.write(sb.toString());
+                        pw.close();
+                        
+            }catch(Exception e){
+                
+            }
+        }else{
+            
+        }
             return normalized;
             
         }else{
+            normalized = feature;
             return normalized;
         }
     }
