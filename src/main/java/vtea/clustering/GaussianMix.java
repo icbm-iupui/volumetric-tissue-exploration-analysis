@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -67,16 +68,24 @@ public class GaussianMix extends AbstractFeatureProcessing{
         JSpinner n_clust = new JSpinner(new SpinnerNumberModel(5,2,max,1));
         protocol.add(n_clust);
         JCheckBox auto = new JCheckBox("Select Automatically");
+        JComboBox infoCrit = new JComboBox(new String[] {"BIC", "AIC"});
+        infoCrit.setVisible(false);
         auto.addItemListener(new ItemListener(){
                 @Override
                 public void itemStateChanged(ItemEvent evt) {
-                    if(auto.isSelected())
+                    if(auto.isSelected()){
                         n_clust.setEnabled(false);
-                    else
+                        infoCrit.setVisible(true);
+                        n_clust.setVisible(false);
+                    }else{
                         n_clust.setEnabled(true);
+                        infoCrit.setVisible(false);
+                        n_clust.setVisible(true);
+                    }
                 }
         });
         protocol.add(auto);
+        protocol.add(infoCrit);
     }
     
     @Override
@@ -106,7 +115,7 @@ public class GaussianMix extends AbstractFeatureProcessing{
         else{
             start = System.nanoTime();
             IJ.log("PROFILING: Finding Gaussian Mixture Model on " + feature[0].length + " features with lowest BIC");
-            run(feature, 5);
+            run(feature, ((JComboBox)al.get(7)).getSelectedIndex());
         }
         IJ.log("PROFILING: Extracting membership of clusters");
         getMembership(feature);
@@ -115,7 +124,7 @@ public class GaussianMix extends AbstractFeatureProcessing{
         return true;
     }
     
-    private void run(double[][] data, int k, int randomSeed){
+    private void run(double[][] data, int k, long randomSeed){
         if (k < 2)
             throw new IllegalArgumentException("Invalid number of components in the mixture.");
 
@@ -196,7 +205,7 @@ public class GaussianMix extends AbstractFeatureProcessing{
         EM(components, data, 0.2, Integer.MAX_VALUE);
     }
     
-    private void run(double[][] data, int randomSeed){
+    private void run(double[][] data, int infoC){
         if (data.length < 20)
             throw new IllegalArgumentException("Too few samples.");
 
@@ -210,27 +219,29 @@ public class GaussianMix extends AbstractFeatureProcessing{
         for (int i = 0; i < mixture.size(); i++)
             freedom += mixture.get(i).distribution.npara();
 
-        double bic = 0.0;
+        double ic = 0.0;
         for (double[] x : data) {
             double p = c.distribution.p(x);
-            if (p > 0) bic += Math.log(p);
+            if (p > 0) ic += Math.log(p);
         }
-        bic -= 0.5 * freedom * Math.log(data.length);
+        ic -= ((infoC) * freedom) + ((1 - infoC) * 0.5 * Math.log(data.length) * freedom);
 
         double b = Double.NEGATIVE_INFINITY;
-        while (bic > b) {
-            b = bic;
+        while (ic > b) {
+            b = ic;
             components = (ArrayList<MultivariateMixture.Component>) mixture.clone();
 
             split(mixture);
-            bic = EM(mixture, data, 0.2, Integer.MAX_VALUE);
+            ic = EM(mixture, data, 0.2, Integer.MAX_VALUE);
 
             freedom = 0;
             for (int i = 0; i < mixture.size(); i++)
                 freedom += mixture.get(i).distribution.npara();
 
-            bic -= 0.5 * freedom * Math.log(data.length);
+            ic -= ((infoC) * freedom) + ((1 - infoC) * 0.5 * Math.log(data.length) * freedom);
         }
+        
+        IJ.log(components.size() + " cluster(s) found automatically using BIC");
 
     }
     private int findMax(double[] probabilities){
@@ -245,34 +256,7 @@ public class GaussianMix extends AbstractFeatureProcessing{
         
         return max_col;
     }
-   
-    /**
-     * Calculates BIC. The formula for BIC is given as BIC = MaximumLogLikelihood - 0.5 * number_of_parameters * log(number_of_objects).
-     * This form of the BIC must be maximized.
-     * @param gmm the model to calculate BIC for
-     * @param feature
-     * @return 
-     */
-    private double getBic(double[][] feature){
-            int freedom = 0;
-            double newbic = 0.0;
-            
-            for(Object component: components){
-                freedom += ((MultivariateMixture.Component)component).distribution.npara();
-            }
-            
-            for(Object component: components){
-                for (double[] x : feature) {
-                    double p = ((MultivariateMixture.Component)component).distribution.p(x);
-                    if (p > 0) newbic += Math.log(p);
-                }
-            }
-            
-            newbic -= 0.5 * freedom * Math.log(feature.length);
-            
-            return newbic;
-    }
-    
+
     private void getMembership(double[][] feature){
         double[][] probabilities = new double[feature.length][components.size()];
         for(int i = 0; i < components.size(); i++){

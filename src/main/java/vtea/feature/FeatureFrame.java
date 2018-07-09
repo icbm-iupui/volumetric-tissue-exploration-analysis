@@ -27,6 +27,15 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collections;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import vtea.processor.FeatureProcessor;
 import vtea.protocol.listeners.DeleteBlockListener;
 
@@ -538,5 +547,126 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         fp.execute();
         
     }
-
+    
+    public ArrayList<Integer> examineColumns(){
+        /*
+            Makes a new 2D array with the rows equal to every measurement type
+            (Makes the transpose of the matrix)
+        */
+        String data = "/Users/drewmcnutt/Research/Summer2018/test1.csv";
+        ArrayList temp = new ArrayList();
+        String line = "";
+        ArrayList header = new ArrayList();
+        String csvSplitter = ",";
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(data));
+            
+            line = br.readLine();
+            String headr[] = line.split(csvSplitter);
+            for(int i = 0; i < headr.length; i++){
+//                if(i < 4 && i != 0)
+//                    continue;
+                header.add(headr[i]);
+            }
+                
+            
+            while((line = br.readLine()) != null){
+                String vals[] = line.split(csvSplitter);
+                ArrayList row = new ArrayList(vals.length);
+                for (String val : vals) {
+                    if (!val.equals("null")) {
+                        row.add(Double.parseDouble(val));
+                    } else {
+                        row.add(0.0);
+                    }
+                }
+                    
+                temp.add(row);
+            }
+        }catch(IOException | NumberFormatException e){
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
+        double[][] table = new double[temp.size()][((ArrayList)temp.get(0)).size()];
+        for(int i = 0; i < temp.size(); i++){
+            for(int j = 0; j < ((ArrayList)temp.get(0)).size(); j++){
+                table[i][j] = (double)((ArrayList)temp.get(i)).get(j);
+            }
+        }
+        double[][] columns = new double[features[0].length][features.length];
+        for(int i = 0; i < features.length; i++){
+            for(int j = 0; j < features[i].length; j++){
+                columns[j][i] = (double)table[i][j];
+            }
+        }
+        
+        /*
+            Compares all measurements and add all duplicate columns to the dupl
+            ArrayList if they are not already there
+        */
+        ArrayList<Integer> dupl = new ArrayList();
+        for(int j = 4; j < columns.length; j++){
+            for(int k = j + 1; k < columns.length; k++){
+                if(java.util.Arrays.equals(columns[j], columns[k]) && !(dupl.contains(k))){
+                    dupl.add(k);
+                }
+                    
+            }
+        }
+        
+        Collections.sort(dupl);         //sorts the list into ascending order
+        
+        return dupl;
+    }
+    
+    public int giveWarning(ArrayList<Integer> dupl){
+        if(dupl.isEmpty())
+            return JOptionPane.NO_OPTION;
+        StringBuilder sb = new StringBuilder("The following columns are duplicates of existing columns: \n");
+        int count = 0;
+        for(Integer col: dupl){
+            sb.append(availabledata.get(col - 1));
+            count++;
+            if(count != 0){
+                sb.append(", ");
+                if(count % 6 == 0)
+                    sb.append("\n");
+            }
+                
+        }
+        
+        sb.append("\nWould you like to delete these columns from the dataset?");
+        int response = JOptionPane.showConfirmDialog(this, sb, "Duplicate Columns Detected", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        
+        return response;
+    }
+    
+    public void deleteColumns(ArrayList<Integer> duplicates){
+        double[][] newfeat = new double[features.length][features[0].length - duplicates.size()];
+        int count = 0;
+        int j = 0;
+        int curcol = 0;
+        for(Integer col: duplicates){
+                Object removed = availabledata.remove((int)col - count - 1);
+                System.out.println(removed.toString());
+                for(int i = 0; i < features.length; i++){
+                    j = curcol;
+                    for(;j < col;j++){
+                        newfeat[i][j-count] = features[i][j];
+                    }
+                }
+                if(j == col){
+                    count++;
+                    j++;
+                    curcol = col + 1;
+                }
+        }
+        for(int i = 0; i < features.length; i++){
+            for(int k = duplicates.get(duplicates.size() - 1) + 1;k < features[0].length; k++)
+                newfeat[i][k-count] = features[i][k];
+        }
+        
+        
+        features = newfeat;
+    }
 }

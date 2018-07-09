@@ -87,14 +87,14 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         pca.addItemListener(new ItemListener(){
             @Override
             public void itemStateChanged(ItemEvent ie){
-                if(jtf.isEditable()){
-                    jtf.setForeground(Color.LIGHT_GRAY);
-                    inputD.setForeground(Color.LIGHT_GRAY);
-                    jtf.setEditable(false);
-                }else{
+                if(pca.isSelected()){
                     jtf.setForeground(Color.BLACK);
                     inputD.setForeground(Color.BLACK);
                     jtf.setEditable(true);
+                }else{
+                    jtf.setForeground(Color.LIGHT_GRAY);
+                    inputD.setForeground(Color.LIGHT_GRAY);
+                    jtf.setEditable(false);
                 }
                 
             }

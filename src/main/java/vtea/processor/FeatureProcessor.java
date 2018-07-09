@@ -27,6 +27,7 @@ import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import static vtea._vtea.FEATUREMAP;
 import vtea.featureprocessing.AbstractFeatureProcessing;
@@ -83,21 +84,7 @@ public class FeatureProcessor extends AbstractProcessor{
         this.protocol = protocol;
         result = new ArrayList(protocol.size());
     }
-    
-    /**
-     * Method.
-     * Does nothing I think.
-     * @return 
-     */
-//    public double[][] process() {
-//        double[][] featdupl = features;
-//        ListIterator<Object> litr = protocol.listIterator();
-//        while (litr.hasNext()) {
-//            ProcessManager((ArrayList) litr.next(), featdupl);
-//        }
-//        return featdupl;
-//    }
-    
+       
     /**
      * Method.
      * Using the feature name, processes the feature with the given settings and
@@ -113,17 +100,12 @@ public class FeatureProcessor extends AbstractProcessor{
             Class<?> c;
             c = Class.forName(FEATUREMAP.get(protocol.get(2).toString()));
             Constructor<?> con;
-            try {
-                con = c.getConstructor();
-                iFeatp = con.newInstance();  
-                //((AbstractFeatureProcessing)iFeatp).getVersion();
-                ((AbstractFeatureProcessing)iFeatp).process(protocol,features);
-            } catch ( NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                Logger.getLogger(FeatureProcessor.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-        } catch (NullPointerException | ClassNotFoundException ex) {
+            con = c.getConstructor();
+            iFeatp = con.newInstance();  
+            ((AbstractFeatureProcessing)iFeatp).process(protocol,features);
+        } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException ex) {
             Logger.getLogger(FeatureProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "The feature(s) & parameters attempted have caused an error,\n reconfigure and try again", "Feature Computation Error", JOptionPane.ERROR_MESSAGE);
         }
         result.add((ArrayList)((AbstractFeatureProcessing)iFeatp).getResult());
        

@@ -208,7 +208,7 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
                 for(int i = 0; i < feature.length; i++)
                     normalized[i][j] = (var == 0? 1 : (feature[i][j] - mu) / sqrt(var)) ;
             }
-            /*Take the bstuff below out, just for debugging */
+            /*Take the stuff below out, just for debugging */
         JFileChooser jf = new JFileChooser(new File("untitled.csv"));
         jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
             

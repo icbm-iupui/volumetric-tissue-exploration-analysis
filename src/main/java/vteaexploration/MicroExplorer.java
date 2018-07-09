@@ -64,6 +64,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import vtea.exploration.listeners.AxesChangeListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
@@ -129,6 +130,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     PlotAxesSetup AxesSetup = new PlotAxesSetup();
     
     FeatureFrame ff;
+    boolean checked = false;
 
 
     String[] sizes = {"2", "4", "8", "10", "15", "20"};
@@ -917,6 +919,15 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
         ff.setVisible(true);
+        if(!checked){
+            ArrayList dupl = ff.examineColumns();
+            int response = ff.giveWarning(dupl);
+            if(response == 0){
+                ff.deleteColumns(dupl);
+            }
+            checked = true;
+        }
+        
     }//GEN-LAST:event_jButtonFeatureActionPerformed
 
     /**
@@ -1354,8 +1365,8 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                     else
                         this.ObjectIDs[i][j] = 0;
                 }
-                for(int k = 0; k < data.length && j < this.availabledata.size() + 1; k++){
-                    for(int l = 0; l < data[k].length && j < this.availabledata.size() + 1; l++, j++){
+                for(int k = 0; k < data.length; k++){
+                    for(int l = 0; l < data[k].length; l++, j++){
                         this.ObjectIDs[i][j] = ((Number)data[k][l]).doubleValue();
                     }   
                 }
@@ -1365,6 +1376,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         }catch(NullPointerException ex){
             System.out.println(ex);
         }
+        
     }
 
     class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
