@@ -25,13 +25,9 @@ import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import static vtea._vtea.FEATUREMAP;
-import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MicroBlockSetupListener;
 import vtea.protocol.listeners.RebuildPanelListener;
@@ -234,18 +230,25 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         return settings;
     }
     
-    public void repaintWindow(){
-        mbs.repaint();
-    }
-    
+    /**
+     * Retrieves the Setup class for the block
+     * @return Setup for block
+     */
     public MicroBlockSetup getSetup(){
         return mbs;
     }
     
+    /**
+     * Updates the protocol to be the parameters selected in the Setup class.
+     */
     public void updateSetup(){
         ((MicroBlockFeatureSetup)mbs).updateProtocol();
     }
     
+    /**
+     * Rebuilds the block text when the parameters are changed in the Setup.
+     * @param al the selected parameters
+     */
     @Override
     public void onChangeSetup(ArrayList al){
         int len = al.size();

@@ -37,13 +37,19 @@ import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
 
 /**
- *
+ *Gaussian Mixture Model Clustering. Clusters the data assuming the data is a mixture of 
+ * Gaussian Distributions. There are two different modes, one where the number
+ * of clusters is selected by the user and one where the number of clusters is
+ * selected based on an information criterion.
  * @author drewmcnutt
  */
 @Plugin (type = FeatureProcessing.class)
 public class GaussianMix extends AbstractFeatureProcessing{
     List<MultivariateMixture.Component> components;
     
+    /**
+     * Basic Constructor. Sets all protected variables
+     */
     public GaussianMix(){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -53,6 +59,11 @@ public class GaussianMix extends AbstractFeatureProcessing{
         TYPE = "Cluster";
     }
     
+    /**
+     * Constructor called for initialization of Setup GUI.
+     * When components are added to this, the static method must be altered.
+     * @param max the number of objects segmented in the volume
+     */
     public GaussianMix(int max){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -89,6 +100,12 @@ public class GaussianMix extends AbstractFeatureProcessing{
         protocol.add(infoCrit);
     }
     
+    /**
+     * Performs the Gaussian Mixture Model based on the parameters.
+     * @param al contains all of the parameters in the form of JComponents
+     * @param feature the full data to be parsed and analyzed
+     * @return true when complete
+     */
     @Override
     public boolean process(ArrayList al, double[][] feature){
         int n_clust;
@@ -243,8 +260,8 @@ public class GaussianMix extends AbstractFeatureProcessing{
         }
         
         IJ.log(components.size() + " cluster(s) found automatically using BIC");
-
     }
+    
     private int findMax(double[] probabilities){
         double max_prob = 0;
         int max_col = 0;
@@ -273,7 +290,13 @@ public class GaussianMix extends AbstractFeatureProcessing{
             dataResult.add(j);
         }
     }
-
+    
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in 
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
     public static String getBlockComment(ArrayList comComponents){
         String comment = "<html>";
         JCheckBox jcb = (JCheckBox)comComponents.get(6);

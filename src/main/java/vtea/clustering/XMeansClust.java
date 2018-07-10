@@ -28,12 +28,17 @@ import vtea.featureprocessing.FeatureProcessing;
 import smile.clustering.XMeans;
 
 /**
- *
+ *X-Means Clustering. An improvement upon K-Means clustering. For more 
+ * information see Pelleg & Moore. X-means: Extending K-means with Efficient 
+ * Estimation of the Number of Clusters. 2000.
  * @author drewmcnutt
  */
 @Plugin (type = FeatureProcessing.class)
 public class XMeansClust extends AbstractFeatureProcessing{
     
+    /**
+     * Basic Constructor. Sets all protected variables
+     */
     public XMeansClust(){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -43,6 +48,11 @@ public class XMeansClust extends AbstractFeatureProcessing{
         TYPE = "Cluster";
     }
     
+    /**
+     * Constructor called for initialization of Setup GUI.
+     * When components are added to this, the static method must be altered.
+     * @param max the number of objects segmented in the volume
+     */
     public XMeansClust(int max){
         this();
         
@@ -52,6 +62,12 @@ public class XMeansClust extends AbstractFeatureProcessing{
         protocol.add(new JSpinner(new SpinnerNumberModel(5,2,max,1)));
     }
     
+    /**
+     * Performs the X-Means clustering based on the parameters.
+     * @param al contains all of the parameters in the form of JComponents
+     * @param feature the full data to be parsed and analyzed
+     * @return true when complete
+     */
     @Override
     public boolean process(ArrayList al, double[][] feature){
         int maxClust;
@@ -78,6 +94,12 @@ public class XMeansClust extends AbstractFeatureProcessing{
         return true;
     }
     
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in 
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
     public static String getBlockComment(ArrayList comComponents){
         String comment = "<html>";
         comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");

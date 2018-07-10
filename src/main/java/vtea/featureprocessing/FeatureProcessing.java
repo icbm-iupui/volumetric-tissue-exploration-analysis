@@ -53,14 +53,26 @@ public interface FeatureProcessing<T extends Component, A extends RealType> exte
     
     /**
      * Retrieves the results of the feature
-     * @return new 
+     * @return newly calculated results of the feature
      */
     public ArrayList getResult();
     
+    /**
+     * Retrieves the version of the feature
+     * @return version
+     */
     public String getVersion();
     
+    /**
+     * Retrieves the author of the feature
+     * @return author name
+     */
     public String getAuthor();
     
+    /**
+     * Retrieves the comment about the feature
+     * @return feature comment
+     */
     public String getComment();
     
     public void sendProgressComment();
@@ -68,7 +80,5 @@ public interface FeatureProcessing<T extends Component, A extends RealType> exte
     public String getProgressComment();
     
     public boolean copyComponentParameter(int index, ArrayList<T> dComponents, ArrayList<T> sComponents);
-    
-    public ArrayList getBlockCommentLocation();
     
 }

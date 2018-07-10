@@ -29,12 +29,15 @@ import vtea.featureprocessing.FeatureProcessing;
 import smile.projection.PCA;
 
 /**
- *
+ * Principal Component Analysis.
  * @author drewmcnutt
  */
 @Plugin (type = FeatureProcessing.class)
 public class PCAReduction extends AbstractFeatureProcessing{
     
+    /**
+     * Basic Constructor. Sets all protected variables
+     */
     public PCAReduction(){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -44,6 +47,11 @@ public class PCAReduction extends AbstractFeatureProcessing{
         TYPE = "Reduction";
     }
     
+    /**
+     * Constructor called for initialization of Setup GUI.
+     * When components are added to this, the static method must be altered.
+     * @param max the number of objects segmented in the volume
+     */
     public PCAReduction(int max){
         this();
         
@@ -65,6 +73,12 @@ public class PCAReduction extends AbstractFeatureProcessing{
         protocol.add(jtf);
     }
     
+    /**
+     * Performs the Principal Component Analysis based on the parameters.
+     * @param al contains all of the parameters in the form of JComponents
+     * @param feature the full data to be parsed and analyzed
+     * @return true when complete
+     */
     @Override
     public boolean process(ArrayList al, double[][] feature){
         double variance;
@@ -115,6 +129,12 @@ public class PCAReduction extends AbstractFeatureProcessing{
         return true;
     }
     
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in 
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
     public static String getBlockComment(ArrayList comComponents){
         String comment = "<html>";
         comment = comment.concat(((JComboBox)comComponents.get(4)).getSelectedItem() + ": ");

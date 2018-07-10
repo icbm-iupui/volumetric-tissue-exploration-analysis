@@ -27,11 +27,15 @@ import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
 
 /**
- *
+ *K-Means Clustering.
  * @author drewmcnutt
  */
 @Plugin (type = FeatureProcessing.class)
 public class KMeans extends AbstractFeatureProcessing{
+    
+    /**
+     * Basic Constructor. Sets all protected variables
+     */
     public KMeans(){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -41,6 +45,11 @@ public class KMeans extends AbstractFeatureProcessing{
         TYPE = "Cluster";
     }
     
+    /**
+     * Constructor called for initialization of Setup GUI.
+     * When components are added to this, the static method must be altered.
+     * @param max the number of objects segmented in the volume
+     */
     public KMeans(int max){
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
@@ -56,6 +65,12 @@ public class KMeans extends AbstractFeatureProcessing{
         protocol.add(new JSpinner(new SpinnerNumberModel(5,2,max,1)));
     }
     
+    /**
+     * Performs the K-Means clustering based on the parameters.
+     * @param al contains all of the parameters in the form of JComponents
+     * @param feature the full data to be parsed and analyzed
+     * @return true when complete
+     */
     @Override
     public boolean process(ArrayList al, double[][] feature){
         int n_clust;
@@ -81,6 +96,12 @@ public class KMeans extends AbstractFeatureProcessing{
         return true;
     }
     
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in 
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
     public static String getBlockComment(ArrayList comComponents){
         String comment = "<html>";
         comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");

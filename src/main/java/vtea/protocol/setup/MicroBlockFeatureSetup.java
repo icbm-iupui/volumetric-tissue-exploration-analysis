@@ -40,7 +40,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import static vtea._vtea.FEATUREMAP;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 /**
- *
+ * Setup Window for the blocks in Feature Frame. Allows selection of specific
+ * feature types and specific parameters.
  * @author drewmcnutt
  */
 public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionListener{
@@ -265,7 +266,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     }
     
     /**
-     * 
+     * Updates the protocol to fit that selected in the Setup
      */
     public void updateProtocol(){
         CurrentStepProtocol = CurrentProcessList;
@@ -349,14 +350,12 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
      * 
      * @return 
      */
-    public ArrayList getSelectedData(){
+    private ArrayList getSelectedData(){
         ArrayList selected = new ArrayList();
         for(Component c: dataPanel.getComponents()){
                 selected.add(((JCheckBox)c).isSelected());
         }
-//        for(Object cb: seldata){
-//            selected.add(((JCheckBox)cb).isSelected());
-//        }
+        
         return selected;
     }
     

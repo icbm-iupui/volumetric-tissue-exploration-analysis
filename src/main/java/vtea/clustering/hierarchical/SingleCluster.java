@@ -35,7 +35,7 @@ import vtea.featureprocessing.FeatureProcessing;
 public class SingleCluster extends AbstractHierarchical{
     
     /**
-     * Constructor. Sets basic information of the class.
+     * Basic Constructor. Sets all protected variables
      */
     public SingleCluster(){
         VERSION = "0.1";
@@ -47,8 +47,8 @@ public class SingleCluster extends AbstractHierarchical{
     }
     
     /**
-     * Constructor. Calls the super constructor and sets basic information of
-     * the class.
+     * Constructor. Calls the super constructor and sets all protected variables
+     * of the class.
      * @param max the number of objects in the volume
      */
     public SingleCluster(int max){
@@ -92,6 +92,12 @@ public class SingleCluster extends AbstractHierarchical{
         return true;
     }
     
+     /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in 
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
     public static String getBlockComment(ArrayList comComponents){
         String comment = "<html>";
         comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");

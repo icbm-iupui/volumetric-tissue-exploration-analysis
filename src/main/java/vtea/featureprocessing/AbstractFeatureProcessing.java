@@ -18,16 +18,17 @@
 package vtea.featureprocessing;
 
 import java.awt.Component;
-import java.io.File;
-import java.io.PrintWriter;
 import static java.lang.Math.sqrt;
 import java.util.ArrayList;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import net.imglib2.type.numeric.RealType;
 
 /**
- *
+ *Abstract of all Feature Processing classes. All features must extend this.
+ * All Feature Processing Classes must have a static method as follows:
+ *      public static String getBlockComment(ArrayList comComponents)
+ * this method takes in all of the parameter components provided in the Setup 
+ * box and returns a string for the comment text of the block GUI.
+ * 
  * @author drewmcnutt
  * 
  * @param <T>
@@ -191,6 +192,13 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         return newfeature;
     }
     
+    /**
+     * Z-Normalizes the data such that all measurements have a mean of 0 and variance of 1.
+     * Z-normalization is carried out independently for all columns.
+     * @param feature the original 2D array of data to be normalized
+     * @param normalize true if data is to be normalized
+     * @return 2D array of z-normalized data
+     */
     public double[][] normalizeColumns(double[][] feature, boolean normalize){
         double[][] normalized = new double[feature.length][feature[0].length];
         if(normalize){
@@ -208,44 +216,44 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
                 for(int i = 0; i < feature.length; i++)
                     normalized[i][j] = (var == 0? 1 : (feature[i][j] - mu) / sqrt(var)) ;
             }
-            /*Take the stuff below out, just for debugging */
-        JFileChooser jf = new JFileChooser(new File("untitled.csv"));
-        jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
-            
-        int returnVal = jf.showSaveDialog(null);
-            
-        File file = jf.getSelectedFile(); 
-
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-//            if(file.getName().length() < 5 | file.getName().length() >= 5 && (file.getName().substring(file.getName().length()-3)).equals(".csv"))
-//                file.renameTo(file + ".csv");
-            try{
-
-                        PrintWriter pw = new PrintWriter(file);
-                        StringBuilder sb = new StringBuilder();
-                        
-                        //Header
-                        sb.append("Object,");
-                        sb.append("\n");
-                        
-                        //Data
-                        for(int i = 0; i < normalized.length; i++){
-                            for(int k = 0; k < normalized[i].length; k++){
-                                sb.append(normalized[i][k]);
-                                sb.append(',');
-                            }
-                            sb.append('\n');
-                        }
-                        
-                        pw.write(sb.toString());
-                        pw.close();
-                        
-            }catch(Exception e){
-                
-            }
-        }else{
-            
-        }
+//            /*Take the stuff below out, just for debugging */
+//        JFileChooser jf = new JFileChooser(new File("untitled.csv"));
+//        jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
+//            
+//        int returnVal = jf.showSaveDialog(null);
+//            
+//        File file = jf.getSelectedFile(); 
+//
+//        if(returnVal == JFileChooser.APPROVE_OPTION) {
+////            if(file.getName().length() < 5 | file.getName().length() >= 5 && (file.getName().substring(file.getName().length()-3)).equals(".csv"))
+////                file.renameTo(file + ".csv");
+//            try{
+//
+//                        PrintWriter pw = new PrintWriter(file);
+//                        StringBuilder sb = new StringBuilder();
+//                        
+//                        //Header
+//                        sb.append("Object,");
+//                        sb.append("\n");
+//                        
+//                        //Data
+//                        for(int i = 0; i < normalized.length; i++){
+//                            for(int k = 0; k < normalized[i].length; k++){
+//                                sb.append(normalized[i][k]);
+//                                sb.append(',');
+//                            }
+//                            sb.append('\n');
+//                        }
+//                        
+//                        pw.write(sb.toString());
+//                        pw.close();
+//                        
+//            }catch(Exception e){
+//                
+//            }
+//        }else{
+//            
+//        }
             return normalized;
             
         }else{
@@ -280,8 +288,4 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         }
     }
     
-    @Override
-    public ArrayList getBlockCommentLocation(){
-        return new ArrayList();
-    }
 }

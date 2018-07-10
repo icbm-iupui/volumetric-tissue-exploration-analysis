@@ -36,7 +36,7 @@ import smile.plot.PlotCanvas;
 public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
     
     /**
-     * Constructor. Sets basic information of the abstract class.
+     * Basic Constructor. Sets all protected variables
      */
     public AbstractHierarchical(){
         VERSION = "0.1";
@@ -48,9 +48,9 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
     }
     
     /**
-     * Constructor. Sets the basic information of the abstract class and sets
-     * the parameters of the abstract method.
-     * @param max the number of objects found in the volume.
+     * Constructor called for initialization of Setup GUI.
+     * When components are added to this, the static method must be altered.
+     * @param max the number of objects segmented in the volume
      */
     public AbstractHierarchical(int max){
         VERSION = "0.1";
@@ -65,18 +65,10 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
         protocol.add(new JLabel("Amount of clusters"));
         protocol.add(new JSpinner(new SpinnerNumberModel(5,0,max,1)));
         
-//        JButton preview = new JButton("Determine number of clusters");
-//        preview.addActionListener(new ActionListener(){
-//            @Override
-//            public void actionPerformed(ActionEvent evt){
-//                createDendogram();
-//            }
-//        });
-//        protocol.add(preview);
     }
     
     /**
-     * Calculates the membership of all the volumes
+     * Calculates the membership of all the segmented objects
      * @param l linkage method for merging of clusters
      * @param n number of clusters
      */
@@ -140,7 +132,12 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
         d = Math.sqrt(d);
         return d;
     }
-
+    
+    /**
+     * Constructs a JFrame containing the dendrogram of the hierarchical 
+     * clustering.
+     * @param hc the hierarchical clustering to make the dendrogram with
+     */
     public void createDendrogram(HierarchicalClustering hc){
         JFrame dendroFrame = new JFrame();
         dendroFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
