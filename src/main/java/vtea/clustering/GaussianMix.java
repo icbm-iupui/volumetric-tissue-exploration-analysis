@@ -63,7 +63,8 @@ public class GaussianMix extends AbstractFeatureProcessing{
         
         protocol = new ArrayList();
         
-        protocol.add(new JLabel("Number of clusters"));
+        JLabel clust = new JLabel("Number of clusters");
+        protocol.add(clust);
        
         JSpinner n_clust = new JSpinner(new SpinnerNumberModel(5,2,max,1));
         protocol.add(n_clust);
@@ -74,13 +75,13 @@ public class GaussianMix extends AbstractFeatureProcessing{
                 @Override
                 public void itemStateChanged(ItemEvent evt) {
                     if(auto.isSelected()){
-                        n_clust.setEnabled(false);
                         infoCrit.setVisible(true);
                         n_clust.setVisible(false);
+                        clust.setVisible(false);
                     }else{
-                        n_clust.setEnabled(true);
                         infoCrit.setVisible(false);
                         n_clust.setVisible(true);
+                        clust.setVisible(true);
                     }
                 }
         });
