@@ -28,14 +28,10 @@ import java.util.ListIterator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Collections;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import vtea.processor.FeatureProcessor;
 import vtea.protocol.listeners.DeleteBlockListener;
 
@@ -475,16 +471,6 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         return Result;
     }
     
-//    private int getBlockPosition() {
-//        int position;
-//        if (FeatureStepsList.isEmpty()) {
-//            position = 1;
-//        } else {
-//            position = FeatureStepsList.size() + 1;
-//        }
-//        return position;
-//    }
-    
     /**
      * Retrieve all of the steps.
      * @return list of all of the steps
@@ -492,16 +478,6 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
     public ArrayList getFeatureSteps() {
         return this.FeatureStepsList;
     }
-
-//    public ArrayList getProProcessingProtocol() {
-//        return extractSteps(FeatureStepsList);
-//    }
-//
-//    public void setProcessSteps(ArrayList FeatureStepsList) {
-//        FeatureStepsList.trimToSize();
-//        this.FeatureStepsList.addAll(FeatureStepsList);
-//        this.RebuildPanelFeature();
-//    }
     
     /**
      * Deletes specific step.
@@ -548,7 +524,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         
     }
     
-    public ArrayList<Integer> examineColumns(){
+    private ArrayList<Integer> examineColumns(){
         /*
             Makes a new 2D array with the rows equal to every measurement type
             (Makes the transpose of the matrix)
@@ -619,33 +595,46 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         return dupl;
     }
     
-    public int giveWarning(ArrayList<Integer> dupl){
+    /**
+     * Gives warning dialog to the user about duplicate columns in the dataset
+     * and allows the user to remove them.
+     */
+    public void giveWarning(){
+        int response;
+        
+        ArrayList<Integer> dupl = examineColumns();
+
         if(dupl.isEmpty())
-            return JOptionPane.NO_OPTION;
-        StringBuilder sb = new StringBuilder("The following columns are duplicates of existing columns: \n");
-        int count = 0;
-        for(Integer col: dupl){
-            sb.append(availabledata.get(col - 1));
-            count++;
-            if(count != 0){
-                sb.append(", ");
-                if(count % 6 == 0)
-                    sb.append("\n");
+            response = JOptionPane.NO_OPTION;
+        else{
+            StringBuilder sb = new StringBuilder("The following columns are duplicates of existing columns: \n");
+            int count = 0;
+            for(Integer col: dupl){
+                sb.append(availabledata.get(col - 1));
+                count++;
+                if(count != 0){
+                    sb.append(", ");
+                    if(count % 6 == 0)
+                        sb.append("\n");
+                }
+
             }
-                
+
+            sb.append("\nWould you like to delete these columns from the dataset?");
+            response = JOptionPane.showConfirmDialog(this, sb, "Duplicate Columns Detected", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         }
         
-        sb.append("\nWould you like to delete these columns from the dataset?");
-        int response = JOptionPane.showConfirmDialog(this, sb, "Duplicate Columns Detected", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        
-        return response;
+        if(response == JOptionPane.YES_OPTION)
+            deleteColumns(dupl);
     }
     
-    public void deleteColumns(ArrayList<Integer> duplicates){
+    private void deleteColumns(ArrayList<Integer> duplicates){
         double[][] newfeat = new double[features.length][features[0].length - duplicates.size()];
+        
         int count = 0;
         int j = 0;
         int curcol = 0;
+        
         for(Integer col: duplicates){
                 Object removed = availabledata.remove((int)col - count - 1);
                 System.out.println(removed.toString());
@@ -661,6 +650,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
                     curcol = col + 1;
                 }
         }
+        
         for(int i = 0; i < features.length; i++){
             for(int k = duplicates.get(duplicates.size() - 1) + 1;k < features[0].length; k++)
                 newfeat[i][k-count] = features[i][k];

@@ -920,11 +920,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
         ff.setVisible(true);
         if(!checked){
-            ArrayList dupl = ff.examineColumns();
-            int response = ff.giveWarning(dupl);
-            if(response == 0){
-                ff.deleteColumns(dupl);
-            }
+            ff.giveWarning();
             checked = true;
         }
         
