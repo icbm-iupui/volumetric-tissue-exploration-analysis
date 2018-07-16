@@ -20,6 +20,7 @@ package vtea;
 import ij.ImageJ;
 import ij.ImageListener;
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.plugin.PlugIn;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -46,6 +47,8 @@ import org.scijava.plugin.RichPlugin;
 import vtea.protocol.ProtocolManagerMulti;
 import vtea.services.FileTypeService;
 import vtea.services.ImageProcessingService;
+import vtea.services.MorphologicalFilterService;
+import vtea.services.ObjectMeasurementService;
 import vtea.services.ProcessorService;
 import vtea.services.SegmentationService;
 import vtea.services.WorkflowService;
@@ -61,21 +64,25 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension SMALLBUTTONSIZE = new Dimension(32, 32);
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
-    public static String VERSION = new String("0.5.2");
+    public static String VERSION = new String("0.7b");
 
-    public static String[] PROCESSOPTIONS = {"LayerCake 3D", "FloodFill 3D"};
+    public static String[] PROCESSOPTIONS = {"LayerCake 3D"};
     
     public static String[] SEGMENTATIONOPTIONS;
     public static String[] PROCESSINGOPTIONS;
     public static String[] WORKFLOWOPTIONS;
     public static String[] PROCESSOROPTIONS;
-    public static String[] FILETYPEOPTIONS;      
+    public static String[] FILETYPEOPTIONS;  
+    public static String[] OBJECTMEASUREMENTOPTIONS; 
+    public static String[] MORPHOLOGICALOPTIONS;
     
     public static ConcurrentHashMap<String, String> PROCESSINGMAP;
     public static ConcurrentHashMap<String, String> SEGMENTATIONMAP;
     public static ConcurrentHashMap<String, String> WORKFLOWMAP;
     public static ConcurrentHashMap<String, String> PROCESSORMAP;
     public static ConcurrentHashMap<String, String> FILETYPEMAP;
+    public static ConcurrentHashMap<String, String> OBJECTMEASUREMENTMAP;
+    public static ConcurrentHashMap<String, String> MORPHOLOGICALMAP;
   
     
     public ProtocolManagerMulti protocolWindow;
@@ -126,6 +133,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 FILETYPEMAP = new ConcurrentHashMap<String, String>();
                 WORKFLOWMAP = new ConcurrentHashMap<String, String>();
                 PROCESSORMAP = new ConcurrentHashMap<String, String>();
+                OBJECTMEASUREMENTMAP = new ConcurrentHashMap<String, String>();
+                MORPHOLOGICALMAP = new ConcurrentHashMap<String, String>(); 
                 
                 FileTypeService fs = new FileTypeService(context); 
                 
@@ -134,13 +143,18 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 ProcessorService ps = new ProcessorService(context); 
                 
                 SegmentationService ss = new SegmentationService(context);                
+                
                 ImageProcessingService ips = new ImageProcessingService(context);
+                
+                ObjectMeasurementService oms = new ObjectMeasurementService(context);
+                
+                MorphologicalFilterService mfs = new MorphologicalFilterService(context);
                 
                
                 //ObjectAnalysisService oas = new ObjectAnalysisService();
                 //ObjectMeasurementService oms = new ObjectMeasurementService();                
                 //GroupAnalysisService gas = new GroupAnalysisService();
-                //ObjectMeasurementService oms = new ObjectMeasurementService();
+                
                 //VisualizationService vs = new VisualizationService();
                 //ExplorationService es = new ExplorationService();  
                 
@@ -156,8 +170,14 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 List<String> ips_names = ips.getNames();
                 List<String> ips_qualifiedNames = ips.getQualifiedName();
                 
+                List<String> oms_names = oms.getNames();
+                List<String> oms_qualifiedNames = oms.getQualifiedName();
+                
                 List<String> ss_names = ss.getNames();
                 List<String> ss_qualifiedNames = ss.getQualifiedName();
+                
+                List<String> mfs_names = mfs.getNames();
+                List<String> mfs_qualifiedNames = mfs.getQualifiedName();
                 
                 //List<String> oas_names = oas.getNames();
                 //List<String> oas_qualifiedNames = oas.getQualifiedName();
@@ -242,6 +262,22 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                     }
                 }
                 
+                System.out.println("Loading Measurement Plugins: ");
+                //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
+                
+                OBJECTMEASUREMENTOPTIONS = oms_names.toArray(new String[oms_names.size()]);
+                
+                for(int i = 0; i < oms_names.size(); i++){
+                    try {
+                        Object o = Class.forName(oms_qualifiedNames.get(i)).newInstance();
+                        System.out.println("Loaded: " + o.getClass().getName()); 
+                        //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
+                        OBJECTMEASUREMENTMAP.put(OBJECTMEASUREMENTOPTIONS[i], o.getClass().getName());
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                        Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                
                 System.out.println("Loading Segmentation Plugins: ");
                 //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
                 
@@ -253,6 +289,22 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                         System.out.println("Loaded: " + o.getClass().getName()); 
                         //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
                         SEGMENTATIONMAP.put(SEGMENTATIONOPTIONS[i], o.getClass().getName());
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                        Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                
+                System.out.println("Loading Morphological Plugins: ");
+                //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
+                
+                MORPHOLOGICALOPTIONS = mfs_names.toArray(new String[mfs_names.size()]);
+                
+                for(int i = 0; i < mfs_names.size(); i++){
+                    try {
+                        Object o = Class.forName(mfs_qualifiedNames.get(i)).newInstance();
+                        System.out.println("Loaded: " + o.getClass().getName()); 
+                        //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
+                        MORPHOLOGICALMAP.put(MORPHOLOGICALOPTIONS[i], o.getClass().getName());
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
                         Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -392,6 +444,19 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
             return freeMemory;
 
     }
+    
+    public static ImageStack[] getInterleavedStacks(ImagePlus imp) {
+        ImageStack[] stacks = new ImageStack[imp.getNChannels()];
+        ImageStack stack = imp.getImageStack();
+        for (int m = 0; m <= imp.getNChannels() - 1; m++) {
+            stacks[m] = new ImageStack(imp.getWidth(), imp.getHeight());
+            for (int n = m; n <= imp.getStackSize() - 1; n += imp.getNChannels()) {
+                stacks[m].addSlice(stack.getProcessor(n + 1));
+            }
+        }	
+        return stacks;
+    }
+
 
  
     }

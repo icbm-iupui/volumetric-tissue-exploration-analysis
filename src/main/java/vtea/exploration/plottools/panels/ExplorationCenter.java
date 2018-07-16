@@ -29,6 +29,7 @@ import java.util.List;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import vtea.objects.layercake.microVolume;
+import vteaobjects.MicroObject;
 
 /**
  *
@@ -85,6 +86,9 @@ public interface ExplorationCenter {
     
     public int getGatedSelected(ImagePlus ip);
     
+    public ArrayList<MicroObject> getObjects();
+    
+    public ArrayList<ArrayList<Number>> getMeasurments();
     
     public void setGatedOverlay(ImagePlus ip);
     

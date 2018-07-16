@@ -19,7 +19,7 @@ import vtea.objects.layercake.LayerCake3D;
  *
  * @author vinfrais
  */
-
+@Deprecated
 public class SingleThresholdDataModel implements Datasets{
 
     private ArrayList Volumes;

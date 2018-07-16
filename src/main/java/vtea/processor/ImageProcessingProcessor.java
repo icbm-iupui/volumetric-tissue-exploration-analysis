@@ -61,6 +61,12 @@ public class ImageProcessingProcessor extends AbstractProcessor {
 
     public ImageProcessingProcessor(ImagePlus imp, ArrayList protocol) {
 
+    VERSION = "0.1";
+    AUTHOR = "Seth Winfree";
+    COMMENT = "Converting to SciJava plugin architecture";
+    NAME = "Image Processing Processor";
+    KEY = "ImageProcessingProcessor";   
+    
         impOriginal = imp;
         this.protocol = protocol;
         //channelProcess = channel;

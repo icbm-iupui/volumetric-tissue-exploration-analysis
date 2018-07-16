@@ -117,7 +117,7 @@ public class FloodFill3D implements Cloneable, java.io.Serializable {
                     if(stack.getVoxel(x, y, z) == 255){
                         pixels = floodfill(stack,x,y,z,width,height,depth,color, pixels);
                         if(pixels.size() > this.minConstants[0]){
-                            this.alVolumes.add(new MicroObject(pixels, maskStack, stackComplete, serialID));
+                            this.alVolumes.add(new MicroObject(pixels, maskStack, stackComplete, serialID) {});
                             serialID++;
                         }
                         pixels = new ArrayList<int[]>();
@@ -343,7 +343,7 @@ public class FloodFill3D implements Cloneable, java.io.Serializable {
             ListIterator<MicroObject> itr = alVolumes.listIterator(start);
             int i = start;
             while(itr.hasNext() && i<=stop){
-                MicroObject mv = new MicroObject();
+                MicroObject mv = new MicroObject() {};
                 mv = itr.next();
                 
                 mv.makeDerivedRegions(derivedRegionType, channels, stack, ResultsPointers);

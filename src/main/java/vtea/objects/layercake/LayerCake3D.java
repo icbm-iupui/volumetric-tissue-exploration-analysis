@@ -85,13 +85,13 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
 
         ImageStack stackResult = stack.duplicate();
 
-        System.out.println("PROFILING: parsing stack of dimensions: z, " + stackResult.getSize() + " for a threshold of " + minConstants[3]);
+        //System.out.println("PROFILING: parsing stack of dimensions: z, " + stackResult.getSize() + " for a threshold of " + minConstants[3]);
 
         for (int n = 0; n < stackResult.getSize(); n++) {
             for (int x = 0; x < stackResult.getWidth(); x++) {
                 for (int y = 0; y < stackResult.getHeight(); y++) {
-                    if (stackResult.getVoxel(x, y, n) <= minConstants[3]) {
-                        stackResult.setVoxel(x, y, n, (Math.pow(2, stack.getBitDepth())) - 1);
+                    if (stackResult.getVoxel(x, y, n) >= minConstants[3]) {
+                        stackResult.setVoxel(x, y, n, (Math.pow(2, stackResult.getBitDepth())) - 1);
                     } else {
                         stackResult.setVoxel(x, y, n, 0);
                     }

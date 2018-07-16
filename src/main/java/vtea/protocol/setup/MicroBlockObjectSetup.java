@@ -29,6 +29,7 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
+import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -93,27 +95,41 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     ImagePlus ThresholdPreview = new ImagePlus();
 
     public MicroBlockObjectSetup(int step, ArrayList Channels, ImagePlus imp) {
+        
         super(step, Channels);
-
+        
+        //setup the images
+        
         ThresholdOriginal = imp.duplicate();
         ThresholdPreview = getThresholdPreview();
 
         ThresholdPreview.addImageListener(this);
 
         IJ.run(ThresholdPreview, "Grays", "");
-
+        
+        //setup the method
+        
+        super.cbm = new DefaultComboBoxModel(vtea._vtea.SEGMENTATIONOPTIONS);
+        
+        ProcessSelectComboBox.setModel(cbm);
+        ProcessSelectComboBox.setVisible(true);  
+        
+        ProcessVariables = new String[vtea._vtea.SEGMENTATIONOPTIONS.length][10];
+        
+        
+        
+        //setup thresholder
+        
+        
         mta = new MicroThresholdAdjuster(ThresholdPreview);
         mta.addChangeThresholdListener(this);
         mta.notifyChangeThresholdListeners(mta.minThreshold, mta.maxThreshold);
+        
+        ProcessSelectComboBox.setSelectedIndex(0);
 
-        //makeProtocolPanel(step);
-        super.cbm = new DefaultComboBoxModel(vtea._vtea.SEGMENTATIONOPTIONS);
+        makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
 
-        ProcessSelectComboBox.setModel(cbm);
-        ProcessSelectComboBox.setVisible(true);
-
-        makeProtocolPanel((String) ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()));
-
+ 
         setBounds(new java.awt.Rectangle(500, 160, 378, 282));
 
         TitleText.setText("Object_" + (step));
@@ -145,8 +161,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         channelColumn.setCellEditor(channelEditor);
         analysisColumn.setCellEditor(analysisEditor);
 
-        makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
-
         PreviewButton.setVisible(true);
         PreviewButton.setEnabled(true);
 
@@ -177,7 +191,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
-        makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
+        makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
@@ -264,7 +278,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
-        makeProtocolPanel((String) ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()));
+        makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
@@ -275,10 +289,16 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
 
     @Override
     protected JPanel makeProtocolPanel(String str) {
+        
         ArrayList ProcessComponents;
+     
+        //CurrentProcessItems.set(0, makeMethodComponentsArray(str, ProcessVariables));
+        //ProcessComponents = CurrentProcessItems.get(0);
+ 
+        ProcessComponents = makeMethodComponentsArray(str, ProcessVariables); 
 
-        CurrentProcessItems.set(0, makeMethodComponentsArray(str, ProcessVariables));
-        ProcessComponents = CurrentProcessItems.get(0);
+        
+        
 
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
@@ -359,9 +379,13 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         mta.doUpdate();
         pack();
         MethodDetails.setVisible(true);
-        CurrentProcessList.clear();
-        CurrentProcessList.add(cbm.getSelectedItem());
-        CurrentProcessList.addAll(ProcessComponents);
+        
+        //Current Process list is handed to Arraylit for SIP processing
+
+        CurrentProcessList = ProcessComponents;
+
+        
+        
         return MethodDetails;
     }
 
@@ -484,7 +508,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
                 con = c.getConstructor();
                 iImp = con.newInstance();
                 return ((AbstractSegmentation) iImp).getOptions();
-
+                
             } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -501,31 +525,34 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     protected ArrayList makeMethodComponentsArray(int position, String[][] values) {
 
         ArrayList result = new ArrayList();
+        
+        
+        
 
-        if (this.ProcessSelectComboBox.getItemAt(position).equals("LayerCake 3D")) {
-            result.add(new JLabel("Low Threshold"));
-            result.add(new JTextField(values[position][0]));
-            result.add(new JLabel("Centroid Offset"));
-            result.add(new JTextField(values[position][1]));
-            result.add(new JLabel("Min Vol (vox)"));
-            result.add(new JTextField(values[position][2]));
-            result.add(new JLabel("Max Vol (vox)"));
-            result.add(new JTextField(values[position][3]));
-        }
-        if (this.ProcessSelectComboBox.getItemAt(position).equals("FloodFill 3D")) {
-            result.add(new JLabel("Low Threshold"));
-            result.add(new JTextField(values[position][0]));
-            result.add(new JLabel("High Threshold"));
-            result.add(new JTextField(values[position][1]));
-            result.add(new JLabel("Min Vol (vox)"));
-            result.add(new JTextField(values[position][2]));
-            result.add(new JLabel("Max Vol (vox)"));
-            result.add(new JTextField(values[position][3]));
-        }
-        if (position == 2) {
-            result.add(new JLabel("Solution not supported"));
-            result.add(new JTextField("5"));
-        }
+//        if (this.ProcessSelectComboBox.getItemAt(position).equals("LayerCake 3D")) {
+//            result.add(new JLabel("Low Threshold"));
+//            result.add(new JTextField(values[position][0]));
+//            result.add(new JLabel("Centroid Offset"));
+//            result.add(new JTextField(values[position][1]));
+//            result.add(new JLabel("Min Vol (vox)"));
+//            result.add(new JTextField(values[position][2]));
+//            result.add(new JLabel("Max Vol (vox)"));
+//            result.add(new JTextField(values[position][3]));
+//        }
+//        if (this.ProcessSelectComboBox.getItemAt(position).equals("FloodFill 3D")) {
+//            result.add(new JLabel("Low Threshold"));
+//            result.add(new JTextField(values[position][0]));
+//            result.add(new JLabel("High Threshold"));
+//            result.add(new JTextField(values[position][1]));
+//            result.add(new JLabel("Min Vol (vox)"));
+//            result.add(new JTextField(values[position][2]));
+//            result.add(new JLabel("Max Vol (vox)"));
+//            result.add(new JTextField(values[position][3]));
+//        }
+//        if (position == 2) {
+//            result.add(new JLabel("Solution not supported"));
+//            result.add(new JTextField("5"));
+//        }
         return result;
     }
 
@@ -554,20 +581,22 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     }
 
     private void updateProcessVariables() {
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = ((JTextField) CurrentStepProtocol.get(2)).getText();
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][1] = ((JTextField) CurrentStepProtocol.get(4)).getText();
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][2] = ((JTextField) CurrentStepProtocol.get(6)).getText();
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][3] = ((JTextField) CurrentStepProtocol.get(8)).getText();
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = ((JTextField) CurrentStepProtocol.get(1)).getText();
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][1] = ((JTextField) CurrentStepProtocol.get(3)).getText();
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][2] = ((JTextField) CurrentStepProtocol.get(5)).getText();
+        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][3] = ((JTextField) CurrentStepProtocol.get(7)).getText();
     }
 
     @Override
     protected void blockSetupOKAction() {
 
         CurrentStepProtocol = CurrentProcessList;
+
         updateProcessVariables();
-        makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
+        makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
         notifyMicroBlockSetupListeners(getSettings());
-        this.setVisible(false);
+        
+         this.setVisible(false);
     }
 
     @Override
@@ -594,97 +623,120 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     //field key 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     private ArrayList getSettings() {
+        
+         /**segmentation and measurement protocol redefining.
+         * 0: title text, 1: method (as String), 2: channel, 3: ArrayList of JComponents used 
+         * for analysis 3: ArrayList of Arraylist for morphology determination
+         */
+        
 
-        ArrayList repeated = new ArrayList();
-        ArrayList key = new ArrayList();
-        ArrayList<ArrayList> result = new ArrayList<ArrayList>();
+        //ArrayList repeated = new ArrayList();
+        //ArrayList key = new ArrayList();
+        ArrayList result = new ArrayList();
 
-        JTextField placeholder;
+        result.add(TitleText.getText());
 
-        repeated.add(ChannelComboBox.getSelectedIndex());
-        repeated.add(ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()));
-        key.addAll(Arrays.asList("minObjectSize", "maxObjectSize", "minOverlap", "minThreshold"));
-        repeated.add(key);
-
-        if (ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()).equals("LayerCake 3D")) {
-            //build primary volume variables
-            placeholder = (JTextField) CurrentStepProtocol.get(6);
-            repeated.add(placeholder.getText());
-            //System.out.println("PROFILING: " + placeholder.getText());
-            placeholder = (JTextField) CurrentStepProtocol.get(8);
-            repeated.add(placeholder.getText());
-            //System.out.println("PROFILING: " + placeholder.getText());
-            //repeated.add("1000");
-            placeholder = (JTextField) CurrentStepProtocol.get(4);
-            repeated.add(placeholder.getText());
-            //System.out.println("PROFILING: " + placeholder.getText());
-            placeholder = (JTextField) CurrentStepProtocol.get(2);
-            repeated.add(placeholder.getText());
-            //System.out.println("PROFILING: " + placeholder.getText());
-
-            //add primary as first item in list
-            result.add(repeated);
+        result.add((String)(ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex())));
+        
+        result.add(ChannelComboBox.getSelectedIndex());
+        
+        ArrayList<JComponent> Comps = new ArrayList();
+        
+        Comps.addAll(CurrentStepProtocol);
+     
+        result.add(Comps);
+        
+        ArrayList<ArrayList> Measures = new ArrayList();
 
             for (int i = 0; i < secondaryTable.getRowCount(); i++) {
                 ArrayList alDerived = new ArrayList();
                 alDerived.add(getChannelIndex(secondaryTable.getValueAt(i, 0).toString()));
                 alDerived.add(getAnalysisTypeInt(i, secondaryTable.getModel()));
                 alDerived.add(secondaryTable.getValueAt(i, 2).toString());
-                result.add(alDerived);
+                Measures.add(alDerived);
             }
-        }
-        if (ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()).equals("FloodFill 3D")) {
-            //build primary volume variables
-            placeholder = (JTextField) CurrentStepProtocol.get(6);
-            repeated.add(placeholder.getText());
-            placeholder = (JTextField) CurrentStepProtocol.get(8);
-            repeated.add(placeholder.getText());
-            placeholder = (JTextField) CurrentStepProtocol.get(4);
-            repeated.add(placeholder.getText());
-            placeholder = (JTextField) CurrentStepProtocol.get(2);
-            repeated.add(placeholder.getText());
-            result.add(repeated);
+        
+        result.add(Measures);
+        
+        
+        //repeated.add(ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()));
+        //key.addAll(Arrays.asList("minObjectSize", "maxObjectSize", "minOverlap", "minThreshold"));
+        //repeated.add(key);
+        
 
-            for (int i = 0; i < secondaryTable.getRowCount(); i++) {
-                ArrayList alDerived = new ArrayList();
-                alDerived.add(getChannelIndex(secondaryTable.getValueAt(i, 0).toString()));
-                alDerived.add(getAnalysisTypeInt(i, secondaryTable.getModel()));
-                alDerived.add(secondaryTable.getValueAt(i, 2).toString());
-                result.add(alDerived);
-            }
-        }
+
+//        if (ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()).equals("LayerCake 3D")) {
+//            //build primary volume variables
+//            placeholder = (JTextField) CurrentStepProtocol.get(6);
+//            repeated.add(placeholder.getText());
+//            //System.out.println("PROFILING: " + placeholder.getText());
+//            placeholder = (JTextField) CurrentStepProtocol.get(8);
+//            repeated.add(placeholder.getText());
+//            //System.out.println("PROFILING: " + placeholder.getText());
+//            //repeated.add("1000");
+//            placeholder = (JTextField) CurrentStepProtocol.get(4);
+//            repeated.add(placeholder.getText());
+//            //System.out.println("PROFILING: " + placeholder.getText());
+//            placeholder = (JTextField) CurrentStepProtocol.get(2);
+//            repeated.add(placeholder.getText());
+//            //System.out.println("PROFILING: " + placeholder.getText());
+//
+//            //add primary as first item in list
+//            result.add(repeated);
+
+     
+        
+//        if (ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex()).equals("FloodFill 3D")) {
+//            //build primary volume variables
+//            placeholder = (JTextField) CurrentStepProtocol.get(6);
+//            repeated.add(placeholder.getText());
+//            placeholder = (JTextField) CurrentStepProtocol.get(8);
+//            repeated.add(placeholder.getText());
+//            placeholder = (JTextField) CurrentStepProtocol.get(4);
+//            repeated.add(placeholder.getText());
+//            placeholder = (JTextField) CurrentStepProtocol.get(2);
+//            repeated.add(placeholder.getText());
+//            result.add(repeated);
+//
+//            for (int i = 0; i < secondaryTable.getRowCount(); i++) {
+//                ArrayList alDerived = new ArrayList();
+//                alDerived.add(getChannelIndex(secondaryTable.getValueAt(i, 0).toString()));
+//                alDerived.add(getAnalysisTypeInt(i, secondaryTable.getModel()));
+//                alDerived.add(secondaryTable.getValueAt(i, 2).toString());
+//                result.add(alDerived);
+//            }
+//        }
         return result;
     }
 
-    private int getAnalysisTypeInt(int row, TableModel ChannelTableValues) {
+    private String getAnalysisTypeInt(int row, TableModel ChannelTableValues) {
 
-        if (ChannelTableValues.getValueAt(row, 1) == null) {
-            return 2;
-        }
+//        if (ChannelTableValues.getValueAt(row, 1) == null) {
+//            return 2;
+//        }
 
         String comp = ChannelTableValues.getValueAt(row, 1).toString();
-
-        if (comp == null) {
-            return 2;
-        }
-        if (comp.equals("Mask")) {
-            return 0;
-        }
-        if (comp.equals("Grow")) {
-            return 1;
-        }
-        if (comp.equals("Fill")) {
-            return 2;
-        } else {
-            return 0;
-        }
+//
+//        if (comp == null) {
+//            return 2;
+//        }
+//        if (comp.equals("Mask")) {
+//            return 0;
+//        }
+//        if (comp.equals("Grow")) {
+//            return 1;
+//        }
+//        if (comp.equals("Fill")) {
+//            return 2;
+//        } else {
+//            return 0;
+//        }
+    return comp;
     }
 
     @Override
     public void thresholdChanged(double min, double max) {
 
-        //max = (this.ThresholdPreview.getProcessor().getMax()/255)*max;
-        //min = (this.ThresholdPreview.getProcessor().getMax()/255)*min;
         double ipmin = ThresholdPreview.getProcessor().getMin();
         double ipmax = ThresholdPreview.getProcessor().getMax();
 
@@ -694,17 +746,9 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
-
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = String.valueOf(Math.round(min));
-
-        // if(ProcessSelectComboBox.getSelectedIndex() == 1){
-        if (ProcessSelectComboBox.getSelectedItem().equals("FloodFill 3D")) {
-            ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][1] = String.valueOf(Math.round(max));
-        }
-        //ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][2] = ((JTextField)CurrentStepProtocol.get(6)).getText();
-        //ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][3] = ((JTextField)CurrentStepProtocol.get(8)).getText();
-
-        makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
+ 
+        makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
+        
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);

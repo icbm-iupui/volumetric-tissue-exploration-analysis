@@ -120,37 +120,26 @@ public class MicroExperiment implements Runnable{
 
     public void addExplore(ImagePlus imp, String title, ArrayList<MicroObjectModel> alvolumes, ArrayList AvailableData) {
 
-        int[] plotDataReference = new int[5];
-
-        plotDataReference[0] = 0;
-        plotDataReference[1] = 0;
-        plotDataReference[2] = 0;
-        plotDataReference[3] = 0;
-        plotDataReference[4] = 0;
 
         ArrayList plotvalues = new ArrayList();
 
-        plotvalues.add(imp);
+        plotvalues.add("");
         plotvalues.add(alvolumes);
-        plotvalues.add(0.0);
-        plotvalues.add(0.0);
-        plotvalues.add("x_axis");
-        plotvalues.add("y_axis");
-        plotvalues.add(imp.getTitle());
-        plotvalues.add(plotDataReference);
 
-        HashMap<Integer, String> hm = new HashMap<Integer,String>();
 
-        for(int i = 0; i <= AvailableData.size()-1; i++){hm.put(i, AvailableData.get(i).toString());}
+
        
-        XYExplorationPanel XY = new XYExplorationPanel(plotvalues, hm);
-    
+        //removing
+        HashMap<Integer, String> hm = new HashMap<Integer,String>();
+        for(int i = 0; i <= AvailableData.size()-1; i++){hm.put(i, AvailableData.get(i).toString());}
+        //XYExplorationPanel XY = new XYExplorationPanel(plotvalues, hm);
         DefaultPlotPanels DPP = new DefaultPlotPanels();
+        
         MicroExplorer mex = new MicroExplorer();
         mex.setTitle(imp.getTitle().replace("DUP_", ""));
         mex.setTitle(mex.getTitle().replace(".tif", ""));
         mex.setTitle(mex.getTitle().concat("_"+title));
-        mex.process(imp, title, plotvalues, XY, DPP, AvailableData);
+        //mex.process(imp, title, plotvalues, XY, DPP, AvailableData);
 
         ExploreDrawer.add(mex);
     }

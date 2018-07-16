@@ -133,7 +133,7 @@
             <Component class="javax.swing.JComboBox" name="jComboBoxXaxis">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="new DefaultComboBoxModel(this.availabledata.toArray())" type="code"/>
+                  <Connection code="new DefaultComboBoxModel(this.descriptions.toArray())" type="code"/>
                 </Property>
                 <Property name="selectedIndex" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="this.XSTART" type="code"/>
@@ -160,7 +160,7 @@
             <Component class="javax.swing.JComboBox" name="jComboBoxYaxis">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="new DefaultComboBoxModel(this.availabledata.toArray())" type="code"/>
+                  <Connection code="new DefaultComboBoxModel(this.descriptions.toArray())" type="code"/>
                 </Property>
                 <Property name="selectedIndex" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="this.YSTART" type="code"/>
@@ -188,7 +188,7 @@
             <Component class="javax.swing.JComboBox" name="jComboBoxLUTPlot">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="new DefaultComboBoxModel(this.availabledata.toArray())" type="code"/>
+                  <Connection code="new DefaultComboBoxModel(this.descriptions.toArray())" type="code"/>
                 </Property>
                 <Property name="selectedIndex" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="this.LUTSTART" type="code"/>

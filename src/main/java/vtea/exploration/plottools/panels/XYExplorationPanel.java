@@ -104,11 +104,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     int selected = 0;
     int gated = 0;
     
-    public XYExplorationPanel(ArrayList li, HashMap<Integer, String> hm) {
+    public XYExplorationPanel(ArrayList li, HashMap<Integer, String> hm, ArrayList<MicroObject> vols) {
         
         super();
         Roi.addRoiListener(this);
-        this.plotvalues = li;
+        objects = vols;
+        measurements = li;
         
         this.hm = hm;
         this.pointsize = MicroExplorer.POINTSIZE;
@@ -121,7 +122,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     }
 
     private XYChartPanel createChartPanel(int x, int y, int l, String xText, String yText, String lText, int size, ImagePlus ip, boolean imageGate, Color imageGateOutline) {
-        return new XYChartPanel(plotvalues, x, y, l, xText, yText, lText, size, ip, imageGate, imageGateOutline);
+        return new XYChartPanel(measurements, x, y, l, xText, yText, lText, size, ip, imageGate, imageGateOutline);
     }
     
     public void makeOverlayImage(ArrayList gates, int x, int y, int xAxis, int yAxis) {
@@ -145,7 +146,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 
                 ArrayList<MicroObject> result = new ArrayList<MicroObject>();
               
-                ArrayList<MicroObject> volumes = (ArrayList) this.plotvalues.get(1);
+                ArrayList<MicroObject> volumes = (ArrayList) objects;
                 MicroObjectModel volume;
 
                 double xValue = 0;
@@ -307,9 +308,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     public int getGatedObjects(ImagePlus ip){
                     ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
         try{
-                    
-                    ArrayList<MicroObject> volumes = (ArrayList) plotvalues.get(1);
-                    ListIterator<MicroObject> itr = volumes.listIterator();
+                    ListIterator<MicroObject> itr = objects.listIterator();
                     while (itr.hasNext()) {
                         MicroObject m = itr.next();
                         int[] c = new int[2];
@@ -344,35 +343,37 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             if (gate.getSelected()) {
                 Path2D path = gate.createPath2DInChartSpace();
 
-                ArrayList<MicroObject> volumes = (ArrayList) this.plotvalues.get(1);
-                MicroObjectModel volume;
+                ArrayList<Number> measured;
 
                 double xValue = 0;
                 double yValue = 0;
 
-                ListIterator<MicroObject> it = volumes.listIterator();
-                try {
-                    while (it.hasNext()) {
-                        volume = it.next();
-                        if (volume != null) {
-                            xValue = ((Number) processPosition(currentX, (MicroObject) volume)).doubleValue();
-                            yValue = ((Number) processPosition(currentY, (MicroObject) volume)).doubleValue();
-                            if (path.contains(xValue, yValue)) {
-                                result.add((MicroObject) volume);
+                for (int i = 0; i < objects.size(); i++) {
+
+                    ListIterator<ArrayList<Number>> it = measurements.listIterator();
+                    try {
+                        while (it.hasNext()) {
+                            measured = it.next();
+                            if (measured != null) {
+                                xValue = measured.get(currentX).doubleValue();
+                                yValue = measured.get(currentY).doubleValue();
+                                if (path.contains(xValue, yValue)) {
+                                    result.add(objects.get(i));
+                                }
                             }
+
                         }
+                    } catch (NullPointerException e) {
+                        return 0;
                     }
-                } catch (NullPointerException e) {
-                    return 0;
                 }
             }
         }
-       
 
-        //System.out.println("RESULT: total gates " + gates.size() + ": " + this.getTitle() + ", Gated: " + selected + ", Total: " + total + ", for: " + 100 * (new Double(selected).doubleValue() / (new Double(total)).doubleValue()) + "%");
+        System.out.println("RESULT: total gates " + gates.size() + ": " + this.getTitle() + ", Gated: " + selected + ", Total: " + total + ", for: " + 100 * (new Double(selected).doubleValue() / (new Double(total)).doubleValue()) + "%");
         return result.size();
     }
-    
+
     private Number processPosition(int a, MicroObject volume) {
         if (a <= 10) {
             return (Number) volume.getAnalysisMaskVolume()[a];
@@ -382,7 +383,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             return (Number) volume.getAnalysisResultsVolume()[row][column];
         }
     }
-    
+
     @Override
     public void addMakeImageOverlayListener(MakeImageOverlayListener listener) {
         overlaylisteners.add(listener);
@@ -399,7 +400,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     public JPanel getPanel() {
         return CenterPanel;
     }
-    
+
     @Override
     public XYChartPanel getXYChartPanel() {
         return cpd;
@@ -415,7 +416,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         pointsize = size;
         CenterPanel.removeAll();
  
-        cpd = new XYChartPanel(plotvalues, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
+        cpd = new XYChartPanel(measurements, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
         
         cpd.addUpdatePlotWindowListener(this);
         
@@ -848,9 +849,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     @Override
     public int getGatedSelected(ImagePlus ip) {
                      ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
-                     ArrayList<MicroObject> volumes = (ArrayList) plotvalues.get(1);
+                     //ArrayList<MicroObject> volumes = (ArrayList)objects;
         try{
-                    ListIterator<MicroObject> itr = volumes.listIterator();
+                    ListIterator<MicroObject> itr = objects.listIterator();
                     while (itr.hasNext()) {
                         MicroObject m = itr.next();
                         int[] c = new int[2];
@@ -873,22 +874,49 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 MicroObjectModel volume;
                 double xValue = 0;
                 double yValue = 0;
+                for (int i = 0; i < objects.size(); i++) {
 
-                ListIterator<MicroObject> it = ImageGatedObjects.listIterator();
-                try {
-                    while (it.hasNext()) {
-                        volume = it.next();
-                        if (volume != null) {
-                            xValue = ((Number) processPosition(currentX, (MicroObject) volume)).doubleValue();
-                            yValue = ((Number) processPosition(currentY, (MicroObject) volume)).doubleValue();
-                            if (path.contains(xValue, yValue)) {
-                                result.add((MicroObject) volume);
+                    ListIterator<ArrayList<Number>> it = measurements.listIterator();
+                    ArrayList<Number> measured;
+                    
+                    try {
+                        while (it.hasNext()) {
+                            measured = it.next();
+                            if (measured != null) {
+                                xValue = measured.get(currentX).doubleValue();
+                                yValue = measured.get(currentY).doubleValue();
+                                if (path.contains(xValue, yValue)) {
+                                    result.add(objects.get(i));
+                                }
                             }
+
                         }
+                    } catch (NullPointerException e) {
+                        return 0;
                     }
-                } catch (NullPointerException e) {
-                    return 0;
-                }
+
+//                ListIterator<MicroObject> it = ImageGatedObjects.listIterator();
+//                
+//                for(int i = 0; i < ImageGatedObjects.size(); i++){
+//                
+//                try {
+//                    
+//                    
+//                    
+//                    while (it.hasNext()) {
+//                        volume = it.next();
+//                        if (volume != null) {
+//                            xValue = ((Number) processPosition(currentX, (MicroObject) volume)).doubleValue();
+//                            yValue = ((Number) processPosition(currentY, (MicroObject) volume)).doubleValue();
+//                            if (path.contains(xValue, yValue)) {
+//                                result.add((MicroObject) volume);
+//                            }
+//                        }
+//                    }
+//                } catch (NullPointerException e) {
+//                    return 0;
+//                }
+            }
             }
         }
        return result.size();    

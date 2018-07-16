@@ -24,7 +24,7 @@ import vtea.objects.floodfill3D.FloodFill3D;
  *
  * @author winfrees
  */
-@Plugin (type = Segmentation.class)
+//@Plugin (type = Segmentation.class)
 
 public class FloodFill3DSingleThreshold extends AbstractSegmentation {
     
@@ -122,7 +122,7 @@ public FloodFill3DSingleThreshold(ImageStack stack, int[] min, boolean parameter
     }
     
     @Override
-    public void process(ImageStack[] is, List details, boolean count){
+    public boolean process(ImageStack[] is, List details, boolean count){
     
      //takes a stack and details for object definiton as defined by details
         //Details incluldes:
@@ -173,7 +173,10 @@ public FloodFill3DSingleThreshold(ImageStack stack, int[] min, boolean parameter
         IJ.log("PROFILING: 3D Floodfill time: " + ((end-start)/1000000) + " ms. ");
         
         Volumes = builder3DVolumes.getVolumesAsList();
+        
+         return true;
     }
+    
     private ArrayList getResultsPointers(List details) {
 
         ArrayList<Integer> result = new ArrayList();
