@@ -58,7 +58,7 @@
   
   |α<sub>r</sub>|α<sub>s</sub>|β| ɣ|
   ---|---|---|---|
-  ![(n<sub>r</sub> + n<sub>k</sub>) / (n<sub>r</sub> + n<sub>k</sub> + n<sub>s</sub>)][ward alpha-r]|![(n<sub>s</sub> + n<sub>k</sub>) / (n<sub>r</sub> + n<sub>k</sub> + n<sub>s</sub>)][ward alpha-s]|![(-n<sub>k</sub>) / (n<sub>r</sub> + n<sub>k</sub> + n<sub>s</sub>)][ward beta]|![0][zero]
+  ![(n<sub>r</sub> + n<sub>k</sub>) / (n<sub>r</sub> + n<sub>k</sub> + n<sub>s</sub>)][wardalphar]|![(n<sub>s</sub> + n<sub>k</sub>) / (n<sub>r</sub> + n<sub>k</sub> + n<sub>s</sub>)][wardalphas]|![(-n<sub>k</sub>) / (n<sub>r</sub> + n<sub>k</sub> + n<sub>s</sub>)][wardbeta]|![0][zero]
   
   where n<sub>r</sub> is the number of objects in cluster **r**, n<sub>s</sub> is the number of objects in cluster **s**, and n<sub>k</sub> is the number of objects in cluster k
   
@@ -166,9 +166,9 @@ __Algorithm (automatically select k)__
 <a name="xmeansfoot"></a>
 1: For more information see: Dan Pelleg, Andrew W. Moore: X-means: Extending K-means with Efficient Estimation of the Number of Clusters. In: Seventeenth International Conference on Machine Learning, 727-734, 2000[↩](#xmeansfoo)
 
-[ward alpha-r]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bn_%7Br%7D%2Bn_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
-[ward alpha-s]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bn_%7Bs%7D%2Bn_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
-[ward beta]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7B-n_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
+[wardalphar]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bn_%7Br%7D%2Bn_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
+[wardalphas]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bn_%7Bs%7D%2Bn_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
+[wardbeta]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7B-n_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [zero]:http://www.sciweavers.org/tex2img.php?eq=0&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [onehalf]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7B1%7D%7B2%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [minushalf]:http://www.sciweavers.org/tex2img.php?eq=-%5Cfrac%7B1%7D%7B2%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
