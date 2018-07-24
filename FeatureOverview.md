@@ -11,7 +11,7 @@
   3. #####  [X-Means](#xmeans)
   4. #####  [Gaussian Mixture](#gm)
 #### [Dimensionality Reduction](#dr)
-  1. #####  [t-Stochastic Neighborhood Embedding (t-SNE)](#tsne)
+  1. #####  [t-Distributed Stochastic Neighborhood Embedding (t-SNE)](#tsne)
   2. #####  [Principal Component Analysis (PCA)](#pca)
 #### [Criteria for Model Selection](#infocriterion)
   1. ##### [Bayesian Information Criterion (BIC)](#bic)
@@ -102,7 +102,7 @@ Fast|k is an input parameter|
   
   <a name="xmeans"></a>
   ### X-means
-  A variant of [k-means](#kmeans) that increases speed and uses an information criterion to determine the number of clusters.<sup>[1](#xmeansfoot)<a name="xmeansfoo"></a></sup> The speed is increased by using a kd-tree architecture and blacklisting to refine the search for objects in the cluster. The algorithm is given an upper bound for the number of clusters, k, and determines the proper number of clusters for the data in the range 2 to k.
+  A variant of [K-means](#kmeans) that increases speed and uses an information criterion to determine the number of clusters.<sup>[1](#xmeansfoot)<a name="xmeansfoo"></a></sup> The speed is increased by using a kd-tree architecture and blacklisting to refine the search for objects in the cluster. The algorithm is given an upper bound for the number of clusters, k, and determines the proper number of clusters for the data in the range 2 to k.
   For large problems X-means scales much better in comparison to K-means which is over 2x slower. However, may not be better for a large amount of dimensions.
   
 __Algorithm__
@@ -117,13 +117,16 @@ __Algorithm__
 Pros|Cons|
 ---|---|
 Determines the number of clusters|Not proven on high dimensional data|
-Avoids local minima| |
+Avoids local minima|Non-deterministic(but more consistent than [K-means](#kmeans))|
 Faster than k-means| |
 
   
 <a name="gm"></a>
 ### Gaussian Mixture
-  
+  A probabilistic model that assumes all of the data is a combination of a finite number of gaussian distributions. This can be thought of as a generalized [K-means](#kmeansalgorithm), where the clusters can have different sizes and shapes based on their covariance's. It employs an Expectation Maximization(EM) algorithm wherein [step 5](#gmalgorithmk) is is the expectation and [step 7](#gmalgorithmk) is the maximization.
+  The algorithm has the ability to use a [model selection test](#infocriterion) to choose the number of clusters, k, or to provide a number of clusters, k.
+
+<a name="gmalgorithmk"></a>  
 __Algorithm (given k clusters)__
 1. Calculate the mean of all of the objects for every dimension
 2. Calculate the covariance matrix (multi-dimensional standard deviation)
@@ -137,16 +140,58 @@ __Algorithm (given k clusters)__
 8. Repeat steps **5** through **7** until convergence
 
 __Algorithm (automatically select k)__
+1. Create gaussian distribution to fit the data
+2. Calculate and record model selection test (e.g. [BIC, AIC](#infocriterion))
+3. Split the distribution with the largest covariance
+4. Calculate posterior probabilities of each object
+5. Using probabilities assign each object to a distribution
+6. Reassign parameters of distribution based on the objects in the distribution
+7. Repeat steps **4** through **6** until convergence
+8. Repeat steps **2** through **7** until the model selection test increases
+
+|Pros|Cons|
+---|---|
+Probabilistic Clustering| EM tends to find local minima|
+| |Data may not be normally distributed|
+| |Non-deterministic|
 
 ***
 <a name="Dimensionality Reduction"></a>
 ## Dimensionality Reduction
+  Reducing the amount of variables in a dataset in order to better handle the data while still conveying the same information. Helpful in visualizing datasets with many dimensions because anything over 3 dimensions is difficult to understand. It is useful in removing redundant features and noise.
+  Dimensionality Reduction is affected by the curse of dimensionality. 
 
 <a name="tsne"></a>
-### t-Stochastic Neighborhood Embedding (t-SNE)
+### t-Distributed Stochastic Neighborhood Embedding (t-SNE)
+  A visualization tool to plot high dimensional data onto a two or three dimensional space. A variation of Stochastic Neighborhood Embedding that is both faster and avoids crowding the points in the center. t-SNE uses a symmetric cost function known as the Kullback-Liebler(KL) Divergence<sup name="backkl">[2](#kldivergence)</sup>, which maps the similarities from the high dimensional space onto the low dimensional space. To prevent crowding there is a uniform background model that prevents the distance between low dimensional points from being below a certain value. Addional crowding prevention is provided by the use of a student t-Distribution instead of a Gaussian distribution in the low dimensional space, to ensure that a moderate distance in the high dimensional space is modeled to a greater distance in the low dimensional space. t-SNE uses a gradient descent algorithm to optimize the KL Divergence and create the mapping.
+  A number of parameters are given to the t-SNE algorithm including perplexity, number of iterations, and learning rate. Perplexity is a measure of how well attention is balanced between local and global aspects of the data, it usually has a value between 5 and 50. The number of iterations is the number of times the gradient descent algorithm will iterate, this should be greater than 250. The learning rate is the size of the step taken during the gradient descent, with values typically ranging from 1 to 1000. A website discussing the effects of the parameters can be found [here](https://distill.pub/2016/misread-tsne/).
+  t-SNE has a time and memory complexity of O(n<sup>2</sup>). This complexity can be reduced to to O(nlog(n)) by using a method developed by astrophysicists, called Barnes-Hut. Barnes-Hut works by approximating similar interactions as one object located at the center of mass of all of the similar objects and the force that virtual object has is multiplied by the number of objects it represents.
+  The cost function of t-SNE is non-convex, therefore it is prone to find local minima. However, if t-SNE is run multiple times and the value of the cost function is recorded, a lower minima (or even the global minima) can be found. Since t-SNE initializes the solution randomly, each run will be different, meaning that some runs will find different local minima than others. The value of the cost function can be compared over multiple runs of t-SNE to find the best value of the cost function obtained over all of the runs.
+  
+
+__Algorithm__
+1. Normalize input data by dividing by the maximum
+2. Compute the affinities of the data points in the high dimensional space
+3. Randomly initialize solution in the low dimensional space
+4. Compute the low dimensional affinities
+5. Compute the gradient of the KL Divergence
+5. Update points in the low dimensional space
+6. Repeat steps **5** and **6** for the given number of iterations
+
+|Pros|Cons|
+---|---|
+|Good at visualizing data |t-SNE has not been evaluated for reducing dimensions to d>3|
+|Represents local structure well|Global structure does not mean anything|
+| |Often finds local minima|
+| |Non-deterministic|
+| |Bad at visualizing swiss roll type problems|
 
 <a name="pca"></a>
 ### Principal Component Analysis (PCA)
+
+Pros|Cons|
+---|---|
+|Deterministic| |
 
 ---
 <a name="infocriterion"></a>
@@ -166,9 +211,21 @@ __Algorithm (automatically select k)__
 <a name="xmeansfoot"></a>
 1: For more information see: Dan Pelleg, Andrew W. Moore: X-means: Extending K-means with Efficient Estimation of the Number of Clusters. In: Seventeenth International Conference on Machine Learning, 727-734, 2000[↩](#xmeansfoo)
 
+<a name="kldivergence"></a>
+2:![KL Divergence][kl] where p is the high dimensional space and q is the low dimensional space
+The similarity for the higher dimensional space, p, is calculated via
+  ![similarity calculation high dimension][similaritiesp] 
+and the low dimensional space, q, calculation is calculated via
+  ![similarity calculation low dimension][similaritiesq]
+  To get rid of outliers the high dimensional space is subject to the constraint ![fix outliers][outlie][↩](#backkl)
+
 [wardalphar]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bn_%7Br%7D%2Bn_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [wardalphas]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bn_%7Bs%7D%2Bn_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [wardbeta]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7B-n_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [zero]:http://www.sciweavers.org/tex2img.php?eq=0&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [onehalf]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7B1%7D%7B2%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [minushalf]:http://www.sciweavers.org/tex2img.php?eq=-%5Cfrac%7B1%7D%7B2%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
+[kl]:http://www.sciweavers.org/tex2img.php?eq=KL%28P%5Cparallel%20Q%29%3D%20%5Csum_i%20%5Csum_j%20%20p_%7Bi%20j%7D%20log%28%5Cfrac%7Bp_%7Bi%20j%7D%7D%7Bq_%7Bi%20j%7D%7D%29&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
+[similaritiesp]:http://www.sciweavers.org/tex2img.php?eq=p_%7Bi%20j%7D%20%3D%20%5Cfrac%7Bexp%28-%20%5Cparallel%20x_%7Bi%7D%20-%20x_%7Bj%7D%20%5Cparallel%20%5E%7B2%7D%20%2F%202%20%5Csigma%5E%7B2%7D%29%7D%7B%20%5Csum_%7Bk%20%5Cneq%20l%7D%20exp%28-%20%5Cparallel%20x_%7Bk%7D%20-%20x_%7Bl%7D%20%5Cparallel%20%5E%7B2%7D%20%2F%202%20%5Csigma%5E%7B2%7D%29%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
+[outlie]:http://www.sciweavers.org/tex2img.php?eq=p_%7Bi%20j%7D%20%3D%20%5Cfrac%7Bp_%7Bi%20%5Cmid%20j%7D%20%2B%20p_%7Bj%20%5Cmid%20i%7D%7D%7B2n%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
+[similaritiesq]:http://www.sciweavers.org/tex2img.php?eq=q_%7Bi%20j%7D%20%3D%20%5Cfrac%7B%281%2B%5Cparallel%20y_%7Bi%7D%20-%20y_%7Bj%7D%20%5Cparallel%20%5E%7B2%7D%29%20%5E%7B-1%7D%7D%7B%20%5Csum_%7Bk%20%5Cneq%20l%7D%20%281%2B%5Cparallel%20y_%7Bk%7D%20-%20y_%7Bl%7D%20%5Cparallel%20%5E%7B2%7D%29%20%5E%7B-1%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
