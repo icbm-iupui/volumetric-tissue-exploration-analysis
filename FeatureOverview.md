@@ -219,7 +219,7 @@ The similarity for the higher dimensional space, p, is calculated via\
   ![similarity calculation high dimension][similaritiesp] \
 and the low dimensional space, q, calculation is calculated via\
   ![similarity calculation low dimension][similaritiesq]\
-  To get rid of outliers the high dimensional space is subject to the constraint\ ![fix outliers][outlie]\[↩](#backkl)
+  To get rid of outliers the high dimensional space is subject to the constraint\ ![fix outliers][outlie] [↩](#backkl)
 
 [wardalphar]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bn_%7Br%7D%2Bn_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [wardalphas]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bn_%7Bs%7D%2Bn_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
