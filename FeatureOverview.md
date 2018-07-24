@@ -188,10 +188,12 @@ __Algorithm__
 
 <a name="pca"></a>
 ### Principal Component Analysis (PCA)
+&emsp;Principal Component Analysis finds linearly independent dimensions which can losslessly represent the data. The first new dimension, called the first principal component, contains the greatest variance by some projection of the data. With subsequent principal components containing the greatest variance of the remaining dimensions. The values of the datapoints on the principal components are referred to as the score while the loadings are the weight by which each standardized original variable should be multiplied to get the score. The principal components are actually the eigenvectors of the covariance matrix of the data such that the eigenvectors are ordered by decreasing eigenvalue. Singular Value Decomposition(SVD) proves to be a faster method than eigenvalue decomposition. SVD calculates a value for U, Σ, and V such that **X=UΣV<sup>*</sup>**. The score matrix, **T** , can be easily calculated via **T=UΣ**. The dimension of the score matrix **T** can be reduced to dimension **p** by deleting columns of **Σ** such that it becomes a **n**x**p** matrix where **n** is the number of observations.\
 
 Pros|Cons|
 ---|---|
 |Deterministic| |
+|Reversible| |
 
 ---
 <a name="infocriterion"></a>
@@ -225,7 +227,7 @@ and the low dimensional space, q, calculation is calculated via\
 [zero]:http://www.sciweavers.org/tex2img.php?eq=0&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [onehalf]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7B1%7D%7B2%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [minushalf]:http://www.sciweavers.org/tex2img.php?eq=-%5Cfrac%7B1%7D%7B2%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
-[kl]:http://www.sciweavers.org/tex2img.php?eq=KL%28P%5Cparallel%20Q%29%3D%20%5Csum_i%20%5Csum_j%20%20p_%7Bi%20j%7D%20log%28%5Cfrac%7Bp_%7Bi%20j%7D%7D%7Bq_%7Bi%20j%7D%7D%29&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
-[similaritiesp]:http://www.sciweavers.org/tex2img.php?eq=p_%7Bi%20j%7D%20%3D%20%5Cfrac%7Bexp%28-%20%5Cparallel%20x_%7Bi%7D%20-%20x_%7Bj%7D%20%5Cparallel%20%5E%7B2%7D%20%2F%202%20%5Csigma%5E%7B2%7D%29%7D%7B%20%5Csum_%7Bk%20%5Cneq%20l%7D%20exp%28-%20%5Cparallel%20x_%7Bk%7D%20-%20x_%7Bl%7D%20%5Cparallel%20%5E%7B2%7D%20%2F%202%20%5Csigma%5E%7B2%7D%29%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
-[outlie]:http://www.sciweavers.org/tex2img.php?eq=p_%7Bi%20j%7D%20%3D%20%5Cfrac%7Bp_%7Bi%20%5Cmid%20j%7D%20%2B%20p_%7Bj%20%5Cmid%20i%7D%7D%7B2n%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
-[similaritiesq]:http://www.sciweavers.org/tex2img.php?eq=q_%7Bi%20j%7D%20%3D%20%5Cfrac%7B%281%2B%5Cparallel%20y_%7Bi%7D%20-%20y_%7Bj%7D%20%5Cparallel%20%5E%7B2%7D%29%20%5E%7B-1%7D%7D%7B%20%5Csum_%7Bk%20%5Cneq%20l%7D%20%281%2B%5Cparallel%20y_%7Bk%7D%20-%20y_%7Bl%7D%20%5Cparallel%20%5E%7B2%7D%29%20%5E%7B-1%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
+[kl]:
+[similaritiesp]:
+[outlie]:
+[similaritiesq]:
