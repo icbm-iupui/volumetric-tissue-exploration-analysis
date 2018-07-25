@@ -193,11 +193,11 @@ __Algorithm__
 
 <a name="pcaalgorithm"></a>
 __Algorithm__
-1. Normalize all the variables of the data to create matrix <em>X</em>
-2. Compute the Singular Value Decomposition of <em>X</em> to get <em>X=UΣV</em>
-3. Delete the columns in <em>Σ</em> after column <em>p</em>, the desired new dimension.
-4. Calculate <em>T=UΣ</em> to get the scores
-(Alternatively the column <em>p</em> can be selected via the desired variance, <em>v</em>. The cumulative variance of each principal component can be quickly calculated by summing all of the singular values up to and including the column of that principal component)
+1. Normalize all the variables of the data to create matrix <strong>X</strong>
+2. Compute the Singular Value Decomposition of <strong>X</strong> to get <strong>X=UΣV</strong>
+3. Delete the columns in <strong>Σ</strong> after column <strong>p</strong>, the desired new dimension.
+4. Calculate <strong>T=UΣ</strong> to get the scores
+(Alternatively the column <strong>p</strong> can be selected via the desired variance, <strong>v</strong>. The cumulative variance of each principal component can be quickly calculated by summing all of the singular values up to and including the column of that principal component)
 
 Pros|Cons|
 ---|---|
