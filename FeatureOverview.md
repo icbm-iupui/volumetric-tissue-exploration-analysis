@@ -196,7 +196,7 @@ __Algorithm__
 1. Normalize all the variables of the data to create matrix <strong>X</strong>
 2. Compute the Singular Value Decomposition of <strong>X</strong> to get <strong>X=UΣV</strong>
 3. Delete the columns in <strong>Σ</strong> after column <strong>p</strong>, the desired new dimension.
-4. Calculate <strong>T=UΣ</strong> to get the scores
+4. Calculate <strong>T=UΣ</strong> to get the scores\
 (Alternatively the column <strong>p</strong> can be selected via the desired variance, <strong>v</strong>. The cumulative variance of each principal component can be quickly calculated by summing all of the singular values up to and including the column of that principal component)
 
 Pros|Cons|
