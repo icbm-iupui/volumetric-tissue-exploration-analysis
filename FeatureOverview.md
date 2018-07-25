@@ -188,12 +188,22 @@ __Algorithm__
 
 <a name="pca"></a>
 ### Principal Component Analysis (PCA)
-&emsp;Principal Component Analysis finds linearly independent dimensions which can losslessly represent the data. The first new dimension, called the first principal component, contains the greatest variance by some projection of the data. With subsequent principal components containing the greatest variance of the remaining dimensions. The values of the datapoints on the principal components are referred to as the score while the loadings are the weight by which each standardized original variable should be multiplied to get the score. The principal components are actually the eigenvectors of the covariance matrix of the data such that the eigenvectors are ordered by decreasing eigenvalue. Singular Value Decomposition(SVD) proves to be a faster method than eigenvalue decomposition. SVD calculates a value for U, Σ, and V such that **X=UΣV<sup>*</sup>**. The score matrix, **T** , can be easily calculated via **T=UΣ**. The dimension of the score matrix **T** can be reduced to dimension **p** by deleting columns of **Σ** such that it becomes a **n**x**p** matrix where **n** is the number of observations.
+&emsp;Principal Component Analysis finds linearly independent dimensions which can losslessly represent the data. The first new dimension, called the first principal component, contains the greatest variance by some projection of the data. With subsequent principal components containing the greatest variance of the remaining dimensions. The values of the datapoints on the principal components are referred to as the score while the loadings are the weight by which each standardized original variable should be multiplied to get the score. The principal components are actually the eigenvectors of the covariance matrix of the data such that the eigenvectors are ordered by decreasing eigenvalue. Singular Value Decomposition(SVD) proves to be a faster method than eigenvalue decomposition. SVD calculates a value for U, Σ, and V such that **X=UΣV<sup>*</sup>**. The score matrix, **T** , can be easily calculated via **T=UΣ**. The dimension of the score matrix **T** can be reduced to dimension **p** by deleting columns of **Σ** such that it becomes a **n**x**p** matrix where **n** is the number of observations.\
+&emsp;When using PCA it is necessary to preprocess the data such that all data is normalized to be in the same range. Otherwise one variable may dominate and the first principal component will essentially lay along the axis of that variable.
+
+<a name="pcaalgorithm"></a>
+__Algorithm__
+1. Normalize all the variables of the data to create matrix <em>X</em>
+2. Compute the Singular Value Decomposition of <em>X</em> to get <em>X=UΣV</em>
+3. Delete the columns in <em>Σ</em> after column <em>p</em>, the desired new dimension.
+4. Calculate <em>T=UΣ</em> to get the scores
+(Alternatively the column <em>p</em> can be selected via the desired variance, <em>v</em>. The cumulative variance of each principal component can be quickly calculated by summing all of the singular values up to and including the column of that principal component)
 
 Pros|Cons|
 ---|---|
-|Deterministic| |
-|Reversible| |
+|Deterministic|May lose low variance deviations between neighbors|
+|Reversible|Heavily influenced by outliers |
+|Preserves global properties| |
 
 ---
 <a name="infocriterion"></a>
@@ -219,7 +229,7 @@ The similarity for the higher dimensional space, p, is calculated via\
   ![similarity calculation high dimension][similaritiesp] \
 and the low dimensional space, q, calculation is calculated via\
   ![similarity calculation low dimension][similaritiesq]\
-  To get rid of outliers the high dimensional space is subject to the constraint\ ![fix outliers][outlie] [↩](#backkl)
+  To get rid of outliers the high dimensional space is subject to the constraint ![fix outliers][outlie] [↩](#backkl)
 
 [wardalphar]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bn_%7Br%7D%2Bn_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
 [wardalphas]:http://www.sciweavers.org/tex2img.php?eq=%5Cfrac%7Bn_%7Bs%7D%2Bn_%7Bk%7D%7D%7Bn_%7Br%7D%2Bn_%7Bk%7D%2Bn%7Bs%7D%7D&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0
