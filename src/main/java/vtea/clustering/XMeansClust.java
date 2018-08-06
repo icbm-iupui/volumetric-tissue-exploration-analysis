@@ -35,7 +35,7 @@ import smile.clustering.XMeans;
  */
 @Plugin (type = FeatureProcessing.class)
 public class XMeansClust extends AbstractFeatureProcessing{
-    
+    public static boolean validate = false;
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -69,7 +69,7 @@ public class XMeansClust extends AbstractFeatureProcessing{
      * @return true when complete
      */
     @Override
-    public boolean process(ArrayList al, double[][] feature){
+    public boolean process(ArrayList al, double[][] feature, boolean val){
         int maxClust;
         int[] membership;
         

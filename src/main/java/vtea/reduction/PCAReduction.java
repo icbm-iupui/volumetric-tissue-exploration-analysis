@@ -34,7 +34,7 @@ import smile.projection.PCA;
  */
 @Plugin (type = FeatureProcessing.class)
 public class PCAReduction extends AbstractFeatureProcessing{
-    
+    public static boolean validate = false;
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -80,7 +80,7 @@ public class PCAReduction extends AbstractFeatureProcessing{
      * @return true when complete
      */
     @Override
-    public boolean process(ArrayList al, double[][] feature){
+    public boolean process(ArrayList al, double[][] feature, boolean valid){
         double variance;
         int newdim;
         double[][] output;

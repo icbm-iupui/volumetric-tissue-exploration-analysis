@@ -22,11 +22,16 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import static vtea._vtea.FEATUREMAP;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MicroBlockSetupListener;
@@ -53,6 +58,11 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
 
     JButton DeleteButton;
     JButton EditButton;
+    
+    JPopupMenu Popup;
+    JCheckBoxMenuItem ValidationSelector;
+    
+    boolean performValidation;
 
     MicroBlockSetup mbs;
 
@@ -121,6 +131,19 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
                 mbs.setVisible(true);
             }
         });
+        
+        Popup = new JPopupMenu();
+        ValidationSelector = new JCheckBoxMenuItem("Perform Validation on this method");
+        ValidationSelector.addItemListener(new java.awt.event.ItemListener() {
+           @Override
+           public void itemStateChanged(ItemEvent ae){
+                setupForValidation(ValidationSelector.isSelected());
+           }
+        });
+        ValidationSelector.setEnabled(false);
+        Popup.add(ValidationSelector);
+        
+        performValidation = false;
 
         DeleteButton.setSize(20, 20);
         DeleteButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
@@ -129,7 +152,7 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         EditButton.setSize(20, 20);
         EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
-
+        
         step.setSize(205, 20);
         step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -180,6 +203,7 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         layoutConstraints.ipadx = -1;
         layoutConstraints.ipady = -1;
         step.add(EditButton, layoutConstraints);
+        
         step.addMouseListener(new java.awt.event.MouseListener() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -190,13 +214,20 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
             };
             @Override
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                //thumb.setVisible(false);
+                showPopup(evt);
             };
             @Override
             public void mousePressed(java.awt.event.MouseEvent evt) {
+                showPopup(evt);
             };
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
+                
+            };
+            private void showPopup(java.awt.event.MouseEvent evt){
+                if (evt.isPopupTrigger()) {
+                    Popup.show(evt.getComponent(), evt.getX(), evt.getY());
+                }
             };
         });
     }    
@@ -256,13 +287,18 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         Feature.setText(al.get(2).toString());
         
         String text;
+        boolean validate;
         try{
             Class<?> c;
             c = Class.forName(FEATUREMAP.get((al.get(2)).toString()));
             Method getBlockComment = c.getMethod("getBlockComment", ArrayList.class);
             text = getBlockComment.invoke(null, (Object)al).toString();
+            Field f = c.getField("validate");
+            validate = f.getBoolean(null);
         }catch(Exception e){
+            e.printStackTrace();
             text = "Text not available...";
+            validate = false;
         }
         
         Comment.setText(text);
@@ -271,7 +307,14 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         
 
         this.settings = al;
+        this.settings.set(3, false);
         addToolTip();
+        
+        if(validate){
+            ValidationSelector.setEnabled(true);
+        }else{
+            ValidationSelector.setEnabled(false);
+        }
     }
     
     @Override
@@ -331,5 +374,9 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
         tt = tt.concat("</html>");
         
         step.setToolTipText(tt);
+    }
+    
+    private void setupForValidation(boolean selected){
+            this.settings.set(3, selected);
     }
 }

@@ -43,7 +43,7 @@ public interface FeatureProcessing<T extends Component, A extends RealType> exte
      * @param al contains all of the parameters of the feature
      * @param feature 2D array of features
      */
-    public boolean process(ArrayList al, double[][] feature);
+    public boolean process(ArrayList al, double[][] feature, boolean validate);
     
     /**
      * Retrieves the feature type.
@@ -80,5 +80,4 @@ public interface FeatureProcessing<T extends Component, A extends RealType> exte
     public String getProgressComment();
     
     public boolean copyComponentParameter(int index, ArrayList<T> dComponents, ArrayList<T> sComponents);
-    
 }

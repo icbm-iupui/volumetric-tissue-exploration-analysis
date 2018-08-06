@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
-import com.jujutsu.tsne.barneshut.BHTSne;
-import com.jujutsu.tsne.barneshut.BarnesHutTSne;
 import com.jujutsu.utils.TSneUtils;
 import com.jujutsu.tsne.PrincipalComponentAnalysis;
 import com.jujutsu.tsne.TSneConfiguration;
@@ -33,7 +31,6 @@ import com.jujutsu.tsne.barneshut.Distance;
 import com.jujutsu.tsne.barneshut.EuclideanDistance;
 import com.jujutsu.tsne.barneshut.VpTree;
 import com.jujutsu.utils.MatrixOps;
-import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import static java.lang.Math.exp;
@@ -55,6 +52,8 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
     protected final Distance distance = new EuclideanDistance();
     protected volatile boolean abort = false;
     
+    public static boolean validate = true;
+    
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -62,7 +61,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from Leif Jonsson";
-        NAME = "tSNE Adjustable";
+        NAME = "t-SNE";
         KEY = "tSNE";
         TYPE = "Reduction";
     }
@@ -70,7 +69,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
     /**
      * Constructor called for initialization of Setup GUI.
      * When components are added to this, the static method must be altered.
-     * @param max the number of objects segmented in the volume
+     * @param n the number of objects segmented in the volume
      */
     public TSNEReductionAdjust(int n){
         this();
@@ -82,8 +81,8 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         protocol.add( new JLabel("Iterations"));
         protocol.add( new JTextField("1000",4));
         
-        //protocol.add(new JLabel("Learning Rate"));
-        //protocol.add(new JTextField("200",200));
+        protocol.add(new JLabel("Learning Rate"));
+        protocol.add(new JTextField("200",200));
         
         protocol.add(new JLabel("Perplexity"));
         protocol.add(new JTextField("20",20));
@@ -121,13 +120,14 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
      * @return true when complete
      */
     @Override
-    public boolean process(ArrayList al, double[][] feature){
+    public boolean process(ArrayList al, double[][] feature, boolean val){
         
         int outDim = Integer.parseInt(((JTextField)al.get(5)).getText());
         int itr = Integer.parseInt(((JTextField)al.get(7)).getText());
-        int perpl = Integer.parseInt(((JTextField)al.get(9)).getText());
-        boolean pca = ((JCheckBox)al.get(11)).isSelected();
-        String inD = ((JTextField)al.get(13)).getText();
+        double eta = Double.parseDouble(((JTextField)al.get(9)).getText());
+        int perpl = Integer.parseInt(((JTextField)al.get(11)).getText());
+        boolean pca = ((JCheckBox)al.get(13)).isSelected();
+        String inD = ((JTextField)al.get(15)).getText();
         int inDim = pca? (inD.equals("") ? feature[0].length : Integer.parseInt(inD)) : feature[0].length;
         
         ArrayList selectData = (ArrayList)al.get(1);
@@ -138,7 +138,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         IJ.log("PROFILING: Training tSNE for " + itr + " iterations");
         long start = System.nanoTime();
         TSneConfiguration config = TSneUtils.buildConfig(feature,outDim,inDim,perpl,itr, pca, 0.5, false);
-        double[][] Y = run(config, 5);
+        double[][] Y = run(config, 5, eta);
         
         
         IJ.log("PROFILING: Extracting results");
@@ -170,18 +170,20 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         comment = comment.concat(((JTextField)comComponents.get(7)).getText() + ", ");
         comment = comment.concat(((JLabel)comComponents.get(8)).getText() + ": ");
         comment = comment.concat(((JTextField)comComponents.get(9)).getText() + ", ");
-        comment = comment.concat(((JLabel)comComponents.get(10)).getText());
-        boolean pca = ((JCheckBox)comComponents.get(11)).isSelected();
+        comment = comment.concat(((JLabel)comComponents.get(10)).getText() + ": ");
+        comment = comment.concat(((JTextField)comComponents.get(11)).getText() + ", ");
+        comment = comment.concat(((JLabel)comComponents.get(12)).getText());
+        boolean pca = ((JCheckBox)comComponents.get(13)).isSelected();
         comment = comment.concat(pca? ": Enabled" : ": Disabled");
         if(pca){
-            comment = comment.concat(((JLabel)comComponents.get(12)).getText() + ": ");
-            comment = comment.concat(((JTextField)comComponents.get(13)).getText());
+            comment = comment.concat(((JLabel)comComponents.get(14)).getText() + ": ");
+            comment = comment.concat(((JTextField)comComponents.get(15)).getText());
         }
         comment = comment.concat("</html>");
         return comment;
     }
     
-    private double[][] run(TSneConfiguration parameterObject, int randSeed){
+    private double[][] run(TSneConfiguration parameterObject, int randSeed, double eta){
         int D = parameterObject.getXStartDim();
         double[][] Xin = parameterObject.getXin();
         boolean exact = (parameterObject.getTheta() == .0);
@@ -210,7 +212,6 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         double total_time = 0;
         int stop_lying_iter = 250, mom_switch_iter = 250;
         double momentum = .5, final_momentum = .8;
-        double eta = 200.0;
 
         // Allocate some memory
         double [] dY    = new double[N * no_dims];

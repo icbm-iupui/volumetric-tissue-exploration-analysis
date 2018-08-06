@@ -101,8 +101,9 @@ public class FeatureProcessor extends AbstractProcessor{
             c = Class.forName(FEATUREMAP.get(protocol.get(2).toString()));
             Constructor<?> con;
             con = c.getConstructor();
-            iFeatp = con.newInstance();  
-            ((AbstractFeatureProcessing)iFeatp).process(protocol,features);
+            iFeatp = con.newInstance();
+            boolean validate = (boolean)protocol.get(3);
+            ((AbstractFeatureProcessing)iFeatp).process(protocol,features,validate);
         } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException ex) {
             Logger.getLogger(FeatureProcessor.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "The feature(s) & parameters attempted have caused an error,\n reconfigure and try again", "Feature Computation Error", JOptionPane.ERROR_MESSAGE);

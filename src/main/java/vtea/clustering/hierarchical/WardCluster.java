@@ -34,6 +34,7 @@ import vtea.featureprocessing.FeatureProcessing;
 @Plugin (type = FeatureProcessing.class)
 public class WardCluster extends AbstractHierarchical{
     
+    public static boolean validate = true;
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -43,7 +44,6 @@ public class WardCluster extends AbstractHierarchical{
         COMMENT = "Implements the plugin from SMILE";
         NAME = "Ward Hierarchical Clustering";
         KEY = "WardHierarchicalClustering";
-        TYPE = "Cluster";
     }
     
    /**
@@ -68,7 +68,7 @@ public class WardCluster extends AbstractHierarchical{
      * @return true when complete
      */
     @Override
-    public boolean process(ArrayList al, double[][] feature){
+    public boolean process(ArrayList al, double[][] feature, boolean val){
 
         progress = 0;
         int nclusters;

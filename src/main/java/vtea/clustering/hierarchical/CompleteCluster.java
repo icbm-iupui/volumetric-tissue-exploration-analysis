@@ -34,6 +34,7 @@ import vtea.featureprocessing.FeatureProcessing;
 @Plugin (type =FeatureProcessing.class)
 public class CompleteCluster extends AbstractHierarchical{
     
+    public static boolean validate = true;
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -43,7 +44,6 @@ public class CompleteCluster extends AbstractHierarchical{
         COMMENT = "Implements the plugin from SMILE";
         NAME = "Complete-Link Hierarchical Clustering";
         KEY = "CompleteLinkHierarchicalClustering";
-        TYPE = "Cluster";
     }
     
     /**
@@ -69,7 +69,7 @@ public class CompleteCluster extends AbstractHierarchical{
      * @return true.
      */
     @Override
-    public boolean process(ArrayList al, double[][] feature){
+    public boolean process(ArrayList al, double[][] feature, boolean val){
         progress = 0;
         int nclusters;
         double[][] proximity;

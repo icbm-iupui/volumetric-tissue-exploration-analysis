@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -82,7 +83,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         ChannelComboBox.setModel(ccbm);
         getContentPane().remove(comments);
         getContentPane().remove(this.methodSelection);
-        PreviewButton.setVisible(false);
+        buttonPanel.remove(PreviewButton);
         
         methodMorphology.setMaximumSize(new Dimension(359, 500));
         methodMorphology.setPreferredSize(new Dimension(359,150));
@@ -163,7 +164,7 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         MethodDetails.setVisible(true);
 
         updateProcessList();
-        //CurrentProcessList.addAll(FeatureComponents);
+
         
         return MethodDetails;
     }

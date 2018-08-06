@@ -34,6 +34,12 @@
             <artifactId>tsne</artifactId>
             <version>v2.5.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-netlib -->
+        <dependency>
+            <groupId>com.github.haifengl</groupId>
+            <artifactId>smile-netlib</artifactId>
+            <version>1.5.1</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-core -->
         <dependency>
             <groupId>com.github.haifengl</groupId>

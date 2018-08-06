@@ -53,12 +53,7 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
      * @param max the number of objects segmented in the volume
      */
     public AbstractHierarchical(int max){
-        VERSION = "0.1";
-        AUTHOR = "Andrew McNutt";
-        COMMENT = "Abstract Class";
-        NAME = "Abstract of Hierarchical Clustering";
-        KEY = "AbstractHierarchicalClustering";
-        TYPE = "Cluster";
+        this();
         
         protocol = new ArrayList();
 

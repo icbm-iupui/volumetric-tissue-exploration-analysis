@@ -17,14 +17,20 @@
  */
 package vtea.clustering;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import org.scijava.plugin.Plugin;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  *K-Means Clustering.
@@ -33,6 +39,10 @@ import vtea.featureprocessing.FeatureProcessing;
 @Plugin (type = FeatureProcessing.class)
 public class KMeans extends AbstractFeatureProcessing{
     
+    public static boolean validate = true;
+    
+    Random rand;
+    Runtime rt;
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -51,18 +61,15 @@ public class KMeans extends AbstractFeatureProcessing{
      * @param max the number of objects segmented in the volume
      */
     public KMeans(int max){
-        VERSION = "0.1";
-        AUTHOR = "Andrew McNutt";
-        COMMENT = "Implementation of K-means";
-        NAME = "K-means Clustering";
-        KEY = "Kmeans";
-        TYPE = "Cluster";
+        this();
         
         protocol = new ArrayList();
         
         protocol.add(new JLabel("Number of clusters"));
-       
         protocol.add(new JSpinner(new SpinnerNumberModel(5,2,max,1)));
+        
+        protocol.add(new JLabel("Number of Iterations"));
+        protocol.add(new JTextField("10",2));
     }
     
     /**
@@ -72,9 +79,12 @@ public class KMeans extends AbstractFeatureProcessing{
      * @return true when complete
      */
     @Override
-    public boolean process(ArrayList al, double[][] feature){
+    public boolean process(ArrayList al, double[][] feature, boolean val){
         int n_clust;
-        int numTrials = 20;
+        int numTrials;
+        
+        long randomSeed = System.nanoTime();
+        rand = new Random(randomSeed);
         
         ArrayList selectData = (ArrayList)al.get(1);
         boolean znorm = (boolean)al.get(0);
@@ -84,16 +94,86 @@ public class KMeans extends AbstractFeatureProcessing{
         
         JSpinner clust = (JSpinner)al.get(5);
         n_clust = ((Integer)clust.getValue());
+        JTextField trial = (JTextField)al.get(7);
+        numTrials = (Integer.parseInt(trial.getText()));
         
-        Centroids best = calculateClusters(n_clust,feature);
-        for(int t = 0; t < numTrials; t++){
-            Centroids C= calculateClusters(n_clust,feature);
-            if(C.getDissimilarity() < best.getDissimilarity())
-                best = C;
+        
+        Centroids best;
+        if(val){
+            try{
+                int seed = Math.abs(rand.nextInt() - 1);
+                rt = Runtime.getRuntime();
+                String s = getPython();
+               
+                performValidation(feature, n_clust, numTrials, seed);
+                
+                String randScript = getCWD() + "/src/main/resources/KmeansRandom.py";
+                String[] randomGen = new String[]{s, randScript, String.valueOf(seed), String.valueOf(feature.length), String.valueOf(n_clust), String.valueOf(numTrials)};
+                Process p = rt.exec(randomGen);
+                BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                p.waitFor();
+                String e = null;
+                while((e = stdError.readLine()) != null){
+                        System.out.println(e);
+                }
+                int[][] list = getList("random_initial_row_for_kmeans.csv");
+                best = performClustering(feature, n_clust, numTrials, list);
+                deleteFiles(new String[]{"random_initial_row_for_kmeans.csv", "matrix_for_python.csv"});
+            }catch(IOException | InterruptedException e){
+                e.printStackTrace();
+                best = new Centroids();
+            }
+            
+        }else{
+            best = performClustering(feature, n_clust, numTrials);
         }
+            
+
+        
         for(int memb: best.getMembership())
             dataResult.add(memb);
         return true;
+    }
+    
+    private void performValidation(double[][] matrix,int n_clust,int numTrials, int seed){
+        makeMatrixCSVFile(matrix);
+        String s = getPython();
+        String validationScript = getCWD() + "/src/main/resources/validation_script.py";
+        try{
+            String[] validationGen = new String[]{s, validationScript, "matrix_for_python.csv", "KMEANS", String.valueOf(seed), String.valueOf(n_clust), String.valueOf(numTrials)};
+            Process p = rt.exec(validationGen);
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            String e = null;
+            
+            p.waitFor();
+            while((e = stdError.readLine()) != null)
+                System.out.println(e);
+        }catch(IOException | InterruptedException ie){
+            ie.printStackTrace();
+        }
+        
+    }
+    
+    private Centroids performClustering(double[][] feature, int nClust, int nTrials){
+        int[][] list = new int[10][5];
+        for(int i = 0; i < list.length; i++){
+            for(int j = 0; j < list[i].length; j++){
+                list[i][j] = rand.nextInt(feature.length);
+            }
+        }
+        
+        return performClustering(feature, nClust, nTrials, list);
+    }
+    
+    private Centroids performClustering(double[][] feature, int nClust, int nTrials, int[][] list){
+        Centroids best = calculateClusters(nClust,feature, list[0]);
+        for(int t = 1; t < nTrials; t++){
+            Centroids C= calculateClusters(nClust,feature, list[t]);
+            if(C.getDissimilarity() < best.getDissimilarity())
+                best = C;
+        }
+        
+        return best;
     }
     
     /**
@@ -105,7 +185,9 @@ public class KMeans extends AbstractFeatureProcessing{
     public static String getBlockComment(ArrayList comComponents){
         String comment = "<html>";
         comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
-        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
+        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString() + ", ");
+        comment = comment.concat(((JLabel)comComponents.get(6)).getText() + ": ");
+        comment = comment.concat(((JTextField)comComponents.get(7)).getText());
         comment = comment.concat("</html>");
         return comment;
     }
@@ -129,6 +211,11 @@ public class KMeans extends AbstractFeatureProcessing{
         ArrayList<double[]> centers;
         int[] membership;
         double dissimilarity; 
+        
+        Centroids(){
+            
+        }
+        
         Centroids(ArrayList<double[]> cents, int[] memb){
             centers = cents;
             membership = memb;
@@ -146,17 +233,15 @@ public class KMeans extends AbstractFeatureProcessing{
         
     }
     
-    private Centroids calculateClusters(int n_clust, double[][] feature){
+    private Centroids calculateClusters(int n_clust, double[][] feature, int[] list){
         double dissimilarity = 0;
         int n = feature.length;
         int dim = feature[0].length;
         ArrayList<double[]> clusters = new ArrayList<>(n_clust);
-        long randomSeed = System.nanoTime();
-        Random randomGen = new Random(randomSeed);
-        
+ 
         int iterCount = 0;
         for(int i = 0; i < n_clust; i++){
-            double[] row = feature[randomGen.nextInt(n)];
+            double[] row = feature[list[i]];
             clusters.add(row);
         }
         int[] membership = new int[n];

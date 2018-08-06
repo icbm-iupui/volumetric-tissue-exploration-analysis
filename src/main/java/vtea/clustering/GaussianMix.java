@@ -47,6 +47,7 @@ import vtea.featureprocessing.FeatureProcessing;
 public class GaussianMix extends AbstractFeatureProcessing{
     List<MultivariateMixture.Component> components;
     
+    public static boolean validate = true;
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -65,12 +66,7 @@ public class GaussianMix extends AbstractFeatureProcessing{
      * @param max the number of objects segmented in the volume
      */
     public GaussianMix(int max){
-        VERSION = "0.1";
-        AUTHOR = "Andrew McNutt";
-        COMMENT = "Gaussian Mixture";
-        NAME = "Gaussian Mixture";
-        KEY = "GaussianMixture";
-        TYPE = "Cluster";
+        this();
         
         protocol = new ArrayList();
         
@@ -107,7 +103,7 @@ public class GaussianMix extends AbstractFeatureProcessing{
      * @return true when complete
      */
     @Override
-    public boolean process(ArrayList al, double[][] feature){
+    public boolean process(ArrayList al, double[][] feature, boolean val){
         int n_clust;
         MultivariateGaussianMixture mgm;
         JCheckBox auto_clust;

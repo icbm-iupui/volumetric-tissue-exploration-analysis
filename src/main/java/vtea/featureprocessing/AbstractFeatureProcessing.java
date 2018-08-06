@@ -18,7 +18,14 @@
 package vtea.featureprocessing;
 
 import java.awt.Component;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import static java.lang.Math.sqrt;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import net.imglib2.type.numeric.RealType;
 
@@ -262,14 +269,115 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         }
     }
     
+    public int[][] getList(String location){
+        ArrayList temp = new ArrayList();
+        int[][] table;
+        String line = "";
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(location));
+                
+            while((line = br.readLine()) != null){
+                String vals[] = line.split(",");
+                ArrayList row = new ArrayList(vals.length);
+                for (String val : vals) {
+                    if (!val.equals("null")) {
+                        row.add(Integer.parseInt(val));
+                    } else {
+                        row.add(0.0);
+                    }
+                }
+                    
+                temp.add(row);
+            }
+        }catch(IOException | NumberFormatException e){
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
+        
+        table = new int[temp.size()][((ArrayList)temp.get(0)).size()];
+        for(int i = 0; i < temp.size(); i++){
+            for(int j = 0; j < ((ArrayList)temp.get(0)).size(); j++){
+                table[i][j] = (int)((ArrayList)temp.get(i)).get(j);
+            }
+        }
+        
+        return table;
+    }
+    
+    public boolean isWindows(){
+        return System.getProperty("os.name").toLowerCase().startsWith("windows");
+    }
+    
+    public String getCWD(){
+        return Paths.get("").toAbsolutePath().toString();
+    }
+    
+    public String getPython(){
+        Process p;
+        String s = new String();
+        try{
+            if(isWindows()){
+                p = Runtime.getRuntime().exec("cmd.exe /c where python");
+                p.waitFor();
+            }else{
+                p = Runtime.getRuntime().exec("which python");
+                p.waitFor();
+            }
+            
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            s = stdInput.readLine();
+        }catch(IOException | InterruptedException e){
+            e.printStackTrace();
+        }  
+        
+        return s;
+    }
+    
+    public void deleteFiles(String[] files){
+        try{
+            if(isWindows()){
+
+            }else{
+                for(String file: files){
+                    Process p = Runtime.getRuntime().exec(String.format("sh rm %s", file));
+                    p.waitFor();
+                }
+            }
+        }catch(IOException | InterruptedException ie){
+            ie.printStackTrace();
+        }
+    }
+        
+    public void makeMatrixCSVFile(double[][] feature){
+        try{
+
+            PrintWriter pw = new PrintWriter("matrix_for_python.csv");
+            StringBuilder sb = new StringBuilder();
+
+            for(double[] row: feature){
+                for(int i = 1; i < row.length; i++){
+                    sb.append(row[i]);
+                    sb.append(',');
+                }
+                sb.append('\n');
+            }
+
+            pw.write(sb.toString());
+            pw.close();
+        }catch(FileNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+    
     /**
      * Method is overwritten by each analysis method.
      * @param al parameters of analysis method
      * @param feature 2D feature array of the objects
+     * @param validate whether or not to perform validation
      * @return always false
      */
     @Override
-    public boolean process(ArrayList al, double[][] feature) {
+    public boolean process(ArrayList al, double[][] feature, boolean validate) {
         return false;
     }
 

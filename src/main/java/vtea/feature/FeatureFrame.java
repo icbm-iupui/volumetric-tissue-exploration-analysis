@@ -529,50 +529,10 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
             Makes a new 2D array with the rows equal to every measurement type
             (Makes the transpose of the matrix)
         */
-        String data = "/Users/drewmcnutt/Research/Summer2018/test1.csv";
-        ArrayList temp = new ArrayList();
-        String line = "";
-        ArrayList header = new ArrayList();
-        String csvSplitter = ",";
-        try{
-            BufferedReader br = new BufferedReader(new FileReader(data));
-            
-            line = br.readLine();
-            String headr[] = line.split(csvSplitter);
-            for(int i = 0; i < headr.length; i++){
-//                if(i < 4 && i != 0)
-//                    continue;
-                header.add(headr[i]);
-            }
-                
-            
-            while((line = br.readLine()) != null){
-                String vals[] = line.split(csvSplitter);
-                ArrayList row = new ArrayList(vals.length);
-                for (String val : vals) {
-                    if (!val.equals("null")) {
-                        row.add(Double.parseDouble(val));
-                    } else {
-                        row.add(0.0);
-                    }
-                }
-                    
-                temp.add(row);
-            }
-        }catch(IOException | NumberFormatException e){
-            System.out.println(e.toString());
-            e.printStackTrace();
-        }
-        double[][] table = new double[temp.size()][((ArrayList)temp.get(0)).size()];
-        for(int i = 0; i < temp.size(); i++){
-            for(int j = 0; j < ((ArrayList)temp.get(0)).size(); j++){
-                table[i][j] = (double)((ArrayList)temp.get(i)).get(j);
-            }
-        }
         double[][] columns = new double[features[0].length][features.length];
         for(int i = 0; i < features.length; i++){
             for(int j = 0; j < features[i].length; j++){
-                columns[j][i] = (double)table[i][j];
+                columns[j][i] = (double)features[i][j];
             }
         }
         
@@ -637,7 +597,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         
         for(Integer col: duplicates){
                 Object removed = availabledata.remove((int)col - count - 1);
-                System.out.println(removed.toString());
+//                System.out.println(removed.toString());
                 for(int i = 0; i < features.length; i++){
                     j = curcol;
                     for(;j < col;j++){
