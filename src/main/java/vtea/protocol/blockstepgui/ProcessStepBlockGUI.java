@@ -154,6 +154,7 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
             @Override
             public void actionPerformed(ActionEvent ae) {
                 deleteStep(type);
+                mbs.setVisible(false);
             }
         });
 
@@ -225,6 +226,8 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
             layoutConstraints.ipadx = -1;
             layoutConstraints.ipady = -1;
             step.add(EditButton, layoutConstraints);
+            
+            mbs.setVisible(true);
         }
 
         step.addMouseListener(new java.awt.event.MouseListener() {

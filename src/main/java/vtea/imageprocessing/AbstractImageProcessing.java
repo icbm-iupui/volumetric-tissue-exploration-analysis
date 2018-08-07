@@ -80,7 +80,7 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-        @Override
+    @Override
     public String getName() {
         return NAME;
     }

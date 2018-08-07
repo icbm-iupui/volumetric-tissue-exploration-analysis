@@ -83,6 +83,8 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     
     int serialID = 0;
     
+    static int serialCounter = 0;
+    
     private boolean gated = false;
     
 
@@ -96,8 +98,12 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     public microVolume() {
         super();
     }
+    
+    
 
     public void makeDerivedRegions(int[][] derivedRegionType, int channels, ImageStack[] Stacks, ArrayList ResultsPointers) {
+        
+        
         derivedConstants = derivedRegionType;
         this.nChannels = channels;
         
@@ -209,6 +215,7 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
         analysisResultsVolume[Channel][3] = minLocal;
         analysisResultsVolume[Channel][4] = maxLocal;
         analysisResultsVolume[Channel][5] = Math.sqrt(standardDeviation/countPixels);
+        analysisResultsVolume[Channel][6] = 0;
         analysisResultsVolume[Channel][8] = meanFeretMaxCaliperLocal / (nRegions);
         analysisResultsVolume[Channel][7] = meanFeretMinCaliperLocal / (nRegions);
         //analysisResultsVolume[Channel][9] = (total/countPixels)*(total/countPixels);

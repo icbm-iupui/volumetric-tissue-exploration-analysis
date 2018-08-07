@@ -45,6 +45,7 @@ import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
 import org.scijava.plugin.RichPlugin;
 import vtea.protocol.ProtocolManagerMulti;
+import vtea.services.FeatureService;
 import vtea.services.FileTypeService;
 import vtea.services.ImageProcessingService;
 import vtea.services.MorphologicalFilterService;
@@ -66,7 +67,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
     public static String VERSION = new String("0.7b");
 
-    public static String[] PROCESSOPTIONS = {"LayerCake 3D"};
+    //public static String[] PROCESSOPTIONS = {"LayerCake 3D"};
+    
+    public static String[] FEATURETYPE = {"Cluster", "Reduction", "Other"};
     
     public static String[] SEGMENTATIONOPTIONS;
     public static String[] PROCESSINGOPTIONS;
@@ -75,6 +78,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static String[] FILETYPEOPTIONS;  
     public static String[] OBJECTMEASUREMENTOPTIONS; 
     public static String[] MORPHOLOGICALOPTIONS;
+    public static String[] FEATUREOPTIONS;
     
     public static ConcurrentHashMap<String, String> PROCESSINGMAP;
     public static ConcurrentHashMap<String, String> SEGMENTATIONMAP;
@@ -83,6 +87,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static ConcurrentHashMap<String, String> FILETYPEMAP;
     public static ConcurrentHashMap<String, String> OBJECTMEASUREMENTMAP;
     public static ConcurrentHashMap<String, String> MORPHOLOGICALMAP;
+    public static ConcurrentHashMap<String, String> FEATUREMAP;
   
     
     public ProtocolManagerMulti protocolWindow;
@@ -135,8 +140,11 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 PROCESSORMAP = new ConcurrentHashMap<String, String>();
                 OBJECTMEASUREMENTMAP = new ConcurrentHashMap<String, String>();
                 MORPHOLOGICALMAP = new ConcurrentHashMap<String, String>(); 
+                FEATUREMAP = new ConcurrentHashMap<String, String>(); 
                 
-                FileTypeService fs = new FileTypeService(context); 
+                FileTypeService fts = new FileTypeService(context); 
+                
+                FeatureService fs = new FeatureService(context); 
                 
                 WorkflowService ws = new WorkflowService(context);  
                 
@@ -158,8 +166,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 //VisualizationService vs = new VisualizationService();
                 //ExplorationService es = new ExplorationService();  
                 
-                List<String> fs_names = fs.getNames();
-                List<String> fs_qualifiedNames = fs.getQualifiedName();
+                List<String> fts_names = fts.getNames();
+                List<String> fts_qualifiedNames = fts.getQualifiedName();
                 
                 List<String> ws_names = ws.getNames();
                 List<String> ws_qualifiedNames = ws.getQualifiedName();
@@ -178,6 +186,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 
                 List<String> mfs_names = mfs.getNames();
                 List<String> mfs_qualifiedNames = mfs.getQualifiedName();
+                
+                List<String> fs_names = fs.getNames();
+                List<String> fs_qualifiedNames = fs.getQualifiedName();
                 
                 //List<String> oas_names = oas.getNames();
                 //List<String> oas_qualifiedNames = oas.getQualifiedName();
@@ -200,11 +211,11 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 System.out.println("Loading FileType Plugins: ");
                 //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
                 
-                FILETYPEOPTIONS = fs_names.toArray(new String[ss_names.size()]);
+                FILETYPEOPTIONS = fts_names.toArray(new String[ss_names.size()]);
                 
-                for(int i = 0; i < fs_names.size(); i++){
+                for(int i = 0; i < fts_names.size(); i++){
                     try {
-                        Object o = Class.forName(fs_qualifiedNames.get(i)).newInstance();
+                        Object o = Class.forName(fts_qualifiedNames.get(i)).newInstance();
                         System.out.println("Loaded: " + o.getClass().getName()); 
                         //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
                         FILETYPEMAP.put(FILETYPEOPTIONS[i], o.getClass().getName());
@@ -305,6 +316,22 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                         System.out.println("Loaded: " + o.getClass().getName()); 
                         //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
                         MORPHOLOGICALMAP.put(MORPHOLOGICALOPTIONS[i], o.getClass().getName());
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                        Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                
+                System.out.println("Loading Feature Plugins: ");
+                //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
+                
+                FEATUREOPTIONS = fs_names.toArray(new String[fs_names.size()]);
+                
+                for(int i = 0; i < fs_names.size(); i++){
+                    try {
+                        Object o = Class.forName(fs_qualifiedNames.get(i)).newInstance();
+                        System.out.println("Loaded: " + o.getClass().getName()); 
+                        //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
+                        FEATUREMAP.put(FEATUREOPTIONS[i], o.getClass().getName());
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
                         Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
                     }

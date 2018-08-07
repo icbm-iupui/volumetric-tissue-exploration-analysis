@@ -18,13 +18,11 @@
 package vtea.protocol;
 
 import vtea.protocol.listeners.BatchStateListener;
-import static vtea._vtea.PROCESSOPTIONS;
 import ij.IJ;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ListIterator;
-import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 

@@ -59,13 +59,13 @@ import vtea.processor.ImageProcessingProcessor;
 public final class MicroBlockObjectSetup extends MicroBlockSetup implements ChangeThresholdListener, ImageListener, RoiListener {
 
     public static String getMethod(int i) {
-        return vtea._vtea.PROCESSOPTIONS[i];
+        return null;
     }
 
     private DefaultCellEditor channelEditor = new DefaultCellEditor(new channelNumber());
     private DefaultCellEditor analysisEditor = new DefaultCellEditor(new analysisType());
     //private SpinnerEditor thresEditor = new SpinnerEditor();
-
+    
     private Object[] columnTitles = {"Channel", "Method", "Distance(px)"};
     
     

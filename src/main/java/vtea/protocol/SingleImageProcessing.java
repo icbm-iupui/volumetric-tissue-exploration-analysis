@@ -86,7 +86,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     //public JList OpenImages;
     private ImagePlus OriginalImage;
     private ImagePlus ProcessedImage;
-    private ImagePlus ThumbnailImage;
+    private ImagePlus ThumbnailImage;    
     protected JPanel thumbnail;
 
     protected String tabName;
@@ -101,6 +101,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     protected ArrayList<ProcessStepBlockGUI> ProcessingStepsList;
     protected ArrayList<ObjectStepBlockGUI> ObjectStepsList;
 
+    
     public JWindow thumb = new JWindow();
 
     protected GridLayout PreProcessingLayout = new GridLayout(10, 1, 0, 0);
@@ -928,6 +929,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     deleteObjectStep(position);
+                    mbs.setVisible(false);
                 }
             });
 
