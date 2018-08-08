@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,15 +17,12 @@
  */
 package vtea.objects.layercake;
 
-import vtea.objects.layercake.microRegion;
 import ij.*;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.List;
-import java.lang.Integer;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
