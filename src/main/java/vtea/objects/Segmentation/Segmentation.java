@@ -9,6 +9,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JPanel;
 import vtea.VTEAModule;
 import vteaobjects.MicroObject;
 
@@ -22,7 +23,9 @@ public interface Segmentation extends VTEAModule {
     
     public ArrayList<MicroObject> getObjects();
     
-    public void process(ImageStack[] is, List details, boolean calculate);
+    public boolean process(ImageStack[] is, List details, boolean calculate);
+    
+    public JPanel getOptionsPanel();
     
     public String runImageJMacroCommand(String str);
     

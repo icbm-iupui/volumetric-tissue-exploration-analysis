@@ -50,8 +50,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -67,6 +65,7 @@ import javax.swing.SwingUtilities;
 import vtea.exploration.listeners.AxesChangeListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
+import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
 import vtea.feature.FeatureFrame;
@@ -103,8 +102,8 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     ImagePlus impoverlay;
     int impMode;
     String title;
-    ArrayList availabledata;
-    double[][] ObjectIDs; //Table of all objects with Serial IDs in first column and all features in next columns
+    ArrayList descriptions;
+    ArrayList<MicroObject> Objects = new ArrayList<MicroObject>();
     ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
 
     private boolean all = false;
@@ -120,7 +119,8 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     GatePercentages ResultsWindow;
     
-
+    double[][] ObjectIDs;
+    
     HashMap<Integer, JToggleButton> GateButtonsHM = new HashMap<Integer, JToggleButton>();
     HashMap<Integer, String> AvailableDataHM = new HashMap<Integer, String>();
 
@@ -129,6 +129,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     PlotAxesSetup AxesSetup = new PlotAxesSetup();
     
     FeatureFrame ff;
+    boolean checked = false;
 
 
     String[] sizes = {"2", "4", "8", "10", "15", "20"};
@@ -148,26 +149,42 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     }
 
-    public void process(ImagePlus imp, String title, List plotvalues, ExplorationCenter ec, PlotAxesPanels pap, ArrayList AvailableData) {
-
-        this.availabledata = AvailableData;
+    public void process(ImagePlus imp, String title, ArrayList plotvalues, ExplorationCenter ec, PlotAxesPanels pap, ArrayList AvailableData){
+        //Needs to be converted to a Factory metaphor.
+        
+        //Setup base dataseta
+        //Available data is an arraylist of the available tags as they exist in microvolumes.
+        //imp is the original image
+        
+        this.descriptions = AvailableData;
+        
+        
+        
+        this.imp = imp;
+        this.impoverlay = imp.duplicate();
+        this.impoverlay.addImageListener(this);
+        
+        this.impoverlay.setOpenAsHyperStack(true);
+        this.impoverlay.setDisplayMode(IJ.COMPOSITE);
+        this.impoverlay.setTitle(title);
+        
+        //Setup GUI and populate comboboxes
+        
         initComponents();
         addMenuItems();
-        
-        this.title = title;
-       
 
-        AxesSetup.setDescriptor(this.getTitle());
-       
+       this.title = title;
+
+       AxesSetup.setDescriptor(this.getTitle());
 
         get3DProjection.setEnabled(false);
 
         makeOverlayImage(new ArrayList<Gate>(), ec.getSelectedObjects(), ec.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
-        AvailableDataHM = makeAvailableDataHM(availabledata);
+        AvailableDataHM = makeAvailableDataHM(descriptions);
 
-        final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(availabledata, MicroExplorer.XAXIS);
-        final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(availabledata, MicroExplorer.YAXIS);
-        final SelectPlottingDataMenu PlottingPopupLUTaxis = new SelectPlottingDataMenu(availabledata, MicroExplorer.LUTAXIS);
+        final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
+        final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.YAXIS);
+        final SelectPlottingDataMenu PlottingPopupLUTaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.LUTAXIS);
 
         PlottingPopupXaxis.addPopupMenuAxisListener(this);
         PlottingPopupYaxis.addPopupMenuAxisListener(this);
@@ -263,13 +280,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             }
         });
 
-        this.imp = imp;
-        this.impoverlay = imp.duplicate();
-        this.impoverlay.addImageListener(this);
-        
-        this.impoverlay.setOpenAsHyperStack(true);
-        this.impoverlay.setDisplayMode(IJ.COMPOSITE);
-        this.impoverlay.setTitle(title);
+
 
         DefaultXYPanels = new XYPanels(AvailableData);
         DefaultXYPanels.addChangePlotAxesListener(this);
@@ -293,7 +304,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jComboBoxPointSize.setSelectedIndex(4);
         
         makeDataTable();
-        ff = new FeatureFrame(availabledata, ObjectIDs);
+      ff = new FeatureFrame(descriptions, ObjectIDs);
     }
 
     /**
@@ -359,7 +370,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
         setMinimumSize(new java.awt.Dimension(638, 715));
-        setPreferredSize(new java.awt.Dimension(638, 710));
         setSize(new java.awt.Dimension(638, 715));
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
@@ -394,7 +404,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jLabel1.setText("X");
         toolbarPlot.add(jLabel1);
 
-        jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.availabledata.toArray()));
+        jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxXaxis.setSelectedIndex(this.XSTART);
         jComboBoxXaxis.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -408,7 +418,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jLabel2.setText(" Y");
         toolbarPlot.add(jLabel2);
 
-        jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.availabledata.toArray()));
+        jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxYaxis.setSelectedIndex(this.YSTART);
         jComboBoxYaxis.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -423,7 +433,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jLabel5.setToolTipText("Metric to be plotted as a \npoint's look-up table.");
         toolbarPlot.add(jLabel5);
 
-        jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.availabledata.toArray()));
+        jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxLUTPlot.setSelectedIndex(this.LUTSTART);
         jComboBoxLUTPlot.setToolTipText("Metric to be plotted as a \npoint's look-up table.");
         jComboBoxLUTPlot.addActionListener(new java.awt.event.ActionListener() {
@@ -452,6 +462,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
         jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
         jButtonFeature.setText("Feature");
+        jButtonFeature.setToolTipText("Add more features");
         jButtonFeature.setFocusable(false);
         jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -881,7 +892,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
        ExportCSV ex = new ExportCSV();
-       ex.export(this.availabledata, this.plotvalues);
+       ex.export(this.descriptions, this.plotvalues);
     }//GEN-LAST:event_exportCSVActionPerformed
 
     private void importCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importCSVActionPerformed
@@ -917,6 +928,11 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
         ff.setVisible(true);
+        if(!checked){
+            ff.giveWarning();
+            checked = true;
+        }
+        
     }//GEN-LAST:event_jButtonFeatureActionPerformed
 
     /**
@@ -1008,7 +1024,8 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         this.plotvalues = plotvalues;
         this.ec = ec;
         this.ec.addMakeImageOverlayListener(this);
-        this.pap = pap;
+        DefaultPlotPanels DPP = new DefaultPlotPanels();
+        this.pap = DPP;
         Main.removeAll();
         Main.add(ec.getPanel());
         updateBorderPanels(pap);
@@ -1248,13 +1265,13 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     @Override
     public void changeAxes(int axis, String position) {
         if (axis == MicroExplorer.XAXIS) {
-            updatePlotByPopUpMenu(this.availabledata.indexOf(position), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
+            updatePlotByPopUpMenu(this.descriptions.indexOf(position), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
         } else if (axis == MicroExplorer.YAXIS) {
-            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.availabledata.indexOf(position), this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
+            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.descriptions.indexOf(position), this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
         } else if (axis == MicroExplorer.LUTAXIS) {
-            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.availabledata.indexOf(position), this.jComboBoxPointSize.getSelectedIndex());
+            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.descriptions.indexOf(position), this.jComboBoxPointSize.getSelectedIndex());
         } else if (axis == MicroExplorer.POINTAXIS) {
-            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), this.availabledata.indexOf(position));
+            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), this.descriptions.indexOf(position));
         }
     }
 
@@ -1325,34 +1342,39 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
     }
     
-    /* Makes a data table with the first column containing the object IDs and
-    the subsequent columns containing all of the different calculated features
-    of the objects*/
-    
+    /**
+     * Creates 2D feature array. The first column is the unique SerialID and the
+     * subsequent columns are different computed features.
+     */
     private void makeDataTable(){
-        ListIterator a_itr = ((ArrayList)plotvalues.get(1)).listIterator();
-        this.ObjectIDs = new double[((ArrayList)this.plotvalues.get(1)).size()][this.availabledata.size()+1];
+        //ListIterator a_itr = ((ArrayList)plotvalues.get(1)).listIterator();
+        
+        ListIterator a_itr = Objects.listIterator();
+        //ObjectIDs = (number of volumes)x(calculated features + serialID + Xpos + Ypos + Z pos)
+        this.ObjectIDs = new double[((ArrayList)this.plotvalues.get(1)).size()][this.descriptions.size() + 4]; 
         
         try{
             int i = 0;
             while(a_itr.hasNext()){
-                int j = 1;
+                int j = 4;
                 MicroObjectModel volume = (MicroObjectModel)a_itr.next();
-                //double SID = (double)volume.getSerialID();
-                //int iSID = volume.getSerialID();
-                this.ObjectIDs[i][0] = (double)volume.getSerialID();
 
+                this.ObjectIDs[i][0] = (double)volume.getSerialID();
+                this.ObjectIDs[i][1] = volume.getCentroidX();
+                this.ObjectIDs[i][2] = volume.getCentroidY();
+                this.ObjectIDs[i][3] = volume.getCentroidZ();
+                
                 Object[] mask = volume.getAnalysisMaskVolume();
                 Object[][] data = volume.getAnalysisResultsVolume();
 
-                //System.out.println("PROFILING: loops done: " + (a_itr.nextIndex()-1));
-
-                for(int k = 0; k < mask.length && j < this.availabledata.size() + 1; k++, j++){
-                    this.ObjectIDs[i][j] = ((Number)mask[k]).doubleValue();
+                for(int k = 0; k < mask.length && j < this.descriptions.size() + 1; k++, j++){
+                    if(!(((Number)mask[k]) == null))    
+                        this.ObjectIDs[i][j] = ((Number)mask[k]).doubleValue();
+                    else
+                        this.ObjectIDs[i][j] = 0;
                 }
-                for(int k = 0; k < data.length && j < this.availabledata.size() + 1; k++){
-                    for(int l = 0; l < data[k].length && j < this.availabledata.size() + 1; l++, j++){
-                        //System.out.println("PROFILING: small loops done: " + (k * data.length + l));
+                for(int k = 0; k < data.length; k++){
+                    for(int l = 0; l < data[k].length; l++, j++){
                         this.ObjectIDs[i][j] = ((Number)data[k][l]).doubleValue();
                     }   
                 }
@@ -1360,7 +1382,9 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                 i++;
             }
         }catch(NullPointerException ex){
+            System.out.println(ex);
         }
+        
     }
 
     class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
@@ -1418,7 +1442,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         
         protected void export(ArrayList header, List attributes) {
            
-            System.out.println("csving");
             JFileChooser jf = new JFileChooser(new File("untitled.csv"));
             
             int returnVal = jf.showSaveDialog(Main);
@@ -1450,26 +1473,69 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 //            return (Number) volume.getAnalysisResultsVolume()[row][column];
 //        }
 //    }
-                    try{
+            try{
+                
+            PrintWriter pw = new PrintWriter(file);
+            StringBuilder sb = new StringBuilder();
+            
+            ListIterator itr = descriptions.listIterator();
+            
+            sb.append("Object");
+            sb.append(',');
+            sb.append("PosX");
+            sb.append(',');
+            sb.append("PosY");
+            sb.append(',');
+            sb.append("PosZ");
+            sb.append(',');
+            while(itr.hasNext()){
+            sb.append((String)itr.next());
+                if(itr.hasNext()){
+                    sb.append(',');
+                }
+            }
 
-                        PrintWriter pw = new PrintWriter(file);
-                        StringBuilder sb = new StringBuilder();
+//                        PrintWriter pw = new PrintWriter(file);
+//                        StringBuilder sb = new StringBuilder();
 
-                        ListIterator itr = availabledata.listIterator();
-                        sb.append("Object");
-                        sb.append(',');
-                        sb.append("PosX");
-                        sb.append(',');
-                        sb.append("PosY");
-                        sb.append(',');
-                        sb.append("PosZ");
-                        sb.append(',');
-                        while(itr.hasNext()){
-                        sb.append((String)itr.next());
-                            if(itr.hasNext()){
-                                sb.append(',');
-                            }
-                        }
+            ArrayList<MicroObject> objects = ec.getObjects();
+            ArrayList<ArrayList<Number>> measurements = ec.getMeasurments();
+            
+                
+            for(int i = 0; i < objects.size(); i++){
+                
+                MicroObject volume = objects.get(i);
+                
+                
+                
+                sb.append(volume.getSerialID());
+                sb.append(',');
+                sb.append(volume.getCentroidX());
+                sb.append(',');
+                sb.append(volume.getCentroidY());
+                sb.append(',');
+                sb.append(volume.getCentroidZ());
+                  
+                
+                ArrayList<Number> measured = measurements.get(i);
+                
+                ListIterator<Number> measured_itr = measured.listIterator();
+                
+                while(measured_itr.hasNext()){
+                
+                sb.append(','); 
+                sb.append(measured_itr.next());
+                
+                
+            }
+                
+                sb.append('\n');
+            }
+           
+            
+            
+            pw.write(sb.toString());
+            pw.close();
 
                         sb.append('\n');
 

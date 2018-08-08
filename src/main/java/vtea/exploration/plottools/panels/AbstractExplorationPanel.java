@@ -18,7 +18,6 @@
 package vtea.exploration.plottools.panels;
 
 import ij.ImagePlus;
-import ij.gui.ImageWindow;
 import java.awt.Color;
 import java.awt.Component;
 import vtea.exploration.plotgatetools.gates.Gate;
@@ -27,13 +26,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
 import org.jfree.chart.ChartPanel;
-import vtea.objects.layercake.microVolume;
-import vteaexploration.PlotAxesSetup;
+import vteaobjects.MicroObject;
 
 /**
  *
@@ -43,7 +38,9 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
 
     protected JPanel CenterPanel = new JPanel();
     protected ArrayList<Gate> gates = new ArrayList<Gate>();
-    protected ArrayList plotvalues = new ArrayList();
+    protected ArrayList<ArrayList<Number>> measurements = new ArrayList();
+    protected ArrayList<MicroObject> objects = new ArrayList();
+    protected ArrayList<String> descriptions = new ArrayList();
     protected ChartPanel chart;
     protected ArrayList<XYPanels> charts = new ArrayList<XYPanels>();
     protected ArrayList<GateLayer> gatelayers = new ArrayList<GateLayer>();
@@ -60,15 +57,12 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     
     protected boolean xScaleLinear = true;
     protected boolean yScaleLinear = true;
-   
-    
-    
+
     protected int currentX;
     protected int currentY;
     protected int currentL; 
     protected int pointsize;
-    protected Color imageGateColor = new Color(0,177,76);
-    
+    protected Color imageGateColor = new Color(0,177,76);   
 
     public AbstractExplorationPanel() {
         CenterPanel.setOpaque(false);
@@ -109,6 +103,16 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
         
         return al;
     }
+    
+    @Override 
+      public ArrayList<MicroObject> getObjects(){
+          return objects;
+      }
+      
+    @Override 
+      public ArrayList<ArrayList<Number>> getMeasurments(){
+          return measurements;
+      }
 
 
 }

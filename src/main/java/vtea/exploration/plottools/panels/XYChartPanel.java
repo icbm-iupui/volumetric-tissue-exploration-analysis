@@ -87,7 +87,7 @@ public class XYChartPanel implements RoiListener {
     static Color ALLPERCENT = new Color(255, 250, 50);
     static Color IMAGEGATE = new Color(0, 255, 0);
     private ChartPanel chartPanel;
-    private List plotValues = new ArrayList();
+    private List measurements = new ArrayList();
     private ArrayList<MicroObject> ImageGateOverlay = new ArrayList<MicroObject>();
     private ArrayList<UpdatePlotWindowListener> UpdatePlotWindowListeners = new ArrayList<UpdatePlotWindowListener>();
     private ImagePlus impoverlay;
@@ -112,7 +112,7 @@ public class XYChartPanel implements RoiListener {
         impoverlay = ip;
         this.imageGate = imageGate;
         imageGateOutline = imageGateColor;
-        plotValues = li;
+        measurements = li;
         this.size = size;
         xValues = x;
         yValues = y;
@@ -206,15 +206,15 @@ public class XYChartPanel implements RoiListener {
         PaintScaleLegend psl = new PaintScaleLegend(new LookupPaintScale(0, 100, new Color(0, 0, 0)), new NumberAxis(""));
         
         if(l > 0){
-        double max = getMaximumOfData((ArrayList) plotValues.get(1), l);
-        double min = this.getMinimumOfData((ArrayList) plotValues.get(1), l);
+        double max = getMaximumOfData((ArrayList) measurements, l);
+        double min = getMinimumOfData((ArrayList) measurements, l);
         double range = max - min;
 
         if (max == 0) {
             max = 1;
         }
 
-        //System.out.println("PROFILING-DETAILS: Points to plot: " + ((ArrayList) plotValues.get(1)).size());
+        //System.out.println("PROFILING-DETAILS: Points to plot: " + ((ArrayList) measurements.get(1)).size());
         LookupPaintScale ps = new LookupPaintScale(min, max + 100, new Color(0, 0, 0));
 
         renderer.setPaintScale(ps);
@@ -266,7 +266,7 @@ public class XYChartPanel implements RoiListener {
         xAxis.setAutoRangeIncludesZero(false);
         yAxis.setAutoRangeIncludesZero(false);
 
-        XYPlot plot = new XYPlot(createXYZDataset((ArrayList) plotValues.get(1), x, y, l), xAxis, yAxis, renderer);
+        XYPlot plot = new XYPlot(createXYZDataset((ArrayList) measurements, x, y, l), xAxis, yAxis, renderer);
         
         plot.getDomainAxis();
         plot.getRangeAxis();
@@ -279,12 +279,12 @@ public class XYChartPanel implements RoiListener {
         plot.setRenderer(0, renderer);
         plot.setRenderer(1, rendererGate);
 
-        plot.setDataset(0, createXYZDataset((ArrayList) plotValues.get(1), x, y, l));
+        plot.setDataset(0, createXYZDataset((ArrayList) measurements, x, y, l));
 
         if (imageGate) {
             roiCreated(impoverlay);
-            XYZDataset set = createXYZDataset(ImageGateOverlay, x, y, l);
-            plot.setDataset(1, set);
+            //XYZDataset set = createXYZDataset(ImageGateOverlay, x, y, l);
+            //plot.setDataset(1, set);
            plot.setRenderer(1, new XYShapeRenderer() {
                @Override
                protected java.awt.Paint getPaint(XYDataset dataset, int series, int item){
@@ -302,13 +302,13 @@ public class XYChartPanel implements RoiListener {
         //System.out.println("PROFILING: Generating plot with " + ImageGateOverlay.size() + " objects gated.");
 
         try {
-            if (getRangeofData((ArrayList) plotValues.get(1), x) > 16384) {
+            if (getRangeofData((ArrayList) measurements, x) > Math.pow(impoverlay.getBitDepth(), 2)) {
                 LogAxis logAxisX = new LogAxis();
                 logAxisX.setAutoRange(true);
                 plot.setDomainAxis(logAxisX);
             }
 
-            if (getRangeofData((ArrayList) plotValues.get(1), y) > 16384) {
+            if (getRangeofData((ArrayList) measurements, y) > Math.pow(impoverlay.getBitDepth(), 2)) {
                 LogAxis logAxisY = new LogAxis();
                 logAxisY.setAutoRange(true);
                 plot.setRangeAxis(logAxisY);
@@ -329,27 +329,27 @@ public class XYChartPanel implements RoiListener {
         return new ChartPanel(chart, true, true, false, false, true);
     }
 
-    private double getRangeofData(ArrayList alVolumes, int x) {
+    private double getRangeofData(ArrayList measurements, int x) {
 
-        ListIterator litr = alVolumes.listIterator();
+        ListIterator<ArrayList<Number>> litr = measurements.listIterator();
 
-        ArrayList<Number> al = new ArrayList<Number>();
+        //ArrayList<Number> al = new ArrayList<Number>();
 
-        Number low = 0;
+        Number low = Math.pow(impoverlay.getBitDepth(), 2);
         Number high = 0;
         Number test;
 
         while (litr.hasNext()) {
             try {
-                MicroObjectModel volume = (MicroObjectModel) litr.next();
-                Number Corrected = processPosition(x, volume);
-                al.add(Corrected);
-
-                if (Corrected.floatValue() < low.floatValue()) {
-                    low = Corrected;
+                ArrayList<Number> al = litr.next();
+                
+                Number value = al.get(x);
+                
+                if (value.floatValue() < low.floatValue()) {
+                    low = value;
                 }
-                if (Corrected.floatValue() > high.floatValue()) {
-                    high = Corrected;
+                if (value.floatValue() > high.floatValue()) {
+                    high = value;
                 }
             } catch (NullPointerException e) {
             }
@@ -359,19 +359,20 @@ public class XYChartPanel implements RoiListener {
 
     }
 
-    private double getMaximumOfData(ArrayList alVolumes, int x) {
+    private double getMaximumOfData(ArrayList measurements, int x) {
 
-        ListIterator litr = alVolumes.listIterator();
+        ListIterator<ArrayList> litr = measurements.listIterator();
 
         //ArrayList<Number> al = new ArrayList<Number>();
         Number high = 0;
 
         while (litr.hasNext()) {
             try {
-                MicroObjectModel volume = (MicroObjectModel) litr.next();
-                Number Corrected = processPosition(x, volume);
-                if (Corrected.floatValue() > high.floatValue()) {
-                    high = Corrected;
+                
+                ArrayList<Number> al = litr.next();
+              
+                if (al.get(x).floatValue() > high.floatValue()) {
+                    high = al.get(x).floatValue();
                 }
             } catch (NullPointerException e) {
             }
@@ -380,19 +381,18 @@ public class XYChartPanel implements RoiListener {
 
     }
 
-    private double getMinimumOfData(ArrayList alVolumes, int x) {
+    private double getMinimumOfData(ArrayList measurements, int x) {
 
-        ListIterator litr = alVolumes.listIterator();
+        ListIterator<ArrayList> litr = measurements.listIterator();
 
         //ArrayList<Number> al = new ArrayList<Number>();
-        Number low = getMaximumOfData(alVolumes, x);
+        Number low = getMaximumOfData(measurements, x);
 
         while (litr.hasNext()) {
             try {
-                MicroObjectModel volume = (MicroObjectModel) litr.next();
-                Number Corrected = processPosition(x, volume);
-                if (Corrected.floatValue() < low.floatValue()) {
-                    low = Corrected;
+                ArrayList<Number> al = litr.next();
+                if (al.get(x).floatValue() < low.floatValue()) {
+                    low = al.get(x).floatValue();
                 }
             } catch (NullPointerException e) {
             }
@@ -400,23 +400,26 @@ public class XYChartPanel implements RoiListener {
         return low.longValue();
     }
 
-    private DefaultXYZDataset createXYZDataset(ArrayList alVolumes, int x, int y, int l) {
+    private DefaultXYZDataset createXYZDataset(ArrayList<ArrayList<Number>> measurements, int x, int y, int l) {
         
         DefaultXYZDataset result = new DefaultXYZDataset();
         int counter = 0;
 
-        double[] xCorrected = new double[alVolumes.size()];
-        double[] yCorrected = new double[alVolumes.size()];
-        double[] lCorrected = new double[alVolumes.size()];
+        double[] xCorrected = new double[measurements.size()];
+        double[] yCorrected = new double[measurements.size()];
+        double[] lCorrected = new double[measurements.size()];
 
-        ListIterator litr = alVolumes.listIterator();
+        ListIterator<ArrayList<Number>> litr = measurements.listIterator();
 
         while (litr.hasNext()) {
-            MicroObjectModel volume = (MicroObjectModel) litr.next();
-            xCorrected[counter] = processPosition(x, volume).doubleValue();
-            yCorrected[counter] = processPosition(y, volume).doubleValue();
+            
+            ArrayList<Number> values = litr.next();
+            
+            //MicroObjectModel volume = (MicroObjectModel) litr.next();
+            xCorrected[counter] = values.get(x).doubleValue();
+            yCorrected[counter] = values.get(y).doubleValue();
             if(l > 0){
-            lCorrected[counter] = processPosition(l, volume).doubleValue();
+            lCorrected[counter] = values.get(l).doubleValue();
             }else{
                 lCorrected[counter] = 0;
             }
@@ -480,7 +483,7 @@ public class XYChartPanel implements RoiListener {
     public void roiCreated(ImagePlus ip) {
         //if(impoverlay.equals(ip)){
         ImageGateOverlay.clear();
-        ArrayList<MicroObject> volumes = (ArrayList) plotValues.get(1);
+        ArrayList<MicroObject> volumes = (ArrayList) measurements.get(1);
         ListIterator<MicroObject> itr = volumes.listIterator();
         while (itr.hasNext()) {
             MicroObject m = itr.next();

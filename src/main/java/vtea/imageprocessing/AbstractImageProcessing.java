@@ -7,16 +7,10 @@ package vtea.imageprocessing;
 
 import ij.ImagePlus;
 import java.awt.Component;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
-import vtea.imageprocessing.ImageProcessing;
-import static vtea._vtea.PROCESSINGMAP;
 
 /**
  *

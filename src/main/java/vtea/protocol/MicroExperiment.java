@@ -120,23 +120,26 @@ public class MicroExperiment implements Runnable{
 
     public void addExplore(ImagePlus imp, String title, ArrayList<MicroObjectModel> alvolumes, ArrayList AvailableData) {
 
+
         ArrayList plotvalues = new ArrayList();
 
-        plotvalues.add(null);
+        plotvalues.add("");
         plotvalues.add(alvolumes);
 
-        HashMap<Integer, String> hm = new HashMap<Integer,String>();
 
-        for(int i = 0; i <= AvailableData.size()-1; i++){hm.put(i, AvailableData.get(i).toString());}
+
        
-        XYExplorationPanel XY = new XYExplorationPanel(plotvalues, hm);
-    
+        //removing
+        HashMap<Integer, String> hm = new HashMap<Integer,String>();
+        for(int i = 0; i <= AvailableData.size()-1; i++){hm.put(i, AvailableData.get(i).toString());}
+        //XYExplorationPanel XY = new XYExplorationPanel(plotvalues, hm);
         DefaultPlotPanels DPP = new DefaultPlotPanels();
+        
         MicroExplorer mex = new MicroExplorer();
         mex.setTitle(imp.getTitle().replace("DUP_", ""));
         mex.setTitle(mex.getTitle().replace(".tif", ""));
         mex.setTitle(mex.getTitle().concat("_"+title));
-        mex.process(imp, title, plotvalues, XY, DPP, AvailableData);
+        //mex.process(imp, title, plotvalues, XY, DPP, AvailableData);
 
         ExploreDrawer.add(mex);
     }

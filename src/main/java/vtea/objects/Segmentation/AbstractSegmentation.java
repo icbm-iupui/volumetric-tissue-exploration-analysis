@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JPanel;
 import vteaobjects.MicroObject;
 
 /**
@@ -107,7 +108,7 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     }
 
     @Override
-    public void process(ImageStack[] is, List details, boolean calculate) {
+    public boolean process(ImageStack[] is, List details, boolean calculate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -146,4 +147,11 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     public ArrayList getDefaultValues() {
         return defaultValues;
     }
+
+    @Override
+    public JPanel getOptionsPanel() {
+        return new JPanel();
+    }
+
+
 }

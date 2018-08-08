@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 SciJava
+ * Copyright (C) 2018 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,38 +15,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.processor;
+package vtea.services;
 
-import javax.swing.SwingWorker;
+import org.scijava.Context;
+import org.scijava.plugin.Plugin;
+import org.scijava.service.Service;
+import vtea.objects.measurements.Measurements;
 
 /**
  *
  * @author sethwinfree
  */
-public abstract class AbstractProcessor extends SwingWorker<Void,Void> implements Processor  {
+@Plugin(type = Service.class)
+public class ObjectMeasurementService extends AbstractService< Measurements > {
     
-    protected String VERSION = "0.0";
-    protected String AUTHOR = "VTEA Developer";
-    protected String COMMENT = "New functionality";
-    protected String NAME = "ABSTRACTPROCESSOR";
-    protected String KEY = "ABSTRACTPROCESSOR";
-    
-    protected String key;
-
-    
-     @Override
-    public String getName() {
-       return NAME;
+    public ObjectMeasurementService(Context context) {
+        super(Measurements.class, context);
     }
-
-    @Override
-    public String getKey() {
-        return KEY;
-    }   
-    
-    public String getUIDKey() {
-        return key;
-    }
-
     
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 SciJava
+ * Copyright (C) 2018 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,38 +15,60 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.processor;
+package vtea.objects.measurements;
 
-import javax.swing.SwingWorker;
+import java.util.ArrayList;
+import net.imglib2.RealPoint;
 
 /**
  *
  * @author sethwinfree
  */
-public abstract class AbstractProcessor extends SwingWorker<Void,Void> implements Processor  {
+
+public abstract class AbstractMeasurement implements Measurements {
     
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
-    protected String NAME = "ABSTRACTPROCESSOR";
-    protected String KEY = "ABSTRACTPROCESSOR";
+    protected String NAME = "ND";
+    protected String KEY = "ND";
     
-    protected String key;
-
+    /**
+     *
+     * @param al
+     * @param values
+     * @return
+     */
     
-     @Override
+    @Override
+    public Number process(ArrayList al, ArrayList values){
+        return 0;
+    }
+    
+    @Override
     public String getName() {
-       return NAME;
+        return NAME;
     }
 
     @Override
     public String getKey() {
         return KEY;
-    }   
-    
-    public String getUIDKey() {
-        return key;
     }
 
+    
+    public String getVersion() {
+        return VERSION;
+    }
+
+    
+    public String getAuthor() {
+        return AUTHOR;
+    }
+
+   
+    public String getComment() {
+        return COMMENT;
+    }
+    
     
 }

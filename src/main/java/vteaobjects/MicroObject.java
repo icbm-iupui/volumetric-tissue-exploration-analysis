@@ -22,8 +22,10 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.ConcurrentHashMap;
 import vtea.objects.layercake.microVolume;
 
 
@@ -31,19 +33,33 @@ import vtea.objects.layercake.microVolume;
  *
  * @author vinfrais
  */
-public class MicroObject implements MicroObjectModel {
+public abstract class MicroObject implements MicroObjectModel {
     
-    int[] x;
-    int[] y;
-    int[] z;
+    //base pixel positions
     
-    int[][] derivedX;
-    int[][] derivedY;
-    int[][] derivedZ;
+    protected int[] x;
+    protected int[] y;
+    protected int[] z;
     
+    //morphological associations
     
+    protected ArrayList<ArrayList<Integer>> derivedX;
+    protected ArrayList<ArrayList<Integer>> derivedY;
+    protected ArrayList<ArrayList<Integer>> derivedZ;
+    
+    protected HashMap<Integer, String> derivedkey;
+    
+    ConcurrentHashMap<Integer, String> morphologicalLookup = new ConcurrentHashMap();
     
     //calculated variables
+    
+    //new way
+    
+    ArrayList<ArrayList<Number>> features = new ArrayList();  
+    ConcurrentHashMap<Integer, String> measurementLookup = new ConcurrentHashMap();
+    
+    //old way
+    
     private float mean = 0;
     private int nThreshold = 0;
     private float thresholdedmean = 0;
@@ -105,25 +121,12 @@ public class MicroObject implements MicroObjectModel {
     
     public MicroObject(){}
     
-
-
-    public MicroObject(ArrayList<int[]> pixels, int maskChannel, ImageStack[] is, int serialID){
-        
+    public MicroObject(ArrayList<int[]> pixels, int maskChannel, ImageStack[] is, int serialID){       
        this.serialID = serialID;
        xLimit = is[0].getWidth();
        yLimit = is[0].getHeight();
        zLimit = is[0].getSize();
-       
-       
-
        setPixels(pixels);
-       
-       
-       
-       calculateMeasurements(is, maskChannel);
-       //System.out.println("PROFILING: Object " + this.getSerialID() + " from channel " + maskChannel + " created of size: " + analysisMaskVolume[0] + " with mean intensities of: " + analysisMaskVolume[1]);
-       //System.out.println("PROFILING: " + analysisMaskVolume[0] + ", " + analysisMaskVolume[1]);
-       
     }
     
     @Override
@@ -145,7 +148,6 @@ public class MicroObject implements MicroObjectModel {
                     calculateDerivedObjectMeasurements(i, Stacks[i]);
                     break;
                 case microVolume.MASK:
-                    calculateMask(i, Stacks[i]);
                     calculateDerivedObjectMeasurements(i, Stacks[i]);
                     break;
                 case microVolume.FILL:
@@ -159,116 +161,11 @@ public class MicroObject implements MicroObjectModel {
    
    private void calculateGrow(int Channel, int amountGrow, ImageStack is){
        setMinMaxOffsetValues();
-       
-       
-       
    }
    
-   
-    private void calculateGrowOld(int Channel, int amountGrow, ImageStack is) {
-
-        ArrayList<Integer> xderived = new ArrayList<Integer>();
-        ArrayList<Integer> yderived = new ArrayList<Integer>();
-        ArrayList<Integer> zderived = new ArrayList<Integer>();   
-        
-        ArrayList<Integer> xObj = new ArrayList<Integer>();
-        ArrayList<Integer> yObj = new ArrayList<Integer>();
-        ArrayList<Integer> zObj = new ArrayList<Integer>();  
-        
-        //populate arraylists
-        
-        for(int j = 0; j < x.length; j++){
-
-                        xObj.add(x[j]);
-                        yObj.add(y[j]);
-                        zObj.add(z[j]);
- 
-        } 
-        
-        ArrayList<ArrayList> al = new ArrayList<ArrayList>();
-        
-        al.add(xderived);
-        al.add(yderived);
-        al.add(zderived);
-
-        int width = is.getWidth();
-        int height = is.getHeight();
-        int size = is.getSize();
-
-        //System.out.println("PROFILING: Deriving by grow of " + amountGrow + " of Object# " + this.getSerialID() + " for " + this.x.length + " voxels in channel " + Channel);
-        
-        //for(int i = 0; i < amountGrow; i++){
-            for(int j = 0; j < xObj.size(); j++){
-               // for(int k = 0; k < yObj.size(); k++){
-                    //for(int l = 0; l < zObj.size(); l++){
-                    
-                    //System.out.println("Check 1");
-                        //al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(k), zObj.get(l), width, height, size);
-                        //System.out.println("Dilate fill 3D kernel (" + xObj.get(j) + ", " + yObj.get(j)+ ", " + zObj.get(j)+")");
-                        for(int k = -1; k <= 1; k++){
-                            for(int  l = -1; l <=1 ; l++){
-                                for(int m = -1; m <= 1; m++){
-                                    
-                                    al = dilatefill3D(al, xObj.get(j)+k, yObj.get(j)+l, zObj.get(j)+m, width, height, size);
-                                }
-                            }   
-                        }
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j), zObj.get(j), width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)+1, zObj.get(j), width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)+1, zObj.get(j), width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j), zObj.get(j), width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)-1, zObj.get(j), width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)-1, zObj.get(j), width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)+1, zObj.get(j), width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)-1, zObj.get(j), width, height, size);
-//                        
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j), zObj.get(j)-1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j), zObj.get(j)-1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)+1, zObj.get(j)-1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)+1, zObj.get(j)-1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j), zObj.get(j)-1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)-1, zObj.get(j)-1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)-1, zObj.get(j)-1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)+1, zObj.get(j)-1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)-1, zObj.get(j)-1, width, height, size);
-//                        
-//                        
-//                        
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j), zObj.get(j)+1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j), zObj.get(j)+1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)+1, zObj.get(j)+1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)+1, zObj.get(j)+1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j), zObj.get(j)+1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j), yObj.get(j)-1, zObj.get(j)+1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)-1, zObj.get(j)+1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)-1, yObj.get(j)+1, zObj.get(j)+1, width, height, size);
-//                        al = dilatefill3D(al.get(0), al.get(1), al.get(2), xObj.get(j)+1, yObj.get(j)-1, zObj.get(j)+1, width, height, size);
-                   // }
-               // }
-            }
-        //}  
-        int c = 0;
-        for(int i = 0; i < al.get(0).size(); i++){
-            this.derivedX[Channel][c] = (Integer)al.get(0).get(i);
-            this.derivedY[Channel][c] = (Integer)al.get(1).get(i);
-            this.derivedZ[Channel][c] = (Integer)al.get(2).get(i);
-        }
-    } 
-     
-    private void calculateMask(int Channel, ImageStack is) {
-//            ListIterator<microRegion> itr = alRegions.listIterator();
-//        int i = 0;        
-//        while(itr.hasNext()){           
-//            microRegion region = new microRegion();
-//            region = itr.next();
-//            DerivedRegions[Channel][i] = new microDerivedRegion(region.getPixelsX(), region.getPixelsY(), region.getPixelCount(), region.getZPosition(), microVolume.MASK, 0, region.getName());
-//            DerivedRegions[Channel][i].calculateMeasurements(is);          
-//            i++;
-//        }
-}
     
     private void setMinMaxOffsetValues(){
-        //System.out.println("PROFILING: Object ID# " + serialID + " created of size: " + x.length);
+       
         xMax = 0;
         xMin = xLimit;
         yMax = 0;
@@ -284,14 +181,6 @@ public class MicroObject implements MicroObjectModel {
             if(zMin > z[i]){zMin = z[i];}
             if(zMax < z[i]){zMax = z[i];}
         }
-        
-        //change offset dynamically-gui input
-        
-       // System.out.println("PROFILING: Object ID# " + serialID + " xMin: " + xMin + ", xMax: " + xMax);
-        
-       // System.out.println("PROFILING: Object ID# " + serialID + " yMin " + yMin + ", yMax: " + yMax);
-        
-       // System.out.println("PROFILING: Object ID# " + serialID + " zMin " + zMin + ", zMax: " + zMax);
         
         //Padding
         
@@ -365,18 +254,13 @@ public class MicroObject implements MicroObjectModel {
                 for(int j = 1; j < yMax-yMin+2*(padding); j++){
                     for(int k = 1; k < zMax-zMin+2*(padding); k++){
                         if(theBox[i][j][k] == r) {ringPixelCount[r]++;}
-                        //if(theBox[i][j][k] == 0) {objectPixelCount++;}
                     }
                 }
             }
             
         }
        //System.out.println("Object has " + objectPixelCount + " pixels");
-        for (int i = 0; i < ring; i++){
-           System.out.println("Ring #" + i + " has " + ringPixelCount[i] + " pixels");
-        }
-        
-        
+  
     }
     
     private boolean containsPixel(int[] xVal, int[] yVal, int [] zVal, int x, int y, int z){
@@ -569,13 +453,22 @@ public class MicroObject implements MicroObjectModel {
         return this.nThreshold;
     }
 
+    @Override
     public int[] getPixelsX() {
         return this.x;
     }
 
+    @Override
     public int[] getPixelsY() {
         return this.y;
     }
+    
+    @Override
+    public int[] getPixelsZ() {
+        return this.z;
+    }
+    
+    
 
 
     public float getCentroidX() {
@@ -586,6 +479,7 @@ public class MicroObject implements MicroObjectModel {
         return this.centroid_y;
     }
 
+    @Override
     public int getBoundCenterX() {
         return this.centerBoundX;
     }
@@ -656,65 +550,7 @@ public class MicroObject implements MicroObjectModel {
     @Override
     public void calculateDerivedObjectMeasurements(int Channel, ImageStack is) {
         
-       int countPixels = 0;
-        double total = 0;
-        long totalThreshold = 0;
-        int nThreshold = 0; 
-        double minLocal = Math.pow(2,is.getBitDepth());//why doubles?
-        double maxLocal = 0;//why do2ubles?
-        double standardDeviation = 1;
-        double[] FeretValues = new double[5];
-        double meanFeretAR = 0;
-        double meanFeretMaxCaliperLocal = 0;
-        double meanFeretMinCaliperLocal = 0;
-        
-        try{
-        for(int i = 0; i < derivedX.length; i++){
-            for(int j = 0; j < derivedY.length; j++){
-                for(int k = 0; k < derivedZ.length; k++){
-                    total = total + is.getVoxel(i, j, k);
-                    if(is.getVoxel(i, j, k) > maxLocal){
-                        maxLocal = is.getVoxel(i, j, k);
-                    }
-                    if(is.getVoxel(i, j, k) < minLocal){
-                        minLocal = is.getVoxel(i, j, k);
-                    }
-                }
-            }
-        }
-        
-        
-        analysisResultsVolume[Channel][0] = derivedX.length;
-        
-        if(countPixels == 0){analysisResultsVolume[Channel][1] = 0;}
-        else{
-        analysisResultsVolume[Channel][1] = total/derivedX.length; //changed from averaging regions to all pixels
-        }
-        
-        analysisResultsVolume[Channel][2] = total;
-        analysisResultsVolume[Channel][3] = minLocal;
-        analysisResultsVolume[Channel][4] = maxLocal;
-        analysisResultsVolume[Channel][5] = Math.sqrt(standardDeviation/countPixels);
-        analysisResultsVolume[Channel][8] = 0;
-        analysisResultsVolume[Channel][7] = 0;
-        //analysisResultsVolume[Channel][9] = (total/countPixels)*(total/countPixels);
-        if(nThreshold > 0){
-            analysisResultsVolume[Channel][9] = totalThreshold/nThreshold;
-        } else {
-            analysisResultsVolume[Channel][9] = totalThreshold;   
-        }
-        if(countPixels == 0){analysisResultsVolume[Channel][10] = 0;
-        }else{
-                    analysisResultsVolume[Channel][10] = (total/countPixels)*(total/countPixels);
-        }
-     
-
-        //IJ.log("microVolume Derived Volume measurements: " + analysisResultsVolume[Channel][1] + ", " + analysisResultsVolume[Channel][2] + ", " + analysisResultsVolume[Channel][3] + ", " + analysisResultsVolume[Channel][4] + ", " + analysisResultsVolume[Channel][5] + ", " + analysisResultsVolume[Channel][6]);
-        //System.out.println("Analyzing volume: " + this.getName() + " ID " + analysisResultsVolume[Channel][2]);
-        
-        System.out.println("PROFILING: Calculated derived measures for object: " + this.getSerialID() + ", giving a mean of: " + analysisResultsVolume[Channel][1]);
-        }catch(NullPointerException e){//System.out.println("Uh Oh, where did the object go?");
-        }
+   
     }
 
     @Override
@@ -779,7 +615,7 @@ public class MicroObject implements MicroObjectModel {
 
     @Override
     public int[] getYPixelsInRegion(int i) {
-                int[] al_y = new int[z.length];
+        int[] al_y = new int[z.length];
         int counter = 0;
         for(int j = 0; j < z.length; j++){
             if(z[j] == i){
@@ -795,6 +631,8 @@ public class MicroObject implements MicroObjectModel {
         //System.out.println("Y Region counter: " + counter + " size: " + export_y.length);
         return export_y;
     }
+    
+  
 
     @Override
     public int[] getBoundsCenter() {
@@ -828,6 +666,16 @@ public class MicroObject implements MicroObjectModel {
     public int getColor() {
        return color;
     }
+    
+    @Override
+     public void setMorphological(String method_UID, ArrayList x, ArrayList y, ArrayList z){
+  
+     }
+    
+
+    
+
+ 
     
     }
 
