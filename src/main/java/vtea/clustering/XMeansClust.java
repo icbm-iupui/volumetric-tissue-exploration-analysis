@@ -62,6 +62,11 @@ public class XMeansClust extends AbstractFeatureProcessing{
         protocol.add(new JSpinner(new SpinnerNumberModel(5,2,max,1)));
     }
     
+    @Override
+    public String getDataDescription(ArrayList params){
+        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue());
+    }
+    
     /**
      * Performs the X-Means clustering based on the parameters.
      * @param al contains all of the parameters in the form of JComponents

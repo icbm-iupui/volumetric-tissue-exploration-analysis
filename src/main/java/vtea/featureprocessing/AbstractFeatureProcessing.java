@@ -86,6 +86,8 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
        return dataResult; 
         
     }
+    
+    
 
     
     @Override
@@ -151,6 +153,11 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
     @Override
     public String getType(){
         return TYPE;
+    }
+    
+    @Override
+    public String getDataDescription(ArrayList param){
+        return KEY;
     }
     
     /**

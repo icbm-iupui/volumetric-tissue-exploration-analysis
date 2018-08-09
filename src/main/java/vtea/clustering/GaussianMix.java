@@ -97,6 +97,35 @@ public class GaussianMix extends AbstractFeatureProcessing{
     }
     
     /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in 
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        JCheckBox jcb = (JCheckBox)comComponents.get(6);
+        if(jcb.isSelected())
+            comment = comment.concat(jcb.getText() + ": Enabled");
+        else{
+            comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+            comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
+            comment = comment.concat("</html>");
+        }
+        return comment;
+    }
+    
+    @Override
+    public String getDataDescription(ArrayList params){
+        if(((JCheckBox)params.get(6)).isSelected())
+            return KEY + "_autoCluster";
+        else{
+           int clusters = (Integer)((JSpinner)params.get(5)).getValue();
+            return KEY + '_' + String.valueOf(clusters);
+        } 
+    }
+    
+    /**
      * Performs the Gaussian Mixture Model based on the parameters.
      * @param al contains all of the parameters in the form of JComponents
      * @param feature the full data to be parsed and analyzed
@@ -285,25 +314,6 @@ public class GaussianMix extends AbstractFeatureProcessing{
             int j = findMax(probability);
             dataResult.add(j);
         }
-    }
-    
-    /**
-     * Creates the Comment Text for the Block GUI.
-     * @param comComponents the parameters (Components) selected by the user in 
-     * the Setup Frame.
-     * @return comment text detailing the parameters
-     */
-    public static String getBlockComment(ArrayList comComponents){
-        String comment = "<html>";
-        JCheckBox jcb = (JCheckBox)comComponents.get(6);
-        if(jcb.isSelected())
-            comment = comment.concat(jcb.getText() + ": Enabled");
-        else{
-            comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
-            comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
-            comment = comment.concat("</html>");
-        }
-        return comment;
     }
     
     double EM(List<MultivariateMixture.Component> components, double[][] x , double gamma, int maxIter) {

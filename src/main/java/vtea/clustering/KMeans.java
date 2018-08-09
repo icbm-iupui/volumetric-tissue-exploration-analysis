@@ -72,6 +72,10 @@ public class KMeans extends AbstractFeatureProcessing{
         protocol.add(new JTextField("10",2));
     }
     
+    @Override
+    public String getDataDescription(ArrayList params){
+        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue());
+    }
     /**
      * Performs the K-Means clustering based on the parameters.
      * @param al contains all of the parameters in the form of JComponents

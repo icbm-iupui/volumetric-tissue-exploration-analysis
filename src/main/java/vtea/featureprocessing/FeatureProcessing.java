@@ -75,6 +75,12 @@ public interface FeatureProcessing<T extends Component, A extends RealType> exte
      */
     public String getComment();
     
+    /**
+     * Retrieves a descriptive title for the new feature variable
+     * @return brief description of the analysis that was performed
+     */
+    public String getDataDescription(ArrayList params);
+    
     public void sendProgressComment();
     
     public String getProgressComment();

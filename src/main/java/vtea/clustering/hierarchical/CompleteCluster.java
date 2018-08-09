@@ -62,6 +62,11 @@ public class CompleteCluster extends AbstractHierarchical{
         TYPE = "Cluster";
     }
     
+    @Override
+    public String getDataDescription(ArrayList params){
+        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue());
+    }
+    
     /**
      * Calculates the hierarchical tree using Complete-Link Clustering.
      * @param al holds the settings for the clustering

@@ -1431,7 +1431,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
        
        for(int i = startSize; i < newFeatures + startSize; i++){
            
-           descriptions.add("Feature_"+i);
+           descriptions.add(name);
            this.featureCount++;
            
        }

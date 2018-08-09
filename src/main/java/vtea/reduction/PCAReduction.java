@@ -73,6 +73,16 @@ public class PCAReduction extends AbstractFeatureProcessing{
         protocol.add(jtf);
     }
     
+    @Override
+    public String getDataDescription(ArrayList params){
+        if(((JComboBox)params.get(4)).getSelectedIndex() == 0){
+            return KEY + "_D" + ((JTextField)params.get(5)).getText();
+        }else{
+            return KEY + "_V" + ((JTextField)params.get(5)).getText();
+        }
+        
+    }
+    
     /**
      * Performs the Principal Component Analysis based on the parameters.
      * @param al contains all of the parameters in the form of JComponents

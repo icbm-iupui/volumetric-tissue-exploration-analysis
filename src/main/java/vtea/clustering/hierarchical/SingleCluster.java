@@ -62,6 +62,11 @@ public class SingleCluster extends AbstractHierarchical{
         TYPE = "Cluster";
     }
     
+    @Override
+    public String getDataDescription(ArrayList params){
+        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue());
+    }
+    
     /**
      * Using Single-Link Hierarchical Clustering calculates the hierarchical tree.
      * @param al contains the parameters of the clustering

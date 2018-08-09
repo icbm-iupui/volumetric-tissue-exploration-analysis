@@ -98,10 +98,10 @@ public class FeatureProcessor extends AbstractProcessor{
      * @param protocol the settings of the specific feature that is being analyzed
      * @param features 2D array of objects and features
      */
-    private void ProcessManager(ArrayList protocol, double[][] features) {
+    private String ProcessManager(ArrayList protocol, double[][] features) {
 
         Object iFeatp = new Object();
-        
+        String name = "Feature";
         try {
             Class<?> c;
             c = Class.forName(FEATUREMAP.get(protocol.get(2).toString()));
@@ -110,11 +110,14 @@ public class FeatureProcessor extends AbstractProcessor{
             iFeatp = con.newInstance();
             boolean validate = (boolean)protocol.get(3);
             ((AbstractFeatureProcessing)iFeatp).process(protocol,features,validate);
+            name = ((AbstractFeatureProcessing)iFeatp).getDataDescription(protocol);
         } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException ex) {
             Logger.getLogger(FeatureProcessor.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "The feature(s) & parameters attempted have caused an error,\n reconfigure and try again", "Feature Computation Error", JOptionPane.ERROR_MESSAGE);
         }
         result = (ArrayList)((AbstractFeatureProcessing)iFeatp).getResult();
+        
+        return name;
     }
     /**
      * Method.
@@ -135,8 +138,8 @@ public class FeatureProcessor extends AbstractProcessor{
             step = 100/protocol.size();
                     
             while (litr.hasNext()) {
-                ProcessManager((ArrayList) litr.next(), features);
-                notifyListeners("Feature");
+                String name = ProcessManager((ArrayList) litr.next(), features);
+                notifyListeners(name);
                 setProgress(getProgress() + step);
             }
             //outputResults();
