@@ -135,29 +135,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>2.0.0-beta-8.2-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
-<dependency>
-            <groupId>com.github.lejon.T-SNE-Java</groupId>
-            <artifactId>tsne</artifactId>
-            <version>v2.5.0</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-netlib -->
-        <dependency>
-            <groupId>com.github.haifengl</groupId>
-            <artifactId>smile-netlib</artifactId>
-            <version>1.5.1</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-core -->
-        <dependency>
-            <groupId>com.github.haifengl</groupId>
-            <artifactId>smile-core</artifactId>
-            <version>1.5.1</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-plot -->
-        <dependency>
-            <groupId>com.github.haifengl</groupId>
-            <artifactId>smile-plot</artifactId>
-            <version>1.5.1</version>
-        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
