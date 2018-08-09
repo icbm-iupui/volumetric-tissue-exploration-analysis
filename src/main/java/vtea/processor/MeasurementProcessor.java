@@ -23,18 +23,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.imglib2.RealPoint;
-import static vtea._vtea.MORPHOLOGICALMAP;
 import static vtea._vtea.OBJECTMEASUREMENTMAP;
-import static vtea._vtea.OBJECTMEASUREMENTOPTIONS;
 import static vtea._vtea.getInterleavedStacks;
-import vtea.objects.layercake.microVolume;
 import vtea.objects.measurements.AbstractMeasurement;
 import vteaobjects.MicroObject;
 
@@ -97,6 +92,8 @@ public class MeasurementProcessor extends AbstractProcessor {
         
         ArrayList values = new ArrayList();
         
+        //ArrayList<ArrayList<Number>> measurements = new ArrayList();
+        
         int size = objects.size();
         
         int count = 1;
@@ -106,12 +103,15 @@ public class MeasurementProcessor extends AbstractProcessor {
         Object[] arr = features.toArray();
         String[] text = new String[arr.length];
         
+        
+        
         for(int a = 0; a < arr.length; a++){     
             text[a] = (String)arr[a];           
         }
+
         
-        for(int j = 0; j < impOriginal.getNChannels(); j++){ 
             for(int k = 0; k < text.length; k++){
+                for(int j = 0; j < impOriginal.getNChannels(); j++){ 
                 
                 try {
                     Class<?> c;
@@ -142,23 +142,23 @@ public class MeasurementProcessor extends AbstractProcessor {
         }
     
         
+        //loop through volumes
+        
         while (itr_vol.hasNext()) {
 
             MicroObject obj = itr_vol.next();
             
-            //System.out.println("PROFILING: Measuring object " + count + ",  of " + size + " or " );
-            
             progress = 100*((double)count/(double)size);
             firePropertyChange("progress", 0, ((int)progress));
-           
-            //firePropertyChange("comment", key, ("Measuring object " + obj.getSerialID() + "...  "));
             
             count++;
             
             values = new ArrayList();
             
-            ArrayList results = new ArrayList();
-
+            //System.out.println("PROFILING: Measuring volume#  " + obj.getSerialID());
+                
+            
+ 
             for (int i = 0; i < impOriginal.getNChannels(); i++) {
 
                 int[] x = obj.getPixelsX();
@@ -186,15 +186,16 @@ public class MeasurementProcessor extends AbstractProcessor {
                 }
                 values.add(channel);
                 
-               //System.out.println("PROFILING: " + values.size() + " channel data added.");
+               //System.out.println("PROFILING: " + measurements.size() + " channel data added.");
      
             }
 
+            
+            ArrayList results = new ArrayList();
             Iterator<String> itr_features = features.iterator();
-            
 
-            
             //loop through measurements
+
             while (itr_features.hasNext()) {
                 try {
                     Class<?> c;
@@ -211,31 +212,56 @@ public class MeasurementProcessor extends AbstractProcessor {
                         iImp = con.newInstance();
 
                         //System.out.println("PROFILING: Instance of " + str + ", created.");
-                        
+                       
                         for(int k = 0; k < values.size(); k++){
-                            
+
                             //System.out.println("PROFILING: description: " + "Ch_" + k + "_"+ ((AbstractMeasurement)iImp).getKey());
-        
-                            
+                            //Number result = ((AbstractMeasurement)iImp).process(new ArrayList(), (ArrayList<Number>)values.get(k));
+                                
                             results.add(((AbstractMeasurement)iImp).process(new ArrayList(), (ArrayList<Number>)values.get(k)));
-                            
-                        }  
+
+                            //System.out.println("PROFILING: description: " + "Ch_" + k + "_" + ((AbstractMeasurement) iImp).getKey() + " , value: " + result);
+
+                           
+                        }
+                        
+                        
+                        
                     } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                         System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
                     }
                 } catch (NullPointerException | ClassNotFoundException ex) {
                     System.out.println("EXCEPTION: new class decleration error... Class not found.");
                 }
-                measurements.add(results);
+                
+                
             }
+            measurements.add(results);
+            
         }
         
         //System.out.println("PROFILING: calculated " + measurements.get(0).size() + " measurements for " + measurements.size() + " total measures.");
         
          firePropertyChange("progress", 0, 100);
          firePropertyChange("measurementDone", key, "Segmentation and measurement done...    ");
-
+         //checkMeasurements();
         return null;
+    }
+    
+    private void checkMeasurements() {
+        ListIterator<ArrayList<Number>> itr_measurements = measurements.listIterator();
+        System.out.println("Checking measurement arraylist" );
+        while (itr_measurements.hasNext()) {
+            ArrayList<Number> measure = itr_measurements.next();
+            ListIterator<Number> itr_values = measure.listIterator();
+
+            while (itr_values.hasNext()) {
+                
+               System.out.println("PROFILING: " + itr_values.next());
+
+            }
+        }
+
     }
 
     @Override
@@ -265,7 +291,7 @@ public class MeasurementProcessor extends AbstractProcessor {
     }
     
     //@Param positions are the points of the object to be measured
-    //values is the arraylist for storing measured values.
+    //values is the arraylist for storing measured measurements.
     
     private Number calculateMeasurement(ArrayList<RealPoint> positions, ArrayList<ArrayList<Number>> values, String operation){
         

@@ -689,7 +689,7 @@ public void addRegions(List<microRegion> regions){
     }
 
     @Override
-    public int getSerialID() {
+    public double getSerialID() {
        return serialID;
     }
 

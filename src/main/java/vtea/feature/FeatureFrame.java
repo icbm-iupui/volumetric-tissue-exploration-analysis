@@ -32,6 +32,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
 import javax.swing.JOptionPane;
+import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.processor.FeatureProcessor;
 import vtea.protocol.listeners.DeleteBlockListener;
 
@@ -40,29 +41,36 @@ import vtea.protocol.listeners.DeleteBlockListener;
  * and removed and submits the methods with parameters to get results. 
  * @author drewmcnutt
  */
-public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
+public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
     
     protected ArrayList<FeatureStepBlockGUI> FeatureStepsList;
-    ArrayList availabledata;
+    ArrayList descriptions;
     double[][] features;
     int nvol;           //number of volumes
+    
+    ArrayList<AddFeaturesListener> listeners = new ArrayList<AddFeaturesListener>();
     
     protected GridLayout FeatureLayout = new GridLayout(4, 1, 0, 0);
 
     /**
      * Constructor.
      * Creates new form FeatureFrame
-     * @param AvailableData
+     * @param descriptions
      * @param table 
      */
-    public FeatureFrame(ArrayList AvailableData, double[][] table) {
-        ArrayList pos = new ArrayList();
-        pos.add("PosX");
-        pos.add("PosY");
-        pos.add("PosZ");
+    public FeatureFrame(ArrayList descriptions, double[][] table) {
         
-        AvailableData.addAll(0,pos);
-        this.availabledata = AvailableData;
+        //ArrayList pos = new ArrayList();
+        
+        this.descriptions = new ArrayList<String>();
+        
+        this.descriptions.add("PosX");
+        this.descriptions.add("PosY");
+        this.descriptions.add("PosZ");
+
+       
+        this.descriptions.addAll(descriptions);
+        
         this.features = table;
         this.nvol = table.length;
                 
@@ -302,7 +310,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
      */
     private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
         //this.setVisible(false);
-        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,FeatureStepsList.size() + 1, availabledata, nvol);
+        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,FeatureStepsList.size() + 1, descriptions, nvol);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
         //this.notifyRepaintFeatureListeners();
@@ -520,6 +528,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         
         FeatureProcessor fp = new FeatureProcessor(features, protocol);
         fp.addPropertyChangeListener(this);
+        fp.addListener(this);
         fp.execute();
         
     }
@@ -570,7 +579,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
             StringBuilder sb = new StringBuilder("The following columns are duplicates of existing columns: \n");
             int count = 0;
             for(Integer col: dupl){
-                sb.append(availabledata.get(col - 1));
+                sb.append(descriptions.get(col - 1));
                 count++;
                 if(count != 0){
                     sb.append(", ");
@@ -596,7 +605,7 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         int curcol = 0;
         
         for(Integer col: duplicates){
-                Object removed = availabledata.remove((int)col - count - 1);
+                Object removed = descriptions.remove((int)col - count - 1);
 //                System.out.println(removed.toString());
                 for(int i = 0; i < features.length; i++){
                     j = curcol;
@@ -618,5 +627,23 @@ public class FeatureFrame extends javax.swing.JFrame implements PropertyChangeLi
         
         
         features = newfeat;
+    }
+
+    @Override
+    public void addFeatures(String name, ArrayList<ArrayList<Number>> result) {
+        
+        
+        notifyListeners(name, result);
+        
+    }
+    
+    public void addListener(AddFeaturesListener listener) {
+        listeners.add(listener);
+    }
+
+    private void notifyListeners(String name, ArrayList<ArrayList<Number>> result) {
+        for (AddFeaturesListener listener : listeners) {
+            listener.addFeatures(name , result);
+        }
     }
 }

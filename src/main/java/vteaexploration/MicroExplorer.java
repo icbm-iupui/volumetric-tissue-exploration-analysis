@@ -42,6 +42,8 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.NullPointerException;
@@ -62,12 +64,12 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
+import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.AxesChangeListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
-import vteaobjects.MicroObjectModel;
 import vtea.feature.FeatureFrame;
 
 /**
@@ -75,10 +77,10 @@ import vtea.feature.FeatureFrame;
  * @author vinfrais
  *
  */
-public class MicroExplorer extends javax.swing.JFrame implements RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
+public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesListener, RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
 
     private XYPanels DefaultXYPanels;
-    private static final Dimension MainPanelSize = new Dimension(630, 640);
+    private static final Dimension MAINPANELSIZE = new Dimension(630, 640);
     private static final int POLYGONGATE = 10;
     private static final int RECTANGLEGATE = 11;
     private static final int QUADRANTGATE = 12;
@@ -93,8 +95,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     public static final int LUTSTART = 1;
 
     public static final int POINTSIZE = 4;
+    
+    int featureCount = 0;
 
-    List plotvalues;
+    ArrayList measurements;
     ExplorationCenter ec;
     PlotAxesPanels pap;
     JPanel HeaderPanel;
@@ -130,7 +134,8 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     
     FeatureFrame ff;
     boolean checked = false;
-
+    
+    
 
     String[] sizes = {"2", "4", "8", "10", "15", "20"};
 
@@ -180,6 +185,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         get3DProjection.setEnabled(false);
 
         makeOverlayImage(new ArrayList<Gate>(), ec.getSelectedObjects(), ec.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
+        
         AvailableDataHM = makeAvailableDataHM(descriptions);
 
         final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
@@ -304,7 +310,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jComboBoxPointSize.setSelectedIndex(4);
         
         makeDataTable();
+        
       ff = new FeatureFrame(descriptions, ObjectIDs);
+      ff.addListener(this);
+   
     }
 
     /**
@@ -892,7 +901,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
        ExportCSV ex = new ExportCSV();
-       ex.export(this.descriptions, this.plotvalues);
+       ex.export(this.descriptions, this.measurements);
     }//GEN-LAST:event_exportCSVActionPerformed
 
     private void importCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importCSVActionPerformed
@@ -929,7 +938,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
         ff.setVisible(true);
         if(!checked){
-            ff.giveWarning();
+            //ff.giveWarning();
             checked = true;
         }
         
@@ -1021,7 +1030,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     private void setPanels(List plotvalues, ExplorationCenter ec, PlotAxesPanels pap) {
 
-        this.plotvalues = plotvalues;
+        this.measurements = (ArrayList)plotvalues;
         this.ec = ec;
         this.ec.addMakeImageOverlayListener(this);
         DefaultPlotPanels DPP = new DefaultPlotPanels();
@@ -1049,11 +1058,11 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     }
 
     private void redrawCenterPanel() {
-        updateCenterPanel(this.plotvalues, this.ec);
+        updateCenterPanel(this.measurements, this.ec);
     }
 
     static public Dimension getMainDimension() {
-        return MicroExplorer.MainPanelSize;
+        return MicroExplorer.MAINPANELSIZE;
     }
 
     private void makePolygonGate() {
@@ -1296,7 +1305,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
                 if (i == RoiListener.COMPLETED || i == RoiListener.MOVED) {
                     ImageGatedObjects.clear();
-                    ArrayList<MicroObject> volumes = (ArrayList) plotvalues.get(1);
+                    ArrayList<MicroObject> volumes = (ArrayList) measurements.get(1);
                     ListIterator<MicroObject> itr = volumes.listIterator();
                     while (itr.hasNext()) {
                         MicroObject m = itr.next();
@@ -1318,22 +1327,21 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     @Override
     public void onAxesSetting(ArrayList al) {
-        
-        
+
         ArrayList<Double> limits = new ArrayList();
-        
-        limits.add(Double.valueOf(((JTextField)(al.get(1))).getText()));
-        limits.add(Double.valueOf(((JTextField)(al.get(3))).getText()));
-        limits.add(Double.valueOf(((JTextField)(al.get(6))).getText()));
-        limits.add(Double.valueOf(((JTextField)(al.get(8))).getText()));
-        
+
+        limits.add(Double.valueOf(((JTextField) (al.get(1))).getText()));
+        limits.add(Double.valueOf(((JTextField) (al.get(3))).getText()));
+        limits.add(Double.valueOf(((JTextField) (al.get(6))).getText()));
+        limits.add(Double.valueOf(((JTextField) (al.get(8))).getText()));
+
         boolean xLinear = true;
         boolean yLinear = true;
-        
-        if(((JComboBox)al.get(4)).getSelectedIndex() == 1){
+
+        if (((JComboBox) al.get(4)).getSelectedIndex() == 1) {
             xLinear = false;
         }
-        if(((JComboBox)al.get(9)).getSelectedIndex() == 1){
+        if (((JComboBox) al.get(9)).getSelectedIndex() == 1) {
             yLinear = false;
         }
 
@@ -1342,50 +1350,119 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
     }
     
+    private void checkMeasurements() {
+        ListIterator<ArrayList<Number>> itr_measurements = measurements.listIterator();
+        System.out.println("Checking measurement arraylist" );
+        while (itr_measurements.hasNext()) {
+            ArrayList<Number> measure = itr_measurements.next();
+            ListIterator<Number> itr_values = measure.listIterator();
+
+            while (itr_values.hasNext()) {
+                
+               System.out.println("PROFILING: " + itr_values.next());
+
+            }
+        }
+
+    }
+    
+    private void checkMeasurementsArray() {
+        
+        System.out.println("Checking Feature Array" );
+        for(int i = 0; i < ObjectIDs.length; i++){
+            for(int j = 0; j < descriptions.size()+4; j++){
+               System.out.println("PROFILING: " + ObjectIDs[i][j]);
+            }
+        }
+
+    }
+
     /**
      * Creates 2D feature array. The first column is the unique SerialID and the
      * subsequent columns are different computed features.
      */
-    private void makeDataTable(){
-        //ListIterator a_itr = ((ArrayList)plotvalues.get(1)).listIterator();
-        
-        ListIterator a_itr = Objects.listIterator();
-        //ObjectIDs = (number of volumes)x(calculated features + serialID + Xpos + Ypos + Z pos)
-        this.ObjectIDs = new double[((ArrayList)this.plotvalues.get(1)).size()][this.descriptions.size() + 4]; 
-        
-        try{
+    private void makeDataTable() {
+
+        ArrayList<MicroObject> objects = ec.getObjects();
+        ListIterator a_itr = objects.listIterator();
+
+        this.ObjectIDs = new double[objects.size()][measurements.size() + 4];
+
+        //System.out.println("PROFILING: Generating measurements table for features from " + objects.size() + " objects...");
+
+        try {
             int i = 0;
-            while(a_itr.hasNext()){
+            while (a_itr.hasNext()) {
+
+                MicroObject volume = (MicroObject) a_itr.next();
+
+                this.ObjectIDs[i][0] = (double) volume.getSerialID();
+                this.ObjectIDs[i][1] = (double) volume.getCentroidX();
+                this.ObjectIDs[i][2] = (double) volume.getCentroidY();
+                this.ObjectIDs[i][3] = (double) volume.getCentroidZ();
+
+                ArrayList measure = (ArrayList) measurements.get(i);
+
+                ListIterator<Number> itr = measure.listIterator();
+            
                 int j = 4;
-                MicroObjectModel volume = (MicroObjectModel)a_itr.next();
-
-                this.ObjectIDs[i][0] = (double)volume.getSerialID();
-                this.ObjectIDs[i][1] = volume.getCentroidX();
-                this.ObjectIDs[i][2] = volume.getCentroidY();
-                this.ObjectIDs[i][3] = volume.getCentroidZ();
-                
-                Object[] mask = volume.getAnalysisMaskVolume();
-                Object[][] data = volume.getAnalysisResultsVolume();
-
-                for(int k = 0; k < mask.length && j < this.descriptions.size() + 1; k++, j++){
-                    if(!(((Number)mask[k]) == null))    
-                        this.ObjectIDs[i][j] = ((Number)mask[k]).doubleValue();
-                    else
-                        this.ObjectIDs[i][j] = 0;
+                while (itr.hasNext()) {
+                    this.ObjectIDs[i][j] = ((Number) itr.next()).doubleValue();
+                    //System.out.println("PROFILING feature array: " + ObjectIDs[i][j]);
+                    j++;
                 }
-                for(int k = 0; k < data.length; k++){
-                    for(int l = 0; l < data[k].length; l++, j++){
-                        this.ObjectIDs[i][j] = ((Number)data[k][l]).doubleValue();
-                    }   
-                }
-
                 i++;
             }
-        }catch(NullPointerException ex){
+            
+
+        } catch (NullPointerException ex) {
             System.out.println(ex);
         }
-        
+
+        //System.out.println("        PROFILING: Generated data for " + ObjectIDs.length + " objects.");
+
     }
+
+    @Override
+    public void addFeatures(String name, ArrayList<ArrayList<Number>> results) {
+        
+       int newFeatures = results.size();
+       int startSize = featureCount;
+       
+       for(int i = startSize; i < newFeatures + startSize; i++){
+           
+           descriptions.add("Feature_"+i);
+           this.featureCount++;
+           
+       }
+
+        System.out.println("PROFILING: Updating measurements in MicroExplorer.");
+        System.out.println("            Adding " + results.size() + " features.");
+
+        for (int j = 0; j < results.size(); j++) {
+
+            ArrayList<Number> features = results.get(j);   //the list of a single feature  
+
+            for (int k = 0; k < features.size(); k++) {
+
+                Number feature = (Number) features.get(k);
+
+                ArrayList<Number> object = (ArrayList) measurements.get(k);
+                object.add(feature);
+            }
+        }
+
+        jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+        jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+        jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+
+        pack();
+        
+  
+
+    }
+
+
 
     class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
 
@@ -1440,115 +1517,46 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         public ExportCSV() {}
 
         
-        protected void export(ArrayList header, List attributes) {
-           
+        protected void export(ArrayList header, ArrayList al) {
+
             JFileChooser jf = new JFileChooser(new File("untitled.csv"));
-            
+
             int returnVal = jf.showSaveDialog(Main);
-            
-            File file = jf.getSelectedFile(); 
-            
-            //int returnVal = chooser.showOpenDialog(parent);
-            
-            if(returnVal == JFileChooser.APPROVE_OPTION) {
-                
-                try{
-                    
-                    
-               
- 
-            
-            //plotvalues contains data,  get(1) -> array          
-            //availabledata contains the column data.          
-            
-//                private Number processPosition(int a, MicroObjectModel volume) {
-////        ArrayList ResultsPointer = volume.getResultPointer();
-////        int size = ResultsPointer.size();
-//        if (a <= 10) {
-//            //System.out.println("PROFILING: Object " + volume.getSerialID() + ", value:" + (Number) volume.getAnalysisMaskVolume()[a]);
-//            return (Number) volume.getAnalysisMaskVolume()[a];
-//        } else {
-//            int row = ((a) / 11) - 1;
-//            int column = a % 11;
-//            return (Number) volume.getAnalysisResultsVolume()[row][column];
-//        }
-//    }
-            try{
-                
-            PrintWriter pw = new PrintWriter(file);
-            StringBuilder sb = new StringBuilder();
-            
-            ListIterator itr = descriptions.listIterator();
-            
-            sb.append("Object");
-            sb.append(',');
-            sb.append("PosX");
-            sb.append(',');
-            sb.append("PosY");
-            sb.append(',');
-            sb.append("PosZ");
-            sb.append(',');
-            while(itr.hasNext()){
-            sb.append((String)itr.next());
-                if(itr.hasNext()){
-                    sb.append(',');
-                }
-            }
 
-//                        PrintWriter pw = new PrintWriter(file);
-//                        StringBuilder sb = new StringBuilder();
+            File file = jf.getSelectedFile();
 
-            ArrayList<MicroObject> objects = ec.getObjects();
-            ArrayList<ArrayList<Number>> measurements = ec.getMeasurments();
-            
-                
-            for(int i = 0; i < objects.size(); i++){
-                
-                MicroObject volume = objects.get(i);
-                
-                
-                
-                sb.append(volume.getSerialID());
-                sb.append(',');
-                sb.append(volume.getCentroidX());
-                sb.append(',');
-                sb.append(volume.getCentroidY());
-                sb.append(',');
-                sb.append(volume.getCentroidZ());
-                  
-                
-                ArrayList<Number> measured = measurements.get(i);
-                
-                ListIterator<Number> measured_itr = measured.listIterator();
-                
-                while(measured_itr.hasNext()){
-                
-                sb.append(','); 
-                sb.append(measured_itr.next());
-                
-                
-            }
-                
-                sb.append('\n');
-            }
-           
-            
-            
-            pw.write(sb.toString());
-            pw.close();
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+                try {
+
+                    try {
+
+                        PrintWriter pw = new PrintWriter(file);
+                        StringBuilder sb = new StringBuilder();
+
+                        ListIterator itr = descriptions.listIterator();
+
+                        sb.append("Object");
+                        sb.append(',');
+                        while (itr.hasNext()) {
+                            sb.append((String) itr.next());
+                            if (itr.hasNext()) {
+                                sb.append(',');
+                            }
+                        }
 
                         sb.append('\n');
 
+                        ArrayList<MicroObject> objects = ec.getObjects();
+                        ArrayList<ArrayList<Number>> measurements = ec.getMeasurments();
+                        
 
-                        ListIterator a_itr = ((ArrayList)plotvalues.get(1)).listIterator();
+                        for (int i = 0; i < objects.size(); i++) {
 
-                        while(a_itr.hasNext()){
-
-                            //sb.append(a_itr.nextIndex());
+                            MicroObject volume = objects.get(i);
+                            ArrayList<Number> measured = measurements.get(i);
                             
-
-
-                            MicroObjectModel volume = (MicroObjectModel)a_itr.next();
+                            //System.out.println("PROFILING: Object measured: " + volume.getCentroidX() + "-" + volume.getCentroidY() + "-"+ volume.getCentroidZ() + "-");
 
                             sb.append(volume.getSerialID());
                             sb.append(',');
@@ -1557,39 +1565,32 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                             sb.append(volume.getCentroidY());
                             sb.append(',');
                             sb.append(volume.getCentroidZ());
-                            sb.append(',');
 
-                            Object[] mask = volume.getAnalysisMaskVolume();
-                            Object[][] data =volume.getAnalysisResultsVolume();
 
-                            for(int i = 0; i < mask.length; i++){
-                                sb.append((Number)mask[i]);
-                                sb.append(',');
-                            } 
-
-                            for(int j = 0; j < data.length; j++){
-                                for(int k = 0; k < data[j].length; k++){
-                                    sb.append((Number)data[j][k]);
-                                    sb.append(',');
-                                }   
+                            ListIterator<Number> itr_mes = measured.listIterator();
+                            
+                            while(itr_mes.hasNext()){
+                                
+                                sb.append(",");
+                                sb.append(itr_mes.next());
                             }
                             sb.append('\n');
                         }
 
-
-
                         pw.write(sb.toString());
                         pw.close();
 
+                    } catch (FileNotFoundException e) {
+                    }
 
-                    }catch(FileNotFoundException e){}
-        
-                }catch(NullPointerException ne){}
-                
-            } else {}
-    
-        } 
-        
+                } catch (NullPointerException ne) {
+                }
+
+            } else {
+            }
+
+        }
+
     }
 
 }

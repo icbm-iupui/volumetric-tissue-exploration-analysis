@@ -30,96 +30,93 @@ import vteaexploration.MicroExplorer;
  *
  * @author sethwinfree
  */
-
 @Plugin(type = Processor.class)
 public class ExplorerProcessor extends AbstractProcessor {
-    
+
     ImagePlus impOriginal;
     ArrayList protocol;  //we may want to turn this into a class...
-    
-    private ArrayList descriptions; 
+
+    private ArrayList descriptions;
     private ArrayList measurements;
     private ArrayList objects;
-    
+
     private ArrayList plotValues;
-   
-    
-    public ExplorerProcessor(){
-        
-    VERSION = "0.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Processor for explorer window.";
-    NAME = "Explorer Processor";
-    KEY = "ExplorerProcessor";
-    
-    
-    
+
+    public ExplorerProcessor() {
+
+        VERSION = "0.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Processor for explorer window.";
+        NAME = "Explorer Processor";
+        KEY = "ExplorerProcessor";
+
     }
-    
+
     /*this constructor should change to:
     
     public ExplorerProcessor(ImagePlus imp, ArrayList volumes, ArrayList measurements)
     
     once SegmentationProcessor exists on its own.
     
-    */
-    
-    public ExplorerProcessor(String k, ImagePlus imp, ArrayList volumes, ArrayList measurements, ArrayList headers){
-        
-    VERSION = "0.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Processor for explorer window.";
-    NAME = "Explorer Processor";
-    KEY = "ExplorerProcessor";
-    
-    impOriginal = imp;
-    objects = volumes;
-    this.measurements = measurements;
-    descriptions = headers;
-    key = k; 
-   
+     */
+    public ExplorerProcessor(String k, ImagePlus imp, ArrayList volumes, ArrayList measurements, ArrayList headers) {
+
+        VERSION = "0.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Processor for explorer window.";
+        NAME = "Explorer Processor";
+        KEY = "ExplorerProcessor";
+
+        impOriginal = imp;
+        objects = volumes;
+        this.measurements = measurements;
+        descriptions = headers;
+        key = k;
+
     }
-    
 
     @Override
     protected Void doInBackground() throws Exception {
-        
-                int progress = 0;
-   
-        try{       
-            
-            firePropertyChange("progress", 0, 5);
-            firePropertyChange("comment", "", "Starting explorer processing...");
-            //ListIterator<Object> litr = this.protocol.listIterator();
-            
 
-                    
-//        while (litr.hasNext()) {
-//            setProgress(progress);
-//            //ProcessManager((ArrayList) litr.next(), impOriginal);
-//            progress += step;
-//        }
-        HashMap<Integer, String> hm = new HashMap<Integer,String>();
-        for(int i = 0; i <= descriptions.size()-1; i++){hm.put(i, descriptions.get(i).toString());}
-        XYExplorationPanel XY = new XYExplorationPanel(measurements, hm, objects);
-        DefaultPlotPanels DPP = new DefaultPlotPanels();
-        
-        String title = "Object_?";
-        
-        MicroExplorer mex = new MicroExplorer();
-        mex.setTitle(impOriginal.getTitle().replace("DUP_", ""));
-        mex.setTitle(mex.getTitle().replace(".tif", ""));
-        mex.setTitle(mex.getTitle().concat("_"+title));
-        mex.process(impOriginal, title, measurements, XY, DPP, descriptions);
-                
-        setProgress(100);
-        firePropertyChange("comment", "", "Done.");
-        }catch(Exception e){
-        e.printStackTrace();
+        int progress = 0;
+
+        try {
+
+            firePropertyChange("progress", 0, 5);
+            firePropertyChange("comment", "", "Starting explorer processing on " + objects.size() + " objects...");
+            //ListIterator<Object> litr = this.protocol.listIterator();
+
+           // ArrayList<ArrayList<Number>> cropped = (ArrayList) measurements.subList(4, measurements.size() - 1);
+
+            HashMap<Integer, String> hm = new HashMap<Integer, String>();
+            
+//            hm.put(0, "X");
+//            hm.put(1, "Y");
+//            hm.put(2, "Z");
+            
+            for (int i = 0; i < descriptions.size(); i++) {
+                hm.put(i, descriptions.get(i).toString());
+            }
+            
+            XYExplorationPanel XY = new XYExplorationPanel(measurements, hm, objects);
+            DefaultPlotPanels DPP = new DefaultPlotPanels();
+
+            String title = "Segmentation_" + key;
+
+            MicroExplorer explorer = new MicroExplorer();
+            explorer.setTitle(impOriginal.getTitle().replace("DUP_", ""));
+            explorer.setTitle(explorer.getTitle().replace(".tif", ""));
+            explorer.setTitle(explorer.getTitle().concat("_" + title));
+            explorer.process(impOriginal, title, measurements, XY, DPP, descriptions);
+
+            setProgress(100);
+            firePropertyChange("comment", "", "Done.");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-      return null;  
-      }
+        return null;
+    }
 
     @Override
     public int process(ArrayList al, String... str) {

@@ -136,6 +136,15 @@ public class SegmentationProcessor extends AbstractProcessor {
                       
             }
            
+//           ListIterator<MicroObject> itr_name = volumes.listIterator();
+//           int serial = 0;
+//           
+//           while(itr_name.hasNext()){
+//               MicroObject object = itr_name.next();
+//               object.setSerialID(serial);
+//               serial++;
+//           }
+           
            //morphology processor
            
            //System.out.println("PROFILING: Processing " + MORPHOLOGICALMAP.size() +" morphological filters.");
