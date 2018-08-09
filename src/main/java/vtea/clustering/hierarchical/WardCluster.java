@@ -62,6 +62,11 @@ public class WardCluster extends AbstractHierarchical{
         TYPE = "Cluster";
     }
     
+    @Override
+    public String getDataDescription(ArrayList params){
+        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue());
+    }
+    
     /**
      * Calculates the proximity matrix of the features and using 
      * Ward Hierarchical Clustering returns true when complete

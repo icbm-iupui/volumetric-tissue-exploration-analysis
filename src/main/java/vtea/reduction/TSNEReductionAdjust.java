@@ -113,6 +113,12 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         protocol.add(jtf);
     }
     
+    @Override
+    public String getDataDescription(ArrayList params){
+//        This should also have the KL-Divergence that is output by TSNE
+        return KEY + '_' + ((JTextField)params.get(7)).getText();
+    }
+    
     /**
      * Performs t-SNE based on the parameters.
      * @param al contains all of the parameters in the form of JComponents

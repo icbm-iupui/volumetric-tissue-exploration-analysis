@@ -75,9 +75,12 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
         IJ.log("PROFILING: Finding membership of volumes in " + n + " clusters");
         membership = hc.partition(n);
         
+        //Exists so that MicroExplorer deals with same data structure for both Clustering and Reduction
+        ArrayList holder = new ArrayList();
         for(int i = 0; i < membership.length; i++){
-            dataResult.add(membership[i] * 1.0);
+            holder.add(membership[i] * 1.0);
         }
+        dataResult.add(holder);
         createDendrogram(hc);
         
     }

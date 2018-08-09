@@ -1429,9 +1429,15 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
        int newFeatures = results.size();
        int startSize = featureCount;
        
+       String descr;
+       
        for(int i = startSize; i < newFeatures + startSize; i++){
            
-           descriptions.add("Feature_"+i);
+           if(results.size() > 1)
+               descr = name + "_" + (i - startSize);
+           else
+               descr = name;
+           descriptions.add(descr);
            this.featureCount++;
            
        }
@@ -1538,6 +1544,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
                         sb.append("Object");
                         sb.append(',');
+                        sb.append("PosX,PosY,PosZ,");
                         while (itr.hasNext()) {
                             sb.append((String) itr.next());
                             if (itr.hasNext()) {

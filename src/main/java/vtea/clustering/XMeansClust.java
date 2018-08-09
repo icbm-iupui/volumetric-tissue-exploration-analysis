@@ -62,6 +62,11 @@ public class XMeansClust extends AbstractFeatureProcessing{
         protocol.add(new JSpinner(new SpinnerNumberModel(5,2,max,1)));
     }
     
+    @Override
+    public String getDataDescription(ArrayList params){
+        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue());
+    }
+    
     /**
      * Performs the X-Means clustering based on the parameters.
      * @param al contains all of the parameters in the form of JComponents
@@ -88,8 +93,11 @@ public class XMeansClust extends AbstractFeatureProcessing{
         membership = xm.getClusterLabel();
         IJ.log("Clustering completed in " + (System.currentTimeMillis()-start)/1000 + " s, " + xm.getNumClusters() + " clusters found");
         
+        //Exists so that MicroExplorer deals with same data structure for both Clustering and Reduction
+        ArrayList holder = new ArrayList();
         for(int m: membership)
-            dataResult.add(m);
+            holder.add(m);
+        dataResult.add(holder);
         
         return true;
     }
