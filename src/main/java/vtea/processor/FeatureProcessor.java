@@ -126,11 +126,7 @@ public class FeatureProcessor extends AbstractProcessor{
     @Override
     protected Void doInBackground() throws Exception{
         setProgress(0);
-        ArrayList ID = new ArrayList(features.length);
-        for(double[] feature : features) {
-            ID.add(feature[0]);
-        }
-        result.add(ID);
+        
         try{       
             firePropertyChange("comment", "", "Starting feature Analysis...");
             firePropertyChange("progress", 0, 5);
