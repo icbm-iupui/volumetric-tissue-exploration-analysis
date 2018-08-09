@@ -114,7 +114,7 @@ public class FeatureProcessor extends AbstractProcessor{
             Logger.getLogger(FeatureProcessor.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "The feature(s) & parameters attempted have caused an error,\n reconfigure and try again", "Feature Computation Error", JOptionPane.ERROR_MESSAGE);
         }
-        result.add((ArrayList)((AbstractFeatureProcessing)iFeatp).getResult());
+        result = (ArrayList)((AbstractFeatureProcessing)iFeatp).getResult();
     }
     /**
      * Method.
