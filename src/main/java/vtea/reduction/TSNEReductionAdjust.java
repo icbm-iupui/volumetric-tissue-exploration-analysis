@@ -33,6 +33,10 @@ import com.jujutsu.tsne.barneshut.VpTree;
 import com.jujutsu.utils.MatrixOps;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
 import static java.lang.Math.max;
@@ -53,7 +57,8 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
     protected volatile boolean abort = false;
     
     public static boolean validate = true;
-    
+    Runtime rt;
+    Random rand;
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -127,6 +132,8 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
      */
     @Override
     public boolean process(ArrayList al, double[][] feature, boolean val){
+        long randSeed = System.nanoTime();
+        rand = new Random(randSeed);
         
         int outDim = Integer.parseInt(((JTextField)al.get(5)).getText());
         int itr = Integer.parseInt(((JTextField)al.get(7)).getText());
@@ -141,23 +148,42 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         feature = selectColumns(feature, selectData);
         feature = normalizeColumns(feature, znorm);
         
-        IJ.log("PROFILING: Training tSNE for " + itr + " iterations");
-        long start = System.nanoTime();
-        TSneConfiguration config = TSneUtils.buildConfig(feature,outDim,inDim,perpl,itr, pca, 0.5, false);
-        double[][] Y = run(config, 5, eta);
         
-        
-        IJ.log("PROFILING: Extracting results");
-        for(int j = 0; j < Y[0].length; j++){
-            ArrayList dimension = new ArrayList();
-            for (double[] Y1 : Y) {
-                dimension.add(Y1[j]);
+        if(val){
+            try{
+                rt = Runtime.getRuntime();
+                int seed = Math.abs(rand.nextInt() - 1);
+
+                performValidation(feature, outDim, itr, eta, perpl, seed);
+
+                String s = getPython();
+                String randScript = getCWD() + "/src/main/resources/TSNERandom.py";
+                String[] randomGen = new String[]{s, randScript, String.valueOf(seed), String.valueOf(feature.length), String.valueOf(outDim)};
+                Process p = rt.exec(randomGen);
+                BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                p.waitFor();
+
+                String e = null;
+                while((e = stdError.readLine()) != null){
+                        System.out.println(e);
+                }
+
+                double[][] list = getDoubleList("random_inital_values_for_tsne.csv");
+
+                performReduction(feature, outDim, itr, eta, perpl, inDim, pca, list);
+            }catch(IOException | InterruptedException ie){
+                ie.printStackTrace();
             }
-            dataResult.add(dimension);
+        }else{
+            performReduction(feature, outDim, itr, eta, perpl, inDim, pca);
         }
         
-        long end = System.nanoTime();
-        IJ.log("PROFILING: tSNE completed in " + (end-start)/1000000 + " ms" );
+//        IJ.log("PROFILING: Training tSNE for " + itr + " iterations");
+//        long start = System.nanoTime();
+//        TSneConfiguration config = TSneUtils.buildConfig(feature,outDim,inDim,perpl,itr, pca, 0.5, false);
+//        double[][] Y = run(config, (int)System.nanoTime(), eta);
+        
+        
         return true;
     }
     
@@ -188,7 +214,57 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         return comment;
     }
     
-    private double[][] run(TSneConfiguration parameterObject, int randSeed, double eta){
+    private void performReduction(double[][] feature, int outDim, int itr, double eta, int perpl, int inDim, boolean pca){
+        double[][] list = new double[feature.length][outDim];
+        for(int i = 0; i < feature.length; i++){ 
+            for(int j = 0; j < outDim; j++)
+                list[i][j] = rand.nextDouble() * 0.0001;
+        }
+        
+        performReduction(feature, outDim, itr, eta, perpl, inDim, pca, list);
+    }
+    
+    private void performReduction(double[][] feature, int outDim, int itr, double eta, int perpl, int inDim, boolean pca, double[][] list){
+        IJ.log("PROFILING: Training tSNE for " + itr + " iterations");
+        long start = System.nanoTime();
+        TSneConfiguration config = TSneUtils.buildConfig(feature,outDim,inDim,perpl,itr, pca, 0.5, false);
+        double[][] Y = run(config, list, eta);
+        
+        
+        IJ.log("PROFILING: Extracting results");
+        
+        for(int j = 0; j < Y[0].length; j++){
+            ArrayList dimension = new ArrayList();
+            for (double[] Y1 : Y) {
+                dimension.add(Y1[j]);
+            }
+            dataResult.add(dimension);
+        }
+        
+        long end = System.nanoTime();
+        IJ.log("PROFILING: tSNE completed in " + (end-start)/1000000 + " ms" );
+    }
+    
+    private void performValidation(double[][] matrix, int newDim,int itr,double eta,int perpl, int seed){
+        makeMatrixCSVFile(matrix);
+        String s = getPython();
+        String pathAddOn = String.format("%1$csrc%1$cmain%1$cresources%1$cvalidation_script.py", File.separatorChar);
+        String validationScript = getCWD() + pathAddOn;
+        try{
+            String[] validationGen = new String[]{s, validationScript, "matrix_for_python.csv", "TSNE", String.valueOf(seed), String.valueOf(newDim), String.valueOf(perpl), String.valueOf(eta), String.valueOf(itr)};
+            Process p = rt.exec(validationGen);
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            p.waitFor();
+            
+            String e = null;
+            while((e = stdError.readLine()) != null)
+                System.out.println(e);
+        }catch(IOException | InterruptedException ie){
+            ie.printStackTrace();
+        }
+    }
+    
+    private double[][] run(TSneConfiguration parameterObject, double[][] randInit, double eta){
         int D = parameterObject.getXStartDim();
         double[][] Xin = parameterObject.getXin();
         boolean exact = (parameterObject.getTheta() == .0);
@@ -291,9 +367,8 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         if(exact) { for(int i = 0; i < N * N; i++)        P[i] *= 12.0; }
         else {      for(int i = 0; i < row_P[N]; i++) val_P[i] *= 12.0; }
 
-        Random randGen = new Random(randSeed);
         // Initialize solution (randomly)
-        for(int i = 0; i < N * no_dims; i++) Y[i] = randGen.nextDouble() * 0.0001;
+        Y = flatten(randInit);
 
         // Perform main training loop
         if(exact) IJ.log("Done in " + IJ.d2s((end - start) / 1000.0, 2) +  " seconds!\nLearning embedding...\n");

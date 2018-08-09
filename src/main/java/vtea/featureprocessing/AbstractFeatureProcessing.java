@@ -160,6 +160,41 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         return KEY;
     }
     
+    public double[][] getDoubleList(String location){
+        ArrayList temp = new ArrayList();
+        double[][] table;
+        String line = "";
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(location));
+                
+            while((line = br.readLine()) != null){
+                String vals[] = line.split(",");
+                ArrayList row = new ArrayList(vals.length);
+                for (String val : vals) {
+                    if (!val.equals("null")) {
+                        row.add(Double.parseDouble(val));
+                    } else {
+                        row.add(0.0);
+                    }
+                }
+                    
+                temp.add(row);
+            }
+        }catch(IOException | NumberFormatException e){
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
+        
+        table = new double[temp.size()][((ArrayList)temp.get(0)).size()];
+        for(int i = 0; i < temp.size(); i++){
+            for(int j = 0; j < ((ArrayList)temp.get(0)).size(); j++){
+                table[i][j] = (double)((ArrayList)temp.get(i)).get(j);
+            }
+        }
+        
+        return table;
+    }
+    
     /**
      * Deletes columns from feature array. Deletes the ObjectID column as well 
      * as selected columns
