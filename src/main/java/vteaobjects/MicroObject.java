@@ -93,7 +93,7 @@ public abstract class MicroObject implements MicroObjectModel {
     private int centerBoundX = 0;
     private int centerBoundY = 0;
     
-    private int serialID;
+    private double serialID;
     private int nChannels;
     
     private int xMin;
@@ -584,8 +584,13 @@ public abstract class MicroObject implements MicroObjectModel {
     }
 
     @Override
-    public int getSerialID() {
+    public double getSerialID() {
        return this.serialID;
+    }
+    
+    @Override
+    public void setSerialID(double i) {
+       this.serialID = i;
     }
 
     @Override

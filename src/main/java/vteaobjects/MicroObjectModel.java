@@ -99,7 +99,9 @@ public interface MicroObjectModel <T extends Number> {
     
     public Object[][] getAnalysisResultsVolume();
     
-    public int getSerialID();
+    public double getSerialID();
+    
+    public void setSerialID(double i);
     
     public List getRegions();
     

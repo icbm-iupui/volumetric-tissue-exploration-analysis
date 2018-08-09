@@ -17,21 +17,6 @@
  */
 package vtea.protocol;
 
-import vtea.protocol.menus.MultipleFilesMenu;
-import vtea.protocol.listeners.AnalysisStartListener;
-import vtea.protocol.listeners.DeleteBlockListener;
-import vtea.protocol.listeners.MicroBlockSetupListener;
-import vtea.protocol.listeners.RebuildPanelListener;
-import vtea.protocol.listeners.RepaintTabListener;
-import vtea.protocol.listeners.RequestImageListener;
-import vtea.protocol.listeners.TransferProtocolStepsListener;
-import vtea.protocol.setup.MicroBlockObjectSetup;
-import vtea.protocol.blockstepgui.ProcessStepBlockGUI;
-import vtea.protocol.listeners.FileOperationListener;
-import vtea.protocol.listeners.UpdateProgressListener;
-import vtea.protocol.listeners.UpdateSegmentationListener;
-import vtea.protocol.listeners.UpdatedProtocolListener;
-import vtea.ImageSelectionListener;
 import ij.ImagePlus;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -40,6 +25,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -47,6 +34,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.ListIterator;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -56,18 +44,27 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import vtea.protocol.listeners.UpdatedImageListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.UUID;
 import org.jfree.data.xy.DefaultXYZDataset;
-import static vtea._vtea.SEGMENTATIONMAP;
+import vtea.ImageSelectionListener;
 import vtea.processor.ExplorerProcessor;
 import vtea.processor.ImageProcessingProcessor;
 import vtea.processor.MeasurementProcessor;
 import vtea.processor.SegmentationProcessor;
+import vtea.protocol.blockstepgui.ProcessStepBlockGUI;
+import vtea.protocol.listeners.AnalysisStartListener;
+import vtea.protocol.listeners.DeleteBlockListener;
+import vtea.protocol.listeners.FileOperationListener;
+import vtea.protocol.listeners.MicroBlockSetupListener;
+import vtea.protocol.listeners.RebuildPanelListener;
+import vtea.protocol.listeners.RepaintTabListener;
+import vtea.protocol.listeners.RequestImageListener;
+import vtea.protocol.listeners.TransferProtocolStepsListener;
+import vtea.protocol.listeners.UpdateProgressListener;
+import vtea.protocol.listeners.UpdateSegmentationListener;
+import vtea.protocol.listeners.UpdatedImageListener;
+import vtea.protocol.listeners.UpdatedProtocolListener;
+import vtea.protocol.menus.MultipleFilesMenu;
+import vtea.protocol.setup.MicroBlockObjectSetup;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
 
@@ -831,6 +828,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
                     System.out.println("and " + mp.getDescriptions().size() + " descriptors.");
 
                 executeExploring(key, mp.getObjects(), mp.getFeatures(), mp.getDescriptions());
+                //executeExploring(String key, ArrayList<MicroObject> vols, ArrayList measurements, ArrayList headers) {
+        
               }
         }
         if (evt.getPropertyName().equals("comment")) {

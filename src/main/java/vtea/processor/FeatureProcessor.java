@@ -30,6 +30,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import static vtea._vtea.FEATUREMAP;
+import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 
 /**
@@ -57,6 +58,8 @@ public class FeatureProcessor extends AbstractProcessor{
      */
     ArrayList result;
     
+    ArrayList<AddFeaturesListener> listeners = new ArrayList<AddFeaturesListener>();
+    
     /**
      * Constructor.
      * Provides version, author, etc.
@@ -83,6 +86,9 @@ public class FeatureProcessor extends AbstractProcessor{
         this.features = features;
         this.protocol = protocol;
         result = new ArrayList(protocol.size());
+        
+        
+    
     }
        
     /**
@@ -135,9 +141,11 @@ public class FeatureProcessor extends AbstractProcessor{
                     
             while (litr.hasNext()) {
                 ProcessManager((ArrayList) litr.next(), features);
+                notifyListeners("Feature_"+(litr.nextIndex()-1));
                 setProgress(getProgress() + step);
             }
-            outputResults();
+            //outputResults();
+            
             setProgress(100);
             firePropertyChange("comment", "", "Done.");
         }catch(Exception e){
@@ -176,6 +184,18 @@ public class FeatureProcessor extends AbstractProcessor{
     public static int getStep(){
         return step;
     }
+    
+    public void addListener(AddFeaturesListener listener) {
+        listeners.add(listener);
+    }
+
+    private void notifyListeners(String name) {
+        for (AddFeaturesListener listener : listeners) {
+            listener.addFeatures(name , features);
+        }
+    }
+    
+    
     
     /**
      * Method.
