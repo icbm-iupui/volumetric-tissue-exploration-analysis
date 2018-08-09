@@ -142,13 +142,12 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         
         
         IJ.log("PROFILING: Extracting results");
-        
-        for(int i = 0; i < Y.length; i++){
-            ArrayList obj = new ArrayList();
-            for(int j = 0; j < Y[i].length; j++){
-                obj.add(Y[i][j]);
+        for(int j = 0; j < Y[0].length; j++){
+            ArrayList dimension = new ArrayList();
+            for (double[] Y1 : Y) {
+                dimension.add(Y1[j]);
             }
-            dataResult.add(obj);
+            dataResult.add(dimension);
         }
         
         long end = System.nanoTime();

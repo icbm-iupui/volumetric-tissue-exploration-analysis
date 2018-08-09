@@ -117,12 +117,12 @@ public class PCAReduction extends AbstractFeatureProcessing{
         }
         
         output = pca.project(feature);
-        for(double[] row: output){
-            ArrayList obj = new ArrayList();
-            for(double val: row){
-                obj.add(val);
+        for(int j = 0; j < output[0].length; j++){
+            ArrayList dimension = new ArrayList();
+            for(double[] row: output){
+                dimension.add(row[j]);
             }
-            dataResult.add(obj);
+            dataResult.add(dimension);
         }
             
         
