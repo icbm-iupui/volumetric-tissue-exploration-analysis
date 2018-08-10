@@ -178,9 +178,9 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         initComponents();
         addMenuItems();
 
-       this.title = title;
+        this.title = title;
 
-       AxesSetup.setDescriptor(this.getTitle());
+        AxesSetup.setDescriptor(this.getTitle());
 
         get3DProjection.setEnabled(false);
 
@@ -311,8 +311,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         
         makeDataTable();
         
-      ff = new FeatureFrame(descriptions, ObjectIDs);
-      ff.addListener(this);
+        ff = new FeatureFrame(descriptions, ObjectIDs);
+        ff.addListener(this);
    
     }
 
@@ -1386,7 +1386,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         ArrayList<MicroObject> objects = ec.getObjects();
         ListIterator a_itr = objects.listIterator();
 
-        this.ObjectIDs = new double[objects.size()][measurements.size() + 4];
+        this.ObjectIDs = new double[objects.size()][descriptions.size() + 3];
 
         //System.out.println("PROFILING: Generating measurements table for features from " + objects.size() + " objects...");
 
@@ -1396,7 +1396,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
                 MicroObject volume = (MicroObject) a_itr.next();
 
-                this.ObjectIDs[i][0] = (double) volume.getSerialID();
+//                this.ObjectIDs[i][0] = (double) volume.getSerialID();
                 this.ObjectIDs[i][1] = (double) volume.getCentroidX();
                 this.ObjectIDs[i][2] = (double) volume.getCentroidY();
                 this.ObjectIDs[i][3] = (double) volume.getCentroidZ();
