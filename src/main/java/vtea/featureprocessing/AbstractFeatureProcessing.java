@@ -401,7 +401,7 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
                     sb.append(row[i]);
                     sb.append(',');
                 }
-                sb.append('\n');
+                sb.replace(row.length, row.length + 1, "\n");
             }
 
             pw.write(sb.toString());
