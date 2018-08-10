@@ -58,7 +58,7 @@ public class SingleCluster extends AbstractHierarchical{
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from SMILE";
         NAME = "Single-Link Hierarchical Clustering";
-        KEY = "SingleLinkHierarchicalClustering";
+        KEY = "SingleLinkHierarch";
         TYPE = "Cluster";
     }
     

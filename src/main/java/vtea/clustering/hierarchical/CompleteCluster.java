@@ -58,7 +58,7 @@ public class CompleteCluster extends AbstractHierarchical{
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from SMILE";
         NAME = "Complete-Link Hierarchical Clustering";
-        KEY = "CompleteLinkHierarchicalClustering";
+        KEY = "CompleteLinkHierarch";
         TYPE = "Cluster";
     }
     

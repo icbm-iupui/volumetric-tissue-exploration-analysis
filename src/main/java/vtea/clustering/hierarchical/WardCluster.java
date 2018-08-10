@@ -43,7 +43,7 @@ public class WardCluster extends AbstractHierarchical{
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from SMILE";
         NAME = "Ward Hierarchical Clustering";
-        KEY = "WardHierarchicalClustering";
+        KEY = "WardHierarch";
     }
     
    /**
