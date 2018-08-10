@@ -17,6 +17,7 @@
  */
 package vtea.clustering;
 
+import ij.IJ;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -65,10 +66,10 @@ public class KMeans extends AbstractFeatureProcessing{
         
         protocol = new ArrayList();
         
-        protocol.add(new JLabel("Number of clusters"));
+        protocol.add(new JLabel("Clusters"));
         protocol.add(new JSpinner(new SpinnerNumberModel(5,2,max,1)));
         
-        protocol.add(new JLabel("Number of Iterations"));
+        protocol.add(new JLabel("Iterations"));
         protocol.add(new JTextField("10",2));
     }
     
@@ -171,13 +172,15 @@ public class KMeans extends AbstractFeatureProcessing{
     }
     
     private Centroids performClustering(double[][] feature, int nClust, int nTrials, int[][] list){
+        IJ.log(String.format("PROFILING: Performing clustering: Trial %d of %d", 1,nTrials));
         Centroids best = calculateClusters(nClust,feature, list[0]);
         for(int t = 1; t < nTrials; t++){
+            IJ.log(String.format("PROFILING: Performing clustering: Trial %d of %d", t + 1 ,nTrials));
             Centroids C= calculateClusters(nClust,feature, list[t]);
             if(C.getDissimilarity() < best.getDissimilarity())
                 best = C;
         }
-        
+        IJ.log(String.format("PROFILING: Best clustering found, Dissimilarity of %f", best.getDissimilarity()));
         return best;
     }
     

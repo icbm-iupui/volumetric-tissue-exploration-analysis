@@ -103,14 +103,14 @@ public class PCAReduction extends AbstractFeatureProcessing{
         JComboBox selection = (JComboBox)al.get(4);
         JTextField input = (JTextField)al.get(5);
         
-        IJ.log("PROFILING: Finding principal components of the data");
+        IJ.log(String.format("PROFILING: Finding principal components of the data"));
         PCA pca = new PCA(feature);
         
         if(selection.getSelectedIndex() == 0){
             newdim = Integer.parseInt(input.getText());
             pca.setProjection(newdim);
             double[] cumvar = pca.getCumulativeVarianceProportion();
-            IJ.log("PROFILING: Projecting the data onto " + newdim + " dimensions covering " + IJ.d2s(cumvar[newdim - 1] * 100) + "% of the variance");
+            IJ.log(String.format("PROFILING: Projecting the data onto %d dimensions covering %f%% of the variance", newdim, cumvar[newdim - 1] * 100));
         }else{
             variance = Double.parseDouble(input.getText());
             pca.setProjection(variance);

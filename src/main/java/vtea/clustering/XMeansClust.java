@@ -87,11 +87,11 @@ public class XMeansClust extends AbstractFeatureProcessing{
         JSpinner clust = (JSpinner)al.get(5);
         maxClust = ((Integer)clust.getValue());
         
-        IJ.log("Clustering using XMeans for a maximum of " + maxClust + " clusters");
+        IJ.log(String.format("PROFILING: Clustering using XMeans for a maximum of %d clusters", maxClust));
         long start = System.currentTimeMillis();
         XMeans xm = new XMeans(feature, maxClust);
         membership = xm.getClusterLabel();
-        IJ.log("Clustering completed in " + (System.currentTimeMillis()-start)/1000 + " s, " + xm.getNumClusters() + " clusters found");
+        IJ.log(String.format("PROFILING: Clustering completed in %d s, %d clusters found", (System.currentTimeMillis()-start)/1000, xm.getNumClusters()));
         
         //Exists so that MicroExplorer deals with same data structure for both Clustering and Reduction
         ArrayList holder = new ArrayList();
