@@ -1425,22 +1425,26 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     @Override
     public void addFeatures(String name, ArrayList<ArrayList<Number>> results) {
+        int xsel = jComboBoxXaxis.getSelectedIndex();
+        int ysel = jComboBoxYaxis.getSelectedIndex();
+        int zsel = jComboBoxLUTPlot.getSelectedIndex();
         
-       int newFeatures = results.size();
-       int startSize = featureCount;
-       
-       String descr;
-       
-       for(int i = startSize; i < newFeatures + startSize; i++){
-           
-           if(results.size() > 1)
-               descr = name + "_" + (i - startSize);
-           else
-               descr = name;
-           descriptions.add(descr);
-           this.featureCount++;
-           
-       }
+        
+        int newFeatures = results.size();
+        int startSize = featureCount;
+
+        String descr;
+
+        for(int i = startSize; i < newFeatures + startSize; i++){
+
+            if(results.size() > 1)
+                descr = name + "_" + (i - startSize);
+            else
+                descr = name;
+            descriptions.add(descr);
+            this.featureCount++;
+
+        }
 
         System.out.println("PROFILING: Updating measurements in MicroExplorer.");
         System.out.println("            Adding " + results.size() + " features.");
@@ -1461,11 +1465,12 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+        
+        jComboBoxXaxis.setSelectedIndex(xsel);
+        jComboBoxYaxis.setSelectedIndex(ysel);
+        jComboBoxLUTPlot.setSelectedIndex(zsel);
 
         pack();
-        
-  
-
     }
 
 
