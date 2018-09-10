@@ -25,6 +25,7 @@ import vtea.exploration.plotgatetools.gates.MicroSelection;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -89,6 +90,8 @@ public interface ExplorationCenter {
     public ArrayList<MicroObject> getObjects();
     
     public ArrayList<ArrayList<Number>> getMeasurments();
+    
+    public void updateFeatureSpace(HashMap<Integer, String> descriptions, ArrayList<ArrayList<Number>> measurements);
     
     public void setGatedOverlay(ImagePlus ip);
     

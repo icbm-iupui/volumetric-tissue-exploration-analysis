@@ -1010,6 +1010,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         }
     }
 
+    @Override
+    public void updateFeatureSpace(HashMap<Integer, String> descriptions, ArrayList<ArrayList<Number>> measurements) {
+        
+        this.hm = descriptions;
+        this.measurements = measurements;
+
+    }
+
     class ExportGates {
 
         public ExportGates() {

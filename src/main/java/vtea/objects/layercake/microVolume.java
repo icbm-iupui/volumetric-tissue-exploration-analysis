@@ -727,10 +727,6 @@ public void addRegions(List<microRegion> regions){
                 return null;
     }
 
-    @Override
-    public void setMorphological(String method_UID, ArrayList x, ArrayList y, ArrayList z) {
- 
-    }
 
 
 

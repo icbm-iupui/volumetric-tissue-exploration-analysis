@@ -87,7 +87,7 @@ public class AbstractMorphology implements Morphology {
         return new ImagePlus();
     }
 
-
+ 
     
     
 }

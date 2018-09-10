@@ -17,6 +17,7 @@
  */
 package vtea.objects.measurements;
 
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import net.imglib2.RealPoint;
 
@@ -32,6 +33,8 @@ public abstract class AbstractMeasurement implements Measurements {
     protected String COMMENT = "New functionality";
     protected String NAME = "ND";
     protected String KEY = "ND";
+    
+    
     
     /**
      *

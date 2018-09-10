@@ -204,13 +204,12 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     private Object[][] makeDerivedRegionTable() {
         Object[][] CellValues = new Object[this.Channels.size()][4];
 
-        System.out.println("PROFILING: Number of channels: " + this.Channels.size());
-        //System.out.println("PROFILING: Number of channels: " + this.Channels.size());
+        //System.out.println("PROFILING: Number of channels: " + this.Channels.size());       //System.out.println("PROFILING: Number of channels: " + this.Channels.size());
 
         for (int i = 0; i < this.Channels.size(); i++) {
             CellValues[i][0] = Channels.get(i);
             CellValues[i][1] = "Grow";
-            CellValues[i][2] = 2;
+            CellValues[i][2] = 1;
         }
         return CellValues;
     }
@@ -818,7 +817,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Chan
     private class analysisType extends JComboBox {
 
         public analysisType() {
-            this.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"Mask", "Grow"}));
+            this.setModel(new javax.swing.DefaultComboBoxModel(vtea._vtea.MORPHOLOGICALOPTIONS));
         }
     ;
 };

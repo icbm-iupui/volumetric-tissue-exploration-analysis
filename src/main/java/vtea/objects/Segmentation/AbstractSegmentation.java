@@ -20,10 +20,13 @@ package vtea.objects.Segmentation;
 import ij.ImagePlus;
 import ij.ImageStack;
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
+import vtea.processor.listeners.ProgressListener;
 import vteaobjects.MicroObject;
 
 /**
@@ -32,13 +35,15 @@ import vteaobjects.MicroObject;
  * @param <T>
  * @param <K>
  */
-public class AbstractSegmentation<T extends Component, K extends Object> implements Segmentation {
+public class AbstractSegmentation<T extends Component, K extends Object> implements Segmentation{
     
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
     protected String NAME = "ND";
     protected String KEY = "ND";
+    
+    ArrayList<ProgressListener> progresslisteners = new ArrayList();
     
     protected ArrayList<T> protocol= new ArrayList();
     
@@ -152,6 +157,16 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     public JPanel getOptionsPanel() {
         return new JPanel();
     }
+    
+    public void addListener(ProgressListener pl) {
+        progresslisteners.add(pl);
+    }
+    
+    public void notifyProgressListeners(String str, Double db) {
+        for(ProgressListener listener: progresslisteners){
+            listener.FireProgressChange(str, db);
+        }
+     }
 
 
 }

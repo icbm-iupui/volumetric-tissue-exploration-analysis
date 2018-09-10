@@ -18,12 +18,13 @@
 package vtea.processor;
 
 import javax.swing.SwingWorker;
+import vtea.processor.listeners.ProgressListener;
 
 /**
  *
  * @author sethwinfree
  */
-public abstract class AbstractProcessor extends SwingWorker<Void,Void> implements Processor  {
+public abstract class AbstractProcessor extends SwingWorker<Void,Void> implements Processor, ProgressListener {
     
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
@@ -46,6 +47,12 @@ public abstract class AbstractProcessor extends SwingWorker<Void,Void> implement
     
     public String getUIDKey() {
         return key;
+    }
+    
+    @Override
+    public void FireProgressChange(String str, double db) {      
+            firePropertyChange("progress", 0, (int)db);
+            firePropertyChange("comment", key, str);
     }
 
     

@@ -117,9 +117,16 @@ public interface MicroObjectModel <T extends Number> {
     
     public int getColor();
     
-    public void setMorphological(String method_UID, ArrayList<Integer> x, ArrayList<Integer> y, ArrayList<Integer> z); 
+    //public void setMorphological(String method_UID, ArrayList x, ArrayList y, ArrayList z); 
     
-
+    public ArrayList<int[]> getMorphological(int index); 
+    
+    public int[] getMorphPixelsX(int index); 
+    
+    public int[] getMorphPixelsY(int index); 
+    
+    public int[] getMorphPixelsZ(int index); 
+  
    
    
 }

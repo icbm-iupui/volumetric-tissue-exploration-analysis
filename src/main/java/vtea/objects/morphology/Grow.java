@@ -32,7 +32,7 @@ public class Grow extends AbstractMorphology {
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
         COMMENT = "Basic dilation";
-        NAME = "GROW";
+        NAME = "Grow";
         KEY = "GROW";
     }
 

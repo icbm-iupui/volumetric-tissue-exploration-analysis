@@ -1386,7 +1386,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         ArrayList<MicroObject> objects = ec.getObjects();
         ListIterator a_itr = objects.listIterator();
 
-        this.ObjectIDs = new double[objects.size()][descriptions.size() + 3];
+        this.ObjectIDs = new double[objects.size()][descriptions.size() + 4];
 
         //System.out.println("PROFILING: Generating measurements table for features from " + objects.size() + " objects...");
 
@@ -1396,7 +1396,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
                 MicroObject volume = (MicroObject) a_itr.next();
 
-//                this.ObjectIDs[i][0] = (double) volume.getSerialID();
+                this.ObjectIDs[i][0] = (double) volume.getSerialID();
                 this.ObjectIDs[i][1] = (double) volume.getCentroidX();
                 this.ObjectIDs[i][2] = (double) volume.getCentroidY();
                 this.ObjectIDs[i][3] = (double) volume.getCentroidZ();
@@ -1430,6 +1430,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         int zsel = jComboBoxLUTPlot.getSelectedIndex();
         
         
+        
         int newFeatures = results.size();
         int startSize = featureCount;
 
@@ -1461,6 +1462,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                 object.add(feature);
             }
         }
+        
+        
 
         jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));

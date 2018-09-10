@@ -31,15 +31,14 @@ import static java.util.concurrent.ForkJoinTask.invokeAll;
 import java.util.concurrent.RecursiveAction;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
 import vteaobjects.MicroObject;
 import vtea.objects.layercake.LayerCake3D;
 import vtea.objects.layercake.microRegion;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import javax.swing.JPanel;
 import vtea.objects.layercake.microVolume;
+import static java.util.concurrent.ForkJoinTask.invokeAll;
+import vtea.processor.listeners.ProgressListener;
 
 /**
  *
@@ -163,7 +162,6 @@ public LayerCake3DSingleThreshold(){
                 }
             }
         }
-
         imageResult = new ImagePlus("Mask Result", stackResult);
          
         IJ.run(imageResult, "8-bit", "");
@@ -171,16 +169,17 @@ public LayerCake3DSingleThreshold(){
         if (watershedImageJ) {
             IJ.run(imageResult, "Watershed", "stack");
         }
-         IJ.run(imageResult, "Invert", "stack");
+        IJ.run(imageResult, "Invert", "stack");
       
        //define the regions
+       
+       notifyProgressListeners("Finding regions...", 10.0); 
         
         RegionForkPool rrf = new RegionForkPool(imageResult.getStack(), stackOriginal, 0, stackOriginal.getSize());       
         ForkJoinPool pool = new ForkJoinPool();       
         pool.invoke(rrf);
 
         //build the volumes
-        
 
             int z;
             int nVolumesLocal = 0;
@@ -188,9 +187,17 @@ public LayerCake3DSingleThreshold(){
             double[] startRegion = new double[2];
 
             microRegion test = new microRegion();
+            
+            int db = 0;
 
             for(int i = 0; i < alRegions.size(); i++){
+                
+                db = (100*(i+1))/alRegions.size();
+                
+                notifyProgressListeners("Building volumes...", (double)db); 
+                
                 test = alRegions.get(i);
+                
                 if (!test.isAMember()) {
                     nVolumesLocal++;
                     startRegion[0] = test.getBoundCenterX();
@@ -232,6 +239,8 @@ public LayerCake3DSingleThreshold(){
         
         return true;
     }
+    
+
     
     private double lengthCart(double[] position, double[] reference_pt) {
         double distance;
