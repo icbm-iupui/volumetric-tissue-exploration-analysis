@@ -126,6 +126,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     
     private int tab;
     private boolean selected = false;
+    
+    private int[] thread = {0,0,0,0,0,0,0,0,0,0};
    
 
     /**
@@ -805,6 +807,21 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             VTEAProgressBar.setValue(progress);
             ProgressComment.setText(String.format(
                     "Completed %d%%...\n", progress));
+        }
+        
+        if (evt.getPropertyName().equals("reset")) {
+           for(int i = 0; i < thread.length; i++){
+               thread[i] = 0;
+           }
+            VTEAProgressBar.setValue(0);
+            ProgressComment.setText(String.format(
+                    "", thread[0]));
+        }
+        if (evt.getPropertyName().equals("3")) {
+            thread[3] =+((Integer)evt.getNewValue());
+            VTEAProgressBar.setValue(thread[3]);
+            ProgressComment.setText(String.format(
+                    "Completed %d%%...\n", thread[3]));
         }
         if (evt.getPropertyName().equals("segmentationDone")) {
             ProgressComment.setText((String) evt.getNewValue());

@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -36,6 +37,7 @@ import static vtea._vtea.getInterleavedStacks;
 import vtea.objects.Segmentation.AbstractSegmentation;
 import vtea.objects.Segmentation.LayerCake3DSingleThreshold;
 import vtea.objects.layercake.microRegion;
+import vtea.objects.layercake.microVolume;
 import vtea.objects.morphology.AbstractMorphology;
 import vteaobjects.MicroObject;
 
@@ -54,7 +56,9 @@ public class SegmentationProcessor extends AbstractProcessor {
     int channelProcess;
 
     private ImageStack[] imageStackArray;
-    private ArrayList volumes;
+    //private ArrayList volumes;
+    
+    List<MicroObject> volumes = Collections.synchronizedList(new ArrayList<MicroObject>());
 
     public SegmentationProcessor() {
 
@@ -242,7 +246,7 @@ public class SegmentationProcessor extends AbstractProcessor {
     }
 
     public ArrayList getObjects() {
-        return volumes;
+        return (ArrayList)volumes;
     }
 
     public ArrayList getProtocol() {
@@ -263,7 +267,8 @@ public class SegmentationProcessor extends AbstractProcessor {
         private int stop;
 
         private ArrayList protocol;
-
+        
+        
         ProcessorForkPool(ArrayList p, int start, int stop) {
 
             this.start = start;
@@ -274,10 +279,11 @@ public class SegmentationProcessor extends AbstractProcessor {
 
         @Override
         protected void compute() {
-
+            
             long processors = Runtime.getRuntime().availableProcessors();
-            processors = 1;
-
+            
+             //System.out.println("PROFILING: Morphology on " + volumes.size() + " objects.");
+          
             long length = volumes.size() / processors;
 
             if (volumes.size() < processors) {
@@ -296,7 +302,7 @@ public class SegmentationProcessor extends AbstractProcessor {
 
         private void doThis() {
 
-            //System.out.println("PROFILING: processing " + MORPHOLOGICALMAP.size() +" morphological filters.");
+            //System.out.println("PROFILING: New thread for object morphology, from " + start +" to " + stop);
             /**
              * segmentation and measurement protocol redefining. 0: title text,
              * 1: method (as String), 2: channel, 3: ArrayList of JComponents
@@ -307,7 +313,9 @@ public class SegmentationProcessor extends AbstractProcessor {
              * morphological determinants 0:Channel 1:Operation 2:Value
              */
             //descriptors for derived volumes
-            int size = volumes.size();
+            
+            firePropertyChange("reset", 0, 0);
+            
             int count = 1;
 
             double progress = 1;
@@ -342,15 +350,20 @@ public class SegmentationProcessor extends AbstractProcessor {
 
                     int volumecount = 1;
 
-                    List sub_volumes = volumes.subList(start, stop);
+                    //List sub_volumes = volumes.subList(start, stop);
+                    
+                    
+                    ListIterator<MicroObject> itr_vol = volumes.listIterator(start);
 
-                    ListIterator<MicroObject> itr_vol = sub_volumes.listIterator();
-
-                    while (itr_vol.hasNext()) {
+                    int i = start;
+                    
+                    
+                    
+                    while (itr_vol.hasNext() && i <= stop){
                         MicroObject obj = new MicroObject();
-                        obj = itr_vol.next();
+                        obj = (MicroObject)itr_vol.next();
 
-                        progress = 100 * ((double) count / (double) size);
+                        progress = 100 * ((double) count / (double) volumes.size());
                         firePropertyChange("progress", 0, ((int) progress));
                         firePropertyChange("comment", key, ("Performing morphological operations...  "));
 
@@ -370,22 +383,16 @@ public class SegmentationProcessor extends AbstractProcessor {
                         int[] y = new int[xAr.size()];
                         int[] z = new int[xAr.size()];
                         
-                        for(int i = 0; i < xAr.size(); i++){
-                            x[i] = xAr.get(i).intValue();
-                            y[i] = yAr.get(i).intValue();
-                            z[i] = zAr.get(i).intValue();
+                        for(int j = 0; j < xAr.size(); j++){
+                            x[j] = xAr.get(j).intValue();
+                            y[j] = yAr.get(j).intValue();
+                            z[j] = zAr.get(j).intValue();
                         }
 
                         obj.setMorphological(String.valueOf(morph), x, y, z);
-                        
-                                 
-
-                        System.out.println("PROFILING: For object " + volumecount + ", of size " + obj.getPixelCount() + ", added morphology " + (String) morphology.get(1) + "  of size: " + x.length);
-               
-                        
                         volumecount++;
                         morph++;
-
+                        i++;
                     }
 
                 } catch (Exception ex) {

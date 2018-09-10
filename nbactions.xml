@@ -15,9 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
--->
-
-<actions>
+--><actions>
     <action>
         <actionName>run</actionName>
         <packagings>
@@ -28,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
         </goals>
         <properties>
-            <exec.args>-Xmx24000m -classpath %classpath vtea._vtea</exec.args>
+            <exec.args>-Xmx64000m -classpath %classpath vtea._vtea</exec.args>
             <exec.executable>java</exec.executable>
         </properties>
     </action>
@@ -42,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
         </goals>
         <properties>
-            <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx24000m -classpath %classpath vtea._vtea</exec.args>
+            <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx64000m -classpath %classpath vtea._vtea</exec.args>
             <exec.executable>java</exec.executable>
             <jpda.listen>true</jpda.listen>
         </properties>
@@ -57,7 +55,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
         </goals>
         <properties>
-            <exec.args>-Xmx24000m -classpath %classpath vtea._vtea</exec.args>
+            <exec.args>-Xmx64000m -classpath %classpath vtea._vtea</exec.args>
             <exec.executable>java</exec.executable>
         </properties>
     </action>

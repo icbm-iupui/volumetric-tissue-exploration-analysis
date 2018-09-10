@@ -68,6 +68,8 @@ public class MeasurementProcessor extends AbstractProcessor {
         description = new ArrayList<>();
         measurements = new ArrayList<>();
         features = OBJECTMEASUREMENTMAP.values();
+        
+        System.out.println("PROFILING: "+objects.size()+" objects to analyze.");
 
         //protocol what does it look like.
 //        for(int i = 0; i < vtea._vtea.OBJECTMEASUREMENTOPTIONS.length; i++){
@@ -178,13 +180,13 @@ public class MeasurementProcessor extends AbstractProcessor {
             }
         }
         
-        System.out.println("PROFILING: analyzing objects...");
+        //System.out.println("PROFILING: analyzing objects...");
         //LOOP through objects
         while (itr_vol.hasNext()) {
 
             MicroObject obj = itr_vol.next();
             
-            //System.out.print("PROFILING: analyzing object..." + progress);
+            //System.out.println("PROFILING: analyzed objects:" + count);
 
             progress = 100 * ((double) count / (double) size);
             firePropertyChange("progress", 0, ((int) progress));
@@ -300,7 +302,7 @@ public class MeasurementProcessor extends AbstractProcessor {
 
                     String str = (String) itr.next();
                     
-                    System.out.println("PROFILING: calculating feature, " + str);
+                    //System.out.println("PROFILING: calculating feature, " + str);
 
                     c = Class.forName(str);
                     Constructor<?> con;
