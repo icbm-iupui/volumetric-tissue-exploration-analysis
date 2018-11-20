@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 import vtea.VTEAModule;
+import vtea.processor.listeners.SegmentationListener;
 import vteaobjects.MicroObject;
 
 /**
@@ -53,14 +54,22 @@ public interface Segmentation extends VTEAModule {
 
     public boolean setOptions(ArrayList al);
     
-    public void setBuildTool(ArrayList al);
+    public void setSegmentationTool(ArrayList al);
      
-    public ArrayList getBuildTool();
+    public JPanel getSegmentationTool();
     
-    public ArrayList getBuildOptions();
+    public ArrayList getSegmentationToolOptions();
     
     public ArrayList getOptions();
     
     public ArrayList getDefaultValues();
+    
+    public void addSegmentationListener(SegmentationListener sl);
+    
+    public void notifySegmentationListener(String str, Double dbl);
+    
+    public void setImage(ImagePlus thresholdPreview);
+    
+    public void updateImage(ImagePlus thresholdPreview);
     
 }

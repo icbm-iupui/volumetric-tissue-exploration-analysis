@@ -122,7 +122,7 @@ public class MicroThresholdAdjuster  implements Measurements,
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         gui.setLayout(gridbag);
-        gui.setPreferredSize(new Dimension(359,300));
+        gui.setPreferredSize(new Dimension(280,300));
         gui.setBackground(vtea._vtea.BACKGROUND);
         
         // plot
@@ -920,6 +920,14 @@ public class MicroThresholdAdjuster  implements Measurements,
 
     public JPanel getPanel(){
         return this.gui;
+    }
+    
+    public int getMax(){
+        return maxSlider.getValue();
+    }
+    
+    public int getMin(){
+        return minSlider.getValue();
     }
 
     @Override

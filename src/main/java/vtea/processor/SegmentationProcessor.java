@@ -40,6 +40,7 @@ import vtea.objects.layercake.microRegion;
 import vtea.objects.layercake.microVolume;
 import vtea.objects.morphology.AbstractMorphology;
 import vteaobjects.MicroObject;
+import static java.util.concurrent.ForkJoinTask.invokeAll;
 
 /**
  *
@@ -146,7 +147,7 @@ public class SegmentationProcessor extends AbstractProcessor {
 
         long end_time = System.currentTimeMillis();
 
-        System.out.println("PROFILING: Morphological operations time: " + (end_time - start_time));
+        System.out.println("PROFILING: Segmentation time: " + (end_time - start_time));
 
         //morphology processor
 //        //System.out.println("PROFILING: Processing " + MORPHOLOGICALMAP.size() +" morphological filters.");

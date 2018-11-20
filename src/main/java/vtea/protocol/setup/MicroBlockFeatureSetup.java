@@ -79,8 +79,8 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         TitleText.setEditable(true);
         
         ChannelSelection.setText("Type of feature");
-        ccbm = new DefaultComboBoxModel(FEATUREGROUPS);
-        ChannelComboBox.setModel(ccbm);
+        channelsComboBox = new DefaultComboBoxModel(FEATUREGROUPS);
+        ChannelComboBox.setModel(channelsComboBox);
         getContentPane().remove(comments);
         getContentPane().remove(this.methodSelection);
         buttonPanel.remove(PreviewButton);
@@ -178,21 +178,21 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         switch (index){
             case 0:
                 ProcessText.setText("Clustering Method");
-                cbm = new DefaultComboBoxModel(CLUSTER.toArray());
+                processComboBox = new DefaultComboBoxModel(CLUSTER.toArray());
                 //ProcessSelectComboBox.setModel(new DefaultComboBoxModel(CLUSTER.toArray()));
                 break;
             case 1:
                 ProcessText.setText("Reduction Method");
-                cbm = new DefaultComboBoxModel(REDUCTION.toArray());
+                processComboBox = new DefaultComboBoxModel(REDUCTION.toArray());
                 //ProcessSelectComboBox.setModel(new DefaultComboBoxModel(REDUCTION.toArray()));
                 break;
             default:
                 ProcessText.setText("Other Method");
-                cbm = new DefaultComboBoxModel(OTHER.toArray());
+                processComboBox = new DefaultComboBoxModel(OTHER.toArray());
                 //ProcessSelectComboBox.setModel(new DefaultComboBoxModel(OTHER.toArray()));
         }
         
-        ProcessSelectComboBox.setModel(cbm);
+        ProcessSelectComboBox.setModel(processComboBox);
         ProcessSelectComboBox.setVisible(true);
         
         updateProcessList();
@@ -262,8 +262,8 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         if(OTHER.isEmpty())
             this.FEATUREGROUPS = ArrayUtils.removeElement(this.FEATUREGROUPS, "Other");
         
-        ccbm = new DefaultComboBoxModel(this.FEATUREGROUPS);
-        ChannelComboBox.setModel(ccbm);
+        channelsComboBox = new DefaultComboBoxModel(this.FEATUREGROUPS);
+        ChannelComboBox.setModel(channelsComboBox);
     }
     
     /**

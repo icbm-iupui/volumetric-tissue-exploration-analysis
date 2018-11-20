@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 import vtea.processor.listeners.ProgressListener;
+import vtea.processor.listeners.SegmentationListener;
 import vteaobjects.MicroObject;
 
 /**
@@ -42,6 +43,8 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     protected String COMMENT = "New functionality";
     protected String NAME = "ND";
     protected String KEY = "ND";
+    
+    ArrayList<SegmentationListener> segmentationlisteners = new ArrayList();
     
     ArrayList<ProgressListener> progresslisteners = new ArrayList();
     
@@ -59,6 +62,8 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     //protected ArrayList<T> protocol = new ArrayList();
     
     protected ArrayList buildtool = new ArrayList();  //right this is where I am...
+    
+    protected ImagePlus imagePreview;
 
     
     @Override
@@ -123,7 +128,7 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     } 
     
     @Override
-    public void setBuildTool(ArrayList al) {
+    public void setSegmentationTool(ArrayList al) {
         
     }
     
@@ -139,12 +144,12 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     }
 
     @Override
-    public ArrayList getBuildTool() {
+    public JPanel getSegmentationTool() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public ArrayList getBuildOptions() {
+    public ArrayList getSegmentationToolOptions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -167,6 +172,32 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
             listener.FireProgressChange(str, db);
         }
      }
+
+    public JPanel getVisualization() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setImage(ImagePlus thresholdPreview) {
+        this.imagePreview = thresholdPreview;  
+    }
+    
+    @Override
+    public void updateImage(ImagePlus thresholdPreview) {
+        this.imagePreview = thresholdPreview;  
+    }
+
+    @Override
+    public void addSegmentationListener(SegmentationListener sl) {
+        segmentationlisteners.add(sl);
+    }
+
+    @Override
+    public void notifySegmentationListener(String str, Double dbl) {
+          for(SegmentationListener listener: segmentationlisteners){
+            listener.updateGui(str, dbl);
+        }
+    }
 
 
 }

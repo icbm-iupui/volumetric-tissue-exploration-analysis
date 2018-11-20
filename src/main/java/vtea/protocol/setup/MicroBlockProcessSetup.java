@@ -94,13 +94,13 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         //subclass specific settings
         TitleText.setText("Processing, Step " + step);
         TitleText.setEditable(false);
-        cbm = new DefaultComboBoxModel(vtea._vtea.PROCESSINGOPTIONS);
-        cbm.setSelectedItem("Select Method");
+        processComboBox = new DefaultComboBoxModel(vtea._vtea.PROCESSINGOPTIONS);
+        processComboBox.setSelectedItem("Select Method");
         MethodDetails.repaint();
         jTextPane1.setText("");
         ProcessText.setText("Method: ");
         ChannelSelection.setText("Channel: ");
-        ProcessSelectComboBox.setModel(cbm);
+        ProcessSelectComboBox.setModel(processComboBox);
         tablePane.setVisible(false);
         secondaryTable.setVisible(false);
         ProcessSelectComboBox.setVisible(true);
@@ -535,8 +535,8 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         
         CurrentProcessList.clear();
 
-        CurrentProcessList.add(cbm.getSelectedItem());
-        CurrentProcessList.add(ccbm.getIndexOf(ccbm.getSelectedItem()));
+        CurrentProcessList.add(processComboBox.getSelectedItem());
+        CurrentProcessList.add(channelsComboBox.getIndexOf(channelsComboBox.getSelectedItem()));
         CurrentProcessList.addAll(ProcessComponents);
 
         return MethodDetails;
@@ -600,7 +600,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             currentSlice = sliceSlider.getValue();
             
             if(CurrentProcessList.size() > 2){
-                CurrentProcessList.set(1,ccbm.getIndexOf(ccbm.getSelectedItem()));
+                CurrentProcessList.set(1,channelsComboBox.getIndexOf(channelsComboBox.getSelectedItem()));
             }
             
             doPreview(currentSlice);

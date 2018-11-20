@@ -22,50 +22,57 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import vteaobjects.MicroObject;
 import vtea.objects.layercake.microVolume;
+import vtea.processor.SegmentationProcessor;
+import vtea.processor.listeners.ProgressListener;
 
 /**
  *
  * @author sethwinfree
  */
 
-public class SegmentationPreviewer implements Runnable  {
+public class SegmentationPreviewer implements Runnable, PropertyChangeListener{
    
     
 ArrayList protocol;
 ImagePlus Image;
+ImagePlus segmentationPreview;
+
+SegmentationProcessor sp;
+
+boolean Preview = false; //or "Done"
+
     
 SegmentationPreviewer(ImagePlus imp, ArrayList al){   
         Image = imp;
-        protocol = al;
+        
+        protocol = al;    
 }
 
 public void SegmentationPreviewFactory(){
         if(checkImage(Image)){
         Roi r = Image.getRoi();
-        MicroExperiment me = new MicroExperiment(); 
-        ImagePlus segmentationPreview = r.getImage().duplicate(); 
-        Image.deleteRoi();
-        
-        ArrayList<ArrayList> protocols = new ArrayList();
-        
-        protocols.add(protocol);
- 
-        me.start(segmentationPreview, protocols, false);
-        
-        makeImage(segmentationPreview, me);
+
+        segmentationPreview = r.getImage().duplicate(); 
+        //Image.deleteRoi();
+
+        sp = new SegmentationProcessor("Preview", segmentationPreview, protocol);
+        sp.addPropertyChangeListener(this);
+        sp.execute(); 
     }
 }
 
 static private boolean checkImage(ImagePlus imp){
     try{
         Roi r = imp.getRoi();
-       ImagePlus segmentationPreview = r.getImage().duplicate();
+       ImagePlus test = r.getImage().duplicate();
         }catch(NullPointerException e){
             JFrame frame = new JFrame();
             frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
@@ -78,18 +85,17 @@ static private boolean checkImage(ImagePlus imp){
     return true; 
 }
 
-static private void makeImage(ImagePlus imp, MicroExperiment me){
+static private void makeImage(ImagePlus imp, ArrayList<MicroObject> objects){
     
     
     ImagePlus resultImage = IJ.createImage("Segmentation Preview", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices()); 
     
     ImageStack resultStack = resultImage.getStack();
     
-    ArrayList<microVolume> volumes = me.getFolderVolumes(0);
-    
-    ListIterator<microVolume> citr = volumes.listIterator();
-    
     int value = 1;
+    
+    ListIterator<MicroObject> citr = objects.listIterator();
+    
     while(citr.hasNext()){
                             MicroObject vol = (MicroObject) citr.next();
                             vol.setColor(value);
@@ -99,7 +105,7 @@ static private void makeImage(ImagePlus imp, MicroExperiment me){
 
         for (int i = 0; i <= imp.getNSlices(); i++) {
                  //System.out.println("PROFILING: generating segmentation image, slice "+ i);
-                 ListIterator<microVolume> itr = volumes.listIterator();
+                 ListIterator<MicroObject> itr = objects.listIterator();
                 while(itr.hasNext()){
                         try {
                             MicroObject vol = (MicroObject) itr.next();
@@ -127,7 +133,16 @@ static private void makeImage(ImagePlus imp, MicroExperiment me){
 
     @Override
     public void run() {
+        Preview = false;
         SegmentationPreviewFactory();
+    }
+
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) { 
+       if (evt.getPropertyName().equals("segmentationDone")) {
+           makeImage(segmentationPreview, sp.getObjects());
+        } 
     }
     
 }

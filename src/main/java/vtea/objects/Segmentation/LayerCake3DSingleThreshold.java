@@ -20,6 +20,7 @@ package vtea.objects.Segmentation;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,7 +39,14 @@ import vtea.objects.layercake.LayerCake3D;
 import vtea.objects.layercake.microRegion;
 import vtea.objects.layercake.microVolume;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
 import vtea.processor.listeners.ProgressListener;
+import vtea.protocol.listeners.ChangeThresholdListener;
+import vtea.protocol.setup.MicroThresholdAdjuster;
+import static java.util.concurrent.ForkJoinTask.invokeAll;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -55,6 +63,7 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
     private  ImagePlus imageResult;
     private  ImageStack stackOriginal;
     protected  ImageStack stackResult;
+    
     private boolean watershedImageJ = true;
     
     private LayerCake3D builderRegions;
@@ -63,6 +72,15 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
     private ArrayList<MicroObject> alVolumes = new ArrayList<MicroObject>();
     private List<microRegion> alRegions = Collections.synchronizedList(new ArrayList<microRegion>());
     private List<microRegion> alRegionsProcessed = Collections.synchronizedList(new ArrayList<microRegion>());
+    
+    int[] settings = {0,5,20,1000}; 
+    
+    JTextFieldLinked f1 = new JTextFieldLinked(String.valueOf(settings[0]), 5);
+    JTextField f2 = new JTextField(String.valueOf(settings[1]), 5);
+    JTextField f3 = new JTextField(String.valueOf(settings[2]), 5);
+    JTextField f4 = new JTextField(String.valueOf(settings[3]), 5);
+    
+    MicroThresholdAdjuster mta;
     
 public LayerCake3DSingleThreshold(){
     VERSION = "0.1";
@@ -73,21 +91,46 @@ public LayerCake3DSingleThreshold(){
     
     protocol = new ArrayList();
     
+            
+            
+            f1.setPreferredSize(new Dimension(20, 30));
+            f1.setMaximumSize(f1.getPreferredSize());
+            f1.setMinimumSize(f1.getPreferredSize());
+            
+            f2.setPreferredSize(new Dimension(20, 30));
+            f2.setMaximumSize(f2.getPreferredSize());
+            f2.setMinimumSize(f2.getPreferredSize());
+            
+            f3.setPreferredSize(new Dimension(20, 30));
+            f3.setMaximumSize(f3.getPreferredSize());
+            f3.setMinimumSize(f3.getPreferredSize());
+            
+            f4.setPreferredSize(new Dimension(20, 30));
+            f4.setMaximumSize(f4.getPreferredSize());
+            f4.setMinimumSize(f4.getPreferredSize());
+    
             protocol.add(new JLabel("Low Threshold"));
-            protocol.add(new JTextField("0"));
+            protocol.add(f1);
             protocol.add(new JLabel("Centroid Offset"));
-            protocol.add(new JTextField("5"));
+            protocol.add(f2);
             protocol.add(new JLabel("Min Vol (vox)"));
-            protocol.add(new JTextField("20"));
+            protocol.add(f3);
             protocol.add(new JLabel("Max Vol (vox)"));
-            protocol.add(new JTextField("1000"));
+            protocol.add(f4);
+            protocol.add(new JCheckBox("Watershed", true));
     
 }    
 
-//    @Override
-//    public JPanel getOptionsPanel() {
-//        
-//    }
+   @Override
+    public void setImage(ImagePlus thresholdPreview) {
+        imagePreview = thresholdPreview;
+     }
+    
+       @Override
+    public void updateImage(ImagePlus thresholdPreview) {
+        imagePreview = thresholdPreview;
+        mta = new MicroThresholdAdjuster(imagePreview);
+     }
 
     @Override
     public ArrayList<MicroObject> getObjects() {
@@ -98,7 +141,19 @@ public LayerCake3DSingleThreshold(){
     public ImagePlus getSegmentation() {
         return this.imageResult;
     }
-
+    
+    @Override
+    public JPanel getSegmentationTool(){
+        JPanel panel = new JPanel();
+        panel.setBackground(vtea._vtea.BACKGROUND);
+        MicroThresholdAdjuster mta = new MicroThresholdAdjuster(imagePreview);
+        mta.addChangeThresholdListener(f1);
+        f1.setText(String.valueOf(mta.getMin()));
+        
+        panel.add(mta.getPanel());
+        return panel;
+    }
+        
     @Override
     public String runImageJMacroCommand(String str) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -142,6 +197,7 @@ public LayerCake3DSingleThreshold(){
         minConstants[2] = Integer.parseInt(((JTextField)(al.get(3))).getText());
         minConstants[0] = Integer.parseInt(((JTextField)(al.get(5))).getText());
         minConstants[1] = Integer.parseInt(((JTextField)(al.get(7))).getText());
+        watershedImageJ = ((JCheckBox)(al.get(8))).isSelected();
         
         int segmentationChannel = (int)protocol.get(2);
                  
@@ -178,6 +234,12 @@ public LayerCake3DSingleThreshold(){
         RegionForkPool rrf = new RegionForkPool(imageResult.getStack(), stackOriginal, 0, stackOriginal.getSize());       
         ForkJoinPool pool = new ForkJoinPool();       
         pool.invoke(rrf);
+        
+        
+        //sort the regions
+        
+        Collections.sort(alRegions, new ZComparator());
+        
 
         //build the volumes
 
@@ -239,9 +301,7 @@ public LayerCake3DSingleThreshold(){
         
         return true;
     }
-    
 
-    
     private double lengthCart(double[] position, double[] reference_pt) {
         double distance;
         double part0 = position[0] - reference_pt[0];
@@ -291,6 +351,11 @@ public LayerCake3DSingleThreshold(){
                 i++;
             }
         }
+
+  
+
+
+            
     
     class ZComparator implements Comparator<microRegion> {
 
@@ -433,6 +498,7 @@ public LayerCake3DSingleThreshold(){
             }
             return ret;
         }
+       
 
         @Override
         protected void compute() {
@@ -453,6 +519,28 @@ public LayerCake3DSingleThreshold(){
                 defineRegions();
                 setRegions();
             }
+        }
+    }
+    
+    public class JTextFieldLinked extends JTextField implements ChangeThresholdListener {
+        
+        JTextFieldLinked(String str, int i){
+            super(str, i);
+        }
+
+        @Override
+        public void thresholdChanged(double min, double max) {
+        double ipmin = imagePreview.getProcessor().getMin();
+        double ipmax = imagePreview.getProcessor().getMax();
+
+        min = ipmin + (min / 255.0) * (ipmax - ipmin);
+        max = ipmin + (max / 255.0) * (ipmax - ipmin);
+        
+        //System.out.println("PROFILING: threshold minimum changes to: " + String.valueOf(Math.round(min)));
+        
+        f1.setText(""+String.valueOf(Math.round(min)));
+        
+
         }
     }
 }

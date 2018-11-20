@@ -148,6 +148,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                         if (path.contains(xValue, yValue)) {
                             result.add((MicroObject) objects.get(i));
                         }
+                        
+                        System.out.println("PROFILING: Searching for included objects...  at object: " + i);
                     }
 
                 } catch (NullPointerException e) {
@@ -161,7 +163,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
                 ImageStack gateOverlay = new ImageStack(impoverlay.getWidth(), impoverlay.getHeight());
 
-                selected = getSelectedObjects();
+                selected = result.size();
 
                 total = volumes.size();
 
