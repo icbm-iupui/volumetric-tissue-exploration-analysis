@@ -318,7 +318,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
     }//GEN-LAST:event_ImageTabsMouseReleased
 
     private void ImageTabsKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ImageTabsKeyPressed
-        System.out.println("PROFILING... Key event: " + evt.getKeyCode());
+        
         
         
         if (evt.getKeyCode() ==  KeyEvent.VK_DELETE) {

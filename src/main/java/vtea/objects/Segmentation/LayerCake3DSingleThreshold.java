@@ -41,12 +41,11 @@ import vtea.objects.layercake.microVolume;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import vtea.processor.listeners.ProgressListener;
+
 import vtea.protocol.listeners.ChangeThresholdListener;
 import vtea.protocol.setup.MicroThresholdAdjuster;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+
 
 /**
  *
@@ -65,10 +64,7 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
     protected  ImageStack stackResult;
     
     private boolean watershedImageJ = true;
-    
-    private LayerCake3D builderRegions;
-    private LayerCake3D builderVolumes;
-    
+
     private ArrayList<MicroObject> alVolumes = new ArrayList<MicroObject>();
     private List<microRegion> alRegions = Collections.synchronizedList(new ArrayList<microRegion>());
     private List<microRegion> alRegionsProcessed = Collections.synchronizedList(new ArrayList<microRegion>());

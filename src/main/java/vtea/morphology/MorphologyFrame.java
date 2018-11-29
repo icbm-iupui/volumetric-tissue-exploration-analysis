@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.feature;
+package vtea.morphology;
 
 import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.protocol.listeners.RebuildPanelListener;
@@ -27,30 +27,32 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Collections;
 import javax.swing.JOptionPane;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.processor.FeatureProcessor;
+import vtea.protocol.blockstepgui.MorphologyStepBlockGUI;
 import vtea.protocol.listeners.DeleteBlockListener;
+import vtea.protocol.listeners.MorphologyFrameListener;
 
 /**
  * Window for analysis methods. Keeps track of analysis methods that are added 
  * and removed and submits the methods with parameters to get results. 
  * @author drewmcnutt
  */
-public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
+public class MorphologyFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
     
-    protected ArrayList<FeatureStepBlockGUI> FeatureStepsList;
+    protected ArrayList<MorphologyStepBlockGUI> MorphologicalStepsList;
+    ArrayList channels;
     ArrayList descriptions;
     double[][] features;
     int nvol;           //number of volumes
     
     ArrayList<AddFeaturesListener> listeners = new ArrayList<AddFeaturesListener>();
     
-    protected GridLayout FeatureLayout = new GridLayout(4, 1, 0, 0);
+    ArrayList<MorphologyFrameListener> morphologylisteners = new ArrayList<MorphologyFrameListener>();
+    
+    protected GridLayout MorphologyLayout = new GridLayout(4, 1, 0, 0);
 
     /**
      * Constructor.
@@ -58,27 +60,13 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
      * @param descriptions
      * @param table 
      */
-    public FeatureFrame(ArrayList descriptions, double[][] table) {
-        
-        //ArrayList pos = new ArrayList();
-        
-        this.descriptions = new ArrayList<String>();
-        
-        this.descriptions.add("PosX");
-        this.descriptions.add("PosY");
-        this.descriptions.add("PosZ");
 
-       
-        this.descriptions.addAll(descriptions);
-        
-        this.features = table;
-        this.nvol = table.length;
-                
-        this.FeatureStepsList = new ArrayList<>();
-        
+
+    public MorphologyFrame(ArrayList channels) {
+        MorphologicalStepsList = new ArrayList<MorphologyStepBlockGUI>();
+        this.channels = channels;
         initComponents();
-        FeatureStepsPanel.setLayout(FeatureLayout);
-        
+        MorphologicalStepsPanel.setLayout(MorphologyLayout);
     }
 
     /**
@@ -101,7 +89,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         jPanel2 = new javax.swing.JPanel();
         exploreText = new javax.swing.JLabel();
         Feature_Panel = new javax.swing.JPanel();
-        FeatureStepsPanel = new javax.swing.JPanel();
+        MorphologicalStepsPanel = new javax.swing.JPanel();
         FeatureGo = new javax.swing.JButton();
         ProgressPanel = new javax.swing.JPanel();
         FeatureComment = new javax.swing.JLabel();
@@ -136,21 +124,20 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         Feature_Header.setPreferredSize(new java.awt.Dimension(440, 36));
         Feature_Header.setLayout(new java.awt.GridBagLayout());
 
-        AnalyzeDataText.setText("Analyze Data...");
-        AnalyzeDataText.setMaximumSize(new java.awt.Dimension(120, 16));
-        AnalyzeDataText.setMinimumSize(new java.awt.Dimension(100, 16));
-        AnalyzeDataText.setPreferredSize(new java.awt.Dimension(100, 16));
+        AnalyzeDataText.setText("Process...");
+        AnalyzeDataText.setMinimumSize(new java.awt.Dimension(40, 16));
+        AnalyzeDataText.setRequestFocusEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         Feature_Header.add(AnalyzeDataText, gridBagConstraints);
 
         FeatureLabel.setBackground(new java.awt.Color(0, 0, 0));
         FeatureLabel.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        FeatureLabel.setText("Feature");
+        FeatureLabel.setText("Morphology");
         FeatureLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        FeatureLabel.setMaximumSize(new java.awt.Dimension(150, 28));
-        FeatureLabel.setMinimumSize(new java.awt.Dimension(150, 28));
-        FeatureLabel.setPreferredSize(new java.awt.Dimension(90, 28));
+        FeatureLabel.setMaximumSize(new java.awt.Dimension(200, 28));
+        FeatureLabel.setMinimumSize(new java.awt.Dimension(120, 28));
+        FeatureLabel.setPreferredSize(new java.awt.Dimension(140, 28));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -205,9 +192,8 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         exploreText.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         exploreText.setForeground(new java.awt.Color(153, 153, 153));
         exploreText.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        exploreText.setText("...explore");
         exploreText.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        exploreText.setPreferredSize(new java.awt.Dimension(85, 40));
+        exploreText.setPreferredSize(new java.awt.Dimension(20, 40));
         exploreText.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         Feature_Header.add(exploreText, new java.awt.GridBagConstraints());
 
@@ -228,22 +214,22 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         Feature_Panel.setPreferredSize(new java.awt.Dimension(440, 300));
         Feature_Panel.setRequestFocusEnabled(false);
 
-        FeatureStepsPanel.setBackground(vtea._vtea.ACTIONPANELBACKGROUND);
-        FeatureStepsPanel.setPreferredSize(new java.awt.Dimension(160, 245));
+        MorphologicalStepsPanel.setBackground(vtea._vtea.ACTIONPANELBACKGROUND);
+        MorphologicalStepsPanel.setPreferredSize(new java.awt.Dimension(160, 245));
 
-        javax.swing.GroupLayout FeatureStepsPanelLayout = new javax.swing.GroupLayout(FeatureStepsPanel);
-        FeatureStepsPanel.setLayout(FeatureStepsPanelLayout);
-        FeatureStepsPanelLayout.setHorizontalGroup(
-            FeatureStepsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout MorphologicalStepsPanelLayout = new javax.swing.GroupLayout(MorphologicalStepsPanel);
+        MorphologicalStepsPanel.setLayout(MorphologicalStepsPanelLayout);
+        MorphologicalStepsPanelLayout.setHorizontalGroup(
+            MorphologicalStepsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 360, Short.MAX_VALUE)
         );
-        FeatureStepsPanelLayout.setVerticalGroup(
-            FeatureStepsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        MorphologicalStepsPanelLayout.setVerticalGroup(
+            MorphologicalStepsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 245, Short.MAX_VALUE)
         );
 
         FeatureGo.setBackground(vtea._vtea.BUTTONBACKGROUND);
-        FeatureGo.setText("Find Features");
+        FeatureGo.setText("Done");
         FeatureGo.setToolTipText("Find segmented objects.");
         FeatureGo.setEnabled(false);
         FeatureGo.addActionListener(new java.awt.event.ActionListener() {
@@ -263,14 +249,14 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
                         .addComponent(FeatureGo, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(Feature_PanelLayout.createSequentialGroup()
                         .addGap(36, 36, 36)
-                        .addComponent(FeatureStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(MorphologicalStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(44, Short.MAX_VALUE))
         );
         Feature_PanelLayout.setVerticalGroup(
             Feature_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Feature_PanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(FeatureStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(MorphologicalStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(FeatureGo)
                 .addContainerGap(68, Short.MAX_VALUE))
@@ -311,25 +297,27 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
      * @param evt clicking of AddStep button
      */
     private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
-        //this.setVisible(false);
-        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,FeatureStepsList.size() + 1, descriptions, nvol);
+        
+
+        MorphologicalStepsPanel.repaint();
+        
+        MorphologyStepBlockGUI block = new MorphologyStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,MorphologicalStepsList.size() + 1, channels);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
         //this.notifyRepaintFeatureListeners();
-        
-        FeatureStepsPanel.setLayout(FeatureLayout);
-        FeatureStepsPanel.add(block.getPanel());
-        FeatureStepsPanel.repaint();
-        //this.repaint();
-        FeatureStepsList.add(block);
 
-        if (FeatureStepsList.size() <= 2) {
+        MorphologicalStepsPanel.add(block.getPanel());
+        MorphologicalStepsPanel.repaint();
+        
+        MorphologicalStepsList.add(block);
+
+        if (MorphologicalStepsList.size() <= 2) {
             AddStep.setEnabled(true);
         }
-        if (FeatureStepsList.size() >= 4) {
+        if (MorphologicalStepsList.size() >= 4) {
             AddStep.setEnabled(false);
         }
-        if (!FeatureStepsList.isEmpty()){
+        if (!MorphologicalStepsList.isEmpty()){
             DeleteAllSteps.setEnabled(true);
         }
         repaintFeature();
@@ -343,13 +331,13 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
      * @param evt clicking of DeleteAll button
      */
     private void DeleteAllStepsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteAllStepsActionPerformed
-        FeatureStepsList.clear();
-        FeatureStepsPanel.removeAll();
+        MorphologicalStepsList.clear();
+        MorphologicalStepsPanel.removeAll();
         AddStep.setEnabled(true);
         DeleteAllSteps.setEnabled(false);
         FeatureGo.setEnabled(false);
         VTEAProgressBar.setValue(0);
-        FeatureStepsPanel.repaint();
+        MorphologicalStepsPanel.repaint();
         //pack();
     }//GEN-LAST:event_DeleteAllStepsActionPerformed
     
@@ -359,7 +347,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
      */
     private void FeatureGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FeatureGoActionPerformed
         
-        findFeatures();
+        addMorphology();
         VTEAProgressBar.setValue(0);
         
     }//GEN-LAST:event_FeatureGoActionPerformed
@@ -385,7 +373,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
     @Override
     public void deleteBlock(int type, int position) {
         this.deleteFeatureStep(position);
-        if (FeatureStepsList.isEmpty()){
+        if (MorphologicalStepsList.isEmpty()){
             FeatureGo.setEnabled(false);
         }
     }
@@ -440,9 +428,9 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
     public javax.swing.JLabel FeatureComment;
     public javax.swing.JButton FeatureGo;
     private javax.swing.JLabel FeatureLabel;
-    public javax.swing.JPanel FeatureStepsPanel;
     private javax.swing.JPanel Feature_Header;
     private javax.swing.JPanel Feature_Panel;
+    public javax.swing.JPanel MorphologicalStepsPanel;
     private javax.swing.JPanel ProgressPanel;
     public javax.swing.JProgressBar VTEAProgressBar;
     private javax.swing.JLabel exploreText;
@@ -454,12 +442,12 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
      * Reconstruct the blocks.
      */
     public void RebuildPanelFeature() {
-        FeatureStepBlockGUI sb;
-        ListIterator litr = FeatureStepsList.listIterator();
+        MorphologyStepBlockGUI sb;
+        ListIterator litr = MorphologicalStepsList.listIterator();
         while (litr.hasNext()) {
-            sb = (FeatureStepBlockGUI) litr.next();
-            sb.setPosition(FeatureStepsList.indexOf(sb) + 1);
-            FeatureStepsPanel.add(sb.getPanel());   
+            sb = (MorphologyStepBlockGUI) litr.next();
+            sb.setPosition(MorphologicalStepsList.indexOf(sb) + 1);
+            MorphologicalStepsPanel.add(sb.getPanel());   
         }
     }
     
@@ -472,11 +460,11 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
 
         ArrayList<ArrayList> Result = new ArrayList<>();
         
-        FeatureStepBlockGUI fsb;
+        MorphologyStepBlockGUI msb;
         ListIterator<Object> litr = sb_al.listIterator();
         while (litr.hasNext()) {
-            fsb = (FeatureStepBlockGUI) litr.next();
-            Result.add(fsb.getVariables());
+            msb = (MorphologyStepBlockGUI) litr.next();
+            Result.add(msb.getVariables());
         }
 
         return Result;
@@ -486,8 +474,17 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
      * Retrieve all of the steps.
      * @return list of all of the steps
      */
-    public ArrayList getFeatureSteps() {
-        return this.FeatureStepsList;
+    public ArrayList<ArrayList> getMorphologies() {        
+        ArrayList<ArrayList> result = new ArrayList<ArrayList>();      
+        ListIterator<MorphologyStepBlockGUI> itr = MorphologicalStepsList.listIterator();       
+        while(itr.hasNext()){
+            ArrayList<ArrayList> settings = itr.next().getVariables();
+            ListIterator<ArrayList> itr_settings = settings.listIterator(); 
+            while(itr_settings.hasNext()){
+                result.add(itr_settings.next());
+            }  
+        }
+        return result;
     }
     
     /**
@@ -497,43 +494,33 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
     private void deleteFeatureStep(int position) {
 
         //remove from FeatureStepsList
-        FeatureStepsList.remove(position - 1);
-        FeatureStepsList.trimToSize();
+        MorphologicalStepsList.remove(position - 1);
+        MorphologicalStepsList.trimToSize();
         
-        FeatureStepsPanel.removeAll();
-        FeatureStepsPanel.setLayout(FeatureLayout);
+        MorphologicalStepsPanel.removeAll();
+        MorphologicalStepsPanel.setLayout(MorphologyLayout);
         
-        if (FeatureStepsList.size() < 0) {
+        if (MorphologicalStepsList.size() < 0) {
         } else {
             RebuildPanelFeature();
         }
 
-        if (FeatureStepsList.size() < 4) {
+        if (MorphologicalStepsList.size() < 4) {
             AddStep.setEnabled(true);
         }
-        if(FeatureStepsList.isEmpty()){
+        if(MorphologicalStepsList.isEmpty()){
             DeleteAllSteps.setEnabled(false);
         }
 
-        FeatureStepsPanel.repaint();
+        MorphologicalStepsPanel.repaint();
         pack();
 
     }
     
-    /**
-     * Starts the analysis of the features.
-     */
-    private void findFeatures(){
-        FeatureComment.setText("Finding features...");
-        ArrayList<ArrayList> protocol = new ArrayList<>();
-        //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
-        protocol = extractSteps(FeatureStepsList);
-        
-        FeatureProcessor fp = new FeatureProcessor(features, protocol);
-        fp.addPropertyChangeListener(this);
-        fp.addListener(this);
-        fp.execute();
-        
+
+    private void addMorphology(){
+        notifyMorphologyListeners(getMorphologies()); 
+        setVisible(false);
     }
     
     private ArrayList<Integer> examineColumns(){
@@ -647,6 +634,16 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
     private void notifyListeners(String name, ArrayList<ArrayList<Number>> result) {
         for (AddFeaturesListener listener : listeners) {
             listener.addFeatures(name , result);
+        }
+    }
+    
+    public void addMorphologyListener(MorphologyFrameListener listener) {
+        morphologylisteners.add(listener);
+    }
+
+    private void notifyMorphologyListeners(ArrayList<ArrayList> result) {
+        for (MorphologyFrameListener listener : morphologylisteners) {
+            listener.addMorphology(result);
         }
     }
 }

@@ -29,10 +29,13 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import static java.lang.Thread.MAX_PRIORITY;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
@@ -48,43 +51,38 @@ import javax.swing.JTextField;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import static vtea._vtea.SEGMENTATIONMAP;
+import vtea.morphology.MorphologyFrame;
 import vtea.objects.Segmentation.AbstractSegmentation;
 import vtea.processor.ImageProcessingProcessor;
 import vtea.processor.listeners.SegmentationListener;
+import vtea.protocol.listeners.MorphologyFrameListener;
 
 /**
  *
  * @author vinfrais
  */
-public final class MicroBlockObjectSetup extends MicroBlockSetup implements SegmentationListener, ImageListener, RoiListener {
+public final class MicroBlockObjectSetup extends MicroBlockSetup implements ActionListener, SegmentationListener, MorphologyFrameListener, ImageListener, RoiListener {
 
     public static String getMethod(int i) {
         return null;
     }
 
-    private DefaultCellEditor channelEditor = new DefaultCellEditor(new channelNumber());
-    private DefaultCellEditor analysisEditor = new DefaultCellEditor(new analysisType());
-    //private SpinnerEditor thresEditor = new SpinnerEditor();
+//    private DefaultCellEditor channelEditor = new DefaultCellEditor(new channelNumber());
+//    private DefaultCellEditor analysisEditor = new DefaultCellEditor(new analysisType());
     
-    private Object[] columnTitles = {"Channel", "Method", "Distance(px)"};
+   
+    private Object[] columnTitles = {"Channel", "Method"};
 
-    private boolean[] canEditColumns = new boolean[]{true, true, true, true};
+    private boolean[] canEditColumns = new boolean[]{false, false};
     private TableColumn channelColumn;
     private TableColumn analysisColumn;
     
     private AbstractSegmentation Approach;
-
-    private Object[][] CellValues = {
-        {"Channel_1", "Grow", 2},
-        {"Channel_2", "Grow", 2},
-        {"Channel_3", "Grow", 2},
-        {null, null, null},
-        {null, null, null},
-        {null, null, null},
-        {null, null, null},
-        {null, null, null},
-        {null, null, null}};
-
+    
+    private ArrayList<ArrayList> Morphology;
+    
+    private MorphologyFrame MorphologyMenu;
+    
     MicroThresholdAdjuster mta;
 
     ImagePlus ThresholdOriginal = new ImagePlus();
@@ -93,6 +91,11 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Segm
     public MicroBlockObjectSetup(int step, ArrayList Channels, ImagePlus imp) {
 
         super(step, Channels);
+        
+        MorphologyMenu = new MorphologyFrame(Channels);
+        MorphologyMenu.addMorphologyListener(this);
+        
+        Morphology = new ArrayList<ArrayList>();
         
         //setup the image
         
@@ -126,10 +129,21 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Segm
 
         comments.remove(notesPane);
         comments.remove(tablePane);
-        comments.add(new JButton("Morphology Settings"));
+        
+        JButton MorphologyButton = new JButton("Morphology Settings");
+        MorphologyButton.setActionCommand("morphology");
+        MorphologyButton.addActionListener(this);
+        MorphologyButton.setToolTipText("Morphology settings for measurements");
+        
+        comments.add(MorphologyButton);
+        
+        
+        
+        
+          
         tablePane.setVisible(true);
 
-        CellValues = makeDerivedRegionTable();
+        Object[][] CellValues = makeDerivedRegionTable();
 
         secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
                 CellValues,
@@ -146,11 +160,13 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Segm
         channelColumn = secondaryTable.getColumnModel().getColumn(0);
         analysisColumn = secondaryTable.getColumnModel().getColumn(1);
 
-        channelColumn.setCellEditor(channelEditor);
-        analysisColumn.setCellEditor(analysisEditor);
+//        channelColumn.setCellEditor(channelEditor);
+//        analysisColumn.setCellEditor(analysisEditor);
 
         PreviewButton.setVisible(true);
         PreviewButton.setEnabled(true);
+        
+        secondaryTable.setVisible(true);
 
         repaint();
         pack();
@@ -380,11 +396,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Segm
         this.ThresholdOriginal = imp;
         ThresholdPreview = getThresholdPreview();
         IJ.run(ThresholdPreview, "Grays", "");
-
-        //ThresholdPreview.updateImage();
-
-        //mta.setImagePlus(ThresholdPreview);
-        //mta.doUpdate();
     }
 
     private void updateProcessVariables() {
@@ -454,13 +465,18 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Segm
         result.add(Comps);
         
         ArrayList<ArrayList> Measures = new ArrayList();
+        
+        //MORPHOLOGY GETS IN HERE
+        //This is where we need to hand off the morphology settings.  this will
+        //follow all the way through to the Segemntation Processor
+        
+        // ArrayList for morphology:  0: method(as String), 1: channel, 
+        // 2: ArrayList of JComponents for method
 
-            for (int i = 0; i < secondaryTable.getRowCount(); i++) {
-                ArrayList alDerived = new ArrayList();
-                alDerived.add(getChannelIndex(secondaryTable.getValueAt(i, 0).toString()));
-                alDerived.add(getAnalysisTypeInt(i, secondaryTable.getModel()));
-                alDerived.add(secondaryTable.getValueAt(i, 2).toString());
-                Measures.add(alDerived);
+            for (int i = 0; i < Morphology.size(); i++) {
+                ArrayList Morphological = new ArrayList();
+                Morphological = Morphology.get(i);
+                Measures.add(Morphological);
             }
         
         result.add(Measures);
@@ -578,6 +594,23 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Segm
         MethodDetails.setVisible(true);
         pack();
      }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {       
+        if(e.getActionCommand().equals("morphology")){ 
+            this.MorphologyMenu.setVisible(true);
+        }      
+    }
+
+    @Override
+    public void addMorphology(ArrayList<ArrayList> morphologies) {
+       Morphology.clear();
+       ListIterator<ArrayList> itr = morphologies.listIterator();
+       while(itr.hasNext()){
+           ArrayList morphology = itr.next(); 
+           Morphology.add(morphology);
+       }
+    }
 
     private class channelNumber extends javax.swing.JComboBox {
 

@@ -48,6 +48,7 @@ import vtea.protocol.ProtocolManagerMulti;
 import vtea.services.FeatureService;
 import vtea.services.FileTypeService;
 import vtea.services.ImageProcessingService;
+import vtea.services.LUTService;
 import vtea.services.MorphologicalFilterService;
 import vtea.services.ObjectMeasurementService;
 import vtea.services.ProcessorService;
@@ -79,6 +80,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static String[] OBJECTMEASUREMENTOPTIONS; 
     public static String[] MORPHOLOGICALOPTIONS;
     public static String[] FEATUREOPTIONS;
+    public static String[] LUTOPTIONS;
     
     public static ConcurrentHashMap<String, String> PROCESSINGMAP;
     public static ConcurrentHashMap<String, String> SEGMENTATIONMAP;
@@ -88,6 +90,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static ConcurrentHashMap<String, String> OBJECTMEASUREMENTMAP;
     public static ConcurrentHashMap<String, String> MORPHOLOGICALMAP;
     public static ConcurrentHashMap<String, String> FEATUREMAP;
+    public static ConcurrentHashMap<String, String> LUTMAP;
   
     
     public ProtocolManagerMulti protocolWindow;
@@ -141,6 +144,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 OBJECTMEASUREMENTMAP = new ConcurrentHashMap<String, String>();
                 MORPHOLOGICALMAP = new ConcurrentHashMap<String, String>(); 
                 FEATUREMAP = new ConcurrentHashMap<String, String>(); 
+                LUTMAP = new ConcurrentHashMap<String, String>(); 
                 
                 FileTypeService fts = new FileTypeService(context); 
                 
@@ -157,6 +161,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 ObjectMeasurementService oms = new ObjectMeasurementService(context);
                 
                 MorphologicalFilterService mfs = new MorphologicalFilterService(context);
+                
+                LUTService lfs = new LUTService(context);
                 
                
                 //ObjectAnalysisService oas = new ObjectAnalysisService();
@@ -190,6 +196,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 List<String> fs_names = fs.getNames();
                 List<String> fs_qualifiedNames = fs.getQualifiedName();
                 
+                List<String> lfs_names = lfs.getNames();
+                List<String> lfs_qualifiedNames = lfs.getQualifiedName();
+                
                 //List<String> oas_names = oas.getNames();
                 //List<String> oas_qualifiedNames = oas.getQualifiedName();
                 
@@ -207,6 +216,24 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 
                 //List<String> ss_names = ss.getNames();
                 //List<String> ss_namesames = ss.getQualifiedName();
+                
+                
+                
+                System.out.println("Loading LUT Plugins: ");
+                //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
+                
+                LUTOPTIONS = lfs_names.toArray(new String[lfs_names.size()]);
+                
+                for(int i = 0; i < lfs_names.size(); i++){
+                    try {
+                        Object o = Class.forName(lfs_qualifiedNames.get(i)).newInstance();
+                        System.out.println("Loaded: " + o.getClass().getName()); 
+                        //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
+                        LUTMAP.put(LUTOPTIONS[i], o.getClass().getName());
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                        Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
                 
                 System.out.println("Loading FileType Plugins: ");
                 //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");

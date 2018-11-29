@@ -144,6 +144,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(110, 160, 378, 282));
+        setMaximumSize(new java.awt.Dimension(378, 750));
         setMinimumSize(vtea._vtea.BLOCKSETUP);
         setName("BlockOptionFrame"); // NOI18N
         setSize(new java.awt.Dimension(378, 282));
@@ -229,6 +230,9 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         comments.setLayout(new javax.swing.BoxLayout(comments, javax.swing.BoxLayout.LINE_AXIS));
 
         notesPane.setBackground(vtea._vtea.BACKGROUND);
+        notesPane.setMaximumSize(new java.awt.Dimension(340, 300));
+        notesPane.setMinimumSize(new java.awt.Dimension(340, 200));
+        notesPane.setPreferredSize(new java.awt.Dimension(340, 200));
         notesPane.setLayout(new java.awt.BorderLayout(10, 0));
 
         jLabel3.setText("Notes");
@@ -270,7 +274,8 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         tablePane.add(secondaryObjects, gridBagConstraints);
 
-        tableScrollPane.setMinimumSize(new java.awt.Dimension(360, 90));
+        tableScrollPane.setMaximumSize(new java.awt.Dimension(360, 220));
+        tableScrollPane.setMinimumSize(new java.awt.Dimension(360, 220));
         tableScrollPane.setPreferredSize(new java.awt.Dimension(360, 220));
 
         secondaryTable.setModel(new javax.swing.table.DefaultTableModel(

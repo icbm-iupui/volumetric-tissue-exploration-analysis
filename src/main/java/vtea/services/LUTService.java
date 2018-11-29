@@ -15,30 +15,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.objects.morphology;
+package vtea.services;
 
-import java.awt.Image;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import vtea.VTEAModule;
+
+import org.scijava.Context;
+import org.scijava.plugin.Plugin;
+import org.scijava.service.Service;
+import vtea.featureprocessing.FeatureProcessing;
+import vtea.lut.LUT;
+
 
 /**
  *
- * @author sethwinfree
+ * @author Drew
  */
-public interface Morphology extends VTEAModule{
+@Plugin(type = Service.class)
+public class LUTService extends AbstractService<LUT>{
     
-    public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, List<JComponent> protocol, String operation, String arg);
-    
-    public Image getExamples(); 
-    
-    public JPanel getMorphologicalTool();
-    
-    public ArrayList getOptions();
-    
-    public ArrayList getSettings();
-    
-    public String getUID();
+    public LUTService(Context context) {
+        super(LUT.class, context);
+    } 
 }
+

@@ -41,6 +41,7 @@ import vtea.objects.layercake.microVolume;
 import vtea.objects.morphology.AbstractMorphology;
 import vteaobjects.MicroObject;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
+import javax.swing.JComponent;
 
 /**
  *
@@ -57,7 +58,6 @@ public class SegmentationProcessor extends AbstractProcessor {
     int channelProcess;
 
     private ImageStack[] imageStackArray;
-    //private ArrayList volumes;
     
     List<MicroObject> volumes = Collections.synchronizedList(new ArrayList<MicroObject>());
 
@@ -135,7 +135,13 @@ public class SegmentationProcessor extends AbstractProcessor {
             ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false);
 
             volumes = ((AbstractSegmentation) iImp).getObjects();
+            
+           
+             
+
+            
         } catch (Exception ex) {
+            System.out.println("EXCEPTION: Error in object segmentation... ");
 
         }
 
@@ -147,91 +153,8 @@ public class SegmentationProcessor extends AbstractProcessor {
 
         long end_time = System.currentTimeMillis();
 
-        System.out.println("PROFILING: Segmentation time: " + (end_time - start_time));
+        System.out.println("PROFILING: Segmentation time: " + (end_time - start_time) + " ms.");
 
-        //morphology processor
-//        //System.out.println("PROFILING: Processing " + MORPHOLOGICALMAP.size() +" morphological filters.");
-//        Collection values = MORPHOLOGICALMAP.values();
-//
-//        //System.out.println("PROFILING: processing " + MORPHOLOGICALMAP.size() +" morphological filters.");
-//        Iterator<String> itr = values.iterator();
-//
-//        iImp = new Object();
-//
-//        while (itr.hasNext()) {
-//
-//            try {
-//                Class<?> c;
-//
-//                String str = (String) itr.next();
-//
-//                c = Class.forName(str);
-//                Constructor<?> con;
-//                try {
-//                    con = c.getConstructor();
-//                    iImp = con.newInstance();
-//
-//                    //System.out.println("PROFILING: Instance of " + str + ", created.");
-//                } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-//                    System.out.println("EXCEPTION: new instance decleration error... ");
-//                }
-//
-//            } catch (NullPointerException | ClassNotFoundException ex) {
-//                System.out.println("EXCEPTION: new class decleration error... ");
-//            }
-//            try {
-//                //LOOP THROUGH ALL MICROOBJECTS with MorphologyProcessor.
-//                //this is hardwired for mask only and GUI is NOT considered
-//                ListIterator<MicroObject> itr_vol = volumes.listIterator();
-//
-//                int size = volumes.size();
-//                int count = 1;
-//
-//                double progress = 1;
-//
-//                MicroObject obj;
-//                ArrayList<ArrayList<Number>> result;
-//                int morph = 0;
-//
-//                while (itr_vol.hasNext()) {
-//                    obj = itr_vol.next();
-//
-//                    progress = 100 * ((double) count / (double) size);
-//                    firePropertyChange("progress", 0, ((int) progress));
-//                    firePropertyChange("comment", key, ("Performing morphological operations...  "));
-//
-//                    count++;
-//
-//                    result = ((AbstractMorphology) iImp).process(obj.getPixelsX(), obj.getPixelsY(), obj.getPixelsZ(), "", "1");
-//
-//                    ListIterator<ArrayList<Number>> itr_der = result.listIterator();
-//
-//                    int voxel = 0;
-//                    int[] x = new int[result.size()];
-//                    int[] y = new int[result.size()];
-//                    int[] z = new int[result.size()];
-//
-//                    ArrayList<Integer> xAr = new ArrayList();
-//                    ArrayList<Integer> yAr = new ArrayList();
-//                    ArrayList<Integer> zAr = new ArrayList();
-//
-//                    while (itr_der.hasNext()) {
-//                        ArrayList<Number> positions = itr_der.next();
-//                        xAr.add((Integer) positions.get(0));
-//                        yAr.add((Integer) positions.get(1));
-//                        zAr.add((Integer) positions.get(2));
-//                    }
-//
-//                    obj.setMorphological(String.valueOf(morph), xAr, yAr, zAr);
-//
-//                    morph++;
-//
-//                }
-//
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        }
         firePropertyChange("progress", 0, 100);
         firePropertyChange("segmentationDone", key, "Segmentation done...  ");
     }
@@ -303,15 +226,14 @@ public class SegmentationProcessor extends AbstractProcessor {
 
         private void doThis() {
 
-            //System.out.println("PROFILING: New thread for object morphology, from " + start +" to " + stop);
-            /**
+              /**
              * segmentation and measurement protocol redefining. 0: title text,
              * 1: method (as String), 2: channel, 3: ArrayList of JComponents
              * used for analysis 4: ArrayList of Arraylist for morphology
              * determination
-             */
-            /**
-             * morphological determinants 0:Channel 1:Operation 2:Value
+             * 
+             // ArrayList for morphology:  0: method(as String), 1: channel, 
+             // 2: ArrayList of JComponents for method
              */
             //descriptors for derived volumes
             
@@ -320,24 +242,45 @@ public class SegmentationProcessor extends AbstractProcessor {
             int count = 1;
 
             double progress = 1;
+            
+            
 
             ArrayList<ArrayList> morphologies = (ArrayList) protocol.get(4);
-
-            Iterator itr = morphologies.iterator();
+            
+             Iterator<ArrayList> itr = morphologies.iterator();
 
             Object iImp = new Object();
+            
+            
 
             while (itr.hasNext()) {
 
-                ArrayList morphology = (ArrayList) itr.next();
+                ArrayList morphology = (ArrayList)itr.next();
+                
+                 
 
-                String arg = (String) morphology.get(2);
+                int channel = (int)morphology.get(1);
+                
+                    
+                
+                //components for method approach
+                
+                
+                ArrayList<JComponent> components = (ArrayList<JComponent>)morphology.get(2);
+                
+                //System.out.println("PROFILING: Morphological processing: " + (String) morphology.get(0) + ", on " + volumes.size() + " volumes.");
+                
+                
 
                 try {
 
                     Class<?> c;
+                    
+                    //method name for class generation
 
-                    String str = (String) morphology.get(1);
+                    String str = (String) morphology.get(0);
+                    
+                    
 
                     c = Class.forName(MORPHOLOGICALMAP.get(str));
                     Constructor<?> con;
@@ -358,7 +301,8 @@ public class SegmentationProcessor extends AbstractProcessor {
 
                     int i = start;
                     
-                    
+                     
+                    //this is where I grab the protocols.
                     
                     while (itr_vol.hasNext() && i <= stop){
                         MicroObject obj = new MicroObject();
@@ -374,7 +318,45 @@ public class SegmentationProcessor extends AbstractProcessor {
                          * result. This is an arraylist of arraylist of numbers.
                          *
                          */
-                        result = ((AbstractMorphology) iImp).process(obj.getPixelsX(), obj.getPixelsY(), obj.getPixelsZ(), "", arg);
+                        
+                         
+                        
+                        
+                        //test for existing morphology
+                        
+                        String current_UID = ((AbstractMorphology)iImp).getUID();
+                        
+                        int same_morphology = -1;
+                        
+                       ArrayList<String> UID = new ArrayList<String>();
+                        
+                        if(UID.size() > 1){
+                            
+                            ListIterator<String> itr_UID = UID.listIterator();
+                            System.out.println("PROFILING: Current morphology: " + current_UID);
+                            while(itr_UID.hasNext()){
+                                String str_UID = (String)itr_UID.next();
+                                if(str_UID.equals(current_UID)){
+                                    same_morphology = itr_UID.previousIndex();
+                                    System.out.println("PROFILING: Existing morphology: " + str_UID);
+                                }            
+                            }                          
+                        }
+                        
+                         UID.add(current_UID);
+                        
+                        
+                       
+                        //grab the morphology results
+                        
+                        //System.out.println("PROFILING: Object size: " + (obj.getPixelsX()).length);
+                        
+                        String Derived_UID = iImp.getClass().getName()+"-"+channel;
+                        
+                        if(same_morphology == -1){
+                        
+                        
+                        result = ((AbstractMorphology) iImp).process(obj.getPixelsX(), obj.getPixelsY(), obj.getPixelsZ(), components, "", String.valueOf(channel));
                           
                         ArrayList<Number> xAr = result.get(0);
                         ArrayList<Number> yAr = result.get(1);
@@ -389,8 +371,15 @@ public class SegmentationProcessor extends AbstractProcessor {
                             y[j] = yAr.get(j).intValue();
                             z[j] = zAr.get(j).intValue();
                         }
-
-                        obj.setMorphological(String.valueOf(morph), x, y, z);
+                        
+                        obj.setMorphological(Derived_UID, x, y, z);
+                        
+                        }else{
+                            
+                        obj.setMorphological(Derived_UID, obj.getMorphPixelsX(same_morphology), obj.getMorphPixelsX(same_morphology), obj.getMorphPixelsX(same_morphology));   
+                            
+                        }
+                        
                         volumecount++;
                         morph++;
                         i++;

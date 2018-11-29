@@ -57,6 +57,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.LogAxis;
@@ -149,7 +150,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                             result.add((MicroObject) objects.get(i));
                         }
                         
-                        System.out.println("PROFILING: Searching for included objects...  at object: " + i);
+                        //System.out.println("PROFILING: Searching for included objects...  at object: " + i);
                     }
 
                 } catch (NullPointerException e) {
@@ -191,9 +192,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                                 g2.drawRect(x_pixels[c], y_pixels[c], 1, 1);
                             }
                             ir = new ImageRoi(0, 0, selections);
-
-                            //ir.setPosition(i+1, 0, 0);
-                            //ir.setPosition(i+1);
                             count++;
 
                         } catch (NullPointerException e) {
@@ -207,7 +205,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
                     overlay.add(ir);
 
-                    //System.out.println("PROFILING: adding ir, now at: " + ir.getZPosition());
                     gateOverlay.addSlice(ir.getProcessor());
 
                     //text for overlay
@@ -267,10 +264,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             } else {
                 impoverlay.setSlice(impoverlay.getSlice());
             }
-
-            //_vtea.setJLF();
             impoverlay.show();
-
         }
     }
 
@@ -657,7 +651,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     @Override
     public void onUpdatePlotWindow() {
 
-        //System.out.println("PROFILING: Image gating, plot updated...  refresh.");
         CenterPanel.removeAll();
 
         //setup chart values
@@ -675,7 +668,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         gl.addPasteGateListener(this);
         gl.addImageHighLightSelectionListener(this);
         gl.msActive = false;
-        this.gates = new ArrayList();
+        //this.gates = new ArrayList();
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates);
         gjlayer.setLocation(0, 0);
         CenterPanel.add(gjlayer);
@@ -726,28 +719,43 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         }
     }
 
-    private void roiCreated(ImagePlus ip) {
-        System.out.println("PROFILING: XYChartPanel... image gate processed and updated.");
-    }
-
-    private void roiDeleted() {
-    }
-
     @Override
     public ImagePlus getZProjection() {
-        ImageStack is = impoverlay.createImagePlus().getImageStack();
+
+        ListIterator itr = gates.listIterator();
+        
+        while(itr.hasNext()){
+            Gate gate = (Gate)itr.next();
+            gate.setSelected(true);
+        }
+        
+        makeOverlayImage(gates,0,0,currentX,currentY);
+        
+        while(itr.hasNext()){
+            Gate gate = (Gate)itr.next();
+            gate.setSelected(false);
+        }
+        
+        
+        //System.out.println("PROFILING: Number of gates: " + gates.size());
+
+        //public void updatePlot(int x, int y, int l, int size) 
+       
+        //updatePlot(currentX, currentY, currentL, pointsize);
+        
         ImageStack[] isAll = new ImageStack[impoverlay.getNChannels() + gates.size()];
 
         for (int i = 1; i <= impoverlay.getNChannels(); i++) {
             isAll[i - 1] = ChannelSplitter.getChannel(impoverlay, i);
         }
+        
+//I think the gate/3D error is here, or in gates
 
         if (gates.size() > 0) {
             for (int i = 0; i < gates.size(); i++) {
                 isAll[i + impoverlay.getNChannels()] = gates.get(i).getGateOverlayStack();
             }
         }
-        //add logic from segmentation previewer here to generate model of all objects
 
         ImagePlus[] images = new ImagePlus[isAll.length];
 
@@ -761,12 +769,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         merged.setDisplayMode(IJ.COMPOSITE);
         merged.show();
         return merged;
-//        IJ1Projector projection = new IJ1Projector(merged);
-//        return projection.getProjection();  
     }
 
     @Override
-    public void onPasteGate() {
+    public void onPasteGate() {     
         this.getParent().validate();
         this.getParent().repaint();
     }
@@ -811,7 +817,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     @Override
     public int getGatedSelected(ImagePlus ip) {
         ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
-        //ArrayList<MicroObject> volumes = (ArrayList)objects;
         try {
             ListIterator<MicroObject> itr = objects.listIterator();
             while (itr.hasNext()) {
@@ -858,28 +863,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     } catch (NullPointerException e) {
                         return 0;
                     }
-
-//                ListIterator<MicroObject> it = ImageGatedObjects.listIterator();
-//                
-//                for(int i = 0; i < ImageGatedObjects.size(); i++){
-//                
-//                try {
-//                    
-//                    
-//                    
-//                    while (it.hasNext()) {
-//                        volume = it.next();
-//                        if (volume != null) {
-//                            xValue = ((Number) processPosition(currentX, (MicroObject) volume)).doubleValue();
-//                            yValue = ((Number) processPosition(currentY, (MicroObject) volume)).doubleValue();
-//                            if (path.contains(xValue, yValue)) {
-//                                result.add((MicroObject) volume);
-//                            }
-//                        }
-//                    }
-//                } catch (NullPointerException e) {
-//                    return 0;
-//                }
                 }
             }
         }
@@ -888,14 +871,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
     @Override
     public void windowOpened(WindowEvent e) {
-        System.out.println("PROFILING: " + ((ImageWindow) e.getSource()).getImagePlus().getTitle() + " window opened");
-    }
+     }
 
     @Override
     public void windowClosing(WindowEvent e) {
-        System.out.println("PROFILING: " + ((ImageWindow) e.getSource()).getImagePlus().getTitle() + " window closing");
-
-    }
+   }
 
     @Override
     public void windowClosed(WindowEvent e) {
@@ -955,9 +935,20 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
         JFrame j = new JFrame();
 
-        JFileChooser jf = new JFileChooser(new File("untitled.png"));
+        JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
         int returnVal = jf.showSaveDialog(CenterPanel);
         File file = jf.getSelectedFile();
+        
+         MicroExplorer.LASTDIRECTORY =  file.getPath();
+         
+         file = jf.getSelectedFile();
+            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("png")) {
+            
+            } else {
+                file = new File(file.toString() + ".png");  
+            }
+         
+         
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
 
@@ -970,44 +961,30 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             } catch (NullPointerException ne) {
             }
 
-        } else {
-        }
-
-//        try {
-//        File outputfile = new File("saved.png");
-//        ImageIO.write(image, "png", outputfile);
-//}       catch (IOException ex) {
-//            Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
-//        }       
+        } 
+     
         return image;
     }
 
     @Override
     public void exportGates() {
         ExportGates eg = new ExportGates();
-
         ArrayList<ArrayList<Point2D.Double>> al = new ArrayList();
-
         for (int i = 0; i < gates.size(); i++) {
-            al.add(gates.get(i).getGateAsPointsInChart());  //this is returning the Point2D.doubles from the polygongate
-            //System.out.println("PROFILING: Gate export java points: " + gates.get(i).getGateAsPoints());
-            //System.out.println("PROFILING: Gate export points in chart: " + gates.get(i).getGateAsPointsInChart());
+            al.add(gates.get(i).getGateAsPointsInChart());  
         }
         eg.export(al);
-        //System.out.println("PROFILING: Export ArrayList size: "+ al.size());        
     }
 
     @Override
     public void importGates() {
         ImportGates ig = new ImportGates();
         ArrayList<ArrayList<Point2D.Double>> al = ig.importGates();
-        //System.out.println("PROFILING: Import ArrayList size: "+ al.size());
         ListIterator itr = al.listIterator();
 
         while (itr.hasNext()) {
             ArrayList<Point2D.Double> al1 = new ArrayList();
             al1 = (ArrayList<Point2D.Double>) itr.next();
-            //System.out.println("PROFILING: Polygon size: "+ al1.size());
             gl.notifyPolygonSelectionListeners(GateImporter.importGates(al1, chart));
         }
     }
@@ -1027,9 +1004,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
         public void export(ArrayList<ArrayList<Point2D.Double>> al) {
 
-            JFileChooser jf = new JFileChooser("untitled.vtg");
+            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
             int returnVal = jf.showSaveDialog(CenterPanel);
-            File file = jf.getSelectedFile();
+            File file = jf.getSelectedFile(); 
+            
+            MicroExplorer.LASTDIRECTORY =  file.getPath();
+             
+            file = jf.getSelectedFile();
+            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("vtg")) {
+            
+            } else {
+                file = new File(file.toString() + ".vtg");  
+            }
             // System.out.println("PROFILING: Number of gates exporting: "+ al.size());
             //System.out.println("PROFILING: Gate polygon size: " + al.get(0).size());
             if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -1058,7 +1044,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
         protected ArrayList<ArrayList<Point2D.Double>> importGates() {
 
-            JFileChooser jf = new JFileChooser();
+            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
             int returnVal = jf.showOpenDialog(CenterPanel);
             File file = jf.getSelectedFile();
 

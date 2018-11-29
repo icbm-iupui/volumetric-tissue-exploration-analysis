@@ -18,7 +18,11 @@
 package vtea.objects.morphology;
 
 import ij.ImagePlus;
+import java.awt.Image;
 import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 /**
  *
@@ -32,6 +36,10 @@ public class AbstractMorphology implements Morphology {
     protected String NAME = "ABSTRACT MORPHOLOGY";
     protected String KEY = "ABSTRACT MORPHOLOGY";
     
+    protected List protocol;
+    
+    protected String UID;
+    
     /**
      *
      * @param al
@@ -40,7 +48,7 @@ public class AbstractMorphology implements Morphology {
      */
     
     @Override
-    public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, String operation, String arg) {
+    public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, List<JComponent> protocol, String operation, String arg) {
        
         ArrayList<ArrayList<Number>> result = new ArrayList();
        
@@ -87,7 +95,31 @@ public class AbstractMorphology implements Morphology {
         return new ImagePlus();
     }
 
- 
-    
-    
+    @Override
+    public Image getExamples() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public JPanel getMorphologicalTool() {
+        return new JPanel();
+    }
+
+    @Override
+    public ArrayList getOptions() {
+        return new ArrayList();
+     }
+
+    @Override
+    public ArrayList getSettings() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getUID() {
+        return new String();
+    }
+
+
+
 }

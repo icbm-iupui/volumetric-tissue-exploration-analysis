@@ -102,7 +102,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     public JWindow thumb = new JWindow();
 
     protected GridLayout PreProcessingLayout = new GridLayout(10, 1, 0, 0);
-    protected GridLayout ObjectLayout = new GridLayout(2, 1, 0, 0);
+    protected GridLayout ObjectLayout = new GridLayout(4, 1, 0, 0);
     protected GridLayout ExploreLayout = new GridLayout(4, 1, 0, 0);
 
     protected ArrayList<String> Channels;
@@ -123,6 +123,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     private ArrayList<MeasurementProcessor> measurementProcessors = new ArrayList();
     
     private int segmentationStep;
+    
+    private int segmentationCount = 0;
     
     private int tab;
     private boolean selected = false;
@@ -583,7 +585,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         if (ObjectStepsList.size() <= 1) {
             AddStep_Object.setEnabled(true);
         }
-        if (ObjectStepsList.size() >= 2) {
+        if (ObjectStepsList.size() >= 4) {
             AddStep_Object.setEnabled(false);
         }
         this.notifyRepaintTabListeners();
@@ -830,23 +832,25 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             
             while(itr.hasNext()){
                 SegmentationProcessor sp = (SegmentationProcessor)itr.next();
+                if(sp.getUIDKey().equals(key)){
                 executeMeasuring(key, sp.getObjects(), sp.getProtocol());
+                }
               }
         } 
         if (evt.getPropertyName().equals("measurementDone")) {
             ProgressComment.setText((String) evt.getNewValue());
             String key = (String)evt.getOldValue(); 
+            
+            
             ListIterator itr = measurementProcessors.listIterator();
+            
+            //System.out.println("PROFILING: Number of measurment processors: " + measurementProcessors.size());
             
             while(itr.hasNext()){
                 MeasurementProcessor mp = (MeasurementProcessor)itr.next();
-                    System.out.println("PROFILING: " + mp.getObjects().size() + " objects, ");
-                    System.out.println("with " + ((ArrayList)(mp.getFeatures().get(0))).size() + " measurements, "); 
-                    System.out.println("and " + mp.getDescriptions().size() + " descriptors.");
-
-                executeExploring(key, mp.getObjects(), mp.getFeatures(), mp.getDescriptions());
-                //executeExploring(String key, ArrayList<MicroObject> vols, ArrayList measurements, ArrayList headers) {
-        
+                if(mp.getUIDKey().equals(key)){
+                    executeExploring(key, mp.getObjects(), mp.getFeatures(), mp.getDescriptions());
+                }
               }
         }
         if (evt.getPropertyName().equals("comment")) {
@@ -959,16 +963,16 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
                 }
             });
 
-            MeasureButton = new JButton();
-            MeasureButton.setPreferredSize(new Dimension(20, 20));
-            MeasureButton.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    //mbs.setVisible(true);
-
-                }
-            });
-            MeasureButton.setEnabled(false);
+//            MeasureButton = new JButton();
+//            MeasureButton.setPreferredSize(new Dimension(20, 20));
+//            MeasureButton.addActionListener(new java.awt.event.ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent ae) {
+//                    //mbs.setVisible(true);
+//
+//                }
+//            });
+//            MeasureButton.setEnabled(false);
 
             UpdateExplorer = new JButton();
             UpdateExplorer.addActionListener(new java.awt.event.ActionListener() {
@@ -989,10 +993,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
             EditButton.setToolTipText("Edit segmentation protocol...");
 
-            MeasureButton.setSize(20, 20);
-            MeasureButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
-            MeasureButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png")));
-            MeasureButton.setToolTipText("Edit measurements...");
+//            MeasureButton.setSize(20, 20);
+//            MeasureButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
+//            MeasureButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png")));
+//            MeasureButton.setToolTipText("Edit measurements...");
 
             UpdateExplorer.setSize(20, 20);
             UpdateExplorer.setBackground(vtea._vtea.BUTTONBACKGROUND);
@@ -1054,24 +1058,24 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             layoutConstraints.ipady = 20;
             step.add(EditButton, layoutConstraints);
 
-            layoutConstraints.fill = GridBagConstraints.BOTH;
-            layoutConstraints.gridx = 2;
-            layoutConstraints.gridy = 2;
-            layoutConstraints.weightx = -1;
-            layoutConstraints.weighty = -1;
-            layoutConstraints.ipadx = 0;
-            layoutConstraints.ipady = 20;
-            step.add(MeasureButton, layoutConstraints);
-
-            layoutConstraints.fill = GridBagConstraints.BOTH;
-            layoutConstraints.gridx = 1;
-            layoutConstraints.gridy = 2;
-            layoutConstraints.weightx = -1;
-            layoutConstraints.weighty = -1;
-            layoutConstraints.ipadx = 0;
-            layoutConstraints.ipady = 20;
-
-            step.add(fill, layoutConstraints);
+//            layoutConstraints.fill = GridBagConstraints.BOTH;
+//            layoutConstraints.gridx = 2;
+//            layoutConstraints.gridy = 2;
+//            layoutConstraints.weightx = -1;
+//            layoutConstraints.weighty = -1;
+//            layoutConstraints.ipadx = 0;
+//            layoutConstraints.ipady = 20;
+//            step.add(MeasureButton, layoutConstraints);
+//
+//            layoutConstraints.fill = GridBagConstraints.BOTH;
+//            layoutConstraints.gridx = 1;
+//            layoutConstraints.gridy = 2;
+//            layoutConstraints.weightx = -1;
+//            layoutConstraints.weighty = -1;
+//            layoutConstraints.ipadx = 0;
+//            layoutConstraints.ipady = 20;
+//
+//            step.add(fill, layoutConstraints);
 
             step.addMouseListener(new java.awt.event.MouseListener() {
                 @Override
@@ -1153,11 +1157,11 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             
             //MethodText = " " + al_key.get(0).toString() + ": " + al.get(3).toString() + " " + al_key.get(2).toString() + ": " + al.get(5).toString() + " " + al_key.get(3).toString() + ": " + al.get(6).toString();
             
+            ArrayList<ArrayList> morphologies = (ArrayList<ArrayList>)al2.get(4);
             
+            MethodText = "Approach: " + (String)(al2.get(1)) + " on channel " + ((int)al2.get(2)+1) +".  Measuring in "  + morphologies.size() + " morphologies.";
             
-            MethodText = "Approach: " + (String)(al2.get(1)) + " on channel " + ((int)al2.get(2)+1) + ".";
-            
-            Object.setText(al2.get(0) + ": " + (String)(al2.get(1)) + ", by: " + ((int)al2.get(2)+1));
+            Object.setText(al2.get(0) + ": " + (String)(al2.get(1)) + ", by channel: " + ((int)al2.get(2)+1));
             Comment.setText(MethodText);
 
             RebuildPanelObject();
@@ -1359,25 +1363,36 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
         ArrayList<ArrayList> protocol = new ArrayList();
         protocol = extractSteps(ObjectStepsList, OBJECTBLOCKS);
-
+        segmentationCount = 0;
+        
         for (int i = 0; i < ObjectStepsList.size(); i++) {
-            String key = ((ObjectStepBlockGUI)ObjectStepsList.get(i)).getUID();
+            String key = ((ObjectStepBlockGUI)ObjectStepsList.get(i)).getUID() + "_" + System.currentTimeMillis();
+            
+            System.out.println("PROFILING: Segmentation on dataset: " + key);
+            
             SegmentationProcessor sp = new SegmentationProcessor(key, ProcessedImage, (ArrayList) protocol.get(i));
             sp.addPropertyChangeListener(this);
             segmentationProcessors.add(sp);
             sp.execute();
-            //this will fail for mutlipe segmentation processors-need to fix
         }
     }
     
     private void executeMeasuring(String key, ArrayList<MicroObject> vols, ArrayList protocol){
+        
+        System.out.println("PROFILING: Measuring on dataset: " + key);
+        
         MeasurementProcessor mp = new MeasurementProcessor(key, ProcessedImage, vols, protocol);
         mp.addPropertyChangeListener(this);
         measurementProcessors.add(mp);
+        
+  
         mp.execute();
     }
 
     private void executeExploring(String key, ArrayList<MicroObject> vols, ArrayList measurements, ArrayList headers) {
+        
+        System.out.println("PROFILING: Exploring on dataset: " + key);
+        
         ExplorerProcessor ep = new ExplorerProcessor(key, ProcessedImage, vols, measurements, headers);
         ep.addPropertyChangeListener(this);
         explorerProcessors.add(ep);
