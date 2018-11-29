@@ -24,9 +24,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
 import java.util.concurrent.RecursiveAction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +34,9 @@ import static vtea._vtea.getInterleavedStacks;
 import vtea.objects.measurements.AbstractMeasurement;
 import vtea.objects.morphology.AbstractMorphology;
 import vteaobjects.MicroObject;
+import static java.util.concurrent.ForkJoinTask.invokeAll;
+import static java.util.concurrent.ForkJoinTask.invokeAll;
+import static java.util.concurrent.ForkJoinTask.invokeAll;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
 
 /**
@@ -52,14 +52,29 @@ public class MeasurementProcessor extends AbstractProcessor {
 
     private Collection features;
     private ArrayList protocol;
-    private String key;
     private ImagePlus impOriginal;
     private ArrayList<String> description;
 
     private ArrayList objectFeatures;
+    
+    public MeasurementProcessor(){
+        VERSION = "0.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Processor for measurement processing";
+        NAME = "Measurment Processor";
+        KEY = "MeasurementProcessor";
+    }
+    
 
     public MeasurementProcessor(String k, ImagePlus imp, ArrayList<MicroObject> obj, ArrayList p) {
 
+        VERSION = "0.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Processor for measurement processing";
+        NAME = "Measurment Processor";
+        KEY = "MeasurementProcessor";
+        
+        
         objects = obj;
         protocol = p;
         key = k;
@@ -69,14 +84,7 @@ public class MeasurementProcessor extends AbstractProcessor {
         measurements = new ArrayList<>();
         features = OBJECTMEASUREMENTMAP.values();
         
-        System.out.println("PROFILING: "+objects.size()+" objects to analyze.");
 
-        //protocol what does it look like.
-//        for(int i = 0; i < vtea._vtea.OBJECTMEASUREMENTOPTIONS.length; i++){
-//            System.out.println("PROFILING:                       Measurment added: " + vtea._vtea.OBJECTMEASUREMENTOPTIONS[i] + ".");
-//            features.add(vtea._vtea.OBJECTMEASUREMENTOPTIONS[i]); 
-//  
-//        }
     }
 
     @Override
@@ -96,6 +104,8 @@ public class MeasurementProcessor extends AbstractProcessor {
         int size = objects.size();
 
         int count = 1;
+        
+        int channel_text = 1;
 
         double progress = 1;
 
@@ -126,7 +136,13 @@ public class MeasurementProcessor extends AbstractProcessor {
 
                         con = c.getConstructor();
                         iImp = con.newInstance();
-                        description.add("Ch_" + j + "_" + ((AbstractMeasurement) iImp).getName());
+                        
+                        channel_text = j+1;
+                        
+                        description.add("Ch_" + channel_text + "_" + ((AbstractMeasurement) iImp).getName());
+                        
+                        //System.out.println("PROFILING: Adding measurement: " + "Ch_" + channel_text + "_" + ((AbstractMeasurement) iImp).getName());
+
 
                     } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                         System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
@@ -146,11 +162,22 @@ public class MeasurementProcessor extends AbstractProcessor {
         /** morphological protocol in morphologies.
          * morphological determinants 0:Channel 1:Operation 2:Value
          */
-        //descriptors for derived volumes
+        
+         // ArrayList for morphology:  0: method(as String), 1: channel, 
+         // 2: ArrayList of JComponents for method
+        
+        
+        
+        //descriptors for derived volumes  this needs to be:
+        
+        //ArrayList 0: channel  1: derivedRegion position for  derived region 
+        //ArrayList in the MicroObjects.
+        
+       
         ArrayList morphologies = (ArrayList) protocol.get(4);
 
         for (int l = 0; l < morphologies.size(); l++) {
-            ArrayList al = (ArrayList) morphologies.get(l);
+            ArrayList morphology = (ArrayList) morphologies.get(l);
             for (int k = 0; k < featurenames.length; k++) {
 
                 try {
@@ -169,7 +196,9 @@ public class MeasurementProcessor extends AbstractProcessor {
 
                         con = c.getConstructor();
                         iImp = con.newInstance();
-                        description.add("Ch_" + al.get(0) + "_" + al.get(1) + "_" + ((AbstractMeasurement) iImp).getName());
+                        description.add("Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName());
+                        
+                        //System.out.println("PROFILING: Adding measurement: " + "Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName());
 
                     } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                         System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
@@ -185,8 +214,6 @@ public class MeasurementProcessor extends AbstractProcessor {
         while (itr_vol.hasNext()) {
 
             MicroObject obj = itr_vol.next();
-            
-            //System.out.println("PROFILING: analyzed objects:" + count);
 
             progress = 100 * ((double) count / (double) size);
             firePropertyChange("progress", 0, ((int) progress));
@@ -195,7 +222,8 @@ public class MeasurementProcessor extends AbstractProcessor {
 
             mask_values = new ArrayList();
 
-            //mask volumes
+            //mask volumes measurements
+            
             for (int i = 0; i < impOriginal.getNChannels(); i++) {
 
                 int[] x = obj.getPixelsX();
@@ -218,6 +246,7 @@ public class MeasurementProcessor extends AbstractProcessor {
             Iterator<String> itr_features = features.iterator();
             
             //loop through measurements
+            
             while (itr_features.hasNext()) {
                 try {
                     Class<?> c;
@@ -234,8 +263,7 @@ public class MeasurementProcessor extends AbstractProcessor {
                         iImp = con.newInstance();
 
                         for (int k = 0; k < mask_values.size(); k++) {
-                             
-                    
+
                             results.add(((AbstractMeasurement) iImp).process(new ArrayList(), (ArrayList<Number>) mask_values.get(k)));
 
                         }
@@ -257,31 +285,21 @@ public class MeasurementProcessor extends AbstractProcessor {
          /** morphological protocol in morphologies.
          * morphological determinants 0:Channel 1:Operation 2:Value
          */   
-         
-         
-         //System.out.println("PROFILING: Analyzing " + morphologies.size() + " morphologies...");
 
             for (int l = 0; l < morphologies.size(); l++) {
-                
-              
-                ArrayList morph = (ArrayList) morphologies.get(l);
-                
-                 
-                
+
+                ArrayList morphology = (ArrayList) morphologies.get(l);
+
               //get derived_values by referencing morphologies and "is" 
                 
-                int channel = (int)morph.get(0);
-                
-                
-              
+                int channel = ((int)morphology.get(1))-1;
+
                 int[] x = obj.getMorphPixelsX(l);
                 int[] y = obj.getMorphPixelsY(l);
                 int[] z = obj.getMorphPixelsZ(l);
                 
                 //System.out.println("PROFILING: morphology measure on channel: "+ channel + " for length: " + x.length );
-                
-                //System.out.println("PROFILING: analyzing morphology, " + morph.get(1) + ", size: " + x.length);
-//
+   
               ArrayList<Number> values = new ArrayList();
               
               //results = new ArrayList();
@@ -302,7 +320,7 @@ public class MeasurementProcessor extends AbstractProcessor {
 
                     String str = (String) itr.next();
                     
-                    //System.out.println("PROFILING: calculating feature, " + str);
+                    
 
                     c = Class.forName(str);
                     Constructor<?> con;
@@ -394,47 +412,6 @@ public class MeasurementProcessor extends AbstractProcessor {
 
     public ArrayList<MicroObject> getObjects() {
         return objects;
-    }
-
-    private class ProcessorForkPool extends RecursiveAction {
-
-        private int start;
-        private int stop;
-
-        private Thread t;
-
-        ProcessorForkPool(int start, int stop) {
-
-            this.start = start;
-            this.stop = stop;
-
-        }
-
-        @Override
-        protected void compute() {
-
-            long processors = Runtime.getRuntime().availableProcessors();
-            //processors = 1;
-
-////            long length = volumes.size() / processors;
-////
-////            if (volumes.size() < processors) {
-////                length = volumes.size();
-////            }
-////            if (stop - start > length) {
-////
-////                invokeAll(new ProcessorForkPool( start, start + ((stop - start) / 2)),
-////                        new ProcessorForkPool( start + ((stop - start) / 2) + 1, stop));
-////
-////            } else {
-////                doThis();
-            //doThat();
-////            }
-        }
-
-        private void doThis() {
-
-        }
     }
 
 }

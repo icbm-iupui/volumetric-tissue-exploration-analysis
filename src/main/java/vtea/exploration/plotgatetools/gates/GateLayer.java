@@ -287,9 +287,6 @@ public class GateLayer implements ActionListener, ItemListener {
 
             @Override
             protected void processMouseEvent(MouseEvent e, JXLayer l) {
-                int onmask = e.SHIFT_DOWN_MASK;
-                int offmask = e.CTRL_DOWN_MASK;
-
 
                 if (msPolygon || msRectangle || msQuadrant) {
                     if (msPolygon) {
@@ -385,13 +382,11 @@ public class GateLayer implements ActionListener, ItemListener {
                         e.consume();
                     };
                 }
-                //e.consume();
+               
             }
 
         };
-
-        //layerUI.add(chart);
-        //chart.add(layerUI);
+        
         layer.setUI(layerUI);
         
         return layer;
@@ -639,7 +634,7 @@ public class GateLayer implements ActionListener, ItemListener {
         } else if(e.getActionCommand().equals("Delete All")){
             gates.clear();      
         }
-        this.notifyPasteGateListeners();
+        notifyPasteGateListeners();
     }
 
     @Override

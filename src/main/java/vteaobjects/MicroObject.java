@@ -122,6 +122,9 @@ public class MicroObject implements MicroObjectModel {
         xLimit = is[0].getWidth();
         yLimit = is[0].getHeight();
         zLimit = is[0].getSize();
+        
+        derivedCount = 1;
+        
         setPixels(pixels);
     }
 
@@ -727,18 +730,17 @@ public class MicroObject implements MicroObjectModel {
     public int getColor() {
         return color;
     }
-
     
+
     public void setMorphological(String method_UID, int[] x, int[] y, int[] z) {
         
         //System.out.println("PROFILING: set morphology on object: " + this.getSerialID() + " of size " + x.length);
         
+        //derivedkey.put(derivedCount, method_UID);
 
         derivedX.add(x);
         derivedY.add(y);
         derivedZ.add(z);
-
-
         
     }
     

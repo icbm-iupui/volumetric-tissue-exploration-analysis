@@ -17,7 +17,13 @@
  */
 package vtea.objects.morphology;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
 
 /**
@@ -27,6 +33,9 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Morphology.class)
 public class Grow extends AbstractMorphology {
+    
+    
+    JTextField Distance = new JTextField("2", 5);
 
     public Grow() {
         VERSION = "0.1";
@@ -35,14 +44,34 @@ public class Grow extends AbstractMorphology {
         NAME = "Grow";
         KEY = "GROW";
     }
+    
+    //Allowed operations: 6C, 8C
+    //Allowed arguments:  in String arg.
 
     @Override
-    public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, String operation, String arg) {
-
-        //System.out.println("PROFILING: The object size is : " + x.length + ", growing by: " +Integer.parseInt(arg));
-        return growRegion8C(x, y, z, Integer.parseInt(arg));
+    public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, List<JComponent> protocol, String operation, String arg) {
+       
+        JTextField distance = (JTextField)protocol.get(1); 
+       
+       return growRegion8C(x, y, z, Integer.parseInt(distance.getText()));
     }
-
+    
+    @Override
+    public ArrayList getOptions(){ 
+         ArrayList<JComponent> al = new ArrayList<JComponent>();
+         al.add(new JLabel("Surround distance: "));
+         al.add(Distance);
+         return al;   
+    }
+    
+    @Override
+    public JPanel getMorphologicalTool() {
+        JPanel panel = new JPanel();
+        panel.setPreferredSize(new Dimension(300,300));
+        panel.add(new JLabel("Coming soon, demostration space..."));
+        return panel;
+    }
+    
     private ArrayList<ArrayList<Number>> growRegion8C(int[] x, int[] y, int[] z, int times) {
 
         //System.out.println("PROFILING:                       Starting object size: " + x.length + ".");
@@ -59,11 +88,18 @@ public class Grow extends AbstractMorphology {
             yList.add(y[k]);
             zList.add(z[k]);
         }
+        
+        ArrayList<ArrayList<Number>> noDups = new ArrayList();
 
-        //to determine how many positions
+        //to determine how many expansions
+        
         for (int j = 1; j <= times; j++) {
 
             int n = x.length;
+            
+            //System.out.println("PROFILING:             Expansion time: " + times + ".");
+            
+            //8 connected.
             for (int i = 0; i < n; i++) {
 
                 //same z
@@ -177,8 +213,19 @@ public class Grow extends AbstractMorphology {
                 yArr.add(y[i] - 1);
                 zArr.add(z[i] + 1);
 
-                //reassign
-                if (times > 1) {
+               
+            }
+             //reassign
+
+            noDups = removeDuplicates(xArr, yArr, zArr); 
+            
+            noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
+            
+            if (times > 1) {
+                
+                    xArr = noDups.get(0);
+                    yArr = noDups.get(1);
+                    zArr = noDups.get(2);
 
                     x = new int[xArr.size()];
                     y = new int[xArr.size()];
@@ -189,24 +236,9 @@ public class Grow extends AbstractMorphology {
                         y[k] = (Integer) yArr.get(k);
                         z[k] = (Integer) zArr.get(k);
                     }
-                }
             }
-//            ArrayList<ArrayList<Number>> noDups = new ArrayList();
-//            
-//            noDups = removeDuplicates(xArr, yArr, zArr); 
-//            
-//            xArr = noDups.get(0);
-//            yArr = noDups.get(1);
-//            zArr = noDups.get(2);
-
         }
-        ArrayList<ArrayList<Number>> noDups = new ArrayList();
-
-        //System.out.println("PROFILING:             Grown with overlap object size: " + xArr.size() + ".");
-        noDups = removeDuplicates(xArr, yArr, zArr);
-
-        //System.out.println("PROFILING:  Grown with duplicates removed object size: " + xArr.size() + ".");
-        return removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
+        return noDups;
     }
 
     private ArrayList<ArrayList<Number>> removeDuplicates(ArrayList<Number> x, ArrayList<Number> y, ArrayList<Number> z) {

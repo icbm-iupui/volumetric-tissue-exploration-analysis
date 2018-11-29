@@ -74,18 +74,33 @@ public class XYChartPanel implements RoiListener {
     public static int XAXIS = 1;
     public static int YAXIS = 2;
 
-    static Color ZEROPERCENT = new Color(0, 0, 0);
-    static Color TENPERCENT = new Color(0, 0, 82);
-    static Color TWENTYPERCENT = new Color(61, 0, 178);
-    static Color THIRTYPERCENT = new Color(122, 0, 227);
-    static Color FORTYPERCENT = new Color(178, 0, 136);
-    static Color FIFTYPERCENT = new Color(213, 27, 45);
-    static Color SIXTYPERCENT = new Color(249, 95, 0);
-    static Color SEVENTYPERCENT = new Color(255, 140, 0);
-    static Color EIGHTYPERCENT = new Color(255, 175, 0);
-    static Color NINETYPERCENT = new Color(255, 190, 0);
-    static Color ALLPERCENT = new Color(255, 250, 50);
-    static Color IMAGEGATE = new Color(0, 255, 0);
+//    static Color ZEROPERCENT = new Color(0, 0, 0);
+//    static Color TENPERCENT = new Color(0, 0, 82);
+//    static Color TWENTYPERCENT = new Color(61, 0, 178);
+//    static Color THIRTYPERCENT = new Color(122, 0, 227);
+//    static Color FORTYPERCENT = new Color(178, 0, 136);
+//    static Color FIFTYPERCENT = new Color(213, 27, 45);
+//    static Color SIXTYPERCENT = new Color(249, 95, 0);
+//    static Color SEVENTYPERCENT = new Color(255, 140, 0);
+//    static Color EIGHTYPERCENT = new Color(255, 175, 0);
+//    static Color NINETYPERCENT = new Color(255, 190, 0);
+//    static Color ALLPERCENT = new Color(255, 250, 50);
+//    static Color IMAGEGATE = new Color(0, 255, 0);
+    
+    static Color ZEROPERCENT = new Color(0x999999);
+    static Color TENPERCENT = new Color(0x91919e);
+    static Color TWENTYPERCENT = new Color(0x8a8aa3);
+    static Color THIRTYPERCENT = new Color(0x8282a8);
+    static Color FORTYPERCENT = new Color(0x7a7aad);
+    static Color FIFTYPERCENT = new Color(0x4c4ccc);
+    static Color SIXTYPERCENT = new Color(0x3d3dd6);
+    static Color SEVENTYPERCENT = new Color(0x2e2ee0);
+    static Color EIGHTYPERCENT = new Color(0x1f1feb);
+    static Color NINETYPERCENT = new Color(0x0f0ff5);
+    static Color ALLPERCENT = new Color(0x0000ff);
+    
+    
+//    static Color IMAGEGATE = new Color(0, 255, 0);
     private ChartPanel chartPanel;
     private List measurements = new ArrayList();
     private ArrayList<MicroObject> ImageGateOverlay = new ArrayList<MicroObject>();
@@ -205,7 +220,7 @@ public class XYChartPanel implements RoiListener {
         
         PaintScaleLegend psl = new PaintScaleLegend(new LookupPaintScale(0, 100, new Color(0, 0, 0)), new NumberAxis(""));
         
-        if(l > 0){
+//        if(l > 0){
         double max = getMaximumOfData((ArrayList) measurements, l);
         double min = getMinimumOfData((ArrayList) measurements, l);
         double range = max - min;
@@ -215,11 +230,26 @@ public class XYChartPanel implements RoiListener {
         }
 
         //System.out.println("PROFILING-DETAILS: Points to plot: " + ((ArrayList) measurements.get(1)).size());
-        LookupPaintScale ps = new LookupPaintScale(min, max + 100, new Color(0, 0, 0));
+
+        LookupPaintScale ps = new LookupPaintScale(min, max+1, new Color(0x999999));
 
         renderer.setPaintScale(ps);
         
-        ps.add(min, TENPERCENT);
+        if(range <= 10){
+            
+        ps.add(0, new Color(255,51,51));
+        ps.add(1, new Color(255, 153, 51));
+        ps.add(2, new Color(153, 255, 51));
+        ps.add(3, new Color(51, 255, 153));
+        ps.add(4, new Color(51, 255, 255));
+        ps.add(5, new Color(102, 178, 255));
+        ps.add(6, new Color(102, 102, 255));
+        ps.add(7, new Color(178, 102, 255));
+        ps.add(8, new Color(255, 102, 255));
+        ps.add(9, new Color(255, 102, 178));
+  
+        }else{
+
         ps.add(min + (1 * (range / 10)), XYChartPanel.TENPERCENT);
         ps.add(min + (2 * (range / 10)), XYChartPanel.TWENTYPERCENT);
         ps.add(min + (3 * (range / 10)), XYChartPanel.THIRTYPERCENT);
@@ -230,35 +260,26 @@ public class XYChartPanel implements RoiListener {
         ps.add(min + (8 * (range / 10)), XYChartPanel.EIGHTYPERCENT);
         ps.add(min + (9 * (range / 10)), XYChartPanel.NINETYPERCENT);
         ps.add(max, XYChartPanel.ALLPERCENT);
-        
+        }
         
         NumberAxis lAxis = new NumberAxis();
         
         lAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        
-        
-        
+
         psl = new PaintScaleLegend(ps, lAxis);
+
         psl.setBackgroundPaint(new Color(255, 255, 255, 255));
         
         psl.setPosition(RectangleEdge.RIGHT);
         psl.setMargin(4, 4, 40, 4);
         psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         
-        } else {
-            renderer.setDefaultFillPaint(TENPERCENT);
-            //renderer.setBaseFillPaint(TENPERCENT);
-        }
-        
         Ellipse2D shape = new Ellipse2D.Double(0, 0, size, size);
         Ellipse2D shapeGate = new Ellipse2D.Double(-2, -2, size + 4, size + 4);
       
         renderer.setDefaultShape(shape);
-        //renderer.setBaseShape(shape);
-        
-        
         rendererGate.setDefaultShape(shapeGate);
-        //rendererGate.setBaseShape(shapeGate);
+        
 
         NumberAxis xAxis = new NumberAxis("");
         NumberAxis yAxis = new NumberAxis("");
@@ -270,8 +291,6 @@ public class XYChartPanel implements RoiListener {
         
         plot.getDomainAxis();
         plot.getRangeAxis();
-        
-        
 
         plot.setDomainPannable(false);
         plot.setRangePannable(false);
@@ -283,8 +302,6 @@ public class XYChartPanel implements RoiListener {
 
         if (imageGate) {
             roiCreated(impoverlay);
-            //XYZDataset set = createXYZDataset(ImageGateOverlay, x, y, l);
-            //plot.setDataset(1, set);
            plot.setRenderer(1, new XYShapeRenderer() {
                @Override
                protected java.awt.Paint getPaint(XYDataset dataset, int series, int item){
@@ -298,9 +315,6 @@ public class XYChartPanel implements RoiListener {
     });
 
         }
-        //System.out.println("PROFILING: Generating plot with " + plot.getDatasetCount() + " datasets.");
-        //System.out.println("PROFILING: Generating plot with " + ImageGateOverlay.size() + " objects gated.");
-
         try {
             if (getRangeofData((ArrayList) measurements, x) > Math.pow(impoverlay.getBitDepth(), 2)) {
                 LogAxis logAxisX = new LogAxis();
@@ -323,7 +337,8 @@ public class XYChartPanel implements RoiListener {
         chart.setBackgroundPaint(new Color(255, 255, 255, 255));
         
         //LUT 
-        if(l > 0)chart.addSubtitle(psl);
+        //if(l > 0)
+        chart.addSubtitle(psl);
 
         //notifiyUpdatePlotWindowListeners();
         return new ChartPanel(chart, true, true, false, false, true);
@@ -359,7 +374,7 @@ public class XYChartPanel implements RoiListener {
 
     }
 
-    private double getMaximumOfData(ArrayList measurements, int x) {
+    private double getMaximumOfData(ArrayList measurements, int l) {
 
         ListIterator<ArrayList> litr = measurements.listIterator();
 
@@ -371,8 +386,8 @@ public class XYChartPanel implements RoiListener {
                 
                 ArrayList<Number> al = litr.next();
               
-                if (al.get(x).floatValue() > high.floatValue()) {
-                    high = al.get(x).floatValue();
+                if (al.get(l).floatValue() > high.floatValue()) {
+                    high = al.get(l).floatValue();
                 }
             } catch (NullPointerException e) {
             }
@@ -381,18 +396,18 @@ public class XYChartPanel implements RoiListener {
 
     }
 
-    private double getMinimumOfData(ArrayList measurements, int x) {
+    private double getMinimumOfData(ArrayList measurements, int l) {
 
         ListIterator<ArrayList> litr = measurements.listIterator();
 
         //ArrayList<Number> al = new ArrayList<Number>();
-        Number low = getMaximumOfData(measurements, x);
+        Number low = getMaximumOfData(measurements, l);
 
         while (litr.hasNext()) {
             try {
                 ArrayList<Number> al = litr.next();
-                if (al.get(x).floatValue() < low.floatValue()) {
-                    low = al.get(x).floatValue();
+                if (al.get(l).floatValue() < low.floatValue()) {
+                    low = al.get(l).floatValue();
                 }
             } catch (NullPointerException e) {
             }
@@ -417,12 +432,9 @@ public class XYChartPanel implements RoiListener {
             
             //MicroObjectModel volume = (MicroObjectModel) litr.next();
             xCorrected[counter] = values.get(x).doubleValue();
-            yCorrected[counter] = values.get(y).doubleValue();
-            if(l > 0){
+            yCorrected[counter] = values.get(y).doubleValue();       
             lCorrected[counter] = values.get(l).doubleValue();
-            }else{
-                lCorrected[counter] = 0;
-            }
+
 
             counter++;
 
@@ -434,6 +446,7 @@ public class XYChartPanel implements RoiListener {
         return result;
     }
 
+    @Deprecated
     private Number processPosition(int a, MicroObjectModel volume) {
 //        ArrayList ResultsPointer = volume.getResultPointer();
 //        int size = ResultsPointer.size();
@@ -481,7 +494,6 @@ public class XYChartPanel implements RoiListener {
     }
 
     public void roiCreated(ImagePlus ip) {
-        //if(impoverlay.equals(ip)){
         ImageGateOverlay.clear();
         ArrayList<MicroObject> volumes = (ArrayList) measurements.get(1);
         ListIterator<MicroObject> itr = volumes.listIterator();
@@ -493,12 +505,8 @@ public class XYChartPanel implements RoiListener {
             if (ip.getRoi().contains(c[0], c[1])) {
                 ImageGateOverlay.add(m);
             }
-            //}
+ 
         }
-        //System.out.println("PROFILING: XYChartPanel... image gate, found " + ImageGateOverlay.size() + " volumes in region");
-        //process(xValues,yValues,lValues,xValuesText,yValuesText,lValuesText);
-
-        //System.out.println("PROFILING: XYChartPanel... image gate processed and updated.");
         notifiyUpdatePlotWindowListeners();
     }
 
@@ -519,7 +527,6 @@ public class XYChartPanel implements RoiListener {
 
     public void notifiyUpdatePlotWindowListeners() {
         for (UpdatePlotWindowListener listener : UpdatePlotWindowListeners) {
-            //System.out.println("Updating plot window... for image gate.");
             listener.onUpdatePlotWindow();
         }
     }
