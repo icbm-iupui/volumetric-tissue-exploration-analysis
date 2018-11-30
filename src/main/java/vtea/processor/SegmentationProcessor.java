@@ -325,33 +325,18 @@ public class SegmentationProcessor extends AbstractProcessor {
                         //test for existing morphology
                         
                         String current_UID = ((AbstractMorphology)iImp).getUID();
+                        //System.out.println("PROFILING: Current morphology: " + current_UID);
                         
-                        int same_morphology = -1;
+                        int same_morphology = obj.checkMorphological(current_UID);
                         
-                       ArrayList<String> UID = new ArrayList<String>();
-                        
-                        if(UID.size() > 1){
-                            
-                            ListIterator<String> itr_UID = UID.listIterator();
-                            System.out.println("PROFILING: Current morphology: " + current_UID);
-                            while(itr_UID.hasNext()){
-                                String str_UID = (String)itr_UID.next();
-                                if(str_UID.equals(current_UID)){
-                                    same_morphology = itr_UID.previousIndex();
-                                    System.out.println("PROFILING: Existing morphology: " + str_UID);
-                                }            
-                            }                          
-                        }
-                        
-                         UID.add(current_UID);
-                        
+                        //System.out.println("PROFILING: Checked for morphology: " + current_UID + ", result: " + same_morphology);
                         
                        
                         //grab the morphology results
                         
                         //System.out.println("PROFILING: Object size: " + (obj.getPixelsX()).length);
                         
-                        String Derived_UID = iImp.getClass().getName()+"-"+channel;
+                        //String Derived_UID = iImp.getClass().getName();
                         
                         if(same_morphology == -1){
                         
@@ -372,11 +357,15 @@ public class SegmentationProcessor extends AbstractProcessor {
                             z[j] = zAr.get(j).intValue();
                         }
                         
-                        obj.setMorphological(Derived_UID, x, y, z);
+                        //System.out.println("PROFILING: Generating morphology");
+                        
+                        obj.setMorphological(current_UID, x, y, z);
                         
                         }else{
                             
-                        obj.setMorphological(Derived_UID, obj.getMorphPixelsX(same_morphology), obj.getMorphPixelsX(same_morphology), obj.getMorphPixelsX(same_morphology));   
+                        //System.out.println("PROFILING: Skipping morphology and copying");
+                           
+                        obj.setMorphological(current_UID, obj.getMorphPixelsX(same_morphology), obj.getMorphPixelsY(same_morphology), obj.getMorphPixelsZ(same_morphology));   
                             
                         }
                         

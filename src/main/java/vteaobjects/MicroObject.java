@@ -44,11 +44,11 @@ public class MicroObject implements MicroObjectModel {
     protected ArrayList<int[]> derivedY = new ArrayList();
     protected ArrayList<int[]> derivedZ = new ArrayList();
 
-    protected HashMap<Integer, String> derivedkey;
+    protected HashMap<String, Integer> derivedkey;
     
     protected int derivedCount;
 
-    ConcurrentHashMap<Integer, String> morphologicalLookup = new ConcurrentHashMap();
+    ConcurrentHashMap<String, Integer> morphologicalLookup = new ConcurrentHashMap();
 
     //calculated variables
     //new way
@@ -589,6 +589,15 @@ public class MicroObject implements MicroObjectModel {
     public Rectangle getBoundingRectangle() {
         return this.boundingRectangle;
     }
+    
+    public int getEquivalentMorphology(String str) {
+        
+        
+        
+        
+        
+        return -1;
+    }
 
     private void setDerivedObjectsArrays(int channel, int steps) {
         int count = 0;
@@ -731,12 +740,21 @@ public class MicroObject implements MicroObjectModel {
         return color;
     }
     
+    public int checkMorphological(String UID){
+        
+        if(morphologicalLookup.containsKey(UID)){
+        
+        return morphologicalLookup.get(UID);
+        }else{
+            return -1;
+        }
+    }
+    
 
     public void setMorphological(String method_UID, int[] x, int[] y, int[] z) {
         
-        //System.out.println("PROFILING: set morphology on object: " + this.getSerialID() + " of size " + x.length);
         
-        //derivedkey.put(derivedCount, method_UID);
+        morphologicalLookup.put(method_UID, derivedX.size());
 
         derivedX.add(x);
         derivedY.add(y);
@@ -745,7 +763,7 @@ public class MicroObject implements MicroObjectModel {
     }
     
     public int getMorphologicalCount(){
-        return derivedCount;
+        return derivedX.size();
     }
 
     @Override
@@ -760,21 +778,21 @@ public class MicroObject implements MicroObjectModel {
         return al;
     }
     
+    @Override
     public int[] getMorphPixelsX(int index){
-        
-        
-        return derivedX.get(index);
-        
 
-        
+        return derivedX.get(index);
+
     } 
     
+    @Override
     public int[] getMorphPixelsY(int index){
         
                 return derivedY.get(index);
         
     } 
     
+    @Override
     public int[] getMorphPixelsZ(int index){
         
         return derivedZ.get(index);
