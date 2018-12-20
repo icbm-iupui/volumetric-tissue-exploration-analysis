@@ -64,7 +64,7 @@ public class SingleCluster extends AbstractHierarchical{
     
     @Override
     public String getDataDescription(ArrayList params){
-        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue());
+        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue()) + '_' + getCurrentTime();
     }
     
     /**
@@ -92,7 +92,7 @@ public class SingleCluster extends AbstractHierarchical{
         proximity = calculateProximity(feature);
         IJ.log("PROFILING: Creating Single-Link Linkage");
         SingleLinkage sl = new SingleLinkage(proximity);
-        calculateClusters(sl, nclusters);
+        calculateClusters(sl, nclusters, NAME);
 
         return true;
     }

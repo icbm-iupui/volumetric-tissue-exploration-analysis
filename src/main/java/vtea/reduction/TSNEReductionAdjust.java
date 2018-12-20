@@ -121,7 +121,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
     @Override
     public String getDataDescription(ArrayList params){
 //        This should also have the KL-Divergence that is output by TSNE
-        return KEY + '_' + ((JTextField)params.get(7)).getText();
+        return KEY + '_' + ((JTextField)params.get(7)).getText() + '_' + getCurrentTime();
     }
     
     /**

@@ -76,9 +76,9 @@ public class PCAReduction extends AbstractFeatureProcessing{
     @Override
     public String getDataDescription(ArrayList params){
         if(((JComboBox)params.get(4)).getSelectedIndex() == 0){
-            return KEY + "_D" + ((JTextField)params.get(5)).getText();
+            return KEY + "_D" + ((JTextField)params.get(5)).getText() + '_' + getCurrentTime();
         }else{
-            return KEY + "_V" + ((JTextField)params.get(5)).getText();
+            return KEY + "_V" + ((JTextField)params.get(5)).getText() + '_' + getCurrentTime();
         }
         
     }

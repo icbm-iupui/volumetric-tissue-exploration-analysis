@@ -634,8 +634,6 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
 
     @Override
     public void addFeatures(String name, ArrayList<ArrayList<Number>> result) {
-        
-        
         notifyListeners(name, result);
         
     }

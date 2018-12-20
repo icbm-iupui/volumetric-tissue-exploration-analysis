@@ -66,8 +66,9 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
      * Calculates the membership of all the segmented objects
      * @param l linkage method for merging of clusters
      * @param n number of clusters
+     * @param type the full name of the hierarchical method used
      */
-    protected void calculateClusters(Linkage l, int n){
+    protected void calculateClusters(Linkage l, int n, String type){
         int[] membership;
         IJ.log("PROFILING: Creating Hierarchical Tree");
         HierarchicalClustering hc = new HierarchicalClustering(l);
@@ -81,7 +82,7 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
             holder.add(membership[i] * 1.0);
         }
         dataResult.add(holder);
-        createDendrogram(hc);
+        createDendrogram(hc, type);
         
     }
     
@@ -135,8 +136,9 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
      * Constructs a JFrame containing the dendrogram of the hierarchical 
      * clustering.
      * @param hc the hierarchical clustering to make the dendrogram with
+     * @param type adds the name of the clustering modality to the dendrogram
      */
-    public void createDendrogram(HierarchicalClustering hc){
+    public void createDendrogram(HierarchicalClustering hc, String type){
         JFrame dendroFrame = new JFrame();
         dendroFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         dendroFrame.setVisible(false);
@@ -144,7 +146,7 @@ public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
         PlotCanvas plot = Dendrogram.plot(hc.getTree(), hc.getHeight());
         plot.setAxisLabel(0, "");
         plot.setAxisLabel(1, "Height");
-        plot.setTitle("Dendrogram");
+        plot.setTitle(type + " Dendrogram");
         dendroFrame.getContentPane().add(plot);
         dendroFrame.setVisible(true);
     }

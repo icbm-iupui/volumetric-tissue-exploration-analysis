@@ -64,7 +64,7 @@ public class WardCluster extends AbstractHierarchical{
     
     @Override
     public String getDataDescription(ArrayList params){
-        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue());
+        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue()) + '_' + getCurrentTime();
     }
     
     /**
@@ -92,7 +92,7 @@ public class WardCluster extends AbstractHierarchical{
         proximity = calculateProximity(feature);
         IJ.log("PROFILING: Creating Ward Linkage");
         WardLinkage wl = new WardLinkage(proximity);
-        calculateClusters(wl, nclusters);
+        calculateClusters(wl, nclusters, NAME);
         
         return true;
     }

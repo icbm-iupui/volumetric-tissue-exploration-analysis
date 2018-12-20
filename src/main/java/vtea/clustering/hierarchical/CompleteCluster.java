@@ -64,7 +64,7 @@ public class CompleteCluster extends AbstractHierarchical{
     
     @Override
     public String getDataDescription(ArrayList params){
-        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue());
+        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue()) + '_' + getCurrentTime();
     }
     
     /**
@@ -92,7 +92,7 @@ public class CompleteCluster extends AbstractHierarchical{
         proximity = calculateProximity(feature);
         IJ.log("PROFILING: Creating Complete-Link Linkage");
         CompleteLinkage cl = new CompleteLinkage(proximity);
-        calculateClusters(cl, nclusters);
+        calculateClusters(cl, nclusters, NAME);
 
         return true;
     }

@@ -75,7 +75,7 @@ public class KMeans extends AbstractFeatureProcessing{
     
     @Override
     public String getDataDescription(ArrayList params){
-        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue());
+        return KEY + '_' + String.valueOf((Integer)((JSpinner)params.get(5)).getValue()) + '_' + getCurrentTime();
     }
     /**
      * Performs the K-Means clustering based on the parameters.

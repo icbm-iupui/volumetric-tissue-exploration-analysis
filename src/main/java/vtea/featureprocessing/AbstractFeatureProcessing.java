@@ -28,6 +28,8 @@ import static java.lang.Math.sqrt;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import net.imglib2.type.numeric.RealType;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  *Abstract of all Feature Processing classes. All features must extend this.
@@ -438,4 +440,9 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         }
     }
     
+    @Override
+    public String getCurrentTime(){
+        DateTimeFormatter time = DateTimeFormatter.ofPattern("h':'mm':'s");
+        return LocalTime.now().format(time);
+    }
 }

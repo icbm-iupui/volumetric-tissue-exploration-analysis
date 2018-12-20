@@ -76,7 +76,8 @@ public interface FeatureProcessing<T extends Component, A extends RealType> exte
     public String getComment();
     
     /**
-     * Retrieves a descriptive title for the new feature variable
+     * Retrieves a descriptive title for the new feature variable. 
+     * Used for displaying in MicroExplorer
      * @return brief description of the analysis that was performed
      */
     public String getDataDescription(ArrayList params);
@@ -86,4 +87,6 @@ public interface FeatureProcessing<T extends Component, A extends RealType> exte
     public String getProgressComment();
     
     public boolean copyComponentParameter(int index, ArrayList<T> dComponents, ArrayList<T> sComponents);
+    
+    public String getCurrentTime();
 }

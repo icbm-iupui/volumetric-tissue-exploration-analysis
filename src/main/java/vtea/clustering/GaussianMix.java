@@ -118,10 +118,10 @@ public class GaussianMix extends AbstractFeatureProcessing{
     @Override
     public String getDataDescription(ArrayList params){
         if(((JCheckBox)params.get(6)).isSelected())
-            return KEY + "_autoCluster";
+            return KEY + "_autoCluster" + '_' + getCurrentTime();
         else{
            int clusters = (Integer)((JSpinner)params.get(5)).getValue();
-            return KEY + '_' + String.valueOf(clusters);
+            return KEY + '_' + String.valueOf(clusters) + '_' + getCurrentTime();
         } 
     }
     
