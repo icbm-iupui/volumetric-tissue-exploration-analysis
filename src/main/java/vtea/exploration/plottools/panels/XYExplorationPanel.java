@@ -429,10 +429,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         CenterPanel.setBackground(new Color(255, 255, 255, 255));
         CenterPanel.setPreferredSize(chart.getPreferredSize());
 
-        //add o verlay 
+        //add overlay 
         this.gl = new GateLayer();
         gl.addPolygonSelectionListener(this);
         gl.addImageHighLightSelectionListener(this);
+
         gl.msActive = false;
 
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates);

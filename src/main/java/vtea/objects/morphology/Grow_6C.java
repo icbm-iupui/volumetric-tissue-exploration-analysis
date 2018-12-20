@@ -32,17 +32,17 @@ import org.scijava.plugin.Plugin;
  *
  */
 @Plugin(type = Morphology.class)
-public class Grow extends AbstractMorphology {
+public class Grow_6C extends AbstractMorphology {
     
     
     JTextField Distance = new JTextField("1", 5);
 
-    public Grow() {
+    public Grow_6C() {
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
         COMMENT = "Basic dilation";
-        NAME = "Grow";
-        KEY = "GROW";
+        NAME = "Grow 6C";
+        KEY = "GROW6C";
     }
     
     //Allowed operations: 6C, 8C
@@ -53,7 +53,7 @@ public class Grow extends AbstractMorphology {
        
         JTextField distance = (JTextField)protocol.get(1); 
        
-       return growRegion8C(x, y, z, Integer.parseInt(distance.getText()));
+       return growRegion6C(x, y, z, Integer.parseInt(distance.getText()));
     }
     
     @Override
@@ -77,7 +77,7 @@ public class Grow extends AbstractMorphology {
         return panel;
     }
     
-    private ArrayList<ArrayList<Number>> growRegion8C(int[] x, int[] y, int[] z, int times) {
+    private ArrayList<ArrayList<Number>> growRegion6C(int[] x, int[] y, int[] z, int times) {
 
         //System.out.println("PROFILING:                       Starting object size: " + x.length + ".");
         ArrayList<Number> xArr = new ArrayList();
@@ -128,95 +128,21 @@ public class Grow extends AbstractMorphology {
                 yArr.add(y[i] + 1);
                 zArr.add(z[i]);
 
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i]);
 
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i]);
 
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i]);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i]);
 
                 //z below
                 xArr.add(x[i]);
                 yArr.add(y[i]);
                 zArr.add(z[i] - 1);
 
-                xArr.add(x[i] - 1);
-                yArr.add(y[i]);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i] + 1);
-                yArr.add(y[i]);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i]);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i]);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] - 1);
+  
 
                 //z above
                 xArr.add(x[i]);
                 yArr.add(y[i]);
                 zArr.add(z[i] + 1);
 
-                xArr.add(x[i] + 1);
-                yArr.add(y[i]);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i]);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i]);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i]);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] + 1);
 
                
             }

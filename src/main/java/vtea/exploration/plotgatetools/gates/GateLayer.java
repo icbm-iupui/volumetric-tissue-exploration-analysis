@@ -32,10 +32,12 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -44,10 +46,15 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI;
+import static vtea._vtea.LUTMAP;
+import static vtea._vtea.LUTOPTIONS;
+import static vtea._vtea.MORPHOLOGICALMAP;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.ImageHighlightSelectionListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
+import vtea.objects.morphology.AbstractMorphology;
+import vteaobjects.MicroObject;
 //import javax.swing.plaf.LayerUI;
 
 
@@ -351,6 +358,17 @@ public class GateLayer implements ActionListener, ItemListener {
 
                     //after processing gates, if no gates then 
                     
+                    //0: Line
+                    //1: Color
+                    //2: Seperator
+                    //3: Copy
+                    //4: Paste
+                    //5:
+                    //6:
+                   
+          
+                 
+                    
                     if(gateInClipboard){
                         ((JMenuItem)menu.getComponent(4)).setEnabled(true);
                     } else if (!gateInClipboard){
@@ -566,20 +584,31 @@ public class GateLayer implements ActionListener, ItemListener {
 
     private void createPopUpMenu(JXLayer layer) {
         this.menu = new JPopupMenu();
-        JMenuItem menuItem = new JMenuItem("Color...");
+        //JMenuItem menuItem = new JMenuItem("Color...");
+//        menuItem.addActionListener(this);
+//        menu.add(menuItem);
 
-        menuItem.addActionListener(this);
-        menu.add(menuItem);
+        
+        JMenuItem menuItem = new JMenuItem("");
+
+        
+        JMenu jm = new JMenu("Color...");
+        
+        for(int i = 0; i < LUTOPTIONS.length; i++){   
+            menuItem = new JMenuItem(LUTOPTIONS[i]);
+            menuItem.addActionListener(this);
+            jm.add(menuItem);  
+        }
+        
+        menu.add(jm);
         
         menuItem = new JMenuItem("Line...");
-
         menuItem.addActionListener(this);
         menu.add(menuItem);
-      
+
         menu.add(new JSeparator());
         
         menuItem = new JMenuItem("Copy");
-
         menuItem.addActionListener(this);
         menu.add(menuItem);
         

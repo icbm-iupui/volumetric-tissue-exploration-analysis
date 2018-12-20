@@ -236,6 +236,9 @@ public LayerCake3DSingleThreshold(){
         
         Collections.sort(alRegions, new ZComparator());
         
+//        Collections.sort(alRegions, new XComparator());
+//        Collections.sort(alRegions, new YComparator());
+        
 
         //build the volumes
 
@@ -309,27 +312,21 @@ public LayerCake3DSingleThreshold(){
     private void findConnectedRegions(int volumeNumber, double[] startRegion, int z) {
 
             double[] testRegion = new double[2];
-            
-            
-            
             int i = 0;
-            
-            
-            while (i < alRegions.size()) {
-                
-                                             
+
+            while (i < alRegions.size()) {                                 
                 microRegion test = new microRegion();
                 test = alRegions.get(i);
                 testRegion[0] = test.getBoundCenterX();
                 testRegion[1] = test.getBoundCenterY();
                 double comparator = lengthCart(startRegion, testRegion);
-
+               //if(Math.abs(test.getZPosition()-z) < 2){
                 if (!test.isAMember()) {
                     if (comparator <= minConstants[2] && ((test.getZPosition() - z) == 1)) {
                         
                         test.setMembership(volumeNumber);
                         test.setAMember(true);
-                        z = test.getZPosition();
+                        //z = test.getZPosition();
                         testRegion[0] = (testRegion[0] + startRegion[0]) / 2;
                         testRegion[1] = (testRegion[1] + startRegion[1]) / 2;
                         alRegionsProcessed.add(test);
@@ -338,13 +335,17 @@ public LayerCake3DSingleThreshold(){
                         alRegions.remove(i);
                         
 
-                        findConnectedRegions(volumeNumber, testRegion, z);
+                        findConnectedRegions(volumeNumber, testRegion, test.getZPosition());
                         
                     }
                     
                     
                 }
                 i++;
+//            }
+//               else{
+//                i = alRegions.size();    
+//                }
             }
         }
 
@@ -368,6 +369,56 @@ public LayerCake3DSingleThreshold(){
             }
         }
 
+    }
+    
+        private class XComparator implements Comparator<microRegion> {
+
+        @Override
+        public int compare(microRegion o1, microRegion o2) {
+            if (o1.getCentroidX() == o2.getCentroidX()) {
+                return 0;
+            } else if (o1.getCentroidX()> o2.getCentroidX()) {
+                if(o1.getZPosition() != o2.getZPosition()){
+                return 1;
+                } else {
+                return 0;
+                }
+            } else if (o1.getCentroidX() < o2.getCentroidX()) {
+                if(o1.getZPosition() != o2.getZPosition()){
+                return -1;
+                } else {
+                return 0;
+                }
+            } else {
+                return 0;
+            }
+        }
+
+    }
+
+    private class YComparator implements Comparator<microRegion> {
+
+        @Override
+        public int compare(microRegion o1, microRegion o2) {
+            if (o1.getCentroidY() == o2.getCentroidY()) {
+                return 0;
+            } else if (o1.getCentroidY()> o2.getCentroidY()) {
+                if(o1.getZPosition() != o2.getZPosition()){
+                return 1;
+                } else {
+                return 0;
+                }
+            } else if (o1.getCentroidY() < o2.getCentroidY()) {
+                if(o1.getZPosition() != o2.getZPosition()){
+                return -1;
+                } else {
+                return 0;
+                }
+            } else {
+                return 0;
+            }
+
+    }
     }
     
     class RegionForkPool extends RecursiveAction {

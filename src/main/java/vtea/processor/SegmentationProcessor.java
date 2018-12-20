@@ -298,8 +298,14 @@ public class SegmentationProcessor extends AbstractProcessor {
                     
                     
                     ListIterator<MicroObject> itr_vol = volumes.listIterator(start);
+                    
+                    
 
                     int i = start;
+                    
+                    int end = stop-start;
+                    
+                    
                     
                      
                     //this is where I grab the protocols.

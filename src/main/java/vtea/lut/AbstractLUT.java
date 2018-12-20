@@ -33,7 +33,7 @@ public class AbstractLUT implements LUT {
     protected String NAME = "ABSTRACT LUT";
     protected String KEY = "ABSTRACT LUT";
     
-    static Color ZEROPERCENT = new Color(0, 0, 0);
+    Color ZEROPERCENT = new Color(0, 0, 0);
     static Color TENPERCENT = new Color(0, 0, 82);
     static Color TWENTYPERCENT = new Color(61, 0, 178);
     static Color THIRTYPERCENT = new Color(122, 0, 227);
@@ -66,12 +66,12 @@ public class AbstractLUT implements LUT {
 
     @Override
     public String getName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return NAME;
     }
 
     @Override
     public String getKey() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return KEY;
     }
   
     

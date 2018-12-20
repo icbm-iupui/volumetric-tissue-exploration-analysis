@@ -877,6 +877,10 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             this.start = start;
             this.stop = stop;
             
+            alRegionsLocal.sort(new ZComparator());
+            alRegionsLocal.sort(new XComparator());
+            alRegionsLocal.sort(new YComparator());
+            
 //SKETCH for adding probabilistic volume building
             
 //            linkProbability = new short[alRegionsLocal.size()][alRegionsLocal.size()];
@@ -1089,27 +1093,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             }
         }
 
-//        @Override
-//        protected void compute() {
-//
-//            //multi-threading was leading to over segmentation errors.  One thread slows things down but is more accurate.
-//            int processors = 1;
-//            int length = alRegions.size() / processors;
-//
-//            if (alRegions.size() < processors) {
-//                length = alRegions.size();
-//            }
-//
-//            //System.out.println("PROFILING-DETAILS: Volume Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
-//            if (stop - start > length) {
-//               
-//                invokeAll(new VolumeForkPool(alRegions, minConstantsLocal, start, start + ((stop - start) / 2)),
-//                        new VolumeForkPool(alRegions, minConstantsLocal, start + ((stop - start) / 2) + 1, stop));
-//               
-//            } else {
-//                defineVolumes();
-//            }
-//        }
+
 
         private synchronized void findConnectedRegions(int volumeNumber, double[] startRegion, int z) {
 
@@ -1126,7 +1110,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                 testRegion[0] = test.getBoundCenterX();
                 testRegion[1] = test.getBoundCenterY();
                 double comparator = lengthCart(startRegion, testRegion);
-
+                if(comparator < minConstants[2]*10){
                 if (!test.isAMember()) {
                     if (comparator <= minConstants[2] && ((test.getZPosition() - z) == 1)) {
                         
@@ -1149,6 +1133,11 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                     
                     
                 }
+                
+                }else{
+                    i = stop;
+                }
+               
                 i++;
             }
         }
@@ -1175,10 +1164,22 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
 
         @Override
         public int compare(microRegion o1, microRegion o2) {
-            if (o1.getCentroidX() > o2.getCentroidX()) {
+            if (o1.getCentroidX() == o2.getCentroidX()) {
+                return 0;
+            } else if (o1.getCentroidX()> o2.getCentroidX()) {
+                if(o1.getZPosition() != o2.getZPosition()){
                 return 1;
-            } else {
+                } else {
+                return 0;
+                }
+            } else if (o1.getCentroidX() < o2.getCentroidX()) {
+                if(o1.getZPosition() != o2.getZPosition()){
                 return -1;
+                } else {
+                return 0;
+                }
+            } else {
+                return 0;
             }
         }
 
@@ -1188,14 +1189,27 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
 
         @Override
         public int compare(microRegion o1, microRegion o2) {
-            if (o1.getCentroidY() > o2.getCentroidY()) {
+            if (o1.getCentroidY() == o2.getCentroidY()) {
+                return 0;
+            } else if (o1.getCentroidY()> o2.getCentroidY()) {
+                if(o1.getZPosition() != o2.getZPosition()){
                 return 1;
-            } else {
+                } else {
+                return 0;
+                }
+            } else if (o1.getCentroidY() < o2.getCentroidY()) {
+                if(o1.getZPosition() != o2.getZPosition()){
                 return -1;
+                } else {
+                return 0;
+                }
+            } else {
+                return 0;
             }
-        }
 
     }
+    }
+       
 
     private class ZObjectComparator implements Comparator<microVolume> {
 
@@ -1217,5 +1231,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         }
 
     }
+    }
 
-}
+
+
