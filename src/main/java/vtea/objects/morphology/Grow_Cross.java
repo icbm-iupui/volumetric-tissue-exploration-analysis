@@ -32,17 +32,17 @@ import org.scijava.plugin.Plugin;
  *
  */
 @Plugin(type = Morphology.class)
-public class Grow_26C extends AbstractMorphology {
+public class Grow_Cross extends AbstractMorphology {
     
     
     JTextField Distance = new JTextField("1", 5);
 
-    public Grow_26C() {
+    public Grow_Cross() {
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
-        COMMENT = "Basic dilation";
-        NAME = "Grow 26C";
-        KEY = "GROW";
+        COMMENT = "Cross 3d probe 6C";
+        NAME = "Cross";
+        KEY = "CROSS";
     }
     
     //Allowed operations: 6C, 8C
@@ -51,9 +51,11 @@ public class Grow_26C extends AbstractMorphology {
     @Override
     public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, List<JComponent> protocol, String operation, String arg) {
        
-        JTextField distance = (JTextField)protocol.get(1); 
+        JTextField distance = (JTextField)protocol.get(1);
+        
+        ArrayList<Number> centroid = getCentroid(x, y, z);
        
-       return growRegion26C(x, y, z, Integer.parseInt(distance.getText()));
+       return makeCross6C(centroid.get(0).intValue(), centroid.get(1).intValue(), centroid.get(2).intValue(), Integer.parseInt(distance.getText()));
     }
     
     @Override
@@ -77,7 +79,62 @@ public class Grow_26C extends AbstractMorphology {
         return panel;
     }
     
-    private ArrayList<ArrayList<Number>> growRegion26C(int[] x, int[] y, int[] z, int times) {
+    private ArrayList<Number> getCentroid(int[] x, int[] y, int[] z){
+        
+        int maxX = 0;
+        int maxY = 0; 
+        int maxZ = 0; 
+        
+
+                
+        
+        for(int i = 0; i < x.length; i++){ 
+            
+            if(x[i] > maxX){
+                maxX = x[i];
+            }
+            if(y[i] > maxY){
+                maxY = y[i];
+            }
+            if(z[i] > maxZ){
+                maxZ = z[i];
+            }
+
+        }
+        
+        int minX = maxX;
+        int minY = maxY; 
+        int minZ = maxZ; 
+        
+        for(int i = 0; i < x.length; i++){ 
+            
+            if(x[i] < minX){
+                minX = x[i];
+            }
+            if(y[i] < minY){
+                minY = y[i];
+            }
+            if(z[i] < minZ){
+                minZ = z[i];
+            }
+            
+
+        }
+        
+        int centX = maxX-minX/2;
+        int centY = maxY-minY/2;
+        int centZ = maxZ-minZ/2;
+        
+        ArrayList<Number> result = new ArrayList<Number>();
+        
+        result.add(centX);
+        result.add(centY);
+        result.add(centZ);
+        
+        return result;
+    }
+    
+   private ArrayList<ArrayList<Number>> makeCross6C(int x, int y, int z, int times) {
 
         //System.out.println("PROFILING:                       Starting object size: " + x.length + ".");
         ArrayList<Number> xArr = new ArrayList();
@@ -88,11 +145,7 @@ public class Grow_26C extends AbstractMorphology {
         ArrayList<Number> yList = new ArrayList();
         ArrayList<Number> zList = new ArrayList();
 
-        for (int k = 0; k < x.length; k++) {
-            xList.add(x[k]);
-            yList.add(y[k]);
-            zList.add(z[k]);
-        }
+
         
         ArrayList<ArrayList<Number>> noDups = new ArrayList();
 
@@ -100,123 +153,49 @@ public class Grow_26C extends AbstractMorphology {
         
         for (int j = 1; j <= times; j++) {
 
-            int n = x.length;
+            //int n = x.length;
             
             //System.out.println("PROFILING:             Expansion time: " + times + ".");
             
             //8 connected.
-            for (int i = 0; i < n; i++) {
+            //for (int i = 0; i < n; i++) {
 
                 //same z
-                xArr.add(x[i]);
-                yArr.add(y[i]);
-                zArr.add(z[i]);
+//                xArr.add(x);
+//                yArr.add(y);
+//                zArr.add(z);
 
-                xArr.add(x[i] - 1);
-                yArr.add(y[i]);
-                zArr.add(z[i]);
+                xArr.add(x - j);
+                yArr.add(y);
+                zArr.add(z);
 
-                xArr.add(x[i] + 1);
-                yArr.add(y[i]);
-                zArr.add(z[i]);
+                xArr.add(x + j);
+                yArr.add(y);
+                zArr.add(z);
 
-                xArr.add(x[i]);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i]);
+                xArr.add(x);
+                yArr.add(y - j);
+                zArr.add(z);
 
-                xArr.add(x[i]);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i]);
+                xArr.add(x);
+                yArr.add(y + j);
+                zArr.add(z);
 
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i]);
 
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i]);
 
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i]);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i]);
 
                 //z below
-                xArr.add(x[i]);
-                yArr.add(y[i]);
-                zArr.add(z[i] - 1);
+                xArr.add(x);
+                yArr.add(y);
+                zArr.add(z - j);
 
-                xArr.add(x[i] - 1);
-                yArr.add(y[i]);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i] + 1);
-                yArr.add(y[i]);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i]);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i]);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] - 1);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] - 1);
+  
 
                 //z above
-                xArr.add(x[i]);
-                yArr.add(y[i]);
-                zArr.add(z[i] + 1);
+                xArr.add(x);
+                yArr.add(y);
+                zArr.add(z + j);
 
-                xArr.add(x[i] + 1);
-                yArr.add(y[i]);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i]);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i]);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i]);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i] + 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i] + 1);
-
-                xArr.add(x[i] - 1);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i] + 1);
 
                
             }
@@ -226,26 +205,9 @@ public class Grow_26C extends AbstractMorphology {
             
             noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
             
-            if (times > 1) {
-                
-                    xArr = noDups.get(0);
-                    yArr = noDups.get(1);
-                    zArr = noDups.get(2);
-
-                    x = new int[xArr.size()];
-                    y = new int[xArr.size()];
-                    z = new int[xArr.size()];
-
-                    for (int k = 0; k < xArr.size(); k++) {
-                        x[k] = (Integer) xArr.get(k);
-                        y[k] = (Integer) yArr.get(k);
-                        z[k] = (Integer) zArr.get(k);
-                    }
-            }
-        }
+        
         return noDups;
     }
-
     private ArrayList<ArrayList<Number>> removeDuplicates(ArrayList<Number> x, ArrayList<Number> y, ArrayList<Number> z) {
 
         Number xPos;

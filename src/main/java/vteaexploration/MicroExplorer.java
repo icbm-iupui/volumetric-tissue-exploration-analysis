@@ -36,6 +36,7 @@ import ij.gui.RoiListener;
 import ij.measure.ResultsTable;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -50,10 +51,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -107,6 +111,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     int impMode;
     String title;
     ArrayList descriptions;
+    ArrayList<String> descriptionsLabels = new ArrayList<String>();
     ArrayList<MicroObject> Objects = new ArrayList<MicroObject>();
     ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
 
@@ -161,7 +166,14 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         //Available data is an arraylist of the available tags as they exist in microvolumes.
         //imp is the original image
         this.descriptions = AvailableData;
-
+        
+        //as taken from stackoverflow
+        
+        descriptionsLabels.addAll(descriptions);
+        
+        ComboboxToolTipRenderer renderer = new ComboboxToolTipRenderer();
+        renderer.setTooltips(descriptionsLabels);
+       
         this.imp = imp;
         this.impoverlay = imp.duplicate();
         this.impoverlay.addImageListener(this);
@@ -172,7 +184,14 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
         //Setup GUI and populate comboboxes
         initComponents();
+        
+        this.jComboBoxXaxis.setRenderer(renderer);
+        this.jComboBoxYaxis.setRenderer(renderer);
+        this.jComboBoxLUTPlot.setRenderer(renderer);
+        
         addMenuItems();
+        
+        
 
         this.title = title;
 
@@ -407,7 +426,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         jLabel1.setText("X");
         toolbarPlot.add(jLabel1);
 
-        jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+        jComboBoxXaxis.setModel(new DefaultComboBoxModel(descriptions.toArray()));
         jComboBoxXaxis.setSelectedIndex(this.XSTART);
         jComboBoxXaxis.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1399,6 +1418,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     @Override
     public void addFeatures(String name, ArrayList<ArrayList<Number>> results) {
+        
         int xsel = jComboBoxXaxis.getSelectedIndex();
         int ysel = jComboBoxYaxis.getSelectedIndex();
         int zsel = jComboBoxLUTPlot.getSelectedIndex();
@@ -1407,19 +1427,23 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         int startSize = featureCount;
 
         String descr;
+        
+        
 
         for (int i = startSize; i < newFeatures + startSize; i++) {
-
+            descr = "";
             if (results.size() > 1) {
                 descr = name + "_" + (i - startSize);
+                descriptionsLabels.add(descr);
             } else {
                 descr = name;
-
-                if (descr.length() > 10) {
-                    name = name.substring(0, 5) + "..." + name.substring(name.length() - 2, name.length());
-                    descr = name + "_" + (i - startSize);
-                }
+                descriptionsLabels.add(descr);
             }
+
+             if (descr.length() > 10) {
+                    String truncated = name.substring(0, 5) + "..." + name.substring(name.length() - 2, name.length());
+                    descr = truncated + "_" + (i - startSize);
+             }
 
             descriptions.add(descr);
 
@@ -1442,9 +1466,17 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         AvailableDataHM = makeAvailableDataHM(descriptions);
         ec.updateFeatureSpace(AvailableDataHM, measurements);
 
+
         jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+        
+        ComboboxToolTipRenderer renderer = new ComboboxToolTipRenderer();
+        renderer.setTooltips(descriptionsLabels);
+        
+        jComboBoxXaxis.setRenderer(renderer);
+        jComboBoxYaxis.setRenderer(renderer);
+        jComboBoxLUTPlot.setRenderer(renderer);
 
         jComboBoxXaxis.setSelectedIndex(xsel);
         jComboBoxYaxis.setSelectedIndex(ysel);
@@ -1501,6 +1533,30 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         }
 
     }
+    
+    //as borrowed from https://stackoverflow.com/questions/480261/java-swing-mouseover-text-on-jcombobox-items
+    
+    public class ComboboxToolTipRenderer extends DefaultListCellRenderer {
+    List<String> tooltips;
+
+    @Override
+    public Component getListCellRendererComponent(JList list, Object value,
+                        int index, boolean isSelected, boolean cellHasFocus) {
+
+        JComponent comp = (JComponent) super.getListCellRendererComponent(list,
+                value, index, isSelected, cellHasFocus);
+
+        if (-1 < index && null != value && null != tooltips) {
+            list.setToolTipText(tooltips.get(index));
+        }
+        return comp;
+    }
+
+    public void setTooltips(List<String> tooltips) {
+        this.tooltips = tooltips;
+    }
+}
+
 
     class ExportCSV {
 
