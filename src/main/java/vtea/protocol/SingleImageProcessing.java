@@ -849,7 +849,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             while(itr.hasNext()){
                 MeasurementProcessor mp = (MeasurementProcessor)itr.next();
                 if(mp.getUIDKey().equals(key)){
-                    executeExploring(key, mp.getObjects(), mp.getFeatures(), mp.getDescriptions());
+                    executeExploring(key, mp.getObjects(), mp.getFeatures(), mp.getDescriptions(), mp.getDescriptionLabels());
                 }
               }
         }
@@ -1389,11 +1389,11 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         mp.execute();
     }
 
-    private void executeExploring(String key, ArrayList<MicroObject> vols, ArrayList measurements, ArrayList headers) {
+    private void executeExploring(String key, ArrayList<MicroObject> vols, ArrayList measurements, ArrayList headers, ArrayList headerLabels) {
         
         System.out.println("PROFILING: Exploring on dataset: " + key);
         
-        ExplorerProcessor ep = new ExplorerProcessor(key, ProcessedImage, vols, measurements, headers);
+        ExplorerProcessor ep = new ExplorerProcessor(key, ProcessedImage, vols, measurements, headers, headerLabels);
         ep.addPropertyChangeListener(this);
         explorerProcessors.add(ep);
         ep.execute();

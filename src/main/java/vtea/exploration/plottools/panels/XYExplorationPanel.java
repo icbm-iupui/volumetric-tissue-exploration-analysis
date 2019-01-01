@@ -33,8 +33,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -44,6 +46,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,8 +64,18 @@ import javax.swing.JTextField;
 import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.LogAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.event.RendererChangeEvent;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.LookupPaintScale;
+import org.jfree.chart.renderer.PaintScale;
+import org.jfree.chart.renderer.xy.XYShapeRenderer;
+import org.jfree.chart.title.PaintScaleLegend;
+import org.jfree.chart.ui.RectangleEdge;
+import static vtea._vtea.LUTMAP;
+import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plotgatetools.gates.Gate;
@@ -75,6 +89,9 @@ import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
+import vtea.lut.AbstractLUT;
+import vtea.lut.LUT;
+import vtea.objects.measurements.AbstractMeasurement;
 import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
@@ -97,16 +114,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         Roi.addRoiListener(this);
         this.objects = objects;
         this.measurements = measurements;
-
+        this.LUT = 0;
         this.hm = hm;
         this.pointsize = MicroExplorer.POINTSIZE;
 
         //default plot 
-        addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART, MicroExplorer.POINTSIZE, hm.get(1), hm.get(4), hm.get(2));
+        addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART, MicroExplorer.POINTSIZE, 0, hm.get(1), hm.get(4), hm.get(2));
     }
 
     private XYChartPanel createChartPanel(int x, int y, int l, String xText, String yText, String lText, int size, ImagePlus ip, boolean imageGate, Color imageGateOutline) {
-        return new XYChartPanel(measurements, x, y, l, xText, yText, lText, size, ip, imageGate, imageGateOutline);
+        return new XYChartPanel(objects, measurements, x, y, l, xText, yText, lText, size, ip, imageGate, new Color(0,177,76));
     }
 
     public void makeOverlayImage(ArrayList gates, int x, int y, int xAxis, int yAxis) {
@@ -333,7 +350,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             }
         }
 
-        System.out.println("RESULT: total gates " + gates.size() + ": " + this.getTitle() + ", Gated: " + result.size() + ", Total: " + total + ", for: " + 100 * (new Double(selected).doubleValue() / (new Double(total)).doubleValue()) + "%");
+        //System.out.println("RESULT: total gates " + gates.size() + ": " + this.getTitle() + ", Gated: " + result.size() + ", Total: " + total + ", for: " + 100 * (new Double(selected).doubleValue() / (new Double(total)).doubleValue()) + "%");
         return result.size();
     }
 
@@ -370,14 +387,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     }
 
     @Override
-    public JPanel addPlot(int x, int y, int l, int size, String xText, String yText, String lText) {
+    public JPanel addPlot(int x, int y, int l, int size, int LUT, String xText, String yText, String lText) {
         currentX = x;
         currentY = y;
         currentL = l;
         pointsize = size;
         CenterPanel.removeAll();
 
-        cpd = new XYChartPanel(measurements, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
+        cpd = new XYChartPanel(objects, measurements, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
 
         cpd.addUpdatePlotWindowListener(this);
 
@@ -402,6 +419,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 ycLog.setMinorTickCount(9);
                 plot.setRangeAxis(ycLog);
             }
+           
         }
 
         if (useCustom) {
@@ -423,6 +441,134 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             }
 
         }
+        
+        //setup LUTs
+        
+//        if(l >= 0){
+//            double max = getMaximumOfData((ArrayList) measurements, l);
+//            double min = getMinimumOfData((ArrayList) measurements, l);
+//            double range = max - min;
+//        if (max == 0) {
+//            max = 1;
+//        }
+//
+//        PaintScaleLegend psl = new PaintScaleLegend(new LookupPaintScale(0, 100, new Color(0, 0, 0)), new NumberAxis(""));
+//
+//        XYShapeRenderer renderer = (XYShapeRenderer) plot.getRenderer(0);
+//        
+//        //PaintScale ps = renderer.getPaintScale();
+//
+//        LookupPaintScale ps = new LookupPaintScale(min, max+1, new Color(0x999999));
+//   
+//        if(range <= 10){
+//            
+//        ps.add(0, new Color(255,51,51));
+//        ps.add(1, new Color(255, 153, 51));
+//        ps.add(2, new Color(153, 255, 51));
+//        ps.add(3, new Color(51, 255, 153));
+//        ps.add(4, new Color(51, 255, 255));
+//        ps.add(5, new Color(102, 178, 255));
+//        ps.add(6, new Color(102, 102, 255));
+//        ps.add(7, new Color(178, 102, 255));
+//        ps.add(8, new Color(255, 102, 255));
+//        ps.add(9, new Color(255, 102, 178));
+//  
+//        }else{
+//            
+//            //load values here.
+//            
+//            
+//            
+            try {
+                    Class<?> c;
+
+                    String str =  LUTMAP.get(LUTOPTIONS[this.LUT]);
+                    
+                   //System.out.println("PROFILING: The loaded lut is: " + str);
+                    
+                    c = Class.forName(str);
+                    Constructor<?> con;
+
+                    Object iImp = new Object();
+
+                    try {
+
+                        con = c.getConstructor();
+                        iImp = con.newInstance();
+                        
+                        HashMap lutTable = ((AbstractLUT)iImp).getLUTMAP();
+                       // System.out.println("PROFILING: The loaded lut depth: " + lutTable.size());
+                        
+//                        public HashMap getLUTMAP() {
+//        HashMap<String, Color> hm = new HashMap<String, Color>();
+//        
+//        hm.put("0", ZEROPERCENT);
+//        hm.put("10", TENPERCENT);
+//        hm.put("20", TWENTYPERCENT);
+//        hm.put("30", THIRTYPERCENT);
+//        hm.put("40", FORTYPERCENT);
+//        hm.put("50", FIFTYPERCENT);
+//        hm.put("60", SIXTYPERCENT);
+//        hm.put("70", SEVENTYPERCENT);
+//        hm.put("80", EIGHTYPERCENT);
+//        hm.put("90", NINETYPERCENT);
+//        hm.put("100", ALLPERCENT);
+
+
+                    
+//        
+//        return hm;
+//      }
+//                        
+//                        
+//
+//            
+//            
+//            
+//
+        XYChartPanel.TENPERCENT = ((AbstractLUT)iImp).getColor(10);
+        XYChartPanel.TWENTYPERCENT = ((AbstractLUT)iImp).getColor(20);
+        XYChartPanel.THIRTYPERCENT = ((AbstractLUT)iImp).getColor(30);
+        XYChartPanel.FORTYPERCENT = ((AbstractLUT)iImp).getColor(40);
+        XYChartPanel.FIFTYPERCENT = ((AbstractLUT)iImp).getColor(50);
+        XYChartPanel.SIXTYPERCENT = ((AbstractLUT)iImp).getColor(60);
+        XYChartPanel.SEVENTYPERCENT = ((AbstractLUT)iImp).getColor(70);
+        XYChartPanel.EIGHTYPERCENT = ((AbstractLUT)iImp).getColor(80);
+        XYChartPanel.NINETYPERCENT = ((AbstractLUT)iImp).getColor(90);
+        XYChartPanel.ALLPERCENT = ((AbstractLUT)iImp).getColor(100);
+
+        
+//        
+                            } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                        System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
+                    }
+                } catch (NullPointerException | ClassNotFoundException ex) {
+                    System.out.println("EXCEPTION: new class decleration error... Class not found.");
+                }
+//        }
+//        
+//        renderer.setPaintScale(ps);
+//        
+//        NumberAxis lAxis = new NumberAxis();
+//        
+//        lAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+//
+//        psl = new PaintScaleLegend(ps, lAxis);
+//
+//        psl.setBackgroundPaint(new Color(255, 255, 255, 255));
+//        
+//        psl.setPosition(RectangleEdge.RIGHT);
+//        psl.setMargin(4, 4, 40, 4);
+//        psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+//        
+//        plot.setRenderer(0, renderer);
+//       
+        
+        
+//       }
+        
+    
+        
 
         //setup chart layer
         CenterPanel.setOpaque(false);
@@ -446,6 +592,48 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         //addExplorationGroup();
         return CenterPanel;
     }
+    
+    private double getMaximumOfData(ArrayList measurements, int l) {
+
+        ListIterator<ArrayList> litr = measurements.listIterator();
+
+
+        Number high = 0;
+
+        while (litr.hasNext()) {
+            try {
+                
+                ArrayList<Number> al = litr.next();
+              
+                if (al.get(l).floatValue() > high.floatValue()) {
+                    high = al.get(l).floatValue();
+                }
+            } catch (NullPointerException e) {
+            }
+        }
+        return high.longValue();
+
+    }
+
+    private double getMinimumOfData(ArrayList measurements, int l) {
+
+        ListIterator<ArrayList> litr = measurements.listIterator();
+
+        //ArrayList<Number> al = new ArrayList<Number>();
+        Number low = getMaximumOfData(measurements, l);
+
+        while (litr.hasNext()) {
+            try {
+                ArrayList<Number> al = litr.next();
+                if (al.get(l).floatValue() < low.floatValue()) {
+                    low = al.get(l).floatValue();
+                }
+            } catch (NullPointerException e) {
+            }
+        }
+        return low.longValue();
+    }
+
 
     @Override
     public void addExplorationGroup() {
@@ -469,7 +657,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             lText = hm.get(l);
         }
 //        if (!(isMade(x, y, l, size))) {
-        addPlot(x, y, l, size, hm.get(x), hm.get(y), lText);
+        addPlot(x, y, l, size, LUT, hm.get(x), hm.get(y), lText);
 //        } else { 
 //            showPlot(x, y, l, size, hm.get(x), hm.get(y), lText); 
 //            System.out.println("Showing not adding!");
@@ -589,10 +777,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         PolygonGate pg = new PolygonGate(points);
         pg.createInChartSpace(chart);
         if (pg.getGateAsPoints().size() == 0) {
-            System.out.println("PROFILING: What happened to my points?");
+            //System.out.println("PROFILING: What happened to my points?");
         }
         gates.add(pg);
-        System.out.println("PROFILING: in gate arraylist: " + gates.get(gates.lastIndexOf(pg)).getGateAsPoints());
+        //System.out.println("PROFILING: in gate arraylist: " + gates.get(gates.lastIndexOf(pg)).getGateAsPoints());
 
         this.notifyResetSelectionListeners();
     }
@@ -614,7 +802,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 //            addExplorationGroup();
 //        }
 //        if (!(isMade(x, y, l, size))) {
-        addPlot(x, y, l, size, hm.get(x), hm.get(y), hm.get(l));
+        addPlot(x, y, l, size, LUT, hm.get(x), hm.get(y), hm.get(l));
         //System.out.println("Change Axes, new plot: " + x + ", " + y + ", " + l);
 //        } else {
 //            showPlot(x, y, l, size,  hm.get(x), hm.get(y), hm.get(l));
@@ -688,11 +876,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     public void onPlotUpdateListener() {
         this.getParent().validate();
         this.getParent().repaint();
-        System.out.println("PROFILING: Plot updated...");
+        //System.out.println("PROFILING: Plot updated...");
     }
 
     @Override
     public void roiModified(ImagePlus ip, int i) {
+        
+  
         ArrayList<Gate> gates = new ArrayList<Gate>();
         try {
             if (ip.getID() == impoverlay.getID()) {
@@ -700,17 +890,17 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     case RoiListener.COMPLETED:
                         imageGate = true;
                         //System.out.println("PROFILING: XYChartPanel, Roi modified... Completed. Imagegate: " + imageGate);    
-                        addPlot(currentX, currentY, currentL, pointsize, hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                        addPlot(currentX, currentY, currentL, pointsize, LUT,hm.get(currentX), hm.get(currentY), hm.get(currentL));
                         break;
                     case RoiListener.MOVED:
                         imageGate = true;
                         //System.out.println("PROFILING: XYChartPanel, roiListener, Roi modified... Moved. Imagegate: " + imageGate);                   
-                        addPlot(currentX, currentY, currentL, pointsize, hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                        addPlot(currentX, currentY, currentL, pointsize, LUT,hm.get(currentX), hm.get(currentY), hm.get(currentL));
                         break;
                     case RoiListener.DELETED:
                         imageGate = false;
-                        //System.out.println("PROFILING: XYChartPanel, roiListener, Roi modified... Deleted. Imagegate: " + imageGate);  
-                        addPlot(currentX, currentY, currentL, pointsize, hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                       //System.out.println("PROFILING: XYChartPanel, roiListener, Roi modified... Deleted. Imagegate: " + imageGate);  
+                        addPlot(currentX, currentY, currentL, pointsize, LUT,hm.get(currentX), hm.get(currentY), hm.get(currentL));
                         break;
                     default:
                         break;
@@ -750,7 +940,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             isAll[i - 1] = ChannelSplitter.getChannel(impoverlay, i);
         }
         
-//I think the gate/3D error is here, or in gates
+
 
         if (gates.size() > 0) {
             for (int i = 0; i < gates.size(); i++) {
@@ -759,16 +949,23 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         }
 
         ImagePlus[] images = new ImagePlus[isAll.length];
+        
+        ij.process.LUT[] oldLUT = impoverlay.getLuts();
 
         for (int i = 0; i < isAll.length; i++) {
             images[i] = new ImagePlus("Channel_" + i, isAll[i]);
             StackConverter sc = new StackConverter(images[i]);
+            if(i < impoverlay.getNChannels()){
+            images[i].setLut(oldLUT[i]);
+            }
             sc.convertToGray8();
         }
 
         ImagePlus merged = mergeChannels(images, true);
+        
         merged.setDisplayMode(IJ.COMPOSITE);
         merged.show();
+        merged.setTitle("Gates_" + impoverlay.getTitle());
         return merged;
     }
 
@@ -797,10 +994,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     }
 
     @Override
-    public void setAxesTo(ArrayList al, boolean x, boolean y) {
+    public void setAxesTo(ArrayList al, boolean x, boolean y, int lutTable) {
         AxesLimits = al;
         xScaleLinear = x;
         yScaleLinear = y;
+        LUT = lutTable;
         useCustom = true;
     }
 

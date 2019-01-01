@@ -59,7 +59,7 @@ public interface ExplorationCenter {
     
     public JPanel addRectangleToPlot();
 
-    public JPanel addPlot(int x, int y, int l, int size, String xText, String yText, String LUTText);
+    public JPanel addPlot(int x, int y, int l, int size, int LUT, String xText, String yText, String LUTText);
 
     public void showPlot(int x, int y, int l, int size, String xText, String yText, String lText);
 
@@ -97,7 +97,7 @@ public interface ExplorationCenter {
     
     public void setAxesToCurrent();
     
-    public void setAxesTo(ArrayList<Double> al, boolean x, boolean y);
+    public void setAxesTo(ArrayList al, boolean x, boolean y, int lutTable);
     
     public void setCustomRange(boolean state);
     

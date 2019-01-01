@@ -37,6 +37,7 @@ public class ExplorerProcessor extends AbstractProcessor {
     ArrayList protocol;  //we may want to turn this into a class...
 
     private ArrayList descriptions;
+    private ArrayList descriptionLabels;
     private ArrayList measurements;
     private ArrayList objects;
 
@@ -59,7 +60,7 @@ public class ExplorerProcessor extends AbstractProcessor {
     once SegmentationProcessor exists on its own.
     
      */
-    public ExplorerProcessor(String k, ImagePlus imp, ArrayList volumes, ArrayList measurements, ArrayList headers) {
+    public ExplorerProcessor(String k, ImagePlus imp, ArrayList volumes, ArrayList measurements, ArrayList headers, ArrayList headerLabels) {
 
         VERSION = "0.0";
         AUTHOR = "Seth Winfree";
@@ -71,6 +72,7 @@ public class ExplorerProcessor extends AbstractProcessor {
         objects = volumes;
         this.measurements = measurements;
         descriptions = headers;
+        descriptionLabels = headerLabels;
         key = k;
 
     }
@@ -107,7 +109,7 @@ public class ExplorerProcessor extends AbstractProcessor {
             explorer.setTitle(impOriginal.getTitle().replace("DUP_", ""));
             explorer.setTitle(explorer.getTitle().replace(".tif", ""));
             explorer.setTitle(explorer.getTitle().concat("_" + title));
-            explorer.process(impOriginal, title, measurements, XY, DPP, descriptions);
+            explorer.process(impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels);
 
             setProgress(100);
             firePropertyChange("comment", "", "Done.");

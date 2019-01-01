@@ -54,6 +54,7 @@ public class MeasurementProcessor extends AbstractProcessor {
     private ArrayList protocol;
     private ImagePlus impOriginal;
     private ArrayList<String> description;
+    private ArrayList<String> descriptionLabels;
 
     private ArrayList objectFeatures;
     
@@ -81,6 +82,7 @@ public class MeasurementProcessor extends AbstractProcessor {
         impOriginal = imp;
 
         description = new ArrayList<>();
+        descriptionLabels = new ArrayList<>();
         measurements = new ArrayList<>();
         features = OBJECTMEASUREMENTMAP.values();
         
@@ -139,7 +141,8 @@ public class MeasurementProcessor extends AbstractProcessor {
                         
                         channel_text = j+1;
                         
-                        description.add("Ch_" + channel_text + "_" + ((AbstractMeasurement) iImp).getName());
+                        description.add("Ch_" + channel_text + "_" + ((AbstractMeasurement) iImp).getKey());
+                        descriptionLabels.add("Channel: " + channel_text + ", Measurement:" + ((AbstractMeasurement) iImp).getName());
                         
                         //System.out.println("PROFILING: Adding measurement: " + "Ch_" + channel_text + "_" + ((AbstractMeasurement) iImp).getName());
 
@@ -161,6 +164,8 @@ public class MeasurementProcessor extends AbstractProcessor {
         
         /** morphological protocol in morphologies.
          * morphological determinants 0:Channel 1:Operation 2:Value
+         * 
+         * 
          */
         
          // ArrayList for morphology:  0: method(as String), 1: channel, 
@@ -196,8 +201,20 @@ public class MeasurementProcessor extends AbstractProcessor {
 
                         con = c.getConstructor();
                         iImp = con.newInstance();
-                        description.add("Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName());
                         
+                        
+                        String descr = "Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName();
+                        
+              if (descr.length() > 10) {
+                    descr = descr.substring(0, 8) + "..." + descr.substring(descr.length() - 5, descr.length());
+                    //descr = truncated + "_" + (i - startSize);
+             }
+
+                        
+                        //description.add("Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName());
+                        
+                        description.add(descr);
+                        descriptionLabels.add("Channel: " + morphology.get(1) + ", Morphology: " +  morphology.get(0) + ", Measurement:" + ((AbstractMeasurement) iImp).getName());
                         //System.out.println("PROFILING: Adding measurement: " + "Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName());
 
                     } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
@@ -402,8 +419,11 @@ public class MeasurementProcessor extends AbstractProcessor {
     }
 
     public ArrayList getDescriptions() {
-
         return description;
+    }
+    
+    public ArrayList getDescriptionLabels() {
+        return descriptionLabels;
     }
 
     public ArrayList getFeatures() {

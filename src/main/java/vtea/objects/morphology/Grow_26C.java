@@ -42,7 +42,7 @@ public class Grow_26C extends AbstractMorphology {
         AUTHOR = "Seth Winfree";
         COMMENT = "Basic dilation";
         NAME = "Grow 26C";
-        KEY = "GROW";
+        KEY = "GR26C";
     }
     
     //Allowed operations: 6C, 8C

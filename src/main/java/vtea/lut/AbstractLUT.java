@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author sethwinfree
  */
-public class AbstractLUT implements LUT {
+public abstract class AbstractLUT implements LUT {
     
     protected String VERSION = "0.1";
     protected String AUTHOR = "VTEA Developer";
@@ -73,6 +73,34 @@ public class AbstractLUT implements LUT {
     public String getKey() {
         return KEY;
     }
+    
+    @Override
+    public Color getColor(int i) {
+        switch(i){
+            case 10:
+                return TENPERCENT;
+            case 20:
+                return TWENTYPERCENT;
+            case 30:
+                return THIRTYPERCENT;
+            case 40:
+                return FORTYPERCENT;
+            case 50:
+                return FIFTYPERCENT;
+            case 60:
+                return SIXTYPERCENT;          
+            case 70:
+                return SEVENTYPERCENT;
+            case 80:
+                return EIGHTYPERCENT;
+            case 90:
+                return NINETYPERCENT;
+            case 100:
+                return ALLPERCENT;
+        }
+        return ZEROPERCENT;
+    }
+    
   
     
     
