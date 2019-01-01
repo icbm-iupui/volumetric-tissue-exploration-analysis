@@ -50,19 +50,21 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected ArrayList<ArrayList> ExplorationItems = new ArrayList<ArrayList>();
     protected HashMap<Integer, String> hm = new HashMap<Integer, String>();
     protected ImagePlus impoverlay;
-    protected ImagePlus impoverlayCopy;
+    //protected ImagePlus impoverlayCopy;
     protected boolean imageGate = false;
     
     protected ArrayList<Double> AxesLimits;
     
     protected boolean xScaleLinear = true;
     protected boolean yScaleLinear = true;
+    
+    protected int LUT = 0;
 
     protected int currentX;
     protected int currentY;
     protected int currentL; 
     protected int pointsize;
-    protected Color imageGateColor = new Color(0,177,76);   
+    protected static Color imageGateColor = new Color(0,177,76);   
 
     public AbstractExplorationPanel() {
         CenterPanel.setOpaque(false);

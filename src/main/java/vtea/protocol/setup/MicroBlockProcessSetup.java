@@ -382,7 +382,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         
         ProcessComponents = copyComponents(al);
         
-       System.out.println("PROFILING: Number of variables: " + ProcessComponents.size());
+//       System.out.println("PROFILING: Number of variables: " + ProcessComponents.size());
         
         CurrentProcessItems.set(0, ProcessComponents);
         

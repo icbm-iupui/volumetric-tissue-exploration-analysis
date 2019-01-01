@@ -25,28 +25,28 @@ import org.scijava.plugin.Plugin;
  * @author sethwinfree
  */
 @Plugin (type = LUT.class)
-public class RedGrayR extends AbstractLUT {
+public class BlueGray extends AbstractLUT {
     
 
     
-    public RedGrayR(){
+    public BlueGray(){
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
         COMMENT = "Implements LUTs for VTEA";
-        NAME = "RedGray";
-        KEY = "RGLUT";
+        NAME = "BlueGray";
+        KEY = "BGLUT";
         
-    ZEROPERCENT = new Color(0x9e9191);
-    TENPERCENT = new Color(0xad7a7a);
-    TWENTYPERCENT = new Color(0xbd6363);
-    THIRTYPERCENT = new Color(0xc75454);
-    FORTYPERCENT = new Color(0xcc4c4c);
-    FIFTYPERCENT = new Color(0xd63d3d);
-    SIXTYPERCENT = new Color(0xd14545);
-    SEVENTYPERCENT = new Color(0xdb3636);
-    EIGHTYPERCENT = new Color(0xeb1f1f);
-    NINETYPERCENT = new Color(0xf50f0f);
-    ALLPERCENT = new Color(0xff0000);
+    ZEROPERCENT = new Color(0x999999);
+    TENPERCENT = new Color(0x8a8aa3);
+    TWENTYPERCENT = new Color(0x7b7bad);
+    THIRTYPERCENT = new Color(0x6666bb);
+    FORTYPERCENT = new Color(0x5050ca);
+    FIFTYPERCENT = new Color(0x4c4ccc);
+    SIXTYPERCENT = new Color(0x3d3dd6);
+    SEVENTYPERCENT = new Color(0x2e2ee0);
+    EIGHTYPERCENT = new Color(0x1f1feb);
+    NINETYPERCENT = new Color(0x0f0ff5);
+    ALLPERCENT = new Color(0x0000ff);
     
     }
     

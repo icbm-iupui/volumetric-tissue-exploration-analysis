@@ -451,7 +451,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println(e.getActionCommand());
+//        System.out.println(e.getActionCommand());
         if(e.getActionCommand().equals("Rename...")){
             JFrame frame = new JFrame();
             frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
@@ -552,9 +552,9 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         }
  
         this.MenuBar.removeAll();
-        this.MenuBar.add(WorkflowMenu);
+        //this.MenuBar.add(WorkflowMenu);
         this.MenuBar.add(ProcessingMenu);
-        this.MenuBar.add(ObjectMenu);
+        //this.MenuBar.add(ObjectMenu);
     }
 
     public void refreshMenuItems() {

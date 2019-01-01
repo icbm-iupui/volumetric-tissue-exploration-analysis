@@ -147,7 +147,7 @@ public class FeatureProcessor extends AbstractProcessor{
             setProgress(100);
             firePropertyChange("comment", "", "Done.");
         }catch(Exception e){
-            System.out.println(e + " in doInBackground");
+            //System.out.println(e + " in doInBackground");
             e.printStackTrace();
         }
         return null;

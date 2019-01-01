@@ -73,6 +73,7 @@ import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
 import vtea.feature.FeatureFrame;
+import vtea.protocol.setup.SegmentationPreviewer;
 
 /**
  *
@@ -159,17 +160,17 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     }
 
-    public void process(ImagePlus imp, String title, ArrayList plotvalues, ExplorationCenter ec, PlotAxesPanels pap, ArrayList AvailableData) {
+    public void process(ImagePlus imp, String title, ArrayList plotvalues, ExplorationCenter ec, PlotAxesPanels pap, ArrayList AvailableData, ArrayList descriptionLabel) {
         //Needs to be converted to a Factory metaphor.
 
         //Setup base dataseta
         //Available data is an arraylist of the available tags as they exist in microvolumes.
         //imp is the original image
         this.descriptions = AvailableData;
-        
+        this.descriptionsLabels = descriptionLabel;
         //as taken from stackoverflow
         
-        descriptionsLabels.addAll(descriptions);
+        //descriptionsLabels.addAll(descriptions);
         
         ComboboxToolTipRenderer renderer = new ComboboxToolTipRenderer();
         renderer.setTooltips(descriptionsLabels);
@@ -202,6 +203,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         makeOverlayImage(new ArrayList<Gate>(), ec.getSelectedObjects(), ec.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
 
         AvailableDataHM = makeAvailableDataHM(descriptions);
+        
+        GateButtonsHM.put(POLYGONGATE, this.addPolygonGate);
+        GateButtonsHM.put(RECTANGLEGATE, this.addRectangularGate);
+        GateButtonsHM.put(QUADRANTGATE, this.addQuadrantGate);
 
         final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
         final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.YAXIS);
@@ -211,9 +216,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         PlottingPopupYaxis.addPopupMenuAxisListener(this);
         PlottingPopupLUTaxis.addPopupMenuAxisListener(this);
 
-        GateButtonsHM.put(POLYGONGATE, this.addPolygonGate);
-        GateButtonsHM.put(RECTANGLEGATE, this.addRectangularGate);
-        GateButtonsHM.put(QUADRANTGATE, this.addQuadrantGate);
+
 
         xLabel = new JLabel("X_axis");
         xLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
@@ -343,7 +346,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         jSeparator3 = new javax.swing.JSeparator();
         North = new javax.swing.JPanel();
         toolbarPlot = new javax.swing.JToolBar();
-        jLabel15 = new javax.swing.JLabel();
         jSeparator4 = new javax.swing.JToolBar.Separator();
         jLabel1 = new javax.swing.JLabel();
         jComboBoxXaxis = new javax.swing.JComboBox();
@@ -353,9 +355,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         jComboBoxLUTPlot = new javax.swing.JComboBox();
         jLabel6 = new javax.swing.JLabel();
         jComboBoxPointSize = new javax.swing.JComboBox();
-        jButtonFeature = new javax.swing.JButton();
         toolbarGate = new javax.swing.JToolBar();
-        jLabel4 = new javax.swing.JLabel();
         addPolygonGate = new javax.swing.JToggleButton();
         addRectangularGate = new javax.swing.JToggleButton();
         addQuadrantGate = new javax.swing.JToggleButton();
@@ -363,7 +363,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         LoadGates = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         jLabel3 = new javax.swing.JLabel();
-        axesLabel = new javax.swing.JLabel();
         AutoScaleAxes = new javax.swing.JButton();
         AxesSettings = new javax.swing.JButton();
         SetGlobalToLocal = new javax.swing.JButton();
@@ -371,7 +370,9 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         BWLUT = new javax.swing.JToggleButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
         get3DProjection = new javax.swing.JButton();
+        getSegmentation = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
+        jButtonFeature = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
         ExportGraph = new javax.swing.JButton();
         exportCSV = new javax.swing.JButton();
@@ -410,15 +411,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         toolbarPlot.setRollover(true);
         toolbarPlot.setMinimumSize(new java.awt.Dimension(644, 30));
         toolbarPlot.setPreferredSize(new java.awt.Dimension(634, 30));
-
-        jLabel15.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel15.setText("Plot");
-        jLabel15.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel15MouseClicked(evt);
-            }
-        });
-        toolbarPlot.add(jLabel15);
         toolbarPlot.add(jSeparator4);
 
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 12)); // NOI18N
@@ -482,33 +474,12 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         });
         toolbarPlot.add(jComboBoxPointSize);
 
-        jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
-        jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
-        jButtonFeature.setToolTipText("Add features");
-        jButtonFeature.setFocusable(false);
-        jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setRolloverEnabled(true);
-        jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonFeatureActionPerformed(evt);
-            }
-        });
-        toolbarPlot.add(jButtonFeature);
-
         North.add(toolbarPlot);
 
         toolbarGate.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         toolbarGate.setFloatable(false);
         toolbarGate.setRollover(true);
         toolbarGate.setPreferredSize(new java.awt.Dimension(600, 40));
-
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel4.setText("Gate  ");
-        toolbarGate.add(jLabel4);
 
         addPolygonGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/polygon-filled.png"))); // NOI18N
         addPolygonGate.setToolTipText("Add polygon gate");
@@ -594,15 +565,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         toolbarGate.add(jSeparator1);
         toolbarGate.add(jLabel3);
 
-        axesLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        axesLabel.setText("Axes ");
-        axesLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                axesLabelMouseClicked(evt);
-            }
-        });
-        toolbarGate.add(axesLabel);
-
         AutoScaleAxes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-undo.png"))); // NOI18N
         AutoScaleAxes.setToolTipText("Autoscale axes");
         AutoScaleAxes.setFocusable(false);
@@ -687,7 +649,41 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
             }
         });
         toolbarGate.add(get3DProjection);
+
+        getSegmentation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Segmentation.png"))); // NOI18N
+        getSegmentation.setToolTipText("Visualize segmentation");
+        getSegmentation.setFocusable(false);
+        getSegmentation.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        getSegmentation.setMaximumSize(new java.awt.Dimension(35, 40));
+        getSegmentation.setMinimumSize(new java.awt.Dimension(35, 40));
+        getSegmentation.setName(""); // NOI18N
+        getSegmentation.setPreferredSize(new java.awt.Dimension(35, 40));
+        getSegmentation.setVerifyInputWhenFocusTarget(false);
+        getSegmentation.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        getSegmentation.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                getSegmentationActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(getSegmentation);
         toolbarGate.add(jSeparator7);
+
+        jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
+        jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
+        jButtonFeature.setToolTipText("Add features");
+        jButtonFeature.setFocusable(false);
+        jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setRolloverEnabled(true);
+        jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFeatureActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(jButtonFeature);
         toolbarGate.add(jSeparator8);
 
         ExportGraph.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/insert-image-2 copy.png"))); // NOI18N
@@ -865,20 +861,16 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private void get3DProjectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_get3DProjectionActionPerformed
 
         new Thread(() -> {
-
             try {
                 ec.getZProjection();
                 java.lang.Thread.sleep(100);
+                String image = "Gates_" + impoverlay.getTitle();
+                IJ.run("Open in ClearVolume", image);
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
-
     }//GEN-LAST:event_get3DProjectionActionPerformed
-
-    private void jLabel15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel15MouseClicked
-
-    }//GEN-LAST:event_jLabel15MouseClicked
 
     private void SetGlobalToLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SetGlobalToLocalActionPerformed
         ec.setAxesToCurrent();
@@ -912,12 +904,22 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private void AxesSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AxesSettingsActionPerformed
         AxesSetup.setVisible(true);
         AxesSetup.setContent(ec.getSettingsContent());
+        
+        ArrayList<Component> al = new ArrayList<Component>();
+        
+        al.add(new JLabel("Graph LUT:"));
+        al.add(new JComboBox(vtea._vtea.LUTOPTIONS));
+//        al.add(new JLabel("Overlay Color:"));
+//        
+//        String[] colors = {
+//            "Red","Green", "Blue", "Yellow", "Cyan", "Magenta"
+//        };
+//    
+//        al.add(new JComboBox(colors));
+
+        AxesSetup.setLUT(al);
         AxesSetup.addAxesChangeListener(this);
     }//GEN-LAST:event_AxesSettingsActionPerformed
-
-    private void axesLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_axesLabelMouseClicked
-
-    }//GEN-LAST:event_axesLabelMouseClicked
 
     private void AutoScaleAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutoScaleAxesActionPerformed
         ec.setCustomRange(false);
@@ -939,11 +941,14 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
         ff.setVisible(true);
         if (!checked) {
-            //ff.giveWarning();
             checked = true;
         }
 
     }//GEN-LAST:event_jButtonFeatureActionPerformed
+
+    private void getSegmentationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getSegmentationActionPerformed
+        SegmentationPreviewer.SegmentationFactory(imp, ec.getObjects());
+    }//GEN-LAST:event_getSegmentationActionPerformed
 
     /**
      * @param args the command line arguments
@@ -997,10 +1002,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     protected javax.swing.JToggleButton addPolygonGate;
     protected javax.swing.JToggleButton addQuadrantGate;
     protected javax.swing.JToggleButton addRectangularGate;
-    private javax.swing.JLabel axesLabel;
     private javax.swing.JButton exportCSV;
     private javax.swing.JButton exportGates;
     private javax.swing.JButton get3DProjection;
+    private javax.swing.JButton getSegmentation;
     private javax.swing.JButton importCSV;
     private javax.swing.JButton jButtonFeature;
     private javax.swing.JComboBox jComboBox1;
@@ -1009,10 +1014,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     protected javax.swing.JComboBox jComboBoxXaxis;
     protected javax.swing.JComboBox jComboBoxYaxis;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JMenuBar jMenuBar;
@@ -1306,8 +1309,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
                 if (i == RoiListener.COMPLETED || i == RoiListener.MOVED) {
                     ImageGatedObjects.clear();
-                    ArrayList<MicroObject> volumes = (ArrayList) measurements.get(1);
-                    ListIterator<MicroObject> itr = volumes.listIterator();
+                   
+                    ListIterator<MicroObject> itr = this.Objects.listIterator();
                     while (itr.hasNext()) {
                         MicroObject m = itr.next();
                         int[] c = new int[2];
@@ -1326,33 +1329,35 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     }
 
     @Override
-    public void onAxesSetting(ArrayList al) {
+    public void onAxesSetting(ArrayList Content, ArrayList LUT) {
 
         ArrayList<Double> limits = new ArrayList();
 
-        limits.add(Double.valueOf(((JTextField) (al.get(1))).getText()));
-        limits.add(Double.valueOf(((JTextField) (al.get(3))).getText()));
-        limits.add(Double.valueOf(((JTextField) (al.get(6))).getText()));
-        limits.add(Double.valueOf(((JTextField) (al.get(8))).getText()));
+        limits.add(Double.valueOf(((JTextField) (Content.get(1))).getText()));
+        limits.add(Double.valueOf(((JTextField) (Content.get(3))).getText()));
+        limits.add(Double.valueOf(((JTextField) (Content.get(6))).getText()));
+        limits.add(Double.valueOf(((JTextField) (Content.get(8))).getText()));
 
         boolean xLinear = true;
         boolean yLinear = true;
 
-        if (((JComboBox) al.get(4)).getSelectedIndex() == 1) {
+        if (((JComboBox) Content.get(4)).getSelectedIndex() == 1) {
             xLinear = false;
         }
-        if (((JComboBox) al.get(9)).getSelectedIndex() == 1) {
+        if (((JComboBox) Content.get(9)).getSelectedIndex() == 1) {
             yLinear = false;
         }
+        
+        JComboBox lutTable = (JComboBox)LUT.get(1);
 
-        ec.setAxesTo(limits, xLinear, yLinear);
+        ec.setAxesTo(limits, xLinear, yLinear,lutTable.getSelectedIndex());
 
         updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
     }
 
     private void checkMeasurements() {
         ListIterator<ArrayList<Number>> itr_measurements = measurements.listIterator();
-        System.out.println("Checking measurement arraylist");
+////        System.out.println("Checking measurement arraylist");
         while (itr_measurements.hasNext()) {
             ArrayList<Number> measure = itr_measurements.next();
             ListIterator<Number> itr_values = measure.listIterator();
@@ -1441,7 +1446,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
             }
 
              if (descr.length() > 10) {
-                    String truncated = name.substring(0, 5) + "..." + name.substring(name.length() - 2, name.length());
+                 
+                    String truncated = name.substring(0, 8) + "..." + name.substring(name.length() - 5, name.length());
                     descr = truncated + "_" + (i - startSize);
              }
 
@@ -1482,6 +1488,110 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         jComboBoxYaxis.setSelectedIndex(ysel);
         jComboBoxLUTPlot.setSelectedIndex(zsel);
 
+        
+        
+        
+        //x, y, l Labels
+        
+        final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
+        final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.YAXIS);
+        final SelectPlottingDataMenu PlottingPopupLUTaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.LUTAXIS);
+
+        PlottingPopupXaxis.addPopupMenuAxisListener(this);
+        PlottingPopupYaxis.addPopupMenuAxisListener(this);
+        PlottingPopupLUTaxis.addPopupMenuAxisListener(this);
+
+
+
+        xLabel = new JLabel("X_axis");
+        xLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
+        yLabel = new JLabel("Y_axis");
+
+        yLabel.setUI(new VerticalLabelUI(false));
+        yLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
+
+        lLabel = new JLabel("No LUT");
+        lLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
+
+        xLabel.addMouseListener(new java.awt.event.MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (SwingUtilities.isRightMouseButton(me)) {
+                    PlottingPopupXaxis.show(me.getComponent(), me.getX(), me.getY());
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent me) {
+            
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+            }
+        });
+        yLabel.addMouseListener(new java.awt.event.MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (SwingUtilities.isRightMouseButton(me)) {
+                    PlottingPopupYaxis.show(me.getComponent(), me.getX(), me.getY());
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+            }
+        });
+        lLabel.addMouseListener(new java.awt.event.MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (SwingUtilities.isRightMouseButton(me)) {
+                    PlottingPopupLUTaxis.show(me.getComponent(), me.getX(), me.getY());
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+            }
+        });
+        
+             updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+        
         pack();
     }
 

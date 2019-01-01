@@ -22,8 +22,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
-import java.util.ListIterator;
-import javax.swing.JPanel;
 import vtea.exploration.listeners.AxesChangeListener;
 
 /**
@@ -34,6 +32,7 @@ public class PlotAxesSetup extends javax.swing.JFrame {
     
     ArrayList<AxesChangeListener> AxesChangeListeners = new ArrayList();
     ArrayList<Component> ContentList = new ArrayList();
+    ArrayList<Component> LUTList = new ArrayList();
     
 
     /**
@@ -55,6 +54,7 @@ public class PlotAxesSetup extends javax.swing.JFrame {
 
         TItleBar = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        LUT = new javax.swing.JPanel();
         Content = new javax.swing.JPanel();
         Decision = new javax.swing.JPanel();
         buttonPanel = new javax.swing.JPanel();
@@ -90,10 +90,31 @@ public class PlotAxesSetup extends javax.swing.JFrame {
             TItleBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(TItleBarLayout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 14, Short.MAX_VALUE))
         );
 
         getContentPane().add(TItleBar, new java.awt.GridBagConstraints());
+
+        LUT.setBackground(vtea._vtea.BACKGROUND);
+        LUT.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        LUT.setMinimumSize(new java.awt.Dimension(400, 50));
+        LUT.setPreferredSize(new java.awt.Dimension(400, 50));
+
+        javax.swing.GroupLayout LUTLayout = new javax.swing.GroupLayout(LUT);
+        LUT.setLayout(LUTLayout);
+        LUTLayout.setHorizontalGroup(
+            LUTLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 396, Short.MAX_VALUE)
+        );
+        LUTLayout.setVerticalGroup(
+            LUTLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 46, Short.MAX_VALUE)
+        );
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        getContentPane().add(LUT, gridBagConstraints);
 
         Content.setBackground(vtea._vtea.BACKGROUND);
         Content.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -161,7 +182,7 @@ public class PlotAxesSetup extends javax.swing.JFrame {
         DecisionLayout.setHorizontalGroup(
             DecisionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, DecisionLayout.createSequentialGroup()
-                .addContainerGap(314, Short.MAX_VALUE)
+                .addContainerGap(318, Short.MAX_VALUE)
                 .addComponent(buttonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -174,7 +195,7 @@ public class PlotAxesSetup extends javax.swing.JFrame {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         getContentPane().add(Decision, gridBagConstraints);
@@ -190,7 +211,7 @@ public class PlotAxesSetup extends javax.swing.JFrame {
     }//GEN-LAST:event_BlockSetupOKActionPerformed
 
     private void PreviewButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreviewButton1ActionPerformed
-        notifyAxesChangeListeners(ContentList);
+        notifyAxesChangeListeners(ContentList, LUTList);
     }//GEN-LAST:event_PreviewButton1ActionPerformed
 
     
@@ -310,13 +331,120 @@ public class PlotAxesSetup extends javax.swing.JFrame {
         pack();   
     }
     
+     public void setLUT(ArrayList<Component> al){
+        
+        //Content = new JPanel();       
+        LUT.setSize(new Dimension(350,350));
+        LUT.setLayout(new GridBagLayout());
+
+        LUT.removeAll();
+        
+        LUTList.clear();
+        LUTList.addAll(al);
+        
+        GridBagConstraints layoutConstraints = new GridBagConstraints();
+
+        //MethodDetail
+        if (al.size() > 0) {
+            layoutConstraints.fill = GridBagConstraints.EAST;
+            layoutConstraints.gridx = 0;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            LUT.add((Component) al.get(0), layoutConstraints);
+        }
+        if (al.size() > 1) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 1;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            LUT.add((Component) al.get(1), layoutConstraints);
+        }
+        if (al.size() > 2) {
+            layoutConstraints.fill = GridBagConstraints.EAST;
+            layoutConstraints.gridx = 2;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            LUT.add((Component) al.get(2), layoutConstraints);
+        }
+        if (al.size() > 3) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 3;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            LUT.add((Component) al.get(3), layoutConstraints);
+        }
+        if (al.size() > 4) {
+            layoutConstraints.fill = GridBagConstraints.WEST;
+            layoutConstraints.gridx = 4;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            LUT.add((Component) al.get(4), layoutConstraints);
+        }
+        if (al.size() > 5) {
+            layoutConstraints.fill = GridBagConstraints.EAST;
+            layoutConstraints.gridx = 0;
+            layoutConstraints.gridy = 1;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            LUT.add((Component) al.get(5), layoutConstraints);
+        }
+        if (al.size() > 6) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 1;
+            layoutConstraints.gridy = 1;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            LUT.add((Component) al.get(6), layoutConstraints);
+        }
+        if (al.size() > 7) {
+            layoutConstraints.fill = GridBagConstraints.EAST;
+            layoutConstraints.gridx = 2;
+            layoutConstraints.gridy = 1;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            LUT.add((Component) al.get(7), layoutConstraints);
+        }
+        if (al.size() > 8) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 3;
+            layoutConstraints.gridy = 1;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            LUT.add((Component) al.get(8), layoutConstraints);
+        }
+        if (al.size() > 9) {
+            layoutConstraints.fill = GridBagConstraints.WEST;
+            layoutConstraints.gridx = 4;
+            layoutConstraints.gridy = 1;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            LUT.add((Component) al.get(9), layoutConstraints);
+        }
+//        if (al.size() > 10) {
+//            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+//            layoutConstraints.gridx = 5;
+//            layoutConstraints.gridy = 1;
+//            Content.add((Component) al.get(7), layoutConstraints);
+//        }
+        
+        
+        LUT.setVisible(true);
+        
+        pack();   
+    }
+    
     public void addAxesChangeListener(AxesChangeListener listener){
         AxesChangeListeners.add(listener);
     }
     
-    public void notifyAxesChangeListeners(ArrayList al) {
+    public void notifyAxesChangeListeners(ArrayList content, ArrayList LUT) {
         for (AxesChangeListener listener : AxesChangeListeners) {
-            listener.onAxesSetting(al);
+            listener.onAxesSetting(content, LUT);
         }
     }
     
@@ -362,6 +490,7 @@ public class PlotAxesSetup extends javax.swing.JFrame {
     protected javax.swing.JButton BlockSetupOK;
     private javax.swing.JPanel Content;
     private javax.swing.JPanel Decision;
+    private javax.swing.JPanel LUT;
     public javax.swing.JButton PreviewButton1;
     public javax.swing.JLabel PreviewProgress;
     private javax.swing.JPanel TItleBar;

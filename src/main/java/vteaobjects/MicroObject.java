@@ -84,6 +84,8 @@ public class MicroObject implements MicroObjectModel {
 
     private float centroid_x = 0;
     private float centroid_y = 0;
+    private float centroid_z = 0;
+    
 
     private int centerBoundX = 0;
     private int centerBoundY = 0;
@@ -126,6 +128,72 @@ public class MicroObject implements MicroObjectModel {
         derivedCount = 1;
         
         setPixels(pixels);
+        
+        ArrayList<Number> centroid = new ArrayList<Number>();
+        
+        centroid = getCentroid(x,y,z);
+        
+        centroid_x = ((Number)centroid.get(0)).floatValue();
+        centroid_y = ((Number)centroid.get(0)).floatValue();
+        centroid_z = ((Number)centroid.get(0)).floatValue();
+        
+        
+        
+    }
+    
+    private ArrayList<Number> getCentroid(int[] x, int[] y, int[] z){
+        
+        int maxX = 0;
+        int maxY = 0; 
+        int maxZ = 0; 
+        
+
+                
+        
+        for(int i = 0; i < x.length; i++){ 
+            
+            if(x[i] > maxX){
+                maxX = x[i];
+            }
+            if(y[i] > maxY){
+                maxY = y[i];
+            }
+            if(z[i] > maxZ){
+                maxZ = z[i];
+            }
+
+        }
+        
+        int minX = maxX;
+        int minY = maxY; 
+        int minZ = maxZ; 
+        
+        for(int i = 0; i < x.length; i++){ 
+            
+            if(x[i] < minX){
+                minX = x[i];
+            }
+            if(y[i] < minY){
+                minY = y[i];
+            }
+            if(z[i] < minZ){
+                minZ = z[i];
+            }
+            
+
+        }
+        
+        int centX = maxX-minX/2;
+        int centY = maxY-minY/2;
+        int centZ = maxZ-minZ/2;
+        
+        ArrayList<Number> result = new ArrayList<Number>();
+        
+        result.add(centX);
+        result.add(centY);
+        result.add(centZ);
+        
+        return result;
     }
 
     @Override
@@ -717,7 +785,7 @@ public class MicroObject implements MicroObjectModel {
 
     @Override
     public float getCentroidZ() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return this.centroid_z;
     }
 
     @Override

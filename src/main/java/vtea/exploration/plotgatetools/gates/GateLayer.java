@@ -91,6 +91,15 @@ public class GateLayer implements ActionListener, ItemListener {
     
     private Gate selectedGate;
     
+    String[] colors = {
+            "red","green", "blue", "yellow"
+        };
+    
+       Color[] colorsRGB = {
+            new Color(255,0,0), new Color(0,255,0), new Color(0,0,255), new Color(255, 255, 0)
+        };
+                
+    
     
     public static Gate clipboardGate;
     public static boolean gateInClipboard = false;
@@ -583,6 +592,8 @@ public class GateLayer implements ActionListener, ItemListener {
     }
 
     private void createPopUpMenu(JXLayer layer) {
+        
+                
         this.menu = new JPopupMenu();
         //JMenuItem menuItem = new JMenuItem("Color...");
 //        menuItem.addActionListener(this);
@@ -594,8 +605,10 @@ public class GateLayer implements ActionListener, ItemListener {
         
         JMenu jm = new JMenu("Color...");
         
-        for(int i = 0; i < LUTOPTIONS.length; i++){   
-            menuItem = new JMenuItem(LUTOPTIONS[i]);
+
+        
+        for(int i = 0; i < colors.length; i++){   
+            menuItem = new JMenuItem(colors[i]);
             menuItem.addActionListener(this);
             jm.add(menuItem);  
         }
@@ -661,8 +674,14 @@ public class GateLayer implements ActionListener, ItemListener {
             gates.add(clipboardGate);     
             } catch (NullPointerException n){}
         } else if(e.getActionCommand().equals("Delete All")){
-            gates.clear();      
+            gates.clear();  
+        }    
+        for(int i = 0; i < colors.length; i++){
+         if(e.getActionCommand().equals(colors[i])){
+             selectedGate.setSelectedColor(colorsRGB[i]);
+         }
         }
+        
         notifyPasteGateListeners();
     }
 

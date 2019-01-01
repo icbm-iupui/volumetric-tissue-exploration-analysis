@@ -136,7 +136,7 @@ public class Grow_Cross extends AbstractMorphology {
     
    private ArrayList<ArrayList<Number>> makeCross6C(int x, int y, int z, int times) {
 
-        //System.out.println("PROFILING:                       Starting object size: " + x.length + ".");
+        //System.out.println("PROFILING");
         ArrayList<Number> xArr = new ArrayList();
         ArrayList<Number> yArr = new ArrayList();
         ArrayList<Number> zArr = new ArrayList();
@@ -145,25 +145,11 @@ public class Grow_Cross extends AbstractMorphology {
         ArrayList<Number> yList = new ArrayList();
         ArrayList<Number> zList = new ArrayList();
 
-
-        
         ArrayList<ArrayList<Number>> noDups = new ArrayList();
 
         //to determine how many expansions
         
         for (int j = 1; j <= times; j++) {
-
-            //int n = x.length;
-            
-            //System.out.println("PROFILING:             Expansion time: " + times + ".");
-            
-            //8 connected.
-            //for (int i = 0; i < n; i++) {
-
-                //same z
-//                xArr.add(x);
-//                yArr.add(y);
-//                zArr.add(z);
 
                 xArr.add(x - j);
                 yArr.add(y);
@@ -181,31 +167,22 @@ public class Grow_Cross extends AbstractMorphology {
                 yArr.add(y + j);
                 zArr.add(z);
 
-
-
-
                 //z below
                 xArr.add(x);
                 yArr.add(y);
                 zArr.add(z - j);
 
-  
-
                 //z above
                 xArr.add(x);
                 yArr.add(y);
                 zArr.add(z + j);
-
-
-               
+      
             }
              //reassign
 
             noDups = removeDuplicates(xArr, yArr, zArr); 
-            
             noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
-            
-        
+
         return noDups;
     }
     private ArrayList<ArrayList<Number>> removeDuplicates(ArrayList<Number> x, ArrayList<Number> y, ArrayList<Number> z) {

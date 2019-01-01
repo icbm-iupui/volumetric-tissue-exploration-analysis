@@ -69,6 +69,12 @@ public void SegmentationPreviewFactory(){
     }
 }
 
+public static void SegmentationFactory(ImagePlus imp, ArrayList<MicroObject> objects){
+
+makeImage(imp, objects);
+  
+}
+
 static private boolean checkImage(ImagePlus imp){
     try{
         Roi r = imp.getRoi();
@@ -88,7 +94,7 @@ static private boolean checkImage(ImagePlus imp){
 static private void makeImage(ImagePlus imp, ArrayList<MicroObject> objects){
     
     
-    ImagePlus resultImage = IJ.createImage("Segmentation Preview", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices()); 
+    ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices()); 
     
     ImageStack resultStack = resultImage.getStack();
     
