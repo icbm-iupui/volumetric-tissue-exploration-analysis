@@ -207,16 +207,11 @@ public class MeasurementProcessor extends AbstractProcessor {
                         
               if (descr.length() > 10) {
                     descr = descr.substring(0, 8) + "..." + descr.substring(descr.length() - 5, descr.length());
-                    //descr = truncated + "_" + (i - startSize);
              }
-
-                        
-                        //description.add("Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName());
-                        
+                       
                         description.add(descr);
                         descriptionLabels.add("Channel: " + morphology.get(1) + ", Morphology: " +  morphology.get(0) + ", Measurement:" + ((AbstractMeasurement) iImp).getName());
-                        //System.out.println("PROFILING: Adding measurement: " + "Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName());
-
+  
                     } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                         System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
                     }
@@ -226,8 +221,6 @@ public class MeasurementProcessor extends AbstractProcessor {
             }
         }
         
-        //System.out.println("PROFILING: analyzing objects...");
-        //LOOP through objects
         while (itr_vol.hasNext()) {
 
             MicroObject obj = itr_vol.next();
@@ -280,8 +273,14 @@ public class MeasurementProcessor extends AbstractProcessor {
                         iImp = con.newInstance();
 
                         for (int k = 0; k < mask_values.size(); k++) {
+                            
+                            ArrayList<int[]> al = new ArrayList<int[]>();
+                            
+                            al.add(obj.getPixelsX());
+                            al.add(obj.getPixelsY());
+                            al.add(obj.getPixelsZ());
 
-                            results.add(((AbstractMeasurement) iImp).process(new ArrayList(), (ArrayList<Number>) mask_values.get(k)));
+                            results.add(((AbstractMeasurement) iImp).process(al, (ArrayList<Number>) mask_values.get(k)));
 
                         }
 

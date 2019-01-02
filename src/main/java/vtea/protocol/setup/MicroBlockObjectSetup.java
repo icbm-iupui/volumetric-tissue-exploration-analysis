@@ -95,6 +95,9 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         MorphologyMenu = new MorphologyFrame(Channels);
         MorphologyMenu.addMorphologyListener(this);
         
+   
+
+        
         Morphology = new ArrayList<ArrayList>();
         
         //setup the image

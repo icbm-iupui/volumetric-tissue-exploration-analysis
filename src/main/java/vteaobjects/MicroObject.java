@@ -136,10 +136,9 @@ public class MicroObject implements MicroObjectModel {
         centroid_x = ((Number)centroid.get(0)).floatValue();
         centroid_y = ((Number)centroid.get(0)).floatValue();
         centroid_z = ((Number)centroid.get(0)).floatValue();
-        
-        
-        
     }
+    
+ 
     
     private ArrayList<Number> getCentroid(int[] x, int[] y, int[] z){
         
@@ -455,24 +454,9 @@ public class MicroObject implements MicroObjectModel {
     }
 
     private void setPixels(ArrayList<int[]> pixels) {
-        x = new int[pixels.size()];
-        y = new int[pixels.size()];
-        z = new int[pixels.size()];
-
-        int[] pixel = new int[3];
-
-        int counter = 0;
-
-        ListIterator<int[]> itr = pixels.listIterator();
-
-        while (itr.hasNext()) {
-            pixel = itr.next();
-            x[counter] = pixel[0];
-            y[counter] = pixel[1];
-            z[counter] = pixel[2];
-            counter++;
-        }
-
+        x = pixels.get(0);
+        y = pixels.get(1);
+        z = pixels.get(2);
     }
 
     public void calculateMeasurements(ImageStack[] stack, int maskChannel) {

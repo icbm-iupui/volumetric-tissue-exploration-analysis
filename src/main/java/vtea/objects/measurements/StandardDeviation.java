@@ -28,35 +28,43 @@ import vtea.processor.Processor;
  * @author sethwinfree
  */
 @Plugin(type = Measurements.class)
-public class Mean extends AbstractMeasurement {
+public class StandardDeviation extends AbstractMeasurement {
     
-    public Mean(){
+    public StandardDeviation(){
     VERSION = "1.0";
     AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate mean";
-    NAME = "Mean";
-    KEY = "Mean";
+    COMMENT = "Calculate standard deviation";
+    NAME = "StDev";
+    KEY = "SD";
     }
 
     @Override
     public Number process(ArrayList al, ArrayList values) {
-          
-    return getMean(values);
+        
+        
+        
+        double n = 0;
+        
+    return getStandardDeviation(values);
     }  
     
-    static public Number getMean(ArrayList values) {
+    static public Number getStandardDeviation(ArrayList values){
         
-                double n = 0;
+        Double mean = (Double)Mean.getMean(values);
+        Double stdev = 0.0;
+        
         ListIterator<Number> itr = values.listIterator();   
     while(itr.hasNext()){
         try{
         Number value = itr.next(); 
-        n = n + value.doubleValue();
+        stdev = stdev + Math.pow((mean - value.doubleValue()),2);
         } catch(Exception ex){
             ex.printStackTrace();
         }
     }   
-    return n/values.size();
+        return Math.sqrt((stdev)/(values.size()-1));
         
     }
+    
+   
 }

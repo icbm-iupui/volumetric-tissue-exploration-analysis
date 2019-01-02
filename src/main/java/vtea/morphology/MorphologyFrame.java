@@ -23,6 +23,9 @@ import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
 import vtea.protocol.listeners.UpdateProgressListener;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.WindowEvent;
+import static java.awt.event.WindowEvent.WINDOW_CLOSED;
+import java.awt.event.WindowStateListener;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.beans.PropertyChangeEvent;
@@ -40,7 +43,7 @@ import vtea.protocol.listeners.MorphologyFrameListener;
  * and removed and submits the methods with parameters to get results. 
  * @author drewmcnutt
  */
-public class MorphologyFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
+public class MorphologyFrame extends javax.swing.JFrame implements WindowStateListener, AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
     
     protected ArrayList<MorphologyStepBlockGUI> MorphologicalStepsList;
     ArrayList channels;
@@ -644,6 +647,13 @@ public class MorphologyFrame extends javax.swing.JFrame implements AddFeaturesLi
     private void notifyMorphologyListeners(ArrayList<ArrayList> result) {
         for (MorphologyFrameListener listener : morphologylisteners) {
             listener.addMorphology(result);
+        }
+    }
+
+    @Override
+    public void windowStateChanged(WindowEvent e) {   
+        if(e.paramString().equals(WINDOW_CLOSED)){
+            this.setVisible(false);
         }
     }
 }

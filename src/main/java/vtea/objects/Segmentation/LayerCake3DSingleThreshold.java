@@ -79,11 +79,11 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
     MicroThresholdAdjuster mta;
     
 public LayerCake3DSingleThreshold(){
-    VERSION = "0.1";
+    VERSION = "0.2";
     AUTHOR = "Seth Winfree";
-    COMMENT = "Blob slice algorithm for building objects.";
-    NAME = "LayerCake 3D";
-    KEY = "LayerCake3DSingleThreshold";
+    COMMENT = "Connected components object segmentation.";
+    NAME = "Connect 3D";
+    KEY = "Connect3DSingleThreshold";
     
     protocol = new ArrayList();
     

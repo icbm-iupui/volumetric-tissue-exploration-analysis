@@ -92,6 +92,7 @@ public class GateLayer implements ActionListener, ItemListener {
     private Gate selectedGate;
     
     String[] colors = {
+
             "red","green", "blue", "yellow"
         };
     

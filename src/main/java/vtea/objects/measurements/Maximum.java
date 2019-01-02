@@ -28,35 +28,40 @@ import vtea.processor.Processor;
  * @author sethwinfree
  */
 @Plugin(type = Measurements.class)
-public class Mean extends AbstractMeasurement {
+public class Maximum extends AbstractMeasurement {
     
-    public Mean(){
+    public Maximum(){
     VERSION = "1.0";
     AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate mean";
-    NAME = "Mean";
-    KEY = "Mean";
+    COMMENT = "Calculate maximum value";
+    NAME = "Max";
+    KEY = "Max";
     }
 
     @Override
     public Number process(ArrayList al, ArrayList values) {
-          
-    return getMean(values);
+      
+    return getMaximum(values);
     }  
     
-    static public Number getMean(ArrayList values) {
-        
-                double n = 0;
+    static public Number getMaximum(ArrayList values){
+    
+        double maximum = 0;
+
         ListIterator<Number> itr = values.listIterator();   
     while(itr.hasNext()){
         try{
         Number value = itr.next(); 
-        n = n + value.doubleValue();
+        if(value.doubleValue() > maximum){
+            maximum = value.doubleValue();
+        }
         } catch(Exception ex){
             ex.printStackTrace();
         }
     }   
-    return n/values.size();
+        return maximum;
         
     }
+    
+   
 }

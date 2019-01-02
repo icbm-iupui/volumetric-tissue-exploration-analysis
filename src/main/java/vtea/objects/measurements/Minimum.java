@@ -28,35 +28,41 @@ import vtea.processor.Processor;
  * @author sethwinfree
  */
 @Plugin(type = Measurements.class)
-public class Mean extends AbstractMeasurement {
+public class Minimum extends AbstractMeasurement {
     
-    public Mean(){
+    public Minimum(){
     VERSION = "1.0";
     AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate mean";
-    NAME = "Mean";
-    KEY = "Mean";
+    COMMENT = "Calculate minimum";
+    NAME = "Min";
+    KEY = "Min";
     }
 
     @Override
     public Number process(ArrayList al, ArrayList values) {
-          
-    return getMean(values);
+      
+    return getMinimum(values);
     }  
     
-    static public Number getMean(ArrayList values) {
-        
-                double n = 0;
+    static public Number getMinimum(ArrayList values){
+    
+        double minimum = (double)Maximum.getMaximum(values);
+
         ListIterator<Number> itr = values.listIterator();   
+    
     while(itr.hasNext()){
         try{
         Number value = itr.next(); 
-        n = n + value.doubleValue();
+        if(value.doubleValue() < minimum){
+            minimum = value.doubleValue();
+        }
         } catch(Exception ex){
             ex.printStackTrace();
         }
     }   
-    return n/values.size();
+        return minimum;
         
     }
+    
+   
 }

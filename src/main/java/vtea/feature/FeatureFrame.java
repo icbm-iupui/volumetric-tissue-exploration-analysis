@@ -17,6 +17,7 @@
  */
 package vtea.feature;
 
+import ij.ImagePlus;
 import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.protocol.listeners.RebuildPanelListener;
 import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
@@ -58,7 +59,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
      * @param descriptions
      * @param table 
      */
-    public FeatureFrame(ArrayList descriptions, double[][] table) {
+    public FeatureFrame(ArrayList descriptions, double[][] table, ImagePlus imp) {
         
         //ArrayList pos = new ArrayList();
         

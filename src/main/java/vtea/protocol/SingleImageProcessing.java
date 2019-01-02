@@ -1391,7 +1391,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
     private void executeExploring(String key, ArrayList<MicroObject> vols, ArrayList measurements, ArrayList headers, ArrayList headerLabels) {
         
-        System.out.println("PROFILING: Exploring on dataset: " + key);
+        System.out.println("PROFILING: Exploring on dataset: " + key);  
         
         ExplorerProcessor ep = new ExplorerProcessor(key, ProcessedImage, vols, measurements, headers, headerLabels);
         ep.addPropertyChangeListener(this);
