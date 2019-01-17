@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2017 SciJava
+/* 
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,9 +20,14 @@ package vtea.objects.Segmentation;
 import ij.ImagePlus;
 import ij.ImageStack;
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JPanel;
+import vtea.processor.listeners.ProgressListener;
+import vtea.processor.listeners.SegmentationListener;
 import vteaobjects.MicroObject;
 
 /**
@@ -31,13 +36,17 @@ import vteaobjects.MicroObject;
  * @param <T>
  * @param <K>
  */
-public class AbstractSegmentation<T extends Component, K extends Object> implements Segmentation {
+public class AbstractSegmentation<T extends Component, K extends Object> implements Segmentation{
     
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
     protected String NAME = "ND";
     protected String KEY = "ND";
+    
+    ArrayList<SegmentationListener> segmentationlisteners = new ArrayList();
+    
+    ArrayList<ProgressListener> progresslisteners = new ArrayList();
     
     protected ArrayList<T> protocol= new ArrayList();
     
@@ -53,6 +62,8 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     //protected ArrayList<T> protocol = new ArrayList();
     
     protected ArrayList buildtool = new ArrayList();  //right this is where I am...
+    
+    protected ImagePlus imagePreview;
 
     
     @Override
@@ -107,7 +118,7 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     }
 
     @Override
-    public void process(ImageStack[] is, List details, boolean calculate) {
+    public boolean process(ImageStack[] is, List details, boolean calculate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -117,7 +128,7 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     } 
     
     @Override
-    public void setBuildTool(ArrayList al) {
+    public void setSegmentationTool(ArrayList al) {
         
     }
     
@@ -133,12 +144,12 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     }
 
     @Override
-    public ArrayList getBuildTool() {
+    public JPanel getSegmentationTool() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public ArrayList getBuildOptions() {
+    public ArrayList getSegmentationToolOptions() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -146,4 +157,47 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     public ArrayList getDefaultValues() {
         return defaultValues;
     }
+
+    @Override
+    public JPanel getOptionsPanel() {
+        return new JPanel();
+    }
+    
+    public void addListener(ProgressListener pl) {
+        progresslisteners.add(pl);
+    }
+    
+    public void notifyProgressListeners(String str, Double db) {
+        for(ProgressListener listener: progresslisteners){
+            listener.FireProgressChange(str, db);
+        }
+     }
+
+    public JPanel getVisualization() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setImage(ImagePlus thresholdPreview) {
+        this.imagePreview = thresholdPreview;  
+    }
+    
+    @Override
+    public void updateImage(ImagePlus thresholdPreview) {
+        this.imagePreview = thresholdPreview;  
+    }
+
+    @Override
+    public void addSegmentationListener(SegmentationListener sl) {
+        segmentationlisteners.add(sl);
+    }
+
+    @Override
+    public void notifySegmentationListener(String str, Double dbl) {
+          for(SegmentationListener listener: segmentationlisteners){
+            listener.updateGui(str, dbl);
+        }
+    }
+
+
 }

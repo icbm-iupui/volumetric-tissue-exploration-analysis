@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,13 +18,11 @@
 package vtea.protocol;
 
 import vtea.protocol.listeners.BatchStateListener;
-import static vtea._vtea.PROCESSOPTIONS;
 import ij.IJ;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ListIterator;
-import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 

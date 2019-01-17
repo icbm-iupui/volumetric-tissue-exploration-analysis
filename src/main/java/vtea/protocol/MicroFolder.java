@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -84,13 +84,13 @@ public class MicroFolder extends java.lang.Object implements Runnable {
                 stdm = new SingleThresholdDataModel();
                 stdm.processDataLayerCake(imagedata, protocol, calculate);
                 volumes = stdm.getObjects();
-                System.out.println("PROFILING: Getting " + volumes.size() + " 3D layercake volumes.");
+//                System.out.println("PROFILING: Getting " + volumes.size() + " 3D layercake volumes.");
                 setProcessedFlags(false);
         }else if(mask.get(1).equals("FloodFill 3D")){
                 stdm = new SingleThresholdDataModel();
                 stdm.processData3DFloodFill(imagedata, protocol, calculate);
                 volumes = stdm.getObjects();
-                System.out.println("PROFILING: Getting " + volumes.size() + " 3D flood fill volumes.");
+//                System.out.println("PROFILING: Getting " + volumes.size() + " 3D flood fill volumes.");
                 setProcessedFlags(false);
         }
         

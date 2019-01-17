@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -254,7 +254,7 @@ public abstract class AbstractMicroBlockStepGUI<T extends AbstractMicroBlockStep
     public void addDeleteBlockListener(DeleteBlockListener listener) {
         deleteblocklisteners.add(listener);
     }
-
+    
     protected void notifyDeleteBlockListeners(int type, int position) {
         for (DeleteBlockListener listener : deleteblocklisteners) {
             listener.deleteBlock(type, position);

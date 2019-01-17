@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,8 +26,9 @@ import java.util.List;
 /**
  *
  * @author vinfrais
+ * @param <T>
  */
-public interface MicroObjectModel {
+public interface MicroObjectModel <T extends Number> {
     
     //arraylist of points, ordered, not limit on dimensionality
     
@@ -59,7 +60,8 @@ public interface MicroObjectModel {
     public int[] getPixelsX();
 
     public int[] getPixelsY();
-
+    
+    public int[] getPixelsZ();
 
     public float getCentroidX();
 
@@ -97,7 +99,9 @@ public interface MicroObjectModel {
     
     public Object[][] getAnalysisResultsVolume();
     
-    public int getSerialID();
+    public double getSerialID();
+    
+    public void setSerialID(double i);
     
     public List getRegions();
     
@@ -112,6 +116,17 @@ public interface MicroObjectModel {
     public void setColor(int c);
     
     public int getColor();
+    
+    //public void setMorphological(String method_UID, ArrayList x, ArrayList y, ArrayList z); 
+    
+    public ArrayList<int[]> getMorphological(int index); 
+    
+    public int[] getMorphPixelsX(int index); 
+    
+    public int[] getMorphPixelsY(int index); 
+    
+    public int[] getMorphPixelsZ(int index); 
+  
    
    
 }

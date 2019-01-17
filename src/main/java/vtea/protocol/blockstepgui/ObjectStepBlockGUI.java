@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -95,7 +95,7 @@ import vtea.protocol.listeners.RebuildPanelListener;
 
             mbs = new MicroBlockObjectSetup(position, Channels, Image);
 
-            mbs.setVisible(false);
+            mbs.setVisible(true);
             mbs.addMicroBlockSetupListener(this);
 
             DeleteButton = new JButton();

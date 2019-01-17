@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2016 Indiana University
+/* 
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -85,13 +85,13 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
 
         ImageStack stackResult = stack.duplicate();
 
-        System.out.println("PROFILING: parsing stack of dimensions: z, " + stackResult.getSize() + " for a threshold of " + minConstants[3]);
+        //System.out.println("PROFILING: parsing stack of dimensions: z, " + stackResult.getSize() + " for a threshold of " + minConstants[3]);
 
         for (int n = 0; n < stackResult.getSize(); n++) {
             for (int x = 0; x < stackResult.getWidth(); x++) {
                 for (int y = 0; y < stackResult.getHeight(); y++) {
-                    if (stackResult.getVoxel(x, y, n) <= minConstants[3]) {
-                        stackResult.setVoxel(x, y, n, (Math.pow(2, stack.getBitDepth())) - 1);
+                    if (stackResult.getVoxel(x, y, n) >= minConstants[3]) {
+                        stackResult.setVoxel(x, y, n, (Math.pow(2, stackResult.getBitDepth())) - 1);
                     } else {
                         stackResult.setVoxel(x, y, n, 0);
                     }
@@ -877,6 +877,10 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             this.start = start;
             this.stop = stop;
             
+            alRegionsLocal.sort(new ZComparator());
+            alRegionsLocal.sort(new XComparator());
+            alRegionsLocal.sort(new YComparator());
+            
 //SKETCH for adding probabilistic volume building
             
 //            linkProbability = new short[alRegionsLocal.size()][alRegionsLocal.size()];
@@ -1089,27 +1093,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             }
         }
 
-//        @Override
-//        protected void compute() {
-//
-//            //multi-threading was leading to over segmentation errors.  One thread slows things down but is more accurate.
-//            int processors = 1;
-//            int length = alRegions.size() / processors;
-//
-//            if (alRegions.size() < processors) {
-//                length = alRegions.size();
-//            }
-//
-//            //System.out.println("PROFILING-DETAILS: Volume Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
-//            if (stop - start > length) {
-//               
-//                invokeAll(new VolumeForkPool(alRegions, minConstantsLocal, start, start + ((stop - start) / 2)),
-//                        new VolumeForkPool(alRegions, minConstantsLocal, start + ((stop - start) / 2) + 1, stop));
-//               
-//            } else {
-//                defineVolumes();
-//            }
-//        }
+
 
         private synchronized void findConnectedRegions(int volumeNumber, double[] startRegion, int z) {
 
@@ -1126,7 +1110,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                 testRegion[0] = test.getBoundCenterX();
                 testRegion[1] = test.getBoundCenterY();
                 double comparator = lengthCart(startRegion, testRegion);
-
+                if(comparator < minConstants[2]*10){
                 if (!test.isAMember()) {
                     if (comparator <= minConstants[2] && ((test.getZPosition() - z) == 1)) {
                         
@@ -1149,6 +1133,11 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                     
                     
                 }
+                
+                }else{
+                    i = stop;
+                }
+               
                 i++;
             }
         }
@@ -1175,10 +1164,22 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
 
         @Override
         public int compare(microRegion o1, microRegion o2) {
-            if (o1.getCentroidX() > o2.getCentroidX()) {
+            if (o1.getCentroidX() == o2.getCentroidX()) {
+                return 0;
+            } else if (o1.getCentroidX()> o2.getCentroidX()) {
+                if(o1.getZPosition() != o2.getZPosition()){
                 return 1;
-            } else {
+                } else {
+                return 0;
+                }
+            } else if (o1.getCentroidX() < o2.getCentroidX()) {
+                if(o1.getZPosition() != o2.getZPosition()){
                 return -1;
+                } else {
+                return 0;
+                }
+            } else {
+                return 0;
             }
         }
 
@@ -1188,14 +1189,27 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
 
         @Override
         public int compare(microRegion o1, microRegion o2) {
-            if (o1.getCentroidY() > o2.getCentroidY()) {
+            if (o1.getCentroidY() == o2.getCentroidY()) {
+                return 0;
+            } else if (o1.getCentroidY()> o2.getCentroidY()) {
+                if(o1.getZPosition() != o2.getZPosition()){
                 return 1;
-            } else {
+                } else {
+                return 0;
+                }
+            } else if (o1.getCentroidY() < o2.getCentroidY()) {
+                if(o1.getZPosition() != o2.getZPosition()){
                 return -1;
+                } else {
+                return 0;
+                }
+            } else {
+                return 0;
             }
-        }
 
     }
+    }
+       
 
     private class ZObjectComparator implements Comparator<microVolume> {
 
@@ -1217,5 +1231,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         }
 
     }
+    }
 
-}
+
+

@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,9 +44,9 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     public static final int GROW = 1;  //use subtype to determine how much
     public static final int FILL = 2;
 
-    private int x;    //center x
-    private int y;    //center y
-    private int z;    //center z
+    private int x_centroid;    //center x_centroid
+    private int y_centroid;    //center y_centroid
+    private int z_centroid;    //center z_centroid
     private int n;    //total pixels
     private String name;
     private int nChannels;
@@ -83,6 +83,8 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     
     int serialID = 0;
     
+    static int serialCounter = 0;
+    
     private boolean gated = false;
     
 
@@ -94,10 +96,14 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
      * Default constructor
      */
     public microVolume() {
-
+        super();
     }
+    
+    
 
     public void makeDerivedRegions(int[][] derivedRegionType, int channels, ImageStack[] Stacks, ArrayList ResultsPointers) {
+        
+        
         derivedConstants = derivedRegionType;
         this.nChannels = channels;
         
@@ -124,6 +130,10 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
                     break;
             }
         }
+    }
+    
+    public void setObjectID(int id){
+        serialID = id;
     }
   
     public void calculateAllDerivedVolumeMeasurements(){   
@@ -205,6 +215,7 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
         analysisResultsVolume[Channel][3] = minLocal;
         analysisResultsVolume[Channel][4] = maxLocal;
         analysisResultsVolume[Channel][5] = Math.sqrt(standardDeviation/countPixels);
+        analysisResultsVolume[Channel][6] = 0;
         analysisResultsVolume[Channel][8] = meanFeretMaxCaliperLocal / (nRegions);
         analysisResultsVolume[Channel][7] = meanFeretMinCaliperLocal / (nRegions);
         //analysisResultsVolume[Channel][9] = (total/countPixels)*(total/countPixels);
@@ -266,9 +277,9 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
             totalThreshold = totalThreshold + (long) region.getThresholdedIntegratedIntensity();
             countPixelsThreshold = countPixelsThreshold + region.getThresholdPixelCount();
             mean = mean + (long) region.getMeanIntensity();
-            x = (x + region.getBoundCenterX())/2;
-            y = (y + region.getBoundCenterY())/2;
-            z = (z + region.getZPosition())/2;
+            x_centroid = (x_centroid + region.getBoundCenterX())/2;
+            y_centroid = (y_centroid + region.getBoundCenterY())/2;
+            z_centroid = (z_centroid + region.getZPosition())/2;
                        
             if (region.getMinIntensity() < minLocal) {
                 minLocal = region.getMinIntensity();
@@ -300,7 +311,7 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
         }
         
 
-        //System.out.println("New Object average z: " + z);
+        //System.out.println("New Object average z_centroid: " + z_centroid);
 
         //IJ.log("microVolume::calculateVolumeMeasurements Mask Volume measurements: " + analysisMaskVolume[0] + ", " + analysisMaskVolume[1] + ", " + analysisMaskVolume[2] + ", " + analysisMaskVolume[3] + ", " + analysisMaskVolume[4]);
 
@@ -340,7 +351,45 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
             i++;
         }
 };
+    
+    //Extract pixels array for MicroObject requirements
+    
+    public void makePixelArrays(){
+        
+        ArrayList<Integer> xAl = new ArrayList();
+        ArrayList<Integer> yAl = new ArrayList();
+        ArrayList<Integer> zAl = new ArrayList();
+        
+        ListIterator<microRegion> itr = alRegions.listIterator();
+        
+        while(itr.hasNext()){          
+           microRegion region = itr.next();
+           int[] xR = region.getPixelsX();
+           int[] yR = region.getPixelsY();
+           int[] zR = new int[xR.length];
+           
+           int z_position = region.getZPosition();
+           
+           for(int i = 0; i < xR.length; i++){
+                zAl.add(z_position);
+                xAl.add(xR[i]);
+                yAl.add(yR[i]);
+           }
 
+        }
+        
+        z = new int[xAl.size()];
+        y = new int[xAl.size()];
+        x = new int[xAl.size()];
+
+        for(int j = 0; j < xAl.size(); j++){
+            z[j] = zAl.get(j); 
+            x[j] = xAl.get(j); 
+            y[j] = yAl.get(j); 
+        }
+    }
+    
+    
 //region manipulation
 public void addRegion(int[] x, int[] y, int n, int z) {
         this.Regions[this.nRegions + 1] = new microRegion(x, y, n, z);
@@ -435,49 +484,49 @@ public void addRegions(List<microRegion> regions){
         return this.min;
     }
 
-    public ArrayList getVolumePixels(int dim) {
-        int countRegion = this.nRegions;
-        int countPixel;
-        //microRegion[] localRegions = this.Regions;
-        microRegion[] localRegions = getRegionsAsArray();
-        //int[] pixels = new int[1];  
-        int[] pixels;
-        ArrayList Dpixels = new ArrayList();
+//    public ArrayList getVolumePixels(int dim) {
+//        int countRegion = this.nRegions;
+//        int countPixel;
+//        //microRegion[] localRegions = this.Regions;
+//        microRegion[] localRegions = getRegionsAsArray();
+//        //int[] pixels = new int[1];  
+//        int[] pixels;
+//        ArrayList Dpixels = new ArrayList();
+//
+//        switch (dim) {
+//
+//            case X_VALUES:
+//
+//                for (int c = 0; c <= countRegion; c++) {
+//                    countPixel = localRegions[c].getPixelCount();
+//                    pixels = localRegions[c].getPixelsX();
+//
+//                    for (int m = 0; m <= countPixel; m++) {
+//                        Dpixels.add(pixels[m]);
+//                    }
+//                }
+//                return Dpixels;
+//
+//            case Y_VALUES:
+//
+//                for (int d = 0; d <= countRegion; d++) {
+//                    countPixel = localRegions[d].getPixelCount();
+//                    pixels = localRegions[d].getPixelsY();
+//
+//                    for (int m = 0; m <= countPixel; m++) {
+//                        Dpixels.add(pixels[m]);
+//                    }
+//                }
+//                return Dpixels;
+//
+//            default:
+//                return Dpixels;
+//        }
+//    }
 
-        switch (dim) {
-
-            case X_VALUES:
-
-                for (int c = 0; c <= countRegion; c++) {
-                    countPixel = localRegions[c].getPixelCount();
-                    pixels = localRegions[c].getPixelsX();
-
-                    for (int m = 0; m <= countPixel; m++) {
-                        Dpixels.add(pixels[m]);
-                    }
-                }
-                return Dpixels;
-
-            case Y_VALUES:
-
-                for (int d = 0; d <= countRegion; d++) {
-                    countPixel = localRegions[d].getPixelCount();
-                    pixels = localRegions[d].getPixelsY();
-
-                    for (int m = 0; m <= countPixel; m++) {
-                        Dpixels.add(pixels[m]);
-                    }
-                }
-                return Dpixels;
-
-            default:
-                return Dpixels;
-        }
-    }
-
-    public int getParticleCount(microRegion Region) {
-        return Region.getPixelCount();
-    }
+//    public int getParticleCount(microRegion Region) {
+//        return Region.getPixelCount();
+//    }
 
     @Override
     public Object[][] getAnalysisResultsVolume() {
@@ -493,15 +542,15 @@ public void addRegions(List<microRegion> regions){
         return this.ResultsPointer;
     }
     
-    public Color getAnalyticColor(int channel, int analytic) {
-        try{return Colorized[channel][analytic];}
-        catch(NullPointerException np){}
-        return Color.BLACK;
-    }
-    
-    public void setAnalyticColor(Color clr,int channel, int analytic){
-        this.Colorized[channel][analytic] = clr;
-    }
+//    public Color getAnalyticColor(int channel, int analytic) {
+//        try{return Colorized[channel][analytic];}
+//        catch(NullPointerException np){}
+//        return Color.BLACK;
+//    }
+//    
+//    public void setAnalyticColor(Color clr,int channel, int analytic){
+//        this.Colorized[channel][analytic] = clr;
+//    }
     
     public void setName(String str){
         name = str;
@@ -513,8 +562,8 @@ public void addRegions(List<microRegion> regions){
     
     public int[] getBoundsCenter(){
         int[] center = new int[2];
-        center[0] = (Integer)this.x;
-        center[1] = (Integer)this.y;
+        center[0] = (Integer)this.x_centroid;
+        center[1] = (Integer)this.y_centroid;
         return center;
     }
 
@@ -550,32 +599,37 @@ public void addRegions(List<microRegion> regions){
 
     @Override
     public int[] getPixelsX() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return x;
     }
 
     @Override
     public int[] getPixelsY() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+        return y;
+     }
+    
+        @Override
+    public int[] getPixelsZ() {
+        return z;
+     }
 
     @Override
     public float getCentroidX() {
          try{
-        return x;
+        return x_centroid;
         } catch(NullPointerException e){return -1;}
     }
     
     @Override
     public float getCentroidY() {
            try{
-        return y;
+        return y_centroid;
         } catch(NullPointerException e){return -1;}
     }
     
     @Override
     public float getCentroidZ() {
         try{
-        return z;
+        return z_centroid;
         } catch(NullPointerException e){return -1;}
     }
 
@@ -635,7 +689,7 @@ public void addRegions(List<microRegion> regions){
     }
 
     @Override
-    public int getSerialID() {
+    public double getSerialID() {
        return serialID;
     }
 
@@ -672,5 +726,8 @@ public void addRegions(List<microRegion> regions){
                 }
                 return null;
     }
+
+
+
 
     };

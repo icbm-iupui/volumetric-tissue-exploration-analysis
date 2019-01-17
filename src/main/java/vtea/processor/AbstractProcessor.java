@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2017 SciJava
+/* 
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,18 +18,22 @@
 package vtea.processor;
 
 import javax.swing.SwingWorker;
+import vtea.processor.listeners.ProgressListener;
 
 /**
  *
  * @author sethwinfree
  */
-public abstract class AbstractProcessor extends SwingWorker<Void,Void> implements Processor  {
+public abstract class AbstractProcessor extends SwingWorker<Void,Void> implements Processor, ProgressListener {
     
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
     protected String NAME = "ABSTRACTPROCESSOR";
     protected String KEY = "ABSTRACTPROCESSOR";
+    
+    protected String key;
+
     
      @Override
     public String getName() {
@@ -40,6 +44,16 @@ public abstract class AbstractProcessor extends SwingWorker<Void,Void> implement
     public String getKey() {
         return KEY;
     }   
+    
+    public String getUIDKey() {
+        return key;
+    }
+    
+    @Override
+    public void FireProgressChange(String str, double db) {      
+            firePropertyChange("progress", 0, (int)db);
+            firePropertyChange("comment", key, str);
+    }
 
     
 }

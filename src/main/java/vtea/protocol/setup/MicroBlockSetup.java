@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,14 +38,12 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     protected ArrayList<String> Channels = new ArrayList<String>();
     
     
-    protected DefaultComboBoxModel cbm;
-    protected DefaultComboBoxModel ccbm;
+    protected DefaultComboBoxModel processComboBox;
+    protected DefaultComboBoxModel channelsComboBox;
     public ArrayList<MicroBlockSetupListener> MicroBlockSetupListeners = new ArrayList<MicroBlockSetupListener>();
     protected ArrayList CurrentStepProtocol = new ArrayList();
     protected int step;
-    
     protected ArrayList<ArrayList> protocolAll = new ArrayList<ArrayList>();
-    
     java.awt.GridBagLayout MethodSelectionLayout = new java.awt.GridBagLayout();
 
     /**
@@ -83,8 +81,21 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         for (int i = 0; i < 10; i++) { CurrentProcessItems.add(null);}
 
         DefaultTitle = "BlockStep_" + step;
-        cbm = new DefaultComboBoxModel(ProcessOptions);
-        ccbm = new DefaultComboBoxModel(Channels.toArray());
+        channelsComboBox = new DefaultComboBoxModel(Channels.toArray());
+        processComboBox = new DefaultComboBoxModel(ProcessOptions);
+        CurrentProcessList = new ArrayList(10);
+        initComponents();
+        ChannelComboBox.setVisible(true);
+        PreviewButton.setVisible(false);
+        pack();
+    }
+    
+    MicroBlockSetup(int step){
+        this.step = step;
+        for (int i = 0; i< 10; i++) { CurrentProcessItems.add(null);}
+        DefaultTitle = "BlockStep_" + step;
+        processComboBox = new DefaultComboBoxModel(ProcessOptions);
+        channelsComboBox = new DefaultComboBoxModel(ProcessOptions);
         CurrentProcessList = new ArrayList(10);
         initComponents();
         ChannelComboBox.setVisible(true);
@@ -133,6 +144,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(110, 160, 378, 282));
+        setMaximumSize(new java.awt.Dimension(378, 750));
         setMinimumSize(vtea._vtea.BLOCKSETUP);
         setName("BlockOptionFrame"); // NOI18N
         setSize(new java.awt.Dimension(378, 282));
@@ -143,10 +155,9 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         methodBuild.setBackground(vtea._vtea.BACKGROUND);
         methodBuild.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        methodBuild.setMaximumSize(new java.awt.Dimension(359, 300));
+        methodBuild.setMaximumSize(new java.awt.Dimension(359, 350));
         methodBuild.setMinimumSize(new java.awt.Dimension(359, 300));
-        methodBuild.setPreferredSize(new java.awt.Dimension(359, 300));
-        methodBuild.setLayout(new java.awt.GridBagLayout());
+        methodBuild.setPreferredSize(new java.awt.Dimension(359, 330));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
@@ -214,11 +225,14 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         comments.setBackground(vtea._vtea.BACKGROUND);
         comments.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         comments.setMaximumSize(new java.awt.Dimension(359, 100));
-        comments.setMinimumSize(new java.awt.Dimension(359, 100));
-        comments.setPreferredSize(new java.awt.Dimension(359, 100));
+        comments.setMinimumSize(new java.awt.Dimension(359, 50));
+        comments.setPreferredSize(new java.awt.Dimension(359, 50));
         comments.setLayout(new javax.swing.BoxLayout(comments, javax.swing.BoxLayout.LINE_AXIS));
 
         notesPane.setBackground(vtea._vtea.BACKGROUND);
+        notesPane.setMaximumSize(new java.awt.Dimension(340, 300));
+        notesPane.setMinimumSize(new java.awt.Dimension(340, 200));
+        notesPane.setPreferredSize(new java.awt.Dimension(340, 200));
         notesPane.setLayout(new java.awt.BorderLayout(10, 0));
 
         jLabel3.setText("Notes");
@@ -260,9 +274,9 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         tablePane.add(secondaryObjects, gridBagConstraints);
 
-        tableScrollPane.setMinimumSize(new java.awt.Dimension(360, 90));
+        tableScrollPane.setMaximumSize(new java.awt.Dimension(360, 220));
+        tableScrollPane.setMinimumSize(new java.awt.Dimension(360, 220));
         tableScrollPane.setPreferredSize(new java.awt.Dimension(360, 220));
-        tableScrollPane.setSize(new java.awt.Dimension(360, 220));
 
         secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -365,6 +379,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         channelSelection.setBackground(vtea._vtea.BACKGROUND);
         channelSelection.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        channelSelection.setMinimumSize(new java.awt.Dimension(359, 31));
         channelSelection.setPreferredSize(new java.awt.Dimension(359, 33));
         channelSelection.setLayout(new java.awt.GridBagLayout());
 
@@ -379,7 +394,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         channelSelection.add(ProcessText, gridBagConstraints);
 
         ProcessSelectComboBox.setBackground(vtea._vtea.BACKGROUND);
-        ProcessSelectComboBox.setModel(this.cbm);
         ProcessSelectComboBox.setMaximumSize(new java.awt.Dimension(150, 27));
         ProcessSelectComboBox.setMinimumSize(new java.awt.Dimension(150, 27));
         ProcessSelectComboBox.setPreferredSize(new java.awt.Dimension(200, 27));
@@ -412,7 +426,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         ChannelSelection.setText("Segment on Channel");
         Approach.add(ChannelSelection);
 
-        ChannelComboBox.setModel(ccbm);
+        ChannelComboBox.setModel(channelsComboBox);
         ChannelComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ChannelComboBoxActionPerformed(evt);
@@ -429,15 +443,18 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         methodMorphology.setBackground(vtea._vtea.BACKGROUND);
         methodMorphology.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        methodMorphology.setMaximumSize(new java.awt.Dimension(359, 300));
-        methodMorphology.setMinimumSize(new java.awt.Dimension(359, 100));
-        methodMorphology.setPreferredSize(new java.awt.Dimension(359, 75));
+        methodMorphology.setMaximumSize(new java.awt.Dimension(359, 500));
+        methodMorphology.setMinimumSize(new java.awt.Dimension(359, 150));
+        methodMorphology.setPreferredSize(new java.awt.Dimension(359, 150));
+        methodMorphology.setRequestFocusEnabled(false);
 
         defaultProtocolPanel();
         MethodDetails.setBackground(vtea._vtea.BACKGROUND);
-        MethodDetails.setMaximumSize(new java.awt.Dimension(340, 250));
-        MethodDetails.setMinimumSize(new java.awt.Dimension(340, 50));
-        MethodDetails.setPreferredSize(new java.awt.Dimension(350, 50));
+        MethodDetails.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        MethodDetails.setMaximumSize(new java.awt.Dimension(340, 500));
+        MethodDetails.setMinimumSize(new java.awt.Dimension(340, 120));
+        MethodDetails.setName(""); // NOI18N
+        MethodDetails.setPreferredSize(new java.awt.Dimension(350, 120));
         MethodDetails.setLayout(new java.awt.GridBagLayout());
         methodMorphology.add(MethodDetails);
 
@@ -451,7 +468,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     }// </editor-fold>//GEN-END:initComponents
 
     private void ProcessSelectComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ProcessSelectComboBoxActionPerformed
-  updateProtocolPanel(evt);
+        updateProtocolPanel(evt);
     }//GEN-LAST:event_ProcessSelectComboBoxActionPerformed
 
     private void BlockSetupCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BlockSetupCancelActionPerformed
@@ -536,9 +553,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
     protected void notifyMicroBlockSetupListeners(ArrayList al) {
         for (MicroBlockSetupListener listener : MicroBlockSetupListeners) {
-
             listener.onChangeSetup(al);
-
         }
     }
 
@@ -681,8 +696,8 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         if (!(null == this.CurrentProcessList)) {
             this.CurrentProcessList.clear();
         }
-        this.CurrentProcessList.add(this.cbm.getSelectedItem());
-        this.CurrentProcessList.add(this.ccbm.getSelectedItem());
+        this.CurrentProcessList.add(this.processComboBox.getSelectedItem());
+        this.CurrentProcessList.add(this.channelsComboBox.getSelectedItem());
         //this.CurrentProcessList.add(this.jTextPane1.getText());
         this.CurrentProcessList.addAll(ProcessComponents);
 
@@ -711,21 +726,22 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     
     protected void updateProtocolPanel(ActionEvent evt) {
         
- 
+        
+        
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
         
-        makeProtocolPanel(ProcessSelectComboBox.getSelectedIndex());
+        makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
 
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
        
         pack();
-//        }
+
     }
     
-    @Override
+    @Override    
     public Object clone() throws CloneNotSupportedException {
         return super.clone(); //To change body of generated methods, choose Tools | Templates.
     }
@@ -788,7 +804,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     protected javax.swing.JTextPane jTextPane1;
     protected javax.swing.JPanel methodBuild;
     protected javax.swing.JPanel methodMorphology;
-    private javax.swing.JPanel methodSelection;
+    protected javax.swing.JPanel methodSelection;
     protected javax.swing.JPanel notesPane;
     private javax.swing.JLabel secondaryObjects;
     protected javax.swing.JTable secondaryTable;

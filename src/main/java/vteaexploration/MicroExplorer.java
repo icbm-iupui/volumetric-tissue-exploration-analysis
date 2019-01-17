@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,26 +36,28 @@ import ij.gui.RoiListener;
 import ij.measure.ResultsTable;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.NullPointerException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -63,22 +65,25 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import org.apache.commons.io.FilenameUtils;
+import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.AxesChangeListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
+import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
-import vteaobjects.MicroObjectModel;
+import vtea.feature.FeatureFrame;
+import vtea.protocol.setup.SegmentationPreviewer;
 
 /**
  *
  * @author vinfrais
  *
  */
-public class MicroExplorer extends javax.swing.JFrame implements RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
+public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesListener, RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
 
     private XYPanels DefaultXYPanels;
-    private static final Dimension MainPanelSize = new Dimension(630, 640);
+    private static final Dimension MAINPANELSIZE = new Dimension(630, 640);
     private static final int POLYGONGATE = 10;
     private static final int RECTANGLEGATE = 11;
     private static final int QUADRANTGATE = 12;
@@ -94,7 +99,11 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     public static final int POINTSIZE = 4;
 
-    List plotvalues;
+    public static String LASTDIRECTORY = "";
+
+    int featureCount = 0;
+
+    ArrayList measurements;
     ExplorationCenter ec;
     PlotAxesPanels pap;
     JPanel HeaderPanel;
@@ -102,7 +111,9 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     ImagePlus impoverlay;
     int impMode;
     String title;
-    ArrayList availabledata;
+    ArrayList descriptions;
+    ArrayList<String> descriptionsLabels = new ArrayList<String>();
+    ArrayList<MicroObject> Objects = new ArrayList<MicroObject>();
     ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
 
     private boolean all = false;
@@ -117,14 +128,20 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     JLabel lLabel;
 
     GatePercentages ResultsWindow;
-    
+
+    double[][] ObjectIDs;
 
     HashMap<Integer, JToggleButton> GateButtonsHM = new HashMap<Integer, JToggleButton>();
     HashMap<Integer, String> AvailableDataHM = new HashMap<Integer, String>();
 
     ArrayList<ExplorationCenter> ExplorationPanels = new ArrayList<ExplorationCenter>();
-    
+
     PlotAxesSetup AxesSetup = new PlotAxesSetup();
+
+    ArrayList<AddFeaturesListener> FeatureListeners = new ArrayList<AddFeaturesListener>();
+
+    FeatureFrame ff;
+    boolean checked = false;
 
     String[] sizes = {"2", "4", "8", "10", "15", "20"};
 
@@ -143,34 +160,63 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     }
 
-    public void process(ImagePlus imp, String title, List plotvalues, ExplorationCenter ec, PlotAxesPanels pap, ArrayList AvailableData) {
+    public void process(ImagePlus imp, String title, ArrayList plotvalues, ExplorationCenter ec, PlotAxesPanels pap, ArrayList AvailableData, ArrayList descriptionLabel) {
+        //Needs to be converted to a Factory metaphor.
 
-        this.availabledata = AvailableData;
+        //Setup base dataseta
+        //Available data is an arraylist of the available tags as they exist in microvolumes.
+        //imp is the original image
+        this.descriptions = AvailableData;
+        this.descriptionsLabels = descriptionLabel;
+        //as taken from stackoverflow
+        
+        //descriptionsLabels.addAll(descriptions);
+        
+        ComboboxToolTipRenderer renderer = new ComboboxToolTipRenderer();
+        renderer.setTooltips(descriptionsLabels);
+       
+        this.imp = imp;
+        this.impoverlay = imp.duplicate();
+        this.impoverlay.addImageListener(this);
+
+        this.impoverlay.setOpenAsHyperStack(true);
+        this.impoverlay.setDisplayMode(IJ.COMPOSITE);
+        this.impoverlay.setTitle(title);
+
+        //Setup GUI and populate comboboxes
         initComponents();
+        
+        this.jComboBoxXaxis.setRenderer(renderer);
+        this.jComboBoxYaxis.setRenderer(renderer);
+        this.jComboBoxLUTPlot.setRenderer(renderer);
+        
         addMenuItems();
         
-       this.title = title;
-       
+        
 
-       AxesSetup.setDescriptor(this.getTitle());
-       
+        this.title = title;
+
+        AxesSetup.setDescriptor(this.getTitle());
 
         get3DProjection.setEnabled(false);
 
         makeOverlayImage(new ArrayList<Gate>(), ec.getSelectedObjects(), ec.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
-        AvailableDataHM = makeAvailableDataHM(availabledata);
 
-        final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(availabledata, MicroExplorer.XAXIS);
-        final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(availabledata, MicroExplorer.YAXIS);
-        final SelectPlottingDataMenu PlottingPopupLUTaxis = new SelectPlottingDataMenu(availabledata, MicroExplorer.LUTAXIS);
+        AvailableDataHM = makeAvailableDataHM(descriptions);
+        
+        GateButtonsHM.put(POLYGONGATE, this.addPolygonGate);
+        GateButtonsHM.put(RECTANGLEGATE, this.addRectangularGate);
+        GateButtonsHM.put(QUADRANTGATE, this.addQuadrantGate);
+
+        final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
+        final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.YAXIS);
+        final SelectPlottingDataMenu PlottingPopupLUTaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.LUTAXIS);
 
         PlottingPopupXaxis.addPopupMenuAxisListener(this);
         PlottingPopupYaxis.addPopupMenuAxisListener(this);
         PlottingPopupLUTaxis.addPopupMenuAxisListener(this);
 
-        GateButtonsHM.put(POLYGONGATE, this.addPolygonGate);
-        GateButtonsHM.put(RECTANGLEGATE, this.addRectangularGate);
-        GateButtonsHM.put(QUADRANTGATE, this.addQuadrantGate);
+
 
         xLabel = new JLabel("X_axis");
         xLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
@@ -258,14 +304,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             }
         });
 
-        this.imp = imp;
-        this.impoverlay = imp.duplicate();
-        this.impoverlay.addImageListener(this);
-        
-        this.impoverlay.setOpenAsHyperStack(true);
-        this.impoverlay.setDisplayMode(IJ.COMPOSITE);
-        this.impoverlay.setTitle(title);
-
         DefaultXYPanels = new XYPanels(AvailableData);
         DefaultXYPanels.addChangePlotAxesListener(this);
 
@@ -286,6 +324,12 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         this.pack();
         this.setVisible(true);
         jComboBoxPointSize.setSelectedIndex(4);
+
+        makeDataTable();
+
+        ff = new FeatureFrame(descriptions, ObjectIDs, imp);
+        ff.addListener(this);
+
     }
 
     /**
@@ -302,7 +346,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jSeparator3 = new javax.swing.JSeparator();
         North = new javax.swing.JPanel();
         toolbarPlot = new javax.swing.JToolBar();
-        jLabel15 = new javax.swing.JLabel();
         jSeparator4 = new javax.swing.JToolBar.Separator();
         jLabel1 = new javax.swing.JLabel();
         jComboBoxXaxis = new javax.swing.JComboBox();
@@ -313,7 +356,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         jLabel6 = new javax.swing.JLabel();
         jComboBoxPointSize = new javax.swing.JComboBox();
         toolbarGate = new javax.swing.JToolBar();
-        jLabel4 = new javax.swing.JLabel();
         addPolygonGate = new javax.swing.JToggleButton();
         addRectangularGate = new javax.swing.JToggleButton();
         addQuadrantGate = new javax.swing.JToggleButton();
@@ -321,20 +363,21 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         LoadGates = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         jLabel3 = new javax.swing.JLabel();
-        axesLabel = new javax.swing.JLabel();
         AutoScaleAxes = new javax.swing.JButton();
         AxesSettings = new javax.swing.JButton();
         SetGlobalToLocal = new javax.swing.JButton();
         UseGlobal = new javax.swing.JToggleButton();
+        BWLUT = new javax.swing.JToggleButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
         get3DProjection = new javax.swing.JButton();
+        getSegmentation = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
-        BWLUT = new javax.swing.JToggleButton();
+        jButtonFeature = new javax.swing.JButton();
+        jButtonDistance = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
         ExportGraph = new javax.swing.JButton();
         exportCSV = new javax.swing.JButton();
         importCSV = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
         WestPanel = new javax.swing.JPanel();
         yTextPanel = new javax.swing.JPanel();
         FlipAxes = new javax.swing.JButton();
@@ -349,38 +392,34 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         setTitle(getTitle());
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
+        setMinimumSize(new java.awt.Dimension(638, 715));
+        setPreferredSize(new java.awt.Dimension(700, 710));
+        setSize(new java.awt.Dimension(638, 715));
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
                 formComponentAdded(evt);
             }
         });
 
-        North.setMinimumSize(new java.awt.Dimension(600, 75));
-        North.setPreferredSize(new java.awt.Dimension(600, 80));
+        North.setMinimumSize(new java.awt.Dimension(638, 75));
+        North.setPreferredSize(new java.awt.Dimension(638, 80));
+        North.setSize(new java.awt.Dimension(638, 80));
         North.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 5));
 
         toolbarPlot.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         toolbarPlot.setFloatable(false);
+        toolbarPlot.setForeground(new java.awt.Color(255, 255, 255));
         toolbarPlot.setRollover(true);
-        toolbarPlot.setMinimumSize(new java.awt.Dimension(600, 30));
-        toolbarPlot.setPreferredSize(new java.awt.Dimension(600, 30));
-
-        jLabel15.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel15.setText("Plot");
-        jLabel15.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel15MouseClicked(evt);
-            }
-        });
-        toolbarPlot.add(jLabel15);
+        toolbarPlot.setMinimumSize(new java.awt.Dimension(644, 30));
+        toolbarPlot.setPreferredSize(new java.awt.Dimension(634, 30));
         toolbarPlot.add(jSeparator4);
 
         jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 12)); // NOI18N
         jLabel1.setLabelFor(jComboBoxXaxis);
-        jLabel1.setText("X  ");
+        jLabel1.setText("X");
         toolbarPlot.add(jLabel1);
 
-        jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.availabledata.toArray()));
+        jComboBoxXaxis.setModel(new DefaultComboBoxModel(descriptions.toArray()));
         jComboBoxXaxis.setSelectedIndex(this.XSTART);
         jComboBoxXaxis.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -391,10 +430,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
         jLabel2.setFont(new java.awt.Font("Lucida Grande", 1, 12)); // NOI18N
         jLabel2.setLabelFor(jComboBoxYaxis);
-        jLabel2.setText(" Y ");
+        jLabel2.setText(" Y");
         toolbarPlot.add(jLabel2);
 
-        jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.availabledata.toArray()));
+        jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxYaxis.setSelectedIndex(this.YSTART);
         jComboBoxYaxis.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -405,11 +444,11 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
         jLabel5.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
         jLabel5.setLabelFor(jComboBoxLUTPlot);
-        jLabel5.setText(" Color ");
+        jLabel5.setText(" Color");
         jLabel5.setToolTipText("Metric to be plotted as a \npoint's look-up table.");
         toolbarPlot.add(jLabel5);
 
-        jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.availabledata.toArray()));
+        jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxLUTPlot.setSelectedIndex(this.LUTSTART);
         jComboBoxLUTPlot.setToolTipText("Metric to be plotted as a \npoint's look-up table.");
         jComboBoxLUTPlot.addActionListener(new java.awt.event.ActionListener() {
@@ -441,11 +480,8 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         toolbarGate.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         toolbarGate.setFloatable(false);
         toolbarGate.setRollover(true);
-        toolbarGate.setPreferredSize(new java.awt.Dimension(600, 40));
-
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel4.setText("Gate  ");
-        toolbarGate.add(jLabel4);
+        toolbarGate.setMinimumSize(new java.awt.Dimension(680, 42));
+        toolbarGate.setPreferredSize(new java.awt.Dimension(640, 40));
 
         addPolygonGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/polygon-filled.png"))); // NOI18N
         addPolygonGate.setToolTipText("Add polygon gate");
@@ -531,15 +567,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         toolbarGate.add(jSeparator1);
         toolbarGate.add(jLabel3);
 
-        axesLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        axesLabel.setText("Axes ");
-        axesLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                axesLabelMouseClicked(evt);
-            }
-        });
-        toolbarGate.add(axesLabel);
-
         AutoScaleAxes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-undo.png"))); // NOI18N
         AutoScaleAxes.setToolTipText("Autoscale axes");
         AutoScaleAxes.setFocusable(false);
@@ -594,22 +621,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             }
         });
         toolbarGate.add(UseGlobal);
-        toolbarGate.add(jSeparator5);
-
-        get3DProjection.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cube.png"))); // NOI18N
-        get3DProjection.setToolTipText("Visualize in 3D");
-        get3DProjection.setEnabled(false);
-        get3DProjection.setMaximumSize(new java.awt.Dimension(35, 40));
-        get3DProjection.setMinimumSize(new java.awt.Dimension(35, 40));
-        get3DProjection.setName(""); // NOI18N
-        get3DProjection.setPreferredSize(new java.awt.Dimension(35, 40));
-        get3DProjection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                get3DProjectionActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(get3DProjection);
-        toolbarGate.add(jSeparator7);
 
         BWLUT.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/removeLUT.png"))); // NOI18N
         BWLUT.setToolTipText("Remove LUT");
@@ -625,6 +636,73 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
             }
         });
         toolbarGate.add(BWLUT);
+        toolbarGate.add(jSeparator5);
+
+        get3DProjection.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cube.png"))); // NOI18N
+        get3DProjection.setToolTipText("Visualize in 3D");
+        get3DProjection.setEnabled(false);
+        get3DProjection.setMaximumSize(new java.awt.Dimension(35, 40));
+        get3DProjection.setMinimumSize(new java.awt.Dimension(35, 40));
+        get3DProjection.setName(""); // NOI18N
+        get3DProjection.setPreferredSize(new java.awt.Dimension(35, 40));
+        get3DProjection.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                get3DProjectionActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(get3DProjection);
+
+        getSegmentation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Segmentation.png"))); // NOI18N
+        getSegmentation.setToolTipText("Visualize segmentation");
+        getSegmentation.setFocusable(false);
+        getSegmentation.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        getSegmentation.setMaximumSize(new java.awt.Dimension(35, 40));
+        getSegmentation.setMinimumSize(new java.awt.Dimension(35, 40));
+        getSegmentation.setName(""); // NOI18N
+        getSegmentation.setPreferredSize(new java.awt.Dimension(35, 40));
+        getSegmentation.setVerifyInputWhenFocusTarget(false);
+        getSegmentation.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        getSegmentation.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                getSegmentationActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(getSegmentation);
+        toolbarGate.add(jSeparator7);
+
+        jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
+        jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
+        jButtonFeature.setToolTipText("Add features");
+        jButtonFeature.setFocusable(false);
+        jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setRolloverEnabled(true);
+        jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFeatureActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(jButtonFeature);
+
+        jButtonDistance.setBackground(new java.awt.Color(102, 255, 102));
+        jButtonDistance.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
+        jButtonDistance.setToolTipText("Add distance measure");
+        jButtonDistance.setFocusable(false);
+        jButtonDistance.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonDistance.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonDistance.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonDistance.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonDistance.setRolloverEnabled(true);
+        jButtonDistance.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonDistance.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDistanceActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(jButtonDistance);
         toolbarGate.add(jSeparator8);
 
         ExportGraph.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/insert-image-2 copy.png"))); // NOI18N
@@ -676,9 +754,6 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         });
         toolbarGate.add(importCSV);
 
-        jPanel1.setPreferredSize(new java.awt.Dimension(100, 100));
-        toolbarGate.add(jPanel1);
-
         North.add(toolbarGate);
 
         getContentPane().add(North, java.awt.BorderLayout.NORTH);
@@ -718,6 +793,10 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         Main.setLayout(new java.awt.BorderLayout());
         getContentPane().add(Main, java.awt.BorderLayout.CENTER);
 
+        jMenuBar.setBackground(new java.awt.Color(238, 238, 238));
+        jMenuBar.setMinimumSize(new java.awt.Dimension(52, 1));
+        jMenuBar.setPreferredSize(new java.awt.Dimension(52, 22));
+
         Settings.setText("Settings");
         jMenuBar.add(Settings);
 
@@ -735,6 +814,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     private void jComboBoxXaxisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxXaxisActionPerformed
         //ec.setCustomRange(false);
+
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxXaxisActionPerformed
 
@@ -795,41 +875,18 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     }//GEN-LAST:event_jComboBoxPointSizePropertyChange
 
     private void get3DProjectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_get3DProjectionActionPerformed
-        
-        
-    new Thread(new Runnable() {
-      public void run() {
-          
-           ec.getZProjection();
 
-          try {
-            java.lang.Thread.sleep(100);
-          }
-          catch(Exception e) { }  
-      }
-    }).start();
-        
-//    new Thread(new Runnable() {
-//      public void run() {
-//          
-//          try {
-//              new ClearVolumeRenderer();
-//          } catch (InterruptedException ex) {
-//              Logger.getLogger(MicroExplorer.class.getName()).log(Level.SEVERE, null, ex);
-//          }
-//
-//          try {
-//            java.lang.Thread.sleep(100);
-//          }
-//          catch(Exception e) { }  
-//      }
-//    }).start();
-       
+        new Thread(() -> {
+            try {
+                ec.getZProjection();
+                java.lang.Thread.sleep(100);
+                String image = "Gates_" + impoverlay.getTitle();
+                IJ.run("Open in ClearVolume", image);
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();
     }//GEN-LAST:event_get3DProjectionActionPerformed
-
-    private void jLabel15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel15MouseClicked
-
-    }//GEN-LAST:event_jLabel15MouseClicked
 
     private void SetGlobalToLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SetGlobalToLocalActionPerformed
         ec.setAxesToCurrent();
@@ -842,16 +899,18 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     }//GEN-LAST:event_UseGlobalActionPerformed
 
     private void BWLUTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BWLUTActionPerformed
-     if (!noLUT) {
+        if (!noLUT) {
             onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
         } else {
+            
+            //need to fix this.
             onRemoveLUTChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), -1, jComboBoxPointSize.getSelectedIndex(), imageGate);
         }
     }//GEN-LAST:event_BWLUTActionPerformed
 
     private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
-       ExportCSV ex = new ExportCSV();
-       ex.export(this.availabledata, this.plotvalues);
+        ExportCSV ex = new ExportCSV();
+        ex.export(this.descriptions, this.measurements);
     }//GEN-LAST:event_exportCSVActionPerformed
 
     private void importCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importCSVActionPerformed
@@ -859,14 +918,24 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     }//GEN-LAST:event_importCSVActionPerformed
 
     private void AxesSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AxesSettingsActionPerformed
-       AxesSetup.setVisible(true);
-       AxesSetup.setContent(ec.getSettingsContent());
-       AxesSetup.addAxesChangeListener(this);
-    }//GEN-LAST:event_AxesSettingsActionPerformed
-
-    private void axesLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_axesLabelMouseClicked
+        AxesSetup.setVisible(true);
+        AxesSetup.setContent(ec.getSettingsContent());
         
-    }//GEN-LAST:event_axesLabelMouseClicked
+        ArrayList<Component> al = new ArrayList<Component>();
+        
+        al.add(new JLabel("Graph LUT:"));
+        al.add(new JComboBox(vtea._vtea.LUTOPTIONS));
+//        al.add(new JLabel("Overlay Color:"));
+//        
+//        String[] colors = {
+//            "Red","Green", "Blue", "Yellow", "Cyan", "Magenta"
+//        };
+//    
+//        al.add(new JComboBox(colors));
+
+        AxesSetup.setLUT(al);
+        AxesSetup.addAxesChangeListener(this);
+    }//GEN-LAST:event_AxesSettingsActionPerformed
 
     private void AutoScaleAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutoScaleAxesActionPerformed
         ec.setCustomRange(false);
@@ -884,6 +953,22 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     private void ExportGraphActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportGraphActionPerformed
         ec.getBufferedImage();
     }//GEN-LAST:event_ExportGraphActionPerformed
+
+    private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
+        ff.setVisible(true);
+        if (!checked) {
+            checked = true;
+        }
+
+    }//GEN-LAST:event_jButtonFeatureActionPerformed
+
+    private void getSegmentationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getSegmentationActionPerformed
+        SegmentationPreviewer.SegmentationFactory(imp, ec.getObjects());
+    }//GEN-LAST:event_getSegmentationActionPerformed
+
+    private void jButtonDistanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDistanceActionPerformed
+        
+    }//GEN-LAST:event_jButtonDistanceActionPerformed
 
     /**
      * @param args the command line arguments
@@ -937,25 +1022,24 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     protected javax.swing.JToggleButton addPolygonGate;
     protected javax.swing.JToggleButton addQuadrantGate;
     protected javax.swing.JToggleButton addRectangularGate;
-    private javax.swing.JLabel axesLabel;
     private javax.swing.JButton exportCSV;
     private javax.swing.JButton exportGates;
     private javax.swing.JButton get3DProjection;
+    private javax.swing.JButton getSegmentation;
     private javax.swing.JButton importCSV;
+    private javax.swing.JButton jButtonDistance;
+    private javax.swing.JButton jButtonFeature;
     private javax.swing.JComboBox jComboBox1;
     protected javax.swing.JComboBox jComboBoxLUTPlot;
     private javax.swing.JComboBox jComboBoxPointSize;
     protected javax.swing.JComboBox jComboBoxXaxis;
     protected javax.swing.JComboBox jComboBoxYaxis;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JMenuBar jMenuBar;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
@@ -970,10 +1054,11 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     private void setPanels(List plotvalues, ExplorationCenter ec, PlotAxesPanels pap) {
 
-        this.plotvalues = plotvalues;
+        this.measurements = (ArrayList) plotvalues;
         this.ec = ec;
         this.ec.addMakeImageOverlayListener(this);
-        this.pap = pap;
+        DefaultPlotPanels DPP = new DefaultPlotPanels();
+        this.pap = DPP;
         Main.removeAll();
         Main.add(ec.getPanel());
         updateBorderPanels(pap);
@@ -997,11 +1082,11 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     }
 
     private void redrawCenterPanel() {
-        updateCenterPanel(this.plotvalues, this.ec);
+        updateCenterPanel(this.measurements, this.ec);
     }
 
     static public Dimension getMainDimension() {
-        return MicroExplorer.MainPanelSize;
+        return MicroExplorer.MAINPANELSIZE;
     }
 
     private void makePolygonGate() {
@@ -1032,7 +1117,12 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     }
 
     private void flipAxes() {
-        updatePlotByPopUpMenu(this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
+        if (!BWLUT.isSelected()) {
+            updatePlotByPopUpMenu(this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
+        } else {
+            updatePlotByPopUpMenu(this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
+        }
+
     }
 
     private void activationGateTools(int activeGate) {
@@ -1163,41 +1253,41 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
     @Override
     public void imageOpened(ImagePlus ip) {
- 
+
     }
 
     @Override
     public void imageClosed(ImagePlus ip) {
-        
-    if(ip.getID() == impoverlay.getID()){
-   
-    JFrame frame = new JFrame();
-    frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
-    Object[] options = {"Yes", "No"};
-        int n = JOptionPane.showOptionDialog(frame,
-        "The overlay image has been closed.  Reload?",
-        "Image closed.",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.QUESTION_MESSAGE,
-        null,
-        options,
-        options[0]);
-        
-        if (n == JOptionPane.YES_OPTION) {
-            this.impoverlay = imp.duplicate();
-            //this.impoverlay.addImageListener(this);
-            ec.setGatedOverlay(impoverlay);
-           impoverlay.setTitle(title);
-            impoverlay.show();
-        } else {}
+
+        if (ip.getID() == impoverlay.getID()) {
+
+            JFrame frame = new JFrame();
+            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+            Object[] options = {"Yes", "No"};
+            int n = JOptionPane.showOptionDialog(frame,
+                    "The overlay image has been closed.  Reload?",
+                    "Image closed.",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
+
+            if (n == JOptionPane.YES_OPTION) {
+                this.impoverlay = imp.duplicate();
+                //this.impoverlay.addImageListener(this);
+                ec.setGatedOverlay(impoverlay);
+                impoverlay.setTitle(title);
+                impoverlay.show();
+            } else {
+            }
 
         }
     }
 
     @Override
     public void imageUpdated(ImagePlus ip) {
-   
-        
+
     }
 
     @Override
@@ -1208,13 +1298,13 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
     @Override
     public void changeAxes(int axis, String position) {
         if (axis == MicroExplorer.XAXIS) {
-            updatePlotByPopUpMenu(this.availabledata.indexOf(position), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
+            updatePlotByPopUpMenu(this.descriptions.indexOf(position), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
         } else if (axis == MicroExplorer.YAXIS) {
-            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.availabledata.indexOf(position), this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
+            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.descriptions.indexOf(position), this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
         } else if (axis == MicroExplorer.LUTAXIS) {
-            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.availabledata.indexOf(position), this.jComboBoxPointSize.getSelectedIndex());
+            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.descriptions.indexOf(position), this.jComboBoxPointSize.getSelectedIndex());
         } else if (axis == MicroExplorer.POINTAXIS) {
-            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), this.availabledata.indexOf(position));
+            updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), this.descriptions.indexOf(position));
         }
     }
 
@@ -1239,8 +1329,8 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
 
                 if (i == RoiListener.COMPLETED || i == RoiListener.MOVED) {
                     ImageGatedObjects.clear();
-                    ArrayList<MicroObject> volumes = (ArrayList) plotvalues.get(1);
-                    ListIterator<MicroObject> itr = volumes.listIterator();
+                   
+                    ListIterator<MicroObject> itr = this.Objects.listIterator();
                     while (itr.hasNext()) {
                         MicroObject m = itr.next();
                         int[] c = new int[2];
@@ -1249,7 +1339,7 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                         if (ip.getRoi().contains(c[0], c[1])) {
                             ImageGatedObjects.add(m);
                         }
-                    }            
+                    }
                     validate();
                     repaint();
                 }
@@ -1258,31 +1348,271 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
         }
     }
 
-
     @Override
-    public void onAxesSetting(ArrayList al) {
-        
-        
+    public void onAxesSetting(ArrayList Content, ArrayList LUT) {
+
         ArrayList<Double> limits = new ArrayList();
-        
-        limits.add(Double.valueOf(((JTextField)(al.get(1))).getText()));
-        limits.add(Double.valueOf(((JTextField)(al.get(3))).getText()));
-        limits.add(Double.valueOf(((JTextField)(al.get(6))).getText()));
-        limits.add(Double.valueOf(((JTextField)(al.get(8))).getText()));
-        
+
+        limits.add(Double.valueOf(((JTextField) (Content.get(1))).getText()));
+        limits.add(Double.valueOf(((JTextField) (Content.get(3))).getText()));
+        limits.add(Double.valueOf(((JTextField) (Content.get(6))).getText()));
+        limits.add(Double.valueOf(((JTextField) (Content.get(8))).getText()));
+
         boolean xLinear = true;
         boolean yLinear = true;
-        
-        if(((JComboBox)al.get(4)).getSelectedIndex() == 1){
+
+        if (((JComboBox) Content.get(4)).getSelectedIndex() == 1) {
             xLinear = false;
         }
-        if(((JComboBox)al.get(9)).getSelectedIndex() == 1){
+        if (((JComboBox) Content.get(9)).getSelectedIndex() == 1) {
             yLinear = false;
         }
+        
+        JComboBox lutTable = (JComboBox)LUT.get(1);
 
-        ec.setAxesTo(limits, xLinear, yLinear);
+        ec.setAxesTo(limits, xLinear, yLinear,lutTable.getSelectedIndex());
 
         updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
+    }
+
+    private void checkMeasurements() {
+        ListIterator<ArrayList<Number>> itr_measurements = measurements.listIterator();
+////        System.out.println("Checking measurement arraylist");
+        while (itr_measurements.hasNext()) {
+            ArrayList<Number> measure = itr_measurements.next();
+            ListIterator<Number> itr_values = measure.listIterator();
+
+            while (itr_values.hasNext()) {
+
+                //System.out.println("PROFILING: " + itr_values.next());
+            }
+        }
+
+    }
+
+    private void checkMeasurementsArray() {
+
+        //System.out.println("Checking Feature Array" );
+        for (int i = 0; i < ObjectIDs.length; i++) {
+            for (int j = 0; j < descriptions.size() + 4; j++) {
+                //System.out.println("PROFILING: " + ObjectIDs[i][j]);
+            }
+        }
+
+    }
+
+    /**
+     * Creates 2D feature array. The first column is the unique SerialID and the
+     * subsequent columns are different computed features.
+     */
+    private void makeDataTable() {
+
+        ArrayList<MicroObject> objects = ec.getObjects();
+        ListIterator a_itr = objects.listIterator();
+
+        this.ObjectIDs = new double[objects.size()][descriptions.size() + 4];
+
+        try {
+            int i = 0;
+            while (a_itr.hasNext()) {
+
+                MicroObject volume = (MicroObject) a_itr.next();
+
+                this.ObjectIDs[i][0] = (double) volume.getSerialID();
+                this.ObjectIDs[i][1] = (double) volume.getCentroidX();
+                this.ObjectIDs[i][2] = (double) volume.getCentroidY();
+                this.ObjectIDs[i][3] = (double) volume.getCentroidZ();
+
+                ArrayList measure = (ArrayList) measurements.get(i);
+
+                ListIterator<Number> itr = measure.listIterator();
+
+                int j = 4;
+                while (itr.hasNext()) {
+                    this.ObjectIDs[i][j] = ((Number) itr.next()).doubleValue();
+                    //System.out.println("PROFILING feature array: " + ObjectIDs[i][j]);
+                    j++;
+                }
+                i++;
+            }
+
+        } catch (NullPointerException ex) {
+            System.out.println(ex);
+        }
+    }
+
+    @Override
+    public void addFeatures(String name, ArrayList<ArrayList<Number>> results) {
+        
+        int xsel = jComboBoxXaxis.getSelectedIndex();
+        int ysel = jComboBoxYaxis.getSelectedIndex();
+        int zsel = jComboBoxLUTPlot.getSelectedIndex();
+
+        int newFeatures = results.size();
+        int startSize = featureCount;
+
+        String descr;
+        
+        
+
+        for (int i = startSize; i < newFeatures + startSize; i++) {
+            descr = "";
+            if (results.size() > 1) {
+                descr = name + "_" + (i - startSize);
+                descriptionsLabels.add(descr);
+            } else {
+                descr = name;
+                descriptionsLabels.add(descr);
+            }
+
+             if (descr.length() > 10) {
+                 
+                    String truncated = name.substring(0, 8) + "..." + name.substring(name.length() - 5, name.length());
+                    descr = truncated + "_" + (i - startSize);
+             }
+
+            descriptions.add(descr);
+
+            this.featureCount++;
+
+        }
+        for (int j = 0; j < results.size(); j++) {
+
+            ArrayList<Number> features = results.get(j);   //the list of a single feature  
+
+            for (int k = 0; k < features.size(); k++) {
+
+                Number feature = (Number) features.get(k);
+
+                ArrayList<Number> object = (ArrayList) measurements.get(k);
+                object.add(feature);
+            }
+        }
+
+        AvailableDataHM = makeAvailableDataHM(descriptions);
+        ec.updateFeatureSpace(AvailableDataHM, measurements);
+
+
+        jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+        jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+        jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+        
+        ComboboxToolTipRenderer renderer = new ComboboxToolTipRenderer();
+        renderer.setTooltips(descriptionsLabels);
+        
+        jComboBoxXaxis.setRenderer(renderer);
+        jComboBoxYaxis.setRenderer(renderer);
+        jComboBoxLUTPlot.setRenderer(renderer);
+
+        jComboBoxXaxis.setSelectedIndex(xsel);
+        jComboBoxYaxis.setSelectedIndex(ysel);
+        jComboBoxLUTPlot.setSelectedIndex(zsel);
+
+        
+        
+        
+        //x, y, l Labels
+        
+        final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
+        final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.YAXIS);
+        final SelectPlottingDataMenu PlottingPopupLUTaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.LUTAXIS);
+
+        PlottingPopupXaxis.addPopupMenuAxisListener(this);
+        PlottingPopupYaxis.addPopupMenuAxisListener(this);
+        PlottingPopupLUTaxis.addPopupMenuAxisListener(this);
+
+
+
+        xLabel = new JLabel("X_axis");
+        xLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
+        yLabel = new JLabel("Y_axis");
+
+        yLabel.setUI(new VerticalLabelUI(false));
+        yLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
+
+        lLabel = new JLabel("No LUT");
+        lLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
+
+        xLabel.addMouseListener(new java.awt.event.MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (SwingUtilities.isRightMouseButton(me)) {
+                    PlottingPopupXaxis.show(me.getComponent(), me.getX(), me.getY());
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent me) {
+            
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+            }
+        });
+        yLabel.addMouseListener(new java.awt.event.MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (SwingUtilities.isRightMouseButton(me)) {
+                    PlottingPopupYaxis.show(me.getComponent(), me.getX(), me.getY());
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+            }
+        });
+        lLabel.addMouseListener(new java.awt.event.MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (SwingUtilities.isRightMouseButton(me)) {
+                    PlottingPopupLUTaxis.show(me.getComponent(), me.getX(), me.getY());
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent me) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+            }
+        });
+        
+             updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+        
+        pack();
     }
 
     class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
@@ -1331,119 +1661,118 @@ public class MicroExplorer extends javax.swing.JFrame implements RoiListener, Pl
                 listener.changeAxes(Axis, position);
             }
         }
+
     }
     
+    //as borrowed from https://stackoverflow.com/questions/480261/java-swing-mouseover-text-on-jcombobox-items
+    
+    public class ComboboxToolTipRenderer extends DefaultListCellRenderer {
+    List<String> tooltips;
+
+    @Override
+    public Component getListCellRendererComponent(JList list, Object value,
+                        int index, boolean isSelected, boolean cellHasFocus) {
+
+        JComponent comp = (JComponent) super.getListCellRendererComponent(list,
+                value, index, isSelected, cellHasFocus);
+
+        if (-1 < index && null != value && null != tooltips) {
+            list.setToolTipText(tooltips.get(index));
+        }
+        return comp;
+    }
+
+    public void setTooltips(List<String> tooltips) {
+        this.tooltips = tooltips;
+    }
+}
+
+
     class ExportCSV {
 
-        public ExportCSV() {}
+        public ExportCSV() {
+        }
 
-        
-        protected void export(ArrayList header, List attributes) {
-           
+        protected void export(ArrayList header, ArrayList al) {
 
-            JFileChooser jf = new JFileChooser(new File("untitled.csv"));
-            
+            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+
             int returnVal = jf.showSaveDialog(Main);
-            
-            File file = jf.getSelectedFile(); 
-            
-            //int returnVal = chooser.showOpenDialog(parent);
-            
-            if(returnVal == JFileChooser.APPROVE_OPTION) {
-                
-                try{
-                    
-                    
-               
- 
-            
-            //plotvalues contains data,  get(1) -> array          
-            //availabledata contains the column data.          
-            
-//                private Number processPosition(int a, MicroObjectModel volume) {
-////        ArrayList ResultsPointer = volume.getResultPointer();
-////        int size = ResultsPointer.size();
-//        if (a <= 10) {
-//            //System.out.println("PROFILING: Object " + volume.getSerialID() + ", value:" + (Number) volume.getAnalysisMaskVolume()[a]);
-//            return (Number) volume.getAnalysisMaskVolume()[a];
-//        } else {
-//            int row = ((a) / 11) - 1;
-//            int column = a % 11;
-//            return (Number) volume.getAnalysisResultsVolume()[row][column];
-//        }
-//    }
-            try{
-                
-            PrintWriter pw = new PrintWriter(file);
-            StringBuilder sb = new StringBuilder();
-            
-            ListIterator itr = availabledata.listIterator();
-            sb.append("Object");
-            sb.append(',');
-            sb.append("PosX");
-            sb.append(',');
-            sb.append("PosY");
-            sb.append(',');
-            sb.append("PosZ");
-            sb.append(',');
-            while(itr.hasNext()){
-            sb.append((String)itr.next());
-                if(itr.hasNext()){
-                    sb.append(',');
-                }
+
+            File file = jf.getSelectedFile();
+
+            MicroExplorer.LASTDIRECTORY = file.getPath();
+
+            file = jf.getSelectedFile();
+            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("csv")) {
+
+            } else {
+                file = new File(file.toString() + ".csv");
             }
 
-            sb.append('\n');
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
 
-            
-            ListIterator a_itr = ((ArrayList)plotvalues.get(1)).listIterator();
-            
-            while(a_itr.hasNext()){
+                try {
 
-                sb.append(a_itr.nextIndex());
-                sb.append(',');
-                
-                
-                MicroObjectModel volume = (MicroObjectModel)a_itr.next();
-                
-                sb.append(volume.getCentroidX());
-                sb.append(',');
-                 sb.append(volume.getCentroidY());
-                sb.append(',');
-                 sb.append(volume.getCentroidZ());
-                sb.append(',');
-                
-                Object[] mask = volume.getAnalysisMaskVolume();
-                Object[][] data =volume.getAnalysisResultsVolume();
+                    try {
 
-                for(int i = 0; i < mask.length; i++){
-                    sb.append((Number)mask[i]);
-                    sb.append(',');
-                } 
-                
-                for(int j = 0; j < data.length; j++){
-                    for(int k = 0; k < data[j].length; k++){
-                        sb.append((Number)data[j][k]);
+                        PrintWriter pw = new PrintWriter(file);
+                        StringBuilder sb = new StringBuilder();
+
+                        ListIterator itr = descriptions.listIterator();
+
+                        sb.append("Object");
                         sb.append(',');
-                    }   
-                }
-                sb.append('\n');
-            }
-           
-            
-            
-            pw.write(sb.toString());
-            pw.close();
+                        sb.append("PosX,PosY,PosZ,");
+                        while (itr.hasNext()) {
+                            sb.append((String) itr.next());
+                            if (itr.hasNext()) {
+                                sb.append(',');
+                            }
+                        }
 
-        
-            }catch(FileNotFoundException e){}
-        
-        }catch(NullPointerException ne){}
-                
-    } else {}
-    
-        } 
-        
+                        sb.append('\n');
+
+                        ArrayList<MicroObject> objects = ec.getObjects();
+                        ArrayList<ArrayList<Number>> measurements = ec.getMeasurments();
+
+                        for (int i = 0; i < objects.size(); i++) {
+
+                            MicroObject volume = objects.get(i);
+                            ArrayList<Number> measured = measurements.get(i);
+
+                            sb.append(volume.getSerialID());
+                            sb.append(',');
+                            sb.append(volume.getCentroidX());
+                            sb.append(',');
+                            sb.append(volume.getCentroidY());
+                            sb.append(',');
+                            sb.append(volume.getCentroidZ());
+
+                            ListIterator<Number> itr_mes = measured.listIterator();
+
+                            while (itr_mes.hasNext()) {
+
+                                sb.append(",");
+                                sb.append(itr_mes.next());
+                            }
+                            sb.append('\n');
+                        }
+
+                        pw.write(sb.toString());
+                        pw.close();
+
+                    } catch (FileNotFoundException e) {
+                    }
+
+                } catch (NullPointerException ne) {
+                }
+
+            } else {
+            }
+
+        }
+
     }
 
 }

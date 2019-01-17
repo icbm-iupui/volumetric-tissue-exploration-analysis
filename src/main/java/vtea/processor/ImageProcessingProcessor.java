@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2017 SciJava
+/* 
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -61,6 +61,12 @@ public class ImageProcessingProcessor extends AbstractProcessor {
 
     public ImageProcessingProcessor(ImagePlus imp, ArrayList protocol) {
 
+    VERSION = "0.1";
+    AUTHOR = "Seth Winfree";
+    COMMENT = "Converting to SciJava plugin architecture";
+    NAME = "Image Processing Processor";
+    KEY = "ImageProcessingProcessor";   
+    
         impOriginal = imp;
         this.protocol = protocol;
         //channelProcess = channel;

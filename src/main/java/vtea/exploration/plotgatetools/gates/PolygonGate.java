@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -58,7 +58,6 @@ import java.io.Serializable;
     public PolygonGate(ArrayList<Point2D.Double> points) {
     super();
     vertices = points;
-    System.out.println("PROFILING: PolygonGate: " + vertices);
     path = createPath2D();
     boundingbox = path.getBounds2D();
     this.setFocusable(true);

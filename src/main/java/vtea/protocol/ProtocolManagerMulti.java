@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -318,7 +318,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
     }//GEN-LAST:event_ImageTabsMouseReleased
 
     private void ImageTabsKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ImageTabsKeyPressed
-        System.out.println("PROFILING... Key event: " + evt.getKeyCode());
+        
         
         
         if (evt.getKeyCode() ==  KeyEvent.VK_DELETE) {
@@ -451,7 +451,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println(e.getActionCommand());
+//        System.out.println(e.getActionCommand());
         if(e.getActionCommand().equals("Rename...")){
             JFrame frame = new JFrame();
             frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
@@ -552,9 +552,9 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         }
  
         this.MenuBar.removeAll();
-        this.MenuBar.add(WorkflowMenu);
+        //this.MenuBar.add(WorkflowMenu);
         this.MenuBar.add(ProcessingMenu);
-        this.MenuBar.add(ObjectMenu);
+        //this.MenuBar.add(ObjectMenu);
     }
 
     public void refreshMenuItems() {
