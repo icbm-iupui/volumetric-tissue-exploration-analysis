@@ -40,5 +40,5 @@ public interface Morphology extends VTEAModule{
     
     public ArrayList getSettings();
     
-    public String getUID();
+    public String getUID(ArrayList<JComponent> al);
 }

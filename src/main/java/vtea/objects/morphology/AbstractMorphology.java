@@ -116,7 +116,7 @@ public class AbstractMorphology implements Morphology {
     }
 
     @Override
-    public String getUID() {
+    public String getUID(ArrayList<JComponent> al) {
         return new String();
     }
 

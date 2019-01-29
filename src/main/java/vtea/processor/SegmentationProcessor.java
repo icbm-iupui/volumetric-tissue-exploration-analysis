@@ -135,9 +135,6 @@ public class SegmentationProcessor extends AbstractProcessor {
             ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false);
 
             volumes = ((AbstractSegmentation) iImp).getObjects();
-            
-           
-             
 
             
         } catch (Exception ex) {
@@ -330,8 +327,12 @@ public class SegmentationProcessor extends AbstractProcessor {
                         
                         //test for existing morphology
                         
-                        String current_UID = ((AbstractMorphology)iImp).getUID();
+                        String current_UID = ((AbstractMorphology)iImp).getUID(components);
+                        
+                        
                         //System.out.println("PROFILING: Current morphology: " + current_UID);
+                        
+                        current_UID.concat(str);
                         
                         int same_morphology = obj.checkMorphological(current_UID);
                         

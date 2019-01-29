@@ -203,14 +203,14 @@ public class MeasurementProcessor extends AbstractProcessor {
                         iImp = con.newInstance();
                         
                         
-                        String descr = "Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName();
+                        String descr = "Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName() + "_" + l;
                         
               if (descr.length() > 10) {
                     descr = descr.substring(0, 8) + "..." + descr.substring(descr.length() - 5, descr.length());
              }
                        
                         description.add(descr);
-                        descriptionLabels.add("Channel: " + morphology.get(1) + ", Morphology: " +  morphology.get(0) + ", Measurement:" + ((AbstractMeasurement) iImp).getName());
+                        descriptionLabels.add("Row: " + l + ", Channel: " + morphology.get(1) + ", Morphology: " +  morphology.get(0) + ", Measurement: " + ((AbstractMeasurement) iImp).getName());
   
                     } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                         System.out.println("EXCEPTION: new instance decleration error... NPE etc.");

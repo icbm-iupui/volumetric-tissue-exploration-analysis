@@ -57,8 +57,9 @@ public class Grow_6C extends AbstractMorphology {
     }
     
     @Override
-    public String getUID(){
-        return this.NAME + "_" + Distance.getText();
+    public String getUID(ArrayList<JComponent> al){
+        JTextField distance = (JTextField)al.get(1); 
+        return this.NAME + "_" + distance;
     }
     
     @Override
