@@ -86,6 +86,9 @@ public class MicroObject implements MicroObjectModel {
     private float centroid_y = 0;
     private float centroid_z = 0;
     
+    private int max_Z;
+    private int min_Z;
+    
 
     private int centerBoundX = 0;
     private int centerBoundY = 0;
@@ -132,6 +135,9 @@ public class MicroObject implements MicroObjectModel {
         ArrayList<Number> centroid = new ArrayList<Number>();
         
         centroid = getCentroid(x,y,z);
+        
+        max_Z = this.setMaxZ();
+        min_Z = this.setMinZ();
         
         centroid_x = ((Number)centroid.get(0)).floatValue();
         centroid_y = ((Number)centroid.get(0)).floatValue();
@@ -588,6 +594,24 @@ public class MicroObject implements MicroObjectModel {
     public int[] getPixelsZ() {
         return this.z;
     }
+    
+       
+    public void setPixelsX(int[] d) {
+        this.x = new int[d.length];
+        this.x = d;
+    }
+
+    
+    public void setPixelsY(int[] d) {
+        this.y = new int[d.length];
+        this.y = d;
+    }
+
+   
+    public void setPixelsZ(int[] d) {
+        this.z = new int[d.length];
+        this.z = d;
+    }
 
     public float getCentroidX() {
         return this.centroid_x;
@@ -595,6 +619,34 @@ public class MicroObject implements MicroObjectModel {
 
     public float getCentroidY() {
         return this.centroid_y;
+    }
+    
+    public int setMinZ() {
+        int min = 70000;
+        for(int i = 0; i < z.length; i++){
+            if(z[i] < min){
+                min = z[i];
+            }
+        }
+        return min;
+    }
+    
+    public int setMaxZ() {
+        int max = 0;
+        for(int i = 0; i < z.length; i++){
+            if(z[i] > max){
+                max = z[i];
+            }
+        }
+        return max;
+    }
+    
+    public int getMinZ() {
+        return min_Z;
+    }
+    
+    public int getMaxZ() {
+        return max_Z;
     }
 
     @Override

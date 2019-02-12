@@ -173,7 +173,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                         }
                         resultVolume.addRegions(referenceRegions);
                         resultVolume.addRegions(testRegions);
-                        resultVolume.setName(referenceVolume.getName() + "_" + testVolume.getName());
+                        //resultVolume.setName(referenceVolume.getName() + "_" + testVolume.getName());
                         assigned[i] = 1;
                         assigned[j] = 1;
 
@@ -183,13 +183,13 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                 }
 
                 if (assigned[i] == 1) {
-                    resultVolume.calculateVolumeMeasurements();
+                    //resultVolume.calculateVolumeMeasurements();
                     //System.out.println("PROFILING-calculated volume measures: " + resultVolume.getName() + ". Giving derived: " + resultVolume.getAnalysisResultsVolume()[0][2] + " for "+ resultVolume.getNRegions() + " regions.");
                     //System.out.println("PROFILING-calculated volume measures: " + resultVolume.getName() + ".  Giving region: " + resultVolume.getAnalysisMaskVolume()[2] + " for "+ resultVolume.getNRegions() + " regions.");
                     alVolumesTrim.add(resultVolume);
                     //System.out.println("PROFILING: Adding to list: " + resultVolume.getName());
                     resultVolume = new microVolume();
-                    resultVolume.setName("");
+                    //resultVolume.setName("");
                     referenceVolume = new microVolume();
                 }
             }
@@ -200,7 +200,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             if (assigned[k] == 0) {
                 microVolume mv = new microVolume();
                 mv = mvs[k];
-                mv.calculateVolumeMeasurements();
+                //mv.calculateVolumeMeasurements();
                 alVolumesTrim.add(mv);
                 //System.out.println("PROFILING: Adding to list: " + mv.getName());
             }
@@ -211,52 +211,52 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         alVolumes.addAll(alVolumesTrim);
     }
 
-    @Deprecated
-    private void defineVolumes() {
-        int z;
-        microVolume volume = new microVolume();
-        double[] startRegion = new double[2];
-
-        int nVolumesLocal = 0;
-
-        microRegion test = new microRegion();
-
-        //ArrayList<microRegion> regions = new ArrayList<microRegion>();
-        alRegionsParsing.addAll(alRegions);
-
-        for (int i = 0; i < alRegionsParsing.size(); i++) {
-            test = alRegionsParsing.get(i);
-            if (!test.isAMember()) {
-                nVolumesLocal++;
-                startRegion[0] = test.getBoundCenterX();
-                startRegion[1] = test.getBoundCenterY();
-                test.setMembership(nVolumesLocal);
-                test.setAMember(true);
-                z = test.getZPosition();
-                alRegionsProcessed.add(test);
-                findConnectedRegions(nVolumesLocal, startRegion, z);
-            }
-        }
-
-        for (int j = 1; j <= nVolumesLocal; j++) {
-            volume = new microVolume();
-            volume.setName("vol_" + j);
-            Iterator<microRegion> vol = alRegionsProcessed.listIterator();
-            microRegion region = new microRegion();
-            while (vol.hasNext()) {
-                region = vol.next();
-                if (j == region.getMembership()) {
-                    volume.addRegion(region);
-                }
-            }
-            if (volume.getNRegions() > 0) {
-                volume.calculateVolumeMeasurements();
-                if (volume.getPixelCount() >= minConstants[0]) {
-                    alVolumes.add(volume);
-                }
-            }
-        }
-    }
+//    @Deprecated
+//    private void defineVolumes() {
+//        int z;
+//        microVolume volume = new microVolume();
+//        double[] startRegion = new double[2];
+//
+//        int nVolumesLocal = 0;
+//
+//        microRegion test = new microRegion();
+//
+//        //ArrayList<microRegion> regions = new ArrayList<microRegion>();
+//        alRegionsParsing.addAll(alRegions);
+//
+//        for (int i = 0; i < alRegionsParsing.size(); i++) {
+//            test = alRegionsParsing.get(i);
+//            if (!test.isAMember()) {
+//                nVolumesLocal++;
+//                startRegion[0] = test.getBoundCenterX();
+//                startRegion[1] = test.getBoundCenterY();
+//                test.setMembership(nVolumesLocal);
+//                test.setAMember(true);
+//                z = test.getZPosition();
+//                alRegionsProcessed.add(test);
+//                findConnectedRegions(nVolumesLocal, startRegion, z);
+//            }
+//        }
+//
+//        for (int j = 1; j <= nVolumesLocal; j++) {
+//            volume = new microVolume();
+//            volume.setName("vol_" + j);
+//            Iterator<microRegion> vol = alRegionsProcessed.listIterator();
+//            microRegion region = new microRegion();
+//            while (vol.hasNext()) {
+//                region = vol.next();
+//                if (j == region.getMembership()) {
+//                    volume.addRegion(region);
+//                }
+//            }
+//            if (volume.getNRegions() > 0) {
+//                volume.calculateVolumeMeasurements();
+//                if (volume.getPixelCount() >= minConstants[0]) {
+//                    alVolumes.add(volume);
+//                }
+//            }
+//        }
+//    }
 
     private void findConnectedRegions(int volumeNumber, double[] startRegion, int z) {
 
@@ -973,23 +973,23 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             return (short)(100*(float)(1/(1+(((Math.pow(x1-x2, 2))+yw*(Math.pow(y1-y2, 2))+zw*(Math.pow(z1-z2, 2)))))));
         }
 
-        private synchronized void volumeBuild(){
-            
-            microVolume volume = new microVolume();
-            
-            for(int i = 0; i < alRegionsLocal.size(); i++){
-                if(!(alRegionsLocal.get(i).isAMember())){
-                    alRegionsLocal.get(i).setMembership(i);
-                    volume = parseProbabilities(i,5);
-                    if (volume.getNRegions() > 1) {
-                        volume.calculateVolumeMeasurements();
-                        if (volume.getPixelCount() >= minConstantsLocal[0] && volume.getPixelCount() <= minConstantsLocal[1]) {
-                            alVolumes.add(volume);
-                        }
-                    }
-                }
-            }
-        }
+//        private synchronized void volumeBuild(){
+//            
+//            microVolume volume = new microVolume();
+//            
+//            for(int i = 0; i < alRegionsLocal.size(); i++){
+//                if(!(alRegionsLocal.get(i).isAMember())){
+//                    alRegionsLocal.get(i).setMembership(i);
+//                    volume = parseProbabilities(i,5);
+//                    if (volume.getNRegions() > 1) {
+//                        /volume.calculateVolumeMeasurements();
+//                        if (volume.getPixelCount() >= minConstantsLocal[0] && volume.getPixelCount() <= minConstantsLocal[1]) {
+//                            alVolumes.add(volume);
+//                        }
+//                    }
+//                }
+//            }
+//        }
         
         private synchronized microVolume parseProbabilities(int parent,double cutoff){           
             microVolume volume = new microVolume();   
@@ -1043,55 +1043,55 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                         new VolumeForkPool(alRegions, minConstantsLocal, start + ((stop - start) / 2) + 1, stop));
                
             } else {
-                defineVolumes();
+                //defineVolumes();
                 //volumeBuild();
             }
         }
         
         
-        private synchronized void defineVolumes() {
-            int z;
-            microVolume volume = new microVolume();
-            double[] startRegion = new double[2];
-
-            microRegion test = new microRegion();
-
-            int i = start;
-
-            while (i < stop) {
-                test = alRegions.get(i);
-                if (!test.isAMember()) {
-                    nVolumesLocal++;
-                    startRegion[0] = test.getBoundCenterX();
-                    startRegion[1] = test.getBoundCenterY();
-                    test.setMembership(nVolumesLocal);
-                    test.setAMember(true);
-                    z = test.getZPosition();
-                    alRegionsProcessedLocal.add(test);
-                    findConnectedRegions(nVolumesLocal, startRegion, z);
-                }
-                i++;
-            }
-
-            for (int j = 1; j <= this.nVolumesLocal; j++) {
-                volume = new microVolume();
-                volume.setName("vol_" + j);
-                Iterator<microRegion> vol = alRegionsProcessedLocal.listIterator();
-                microRegion region = new microRegion();
-                while (vol.hasNext()) {
-                    region = vol.next();
-                    if (j == region.getMembership()) {
-                        volume.addRegion(region);
-                    }
-                }
-                if (volume.getNRegions() > 0) {
-                    volume.calculateVolumeMeasurements();
-                    if (volume.getPixelCount() >= minConstantsLocal[0] && volume.getPixelCount() <= minConstantsLocal[1]) {
-                        alVolumes.add(volume);
-                    }
-                }
-            }
-        }
+//        private synchronized void defineVolumes() {
+//            int z;
+//            microVolume volume = new microVolume();
+//            double[] startRegion = new double[2];
+//
+//            microRegion test = new microRegion();
+//
+//            int i = start;
+//
+//            while (i < stop) {
+//                test = alRegions.get(i);
+//                if (!test.isAMember()) {
+//                    nVolumesLocal++;
+//                    startRegion[0] = test.getBoundCenterX();
+//                    startRegion[1] = test.getBoundCenterY();
+//                    test.setMembership(nVolumesLocal);
+//                    test.setAMember(true);
+//                    z = test.getZPosition();
+//                    alRegionsProcessedLocal.add(test);
+//                    findConnectedRegions(nVolumesLocal, startRegion, z);
+//                }
+//                i++;
+//            }
+//
+//            for (int j = 1; j <= this.nVolumesLocal; j++) {
+//                volume = new microVolume();
+//                volume.setName("vol_" + j);
+//                Iterator<microRegion> vol = alRegionsProcessedLocal.listIterator();
+//                microRegion region = new microRegion();
+//                while (vol.hasNext()) {
+//                    region = vol.next();
+//                    if (j == region.getMembership()) {
+//                        volume.addRegion(region);
+//                    }
+//                }
+//                if (volume.getNRegions() > 0) {
+//                    volume.calculateVolumeMeasurements();
+//                    if (volume.getPixelCount() >= minConstantsLocal[0] && volume.getPixelCount() <= minConstantsLocal[1]) {
+//                        alVolumes.add(volume);
+//                    }
+//                }
+//            }
+//        }
 
 
 

@@ -416,7 +416,7 @@ public class GateLayer implements ActionListener, ItemListener {
         };
         
         layer.setUI(layerUI);
-        
+        System.gc();
         return layer;
     }
 
@@ -487,25 +487,25 @@ public class GateLayer implements ActionListener, ItemListener {
         ArrayList<Point> Q3 = new ArrayList<Point>();
         ArrayList<Point> Q4 = new ArrayList<Point>();
 
-        Q1.add(new Point(42, 42));
-        Q1.add(new Point(points.get(0).x, 42));
+        Q1.add(new Point(42, 30));
+        Q1.add(new Point(points.get(0).x, 30));
         Q1.add(points.get(0));
         Q1.add(new Point(42, points.get(0).y));
 
-        Q2.add(new Point(points.get(0).x, 42));
-        Q2.add(new Point(480, 42));
-        Q2.add(new Point(480, points.get(0).y));
+        Q2.add(new Point(points.get(0).x, 30));
+        Q2.add(new Point(490, 30));
+        Q2.add(new Point(490, points.get(0).y));
         Q2.add(points.get(0));
 
         Q3.add(points.get(0));
-        Q3.add(new Point(480, points.get(0).y));
-        Q3.add(new Point(480, 460));
-        Q3.add(new Point(points.get(0).x, 460));
+        Q3.add(new Point(490, points.get(0).y));
+        Q3.add(new Point(490, 465));
+        Q3.add(new Point(points.get(0).x, 465));
 
         Q4.add(new Point(42, points.get(0).y));
         Q4.add(points.get(0));
-        Q4.add(new Point(points.get(0).x, 460));
-        Q4.add(new Point(42, 460));
+        Q4.add(new Point(points.get(0).x, 465));
+        Q4.add(new Point(42, 465));
 
         notifyPolygonSelectionListeners(Q1);
         notifyPolygonSelectionListeners(Q2);

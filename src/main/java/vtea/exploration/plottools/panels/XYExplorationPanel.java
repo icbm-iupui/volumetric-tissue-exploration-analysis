@@ -21,7 +21,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.ImageRoi;
-import ij.gui.ImageWindow;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
@@ -33,10 +32,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -50,6 +47,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.ListIterator;
 import javax.imageio.ImageIO;
@@ -64,16 +63,11 @@ import javax.swing.JTextField;
 import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.AxisLocation;
+
 import org.jfree.chart.axis.LogAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.event.RendererChangeEvent;
+
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.LookupPaintScale;
-import org.jfree.chart.renderer.PaintScale;
-import org.jfree.chart.renderer.xy.XYShapeRenderer;
-import org.jfree.chart.title.PaintScaleLegend;
-import org.jfree.chart.ui.RectangleEdge;
+
 import static vtea._vtea.LUTMAP;
 import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.PlotUpdateListener;
@@ -90,8 +84,8 @@ import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vtea.lut.AbstractLUT;
-import vtea.lut.LUT;
-import vtea.objects.measurements.AbstractMeasurement;
+import vtea.objects.Segmentation.LayerCake3DSingleThreshold;
+import vtea.objects.layercake.microRegion;
 import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
@@ -152,6 +146,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
                 double xValue = 0;
                 double yValue = 0;
+                
+                
 
                 //ListIterator<MicroObject> it = volumes.listIterator();
 
@@ -174,32 +170,53 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 }
 
                 Overlay overlay = new Overlay();
+                
+                
 
                 int count = 0;
 
                 BufferedImage placeholder = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
                 ImageStack gateOverlay = new ImageStack(impoverlay.getWidth(), impoverlay.getHeight());
-
+                
+                
                 selected = result.size();
 
                 total = volumes.size();
 
                 gated = getGatedObjects(impoverlay);
                 gatedSelected = getGatedSelected(impoverlay);
-
+                
+                Collections.sort(result, new ZComparator()); 
+   
                 for (int i = 0; i <= impoverlay.getNSlices(); i++) {
+                    
                     BufferedImage selections = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
-                    Graphics2D g2 = selections.createGraphics();
+                    
+                       Graphics2D g2 = selections.createGraphics();
 
                     ImageRoi ir = new ImageRoi(0, 0, placeholder);
+
                     ListIterator<MicroObject> vitr = result.listIterator();
+                    
+                    boolean inZ = true;
+                    
 
-                    while (vitr.hasNext()) {
+                    while (vitr.hasNext() && inZ) {
+                        
+                        MicroObject vol = (MicroObject) vitr.next();
+                        
+                        inZ = true;
+                        
+                        //
+                        if(i >= vol.getMinZ() && i <= vol.getMaxZ()){
+                            inZ = false;
+                        }
+                        //
+                        
+                        
+
                         try {
-                            MicroObject vol = (MicroObject) vitr.next();
-
                             int[] x_pixels = vol.getXPixelsInRegion(i);
                             int[] y_pixels = vol.getYPixelsInRegion(i);
 
@@ -223,6 +240,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     overlay.add(ir);
 
                     gateOverlay.addSlice(ir.getProcessor());
+                    
+                    
 
                     //text for overlay
                     java.awt.Font f = new Font("Arial", Font.BOLD, 12);
@@ -240,6 +259,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     percentageGatedSelected = percentageGatedSelected.divide(totalGatedSelectedBD, 4, BigDecimal.ROUND_UP);
 
                     if (impoverlay.getWidth() > 256) {
+                        
+                        //f = new Font("Arial", Font.PLAIN, 100);
 
                         TextRoi textTotal = new TextRoi(5, 10, selected + "/" + total + " gated (" + 100 * percentage.doubleValue() + "%)");
 
@@ -1270,3 +1291,21 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     }
 
 }
+
+class ZComparator implements Comparator<MicroObject> {
+
+        @Override
+        public int compare(MicroObject o1, MicroObject o2) {
+            if (o1.getCentroidZ() == o2.getCentroidZ()) {
+                return 0;
+            } else if (o1.getCentroidZ() > o2.getCentroidZ()) {
+                return 1;
+            } else if (o1.getCentroidZ() < o2.getCentroidZ()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+
+}
+    

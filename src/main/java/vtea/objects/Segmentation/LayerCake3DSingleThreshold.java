@@ -63,6 +63,8 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
     private  ImageStack stackOriginal;
     protected  ImageStack stackResult;
     
+    private double[][] distance;
+    
     private boolean watershedImageJ = true;
 
     private ArrayList<MicroObject> alVolumes = new ArrayList<MicroObject>();
@@ -230,16 +232,13 @@ public LayerCake3DSingleThreshold(){
         RegionForkPool rrf = new RegionForkPool(imageResult.getStack(), stackOriginal, 0, stackOriginal.getSize());       
         ForkJoinPool pool = new ForkJoinPool();       
         pool.invoke(rrf);
-        
-        
+
         //sort the regions
         
-        Collections.sort(alRegions, new ZComparator());
+        Collections.sort(alRegions, new ZComparator()); 
+        Collections.sort(alRegions, new XComparator());
+        Collections.sort(alRegions, new YComparator());
         
-//        Collections.sort(alRegions, new XComparator());
-//        Collections.sort(alRegions, new YComparator());
-        
-
         //build the volumes
 
             int z;
@@ -274,7 +273,7 @@ public LayerCake3DSingleThreshold(){
 
             for (int j = 1; j <= nVolumesLocal; j++) {
                 volume = new microVolume();
-                volume.setName("vol_" + j);
+                //volume.setName("vol_" + j);
                 Iterator<microRegion> vol = alRegionsProcessed.listIterator();
                 microRegion region = new microRegion();
                 while (vol.hasNext()) {
@@ -285,9 +284,10 @@ public LayerCake3DSingleThreshold(){
                 }
                 if (volume.getNRegions() > 0) {
                     volume.makePixelArrays();
-                    volume.calculateVolumeMeasurements();
+                    //volume.calculateVolumeMeasurements();
+                    
                     volume.setObjectID(alVolumes.size());
-                    if (volume.getPixelCount() >= minConstants[0] && volume.getPixelCount() <= minConstants[1]) {
+                    if ((volume.getPixelsX()).length >= minConstants[0] && (volume.getPixelsX()).length <= minConstants[1]) {
                         alVolumes.add(volume);
                     }
                 }
@@ -313,6 +313,8 @@ public LayerCake3DSingleThreshold(){
 
             double[] testRegion = new double[2];
             int i = 0;
+            
+            boolean tooFar = true;
 
             while (i < alRegions.size()) {                                 
                 microRegion test = new microRegion();
@@ -320,7 +322,7 @@ public LayerCake3DSingleThreshold(){
                 testRegion[0] = test.getBoundCenterX();
                 testRegion[1] = test.getBoundCenterY();
                 double comparator = lengthCart(startRegion, testRegion);
-               //if(Math.abs(test.getZPosition()-z) < 2){
+               
                 if (!test.isAMember()) {
                     if (comparator <= minConstants[2] && ((test.getZPosition() - z) == 1)) {
                         
@@ -331,30 +333,19 @@ public LayerCake3DSingleThreshold(){
                         testRegion[1] = (testRegion[1] + startRegion[1]) / 2;
                         alRegionsProcessed.add(test);
                         
-                        //spped it up
+                        //speed it up
                         alRegions.remove(i);
-                        
-
                         findConnectedRegions(volumeNumber, testRegion, test.getZPosition());
-                        
                     }
                     
                     
                 }
                 i++;
-//            }
-//               else{
-//                i = alRegions.size();    
-//                }
             }
         }
-
-  
-
-
-            
+     
     
-    class ZComparator implements Comparator<microRegion> {
+    private class ZComparator implements Comparator<microRegion> {
 
         @Override
         public int compare(microRegion o1, microRegion o2) {
@@ -371,7 +362,7 @@ public LayerCake3DSingleThreshold(){
 
     }
     
-        private class XComparator implements Comparator<microRegion> {
+    private class XComparator implements Comparator<microRegion> {
 
         @Override
         public int compare(microRegion o1, microRegion o2) {
@@ -421,7 +412,7 @@ public LayerCake3DSingleThreshold(){
     }
     }
     
-    class RegionForkPool extends RecursiveAction {
+    private class RegionForkPool extends RecursiveAction {
 
         private int maxsize = 1;
         private final ArrayList<microRegion> alResult = new ArrayList<>();

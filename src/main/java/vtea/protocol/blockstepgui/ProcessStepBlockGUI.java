@@ -105,7 +105,7 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
             boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, 
             final int type, ArrayList<ProcessStepBlockGUI> protocol, final int position) {
 
-        this.ThumbnailImage = ThumbnailImage;
+        //this.ThumbnailImage = ThumbnailImage;
         this.OriginalImage = OriginalImage;
         //this.PreviewThumbnailImage = ThumbnailImage.createImagePlus();
         this.Channels = (ArrayList) Channels.clone();
