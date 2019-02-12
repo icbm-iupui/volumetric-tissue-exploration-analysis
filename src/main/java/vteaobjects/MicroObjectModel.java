@@ -38,24 +38,24 @@ public interface MicroObjectModel <T extends Number> {
     
     //
     
-    public void makeDerivedRegions(int[][] derivedRegionType, int channels, ImageStack[] Stacks, ArrayList ResultsPointers);
+//    public void makeDerivedRegions(int[][] derivedRegionType, int channels, ImageStack[] Stacks, ArrayList ResultsPointers);
     
-    public void calculateDerivedObjectMeasurements(int channel, ImageStack is);
-    
-    public void calculateObjectMeasurments();
-    
-    public int[][] getDerivedObjectConstants();
+//    public void calculateDerivedObjectMeasurements(int channel, ImageStack is);
+//    
+//    public void calculateObjectMeasurments();
+//    
+//    public int[][] getDerivedObjectConstants();
     
     public ArrayList getObjectPixels();
     
     //calculated values
-    public float getMean();
-
-    public double[] getFeretValues();
+//    public float getMean();
+//
+//    public double[] getFeretValues();
 
     public int getPixelCount();
     
-    public int getThresholdPixelCount();
+//    public int getThresholdPixelCount();
 
     public int[] getPixelsX();
 
@@ -69,21 +69,21 @@ public interface MicroObjectModel <T extends Number> {
     
     public float getCentroidZ();
 
-    public int getBoundCenterX();
-
-    public int getBoundCenterY();
-    
-    public int[] getBoundsCenter();
-
-    public double getMaxIntensity();
-
-    public double getMinIntensity();
-
-    public double getIntegratedIntensity();
-
-    public double getMeanIntensity();
-    
-    public double[] getDeviations();
+//    public int getBoundCenterX();
+//
+//    public int getBoundCenterY();
+//    
+//    public int[] getBoundsCenter();
+//
+//    public double getMaxIntensity();
+//
+//    public double getMinIntensity();
+//
+//    public double getIntegratedIntensity();
+//
+//    public double getMeanIntensity();
+//    
+//    public double[] getDeviations();
     
     public double getThresholdedIntegratedIntensity();
     
@@ -95,13 +95,13 @@ public interface MicroObjectModel <T extends Number> {
     
     public ArrayList getResultPointer();
     
-    public Object[] getAnalysisMaskVolume();
-    
-    public Object[][] getAnalysisResultsVolume();
-    
+//    public Object[] getAnalysisMaskVolume();
+//    
+//    public Object[][] getAnalysisResultsVolume();
+//    
     public double getSerialID();
     
-    public void setSerialID(double i);
+    public void setSerialID(int i);
     
     public List getRegions();
     

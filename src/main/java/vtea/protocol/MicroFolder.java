@@ -29,6 +29,8 @@ import vteaobjects.MicroObject;
  *
  * @author vinfrais
  */
+
+@Deprecated
 public class MicroFolder extends java.lang.Object implements Runnable {
 
     //class to organize the microbuilder classes
@@ -149,21 +151,21 @@ public class MicroFolder extends java.lang.Object implements Runnable {
 
         ArrayList al = new ArrayList();
 
-        //microVolume.Analytics;
-        protocol.size();
-        for (int i = 0; i < protocol.size(); i++) {
-            for (int c = 0; c < MicroObject.Analytics.length; c++) {
-                String derived = new String();
-                String text = new String();
-                if (i == 0) {
-                    derived = " ";
-                } else {
-                    derived = "_d" + ((ArrayList) protocol.get(i)).get(1) + " ";
-                }
-                text = "Ch" + ((Integer)((ArrayList) protocol.get(i)).get(0)+1) + derived + MicroObject.Analytics[c];
-                al.add(text);
-            }
-        }
+//        //microVolume.Analytics;
+//        protocol.size();
+//        for (int i = 0; i < protocol.size(); i++) {
+//            for (int c = 0; c < MicroObject.Analytics.length; c++) {
+//                String derived = new String();
+//                String text = new String();
+//                if (i == 0) {
+//                    derived = " ";
+//                } else {
+//                    derived = "_d" + ((ArrayList) protocol.get(i)).get(1) + " ";
+//                }
+//                text = "Ch" + ((Integer)((ArrayList) protocol.get(i)).get(0)+1) + derived + MicroObject.Analytics[c];
+//                al.add(text);
+//            }
+//        }
         return al;
     }
 

@@ -437,19 +437,20 @@ public class XYChartPanel implements RoiListener {
         return result;
     }
 
-    @Deprecated
-    private Number processPosition(int a, MicroObjectModel volume) {
-//        ArrayList ResultsPointer = volume.getResultPointer();
-//        int size = ResultsPointer.size();
-        if (a <= 10) {
-            //.out.println("PROFILING: Object " + volume.getSerialID() + ", value:" + (Number) volume.getAnalysisMaskVolume()[a]);
-            return (Number) volume.getAnalysisMaskVolume()[a];
-        } else {
-            int row = ((a) / 11) - 1;
-            int column = a % 11;
-            return (Number) volume.getAnalysisResultsVolume()[row][column];
-        }
-    }
+//    @Deprecated
+//    private Number processPosition(int a, MicroObjectModel volume) {
+//////        ArrayList ResultsPointer = volume.getResultPointer();
+//////        int size = ResultsPointer.size();
+////        if (a <= 10) {
+////            //.out.println("PROFILING: Object " + volume.getSerialID() + ", value:" + (Number) volume.getAnalysisMaskVolume()[a]);
+////            return (Number) volume.getAnalysisMaskVolume()[a];
+////        } else {
+////            int row = ((a) / 11) - 1;
+////            int column = a % 11;
+////            return (Number) volume.getAnalysisResultsVolume()[row][column];
+////        }
+//        return new Integer(0);
+//    }
 
     public void setPointSize(int size) {
         this.size = size;

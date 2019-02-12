@@ -1209,15 +1209,15 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         ec.updatePlotPointSize(size);
     }
 
-    private Number processPosition(int a, MicroObject volume) {
-        if (a <= 10) {
-            return (Number) volume.getAnalysisMaskVolume()[a];
-        } else {
-            int row = ((a) / 11) - 1;
-            int column = a % 11;
-            return (Number) volume.getAnalysisResultsVolume()[row][column];
-        }
-    }
+//    private Number processPosition(int a, MicroObject volume) {
+//        if (a <= 10) {
+//            return (Number) volume.getAnalysisMaskVolume()[a];
+//        } else {
+//            int row = ((a) / 11) - 1;
+//            int column = a % 11;
+//            return (Number) volume.getAnalysisResultsVolume()[row][column];
+//        }
+//    }
 
     public void addMenuItems() {
 
@@ -1333,10 +1333,12 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                     ListIterator<MicroObject> itr = this.Objects.listIterator();
                     while (itr.hasNext()) {
                         MicroObject m = itr.next();
-                        int[] c = new int[2];
-                        c = m.getBoundsCenter();
+                        //int[] c = new int[2];
+                        //c = m.getBoundsCenter();
+                        int x = (int)m.getCentroidX();
+                        int y = (int)m.getCentroidY();
 
-                        if (ip.getRoi().contains(c[0], c[1])) {
+                        if (ip.getRoi().contains(x, y)) {
                             ImageGatedObjects.add(m);
                         }
                     }

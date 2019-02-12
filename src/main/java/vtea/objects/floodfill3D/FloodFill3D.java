@@ -346,7 +346,7 @@ public class FloodFill3D implements Cloneable, java.io.Serializable {
                 MicroObject mv = new MicroObject() {};
                 mv = itr.next();
                 
-                mv.makeDerivedRegions(derivedRegionType, channels, stack, ResultsPointers);
+//                mv.makeDerivedRegions(derivedRegionType, channels, stack, ResultsPointers);
                 //System.out.println("PROFILING: making derived regions.  " + mv.getName() + ", getting " + mv.getNDRegions() + " derived regions and " + mv.getderivedConstants()[1][0]+ "  Giving: " + mv.getAnalysisResultsVolume()[0][2]);
                 i++;
             }

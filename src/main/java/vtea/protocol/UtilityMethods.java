@@ -48,6 +48,8 @@ public class UtilityMethods {
         }
     }
     
+    
+    
     static public long getImagePlusSize(ImagePlus imp){
         
         long size = imp.getBitDepth()*imp.getWidth()*imp.getHeight()*imp.getNChannels()*imp.getNSlices();
@@ -55,7 +57,15 @@ public class UtilityMethods {
         return size;
     }
     
-    static private double[] getChannelDisplayRange(ImagePlus imp, int channel){
+    static public double lengthCart(double[] position, double[] reference_pt) {
+        double distance;
+        double part0 = position[0] - reference_pt[0];
+        double part1 = position[1] - reference_pt[1];
+        distance = Math.sqrt((part0 * part0) + (part1 * part1));
+        return distance;
+    }
+    
+    static public double[] getChannelDisplayRange(ImagePlus imp, int channel){
         
         double[] range = new double[2];
         double max = 0;

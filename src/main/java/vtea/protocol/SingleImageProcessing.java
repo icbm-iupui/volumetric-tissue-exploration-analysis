@@ -1400,49 +1400,49 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     }
     
     
-       private DefaultXYZDataset createXYZDataset(ArrayList alVolumes, int x, int y, int l) {
-        
-        DefaultXYZDataset result = new DefaultXYZDataset();
-        int counter = 0;
+//       private DefaultXYZDataset createXYZDataset(ArrayList alVolumes, int x, int y, int l) {
+//        
+//        DefaultXYZDataset result = new DefaultXYZDataset();
+//        int counter = 0;
+//
+//        double[] xCorrected = new double[alVolumes.size()];
+//        double[] yCorrected = new double[alVolumes.size()];
+//        double[] lCorrected = new double[alVolumes.size()];
+//
+//        ListIterator litr = alVolumes.listIterator();
+//
+//        while (litr.hasNext()) {
+//            MicroObjectModel volume = (MicroObjectModel) litr.next();
+//            xCorrected[counter] = processPosition(x, volume).doubleValue();
+//            yCorrected[counter] = processPosition(y, volume).doubleValue();
+//            if(l > 0){
+//            lCorrected[counter] = processPosition(l, volume).doubleValue();
+//            }else{
+//                lCorrected[counter] = 0;
+//            }
+//
+//            counter++;
+//
+//        }
+//
+//        double[][] series = new double[][]{xCorrected, yCorrected, lCorrected};
+//        result.addSeries("first", series);
+//
+//        return result;
+//    }
 
-        double[] xCorrected = new double[alVolumes.size()];
-        double[] yCorrected = new double[alVolumes.size()];
-        double[] lCorrected = new double[alVolumes.size()];
-
-        ListIterator litr = alVolumes.listIterator();
-
-        while (litr.hasNext()) {
-            MicroObjectModel volume = (MicroObjectModel) litr.next();
-            xCorrected[counter] = processPosition(x, volume).doubleValue();
-            yCorrected[counter] = processPosition(y, volume).doubleValue();
-            if(l > 0){
-            lCorrected[counter] = processPosition(l, volume).doubleValue();
-            }else{
-                lCorrected[counter] = 0;
-            }
-
-            counter++;
-
-        }
-
-        double[][] series = new double[][]{xCorrected, yCorrected, lCorrected};
-        result.addSeries("first", series);
-
-        return result;
-    }
-
-    private Number processPosition(int a, MicroObjectModel volume) {
-//        ArrayList ResultsPointer = volume.getResultPointer();
-//        int size = ResultsPointer.size();
-        if (a <= 10) {
-            //System.out.println("PROFILING: Object " + volume.getSerialID() + ", value:" + (Number) volume.getAnalysisMaskVolume()[a]);
-            return (Number) volume.getAnalysisMaskVolume()[a];
-        } else {
-            int row = ((a) / 11) - 1;
-            int column = a % 11;
-            return (Number) volume.getAnalysisResultsVolume()[row][column];
-        }
-    }
+//    private Number processPosition(int a, MicroObjectModel volume) {
+////        ArrayList ResultsPointer = volume.getResultPointer();
+////        int size = ResultsPointer.size();
+//        if (a <= 10) {
+//            //System.out.println("PROFILING: Object " + volume.getSerialID() + ", value:" + (Number) volume.getAnalysisMaskVolume()[a]);
+//            return (Number) volume.getAnalysisMaskVolume()[a];
+//        } else {
+//            int row = ((a) / 11) - 1;
+//            int column = a % 11;
+//            return (Number) volume.getAnalysisResultsVolume()[row][column];
+//        }
+//    }
 
     static public ArrayList extractSteps(ArrayList sb_al, int blocktype) {
 

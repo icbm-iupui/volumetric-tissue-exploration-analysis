@@ -173,7 +173,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                         }
                         resultVolume.addRegions(referenceRegions);
                         resultVolume.addRegions(testRegions);
-                        resultVolume.setName(referenceVolume.getName() + "_" + testVolume.getName());
+                        //resultVolume.setName(referenceVolume.getName() + "_" + testVolume.getName());
                         assigned[i] = 1;
                         assigned[j] = 1;
 
@@ -183,13 +183,13 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                 }
 
                 if (assigned[i] == 1) {
-                    resultVolume.calculateVolumeMeasurements();
+                    //resultVolume.calculateVolumeMeasurements();
                     //System.out.println("PROFILING-calculated volume measures: " + resultVolume.getName() + ". Giving derived: " + resultVolume.getAnalysisResultsVolume()[0][2] + " for "+ resultVolume.getNRegions() + " regions.");
                     //System.out.println("PROFILING-calculated volume measures: " + resultVolume.getName() + ".  Giving region: " + resultVolume.getAnalysisMaskVolume()[2] + " for "+ resultVolume.getNRegions() + " regions.");
                     alVolumesTrim.add(resultVolume);
                     //System.out.println("PROFILING: Adding to list: " + resultVolume.getName());
                     resultVolume = new microVolume();
-                    resultVolume.setName("");
+                    //resultVolume.setName("");
                     referenceVolume = new microVolume();
                 }
             }
@@ -200,7 +200,7 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             if (assigned[k] == 0) {
                 microVolume mv = new microVolume();
                 mv = mvs[k];
-                mv.calculateVolumeMeasurements();
+                //mv.calculateVolumeMeasurements();
                 alVolumesTrim.add(mv);
                 //System.out.println("PROFILING: Adding to list: " + mv.getName());
             }
@@ -211,52 +211,52 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         alVolumes.addAll(alVolumesTrim);
     }
 
-    @Deprecated
-    private void defineVolumes() {
-        int z;
-        microVolume volume = new microVolume();
-        double[] startRegion = new double[2];
-
-        int nVolumesLocal = 0;
-
-        microRegion test = new microRegion();
-
-        //ArrayList<microRegion> regions = new ArrayList<microRegion>();
-        alRegionsParsing.addAll(alRegions);
-
-        for (int i = 0; i < alRegionsParsing.size(); i++) {
-            test = alRegionsParsing.get(i);
-            if (!test.isAMember()) {
-                nVolumesLocal++;
-                startRegion[0] = test.getBoundCenterX();
-                startRegion[1] = test.getBoundCenterY();
-                test.setMembership(nVolumesLocal);
-                test.setAMember(true);
-                z = test.getZPosition();
-                alRegionsProcessed.add(test);
-                findConnectedRegions(nVolumesLocal, startRegion, z);
-            }
-        }
-
-        for (int j = 1; j <= nVolumesLocal; j++) {
-            volume = new microVolume();
-            volume.setName("vol_" + j);
-            Iterator<microRegion> vol = alRegionsProcessed.listIterator();
-            microRegion region = new microRegion();
-            while (vol.hasNext()) {
-                region = vol.next();
-                if (j == region.getMembership()) {
-                    volume.addRegion(region);
-                }
-            }
-            if (volume.getNRegions() > 0) {
-                volume.calculateVolumeMeasurements();
-                if (volume.getPixelCount() >= minConstants[0]) {
-                    alVolumes.add(volume);
-                }
-            }
-        }
-    }
+//    @Deprecated
+//    private void defineVolumes() {
+//        int z;
+//        microVolume volume = new microVolume();
+//        double[] startRegion = new double[2];
+//
+//        int nVolumesLocal = 0;
+//
+//        microRegion test = new microRegion();
+//
+//        //ArrayList<microRegion> regions = new ArrayList<microRegion>();
+//        alRegionsParsing.addAll(alRegions);
+//
+//        for (int i = 0; i < alRegionsParsing.size(); i++) {
+//            test = alRegionsParsing.get(i);
+//            if (!test.isAMember()) {
+//                nVolumesLocal++;
+//                startRegion[0] = test.getBoundCenterX();
+//                startRegion[1] = test.getBoundCenterY();
+//                test.setMembership(nVolumesLocal);
+//                test.setAMember(true);
+//                z = test.getZPosition();
+//                alRegionsProcessed.add(test);
+//                findConnectedRegions(nVolumesLocal, startRegion, z);
+//            }
+//        }
+//
+//        for (int j = 1; j <= nVolumesLocal; j++) {
+//            volume = new microVolume();
+//            volume.setName("vol_" + j);
+//            Iterator<microRegion> vol = alRegionsProcessed.listIterator();
+//            microRegion region = new microRegion();
+//            while (vol.hasNext()) {
+//                region = vol.next();
+//                if (j == region.getMembership()) {
+//                    volume.addRegion(region);
+//                }
+//            }
+//            if (volume.getNRegions() > 0) {
+//                volume.calculateVolumeMeasurements();
+//                if (volume.getPixelCount() >= minConstants[0]) {
+//                    alVolumes.add(volume);
+//                }
+//            }
+//        }
+//    }
 
     private void findConnectedRegions(int volumeNumber, double[] startRegion, int z) {
 
@@ -379,70 +379,70 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         return result;
     }
 
-    public void makeDerivedRegions(int[][] localDerivedRegionTypes, int channels, ImageStack[] stack, ArrayList ResultsPointers) {
-        ListIterator<microVolume> itr = alVolumes.listIterator();
-        while (itr.hasNext()) {
-            microVolume mv = new microVolume();
-            mv = itr.next();
-            mv.makeDerivedRegions(localDerivedRegionTypes, channels, stack, ResultsPointers);
-        }
-    }
+//    public void makeDerivedRegions(int[][] localDerivedRegionTypes, int channels, ImageStack[] stack, ArrayList ResultsPointers) {
+//        ListIterator<microVolume> itr = alVolumes.listIterator();
+//        while (itr.hasNext()) {
+//            microVolume mv = new microVolume();
+//            mv = itr.next();
+//            mv.makeDerivedRegions(localDerivedRegionTypes, channels, stack, ResultsPointers);
+//        }
+//    }
 
-    public void makeDerivedRegionsThreading(int[][] localDerivedRegionTypes, int channels, ImageStack[] Stack, ArrayList ResultsPointers) {
-
-        int processors = Runtime.getRuntime().availableProcessors();
-        int length = alVolumes.size() / processors;
-        int remainder = alVolumes.size() % processors;
-
-        int start = 0;
-        int stop = start + length - 1;
-
-        CopyOnWriteArrayList<DerivedRegionWorker> rw = new CopyOnWriteArrayList<DerivedRegionWorker>();
-
-        for (int i = 0; i < processors; i++) {
-            ArrayList<microVolume> volume = new ArrayList<microVolume>();
-            if (i == processors - 1) {
-                synchronized (alVolumes) {
-                    //ListIterator<microVolume> itr = alVolumes.listIterator(start);
-                    //DerivedRegionWorker region = new DerivedRegionWorker(localDerivedRegionTypes, channels, Stack, ResultsPointers, itr, stop);
-                    ArrayList<microVolume> process = new ArrayList<microVolume>();
-                    process.addAll(alVolumes.subList(start, stop));
-
-                    DerivedRegionWorker region = new DerivedRegionWorker(localDerivedRegionTypes, channels, Stack, ResultsPointers, process, stop);
-                    rw.add(region);
-                }
-                //IJ.log("RegionFactory::makeDerivedRegion Created thread #"+i +" for volumes: " + start + " to " + stop + ", " + volume.size() + " total.");
-
-                start = stop + 1;
-                stop = stop + length + remainder;
-            } else {
-                synchronized (alVolumes) {
-                    //ListIterator<microVolume> itr = alVolumes.listIterator(start);
-                    //DerivedRegionWorker region = new DerivedRegionWorker(localDerivedRegionTypes, channels, Stack, ResultsPointers, itr, stop);
-                    ArrayList<microVolume> process = new ArrayList<microVolume>();
-                    process.addAll(alVolumes.subList(start, stop));
-                    DerivedRegionWorker region = new DerivedRegionWorker(localDerivedRegionTypes, channels, Stack, ResultsPointers, process, stop);
-                    rw.add(region);
-                }
-                //IJ.log("RegionFactory::makeDerivedRegion Created thread #"+i +" for volumes: " + start + " to " + stop + ", " + volume.size() + " total.");
-
-                start = stop + 1;
-                stop = start + length;
-            }
-        }
-        ListIterator<DerivedRegionWorker> itr = rw.listIterator();
-        while (itr.hasNext()) {
-            itr.next().start();
-        }
-    }
-
-    public void makeDerivedRegionsPool(int[][] localDerivedRegionTypes, int channels, ImageStack[] Stack, ArrayList ResultsPointers) {
-
-        DerivedRegionForkPool drf = new DerivedRegionForkPool(localDerivedRegionTypes, channels, Stack, ResultsPointers, 0, alVolumes.size());
-        ForkJoinPool pool = new ForkJoinPool();
-        pool.invoke(drf);
-
-    }
+//    public void makeDerivedRegionsThreading(int[][] localDerivedRegionTypes, int channels, ImageStack[] Stack, ArrayList ResultsPointers) {
+//
+//        int processors = Runtime.getRuntime().availableProcessors();
+//        int length = alVolumes.size() / processors;
+//        int remainder = alVolumes.size() % processors;
+//
+//        int start = 0;
+//        int stop = start + length - 1;
+//
+//        CopyOnWriteArrayList<DerivedRegionWorker> rw = new CopyOnWriteArrayList<DerivedRegionWorker>();
+//
+//        for (int i = 0; i < processors; i++) {
+//            ArrayList<microVolume> volume = new ArrayList<microVolume>();
+//            if (i == processors - 1) {
+//                synchronized (alVolumes) {
+//                    //ListIterator<microVolume> itr = alVolumes.listIterator(start);
+//                    //DerivedRegionWorker region = new DerivedRegionWorker(localDerivedRegionTypes, channels, Stack, ResultsPointers, itr, stop);
+//                    ArrayList<microVolume> process = new ArrayList<microVolume>();
+//                    process.addAll(alVolumes.subList(start, stop));
+//
+//                    DerivedRegionWorker region = new DerivedRegionWorker(localDerivedRegionTypes, channels, Stack, ResultsPointers, process, stop);
+//                    rw.add(region);
+//                }
+//                //IJ.log("RegionFactory::makeDerivedRegion Created thread #"+i +" for volumes: " + start + " to " + stop + ", " + volume.size() + " total.");
+//
+//                start = stop + 1;
+//                stop = stop + length + remainder;
+//            } else {
+//                synchronized (alVolumes) {
+//                    //ListIterator<microVolume> itr = alVolumes.listIterator(start);
+//                    //DerivedRegionWorker region = new DerivedRegionWorker(localDerivedRegionTypes, channels, Stack, ResultsPointers, itr, stop);
+//                    ArrayList<microVolume> process = new ArrayList<microVolume>();
+//                    process.addAll(alVolumes.subList(start, stop));
+//                    DerivedRegionWorker region = new DerivedRegionWorker(localDerivedRegionTypes, channels, Stack, ResultsPointers, process, stop);
+//                    rw.add(region);
+//                }
+//                //IJ.log("RegionFactory::makeDerivedRegion Created thread #"+i +" for volumes: " + start + " to " + stop + ", " + volume.size() + " total.");
+//
+//                start = stop + 1;
+//                stop = start + length;
+//            }
+//        }
+//        ListIterator<DerivedRegionWorker> itr = rw.listIterator();
+//        while (itr.hasNext()) {
+//            itr.next().start();
+//        }
+//    }
+//
+//    public void makeDerivedRegionsPool(int[][] localDerivedRegionTypes, int channels, ImageStack[] Stack, ArrayList ResultsPointers) {
+//
+//        DerivedRegionForkPool drf = new DerivedRegionForkPool(localDerivedRegionTypes, channels, Stack, ResultsPointers, 0, alVolumes.size());
+//        ForkJoinPool pool = new ForkJoinPool();
+//        pool.invoke(drf);
+//
+//    }
 
     private float maxPixel(ImageStack stack) {
         float max = this.minConstants[0];
@@ -550,141 +550,141 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
         return new ArrayList(alVolumes);
     }
 
-    //private class VolumeSwingWorker extends SwingWorker {}
-    private class DerivedRegionWorker implements Runnable {
+//    //private class VolumeSwingWorker extends SwingWorker {}
+//    private class DerivedRegionWorker implements Runnable {
+//
+//        private int[][] derivedRegionType;
+//        int channels;
+//        ImageStack[] stack;
+//        ArrayList ResultsPointers;
+//        ArrayList<microVolume> Volumes;
+//        int stop;
+//        ListIterator<microVolume> itr;
+//        Thread t;
+//        private String threadName = "derivedregionmaker_" + System.nanoTime();
+//
+//        DerivedRegionWorker(int[][] ldrt, int c, ImageStack[] st, ArrayList rp, ListIterator<microVolume> litr, int s) {
+//            this.derivedRegionType = ldrt;
+//            channels = c;
+//            stack = st;
+//            ResultsPointers = rp;
+//            stop = s;
+//            itr = litr;
+//        }
+//
+//        DerivedRegionWorker(int[][] ldrt, int c, ImageStack[] st, ArrayList rp, ArrayList<microVolume> vols, int s) {
+//            this.derivedRegionType = ldrt;
+//            channels = c;
+//            stack = st;
+//            ResultsPointers = rp;
+//            Volumes = vols;
+//            stop = s;
+//            itr = vols.listIterator();
+//        }
+//
+//        @Override
+//        public void run() {
+//            long start = System.nanoTime();
+//            defineDerivedRegions();
+//            long end = System.nanoTime();
+//            System.out.println("PROFILING: Thread: " + threadName + " runtime: " + ((end - start) / 1000000) + " ms.");
+//        }
+//
+//        public void start() {
+//            t = new Thread(this, threadName);
+//            t.setPriority(Thread.MAX_PRIORITY);
+//            t.start();
+//            try {
+//                t.join();
+//            } catch (Exception e) {
+//                System.out.println("PROFILING: Thread " + threadName + " interrupted.");
+//            }
+//
+//        }
+//
+//        private void defineDerivedRegions() {
+//            while (itr.hasNext()) {
+//                microVolume mv = new microVolume();
+//                mv = itr.next();
+//                mv.makeDerivedRegions(derivedRegionType, channels, stack, ResultsPointers);
+//            }
+//        }
+//    }
 
-        private int[][] derivedRegionType;
-        int channels;
-        ImageStack[] stack;
-        ArrayList ResultsPointers;
-        ArrayList<microVolume> Volumes;
-        int stop;
-        ListIterator<microVolume> itr;
-        Thread t;
-        private String threadName = "derivedregionmaker_" + System.nanoTime();
-
-        DerivedRegionWorker(int[][] ldrt, int c, ImageStack[] st, ArrayList rp, ListIterator<microVolume> litr, int s) {
-            this.derivedRegionType = ldrt;
-            channels = c;
-            stack = st;
-            ResultsPointers = rp;
-            stop = s;
-            itr = litr;
-        }
-
-        DerivedRegionWorker(int[][] ldrt, int c, ImageStack[] st, ArrayList rp, ArrayList<microVolume> vols, int s) {
-            this.derivedRegionType = ldrt;
-            channels = c;
-            stack = st;
-            ResultsPointers = rp;
-            Volumes = vols;
-            stop = s;
-            itr = vols.listIterator();
-        }
-
-        @Override
-        public void run() {
-            long start = System.nanoTime();
-            defineDerivedRegions();
-            long end = System.nanoTime();
-            System.out.println("PROFILING: Thread: " + threadName + " runtime: " + ((end - start) / 1000000) + " ms.");
-        }
-
-        public void start() {
-            t = new Thread(this, threadName);
-            t.setPriority(Thread.MAX_PRIORITY);
-            t.start();
-            try {
-                t.join();
-            } catch (Exception e) {
-                System.out.println("PROFILING: Thread " + threadName + " interrupted.");
-            }
-
-        }
-
-        private void defineDerivedRegions() {
-            while (itr.hasNext()) {
-                microVolume mv = new microVolume();
-                mv = itr.next();
-                mv.makeDerivedRegions(derivedRegionType, channels, stack, ResultsPointers);
-            }
-        }
-    }
-
-    private class DerivedRegionForkPool extends RecursiveAction {
-
-        //class splits it self into new classes...  start with largest start and stop and subdivided recursively until start-stop is the number for the number of cores or remaineder.
-        private int[][] derivedRegionType;
-        int channels;
-        ImageStack[] stack;
-        ArrayList ResultsPointers;
-        int stop;
-        int start;
-        List<microVolume> volumes = Collections.synchronizedList(new ArrayList<microVolume>());
-
-        //Thread t;
-        //private String threadName = "derivedregionmaker_" + System.nanoTime();
-        DerivedRegionForkPool(int[][] ldrt, int c, ImageStack[] st, ArrayList rp, int start, int stop) {
-            derivedRegionType = ldrt;
-            channels = c;
-            stack = st;
-            ResultsPointers = rp;
-            this.stop = stop;
-            this.start = start;
-
-            //System.out.println("PROFILING-DETAILS: ForkJoin Start and Stop points:" + start + ", " + stop);
-            //volumes = alVolumes.subList(start, stop);
-        }
-
-        private void defineDerivedRegions() {
-            ListIterator<microVolume> itr = alVolumes.listIterator(start);
-            int i = start;
-            while (itr.hasNext() && i <= stop) {
-                microVolume mv = new microVolume();
-                mv = itr.next();
-
-                mv.makeDerivedRegions(derivedRegionType, channels, stack, ResultsPointers);
-                //System.out.println("PROFILING: making derived regions.  " + mv.getName() + ", getting " + mv.getNDRegions() + " derived regions and " + mv.getderivedConstants()[1][0]+ "  Giving: " + mv.getAnalysisResultsVolume()[0][2]);
-                i++;
-            }
-        }
-
-        @Override
-        protected void compute() {
-
-            //int processors = Runtime.getRuntime().availableProcessors();
-            
-            
-            double stackSize = stack.length*(stack[0].size() * stack[0].getHeight() * stack[0].getWidth() * stack[0].getBitDepth());
-            
-            //long processors = vtea._vtea.getPossibleThreads(stackSize);
-            
-            long processors = Runtime.getRuntime().availableProcessors();
-            
-            
-            long length = alVolumes.size() / processors;
-
-            if (alVolumes.size() < processors) {
-                length = alVolumes.size();
-            }
-            
-            if (length > processors){
-                length = processors;
-            }
-            
-            //System.out.println("PROFILING: Derived region calculation on " + length + " threads.");
-
-            //System.out.println("PROFILING-DETAILS: Derived Regions Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
-            if (stop - start > length) {
-                invokeAll(new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start, start + ((stop - start) / 2)),
-                        new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start + ((stop - start) / 2) + 1, stop));
-                //System.out.println("PROFILING-DETAILS: ForkJoin Splitting...");
-            } else {
-                //System.out.println("PROFILING-DETAILS: ForkJoin Computing...");
-                defineDerivedRegions();
-            }
-        }
-    }
+//    private class DerivedRegionForkPool extends RecursiveAction {
+//
+//        //class splits it self into new classes...  start with largest start and stop and subdivided recursively until start-stop is the number for the number of cores or remaineder.
+//        private int[][] derivedRegionType;
+//        int channels;
+//        ImageStack[] stack;
+//        ArrayList ResultsPointers;
+//        int stop;
+//        int start;
+//        List<microVolume> volumes = Collections.synchronizedList(new ArrayList<microVolume>());
+//
+//        //Thread t;
+//        //private String threadName = "derivedregionmaker_" + System.nanoTime();
+//        DerivedRegionForkPool(int[][] ldrt, int c, ImageStack[] st, ArrayList rp, int start, int stop) {
+//            derivedRegionType = ldrt;
+//            channels = c;
+//            stack = st;
+//            ResultsPointers = rp;
+//            this.stop = stop;
+//            this.start = start;
+//
+//            //System.out.println("PROFILING-DETAILS: ForkJoin Start and Stop points:" + start + ", " + stop);
+//            //volumes = alVolumes.subList(start, stop);
+//        }
+//
+////        private void defineDerivedRegions() {
+////            ListIterator<microVolume> itr = alVolumes.listIterator(start);
+////            int i = start;
+////            while (itr.hasNext() && i <= stop) {
+////                microVolume mv = new microVolume();
+////                mv = itr.next();
+////
+////                mv.makeDerivedRegions(derivedRegionType, channels, stack, ResultsPointers);
+////                //System.out.println("PROFILING: making derived regions.  " + mv.getName() + ", getting " + mv.getNDRegions() + " derived regions and " + mv.getderivedConstants()[1][0]+ "  Giving: " + mv.getAnalysisResultsVolume()[0][2]);
+////                i++;
+////            }
+////        }
+//
+//        @Override
+//        protected void compute() {
+//
+//            //int processors = Runtime.getRuntime().availableProcessors();
+//            
+//            
+//            double stackSize = stack.length*(stack[0].size() * stack[0].getHeight() * stack[0].getWidth() * stack[0].getBitDepth());
+//            
+//            //long processors = vtea._vtea.getPossibleThreads(stackSize);
+//            
+//            long processors = Runtime.getRuntime().availableProcessors();
+//            
+//            
+//            long length = alVolumes.size() / processors;
+//
+//            if (alVolumes.size() < processors) {
+//                length = alVolumes.size();
+//            }
+//            
+//            if (length > processors){
+//                length = processors;
+//            }
+//            
+//            //System.out.println("PROFILING: Derived region calculation on " + length + " threads.");
+//
+//            //System.out.println("PROFILING-DETAILS: Derived Regions Making ForkJoin Start and Stop points:" + start + ", " + stop + " for length: " + (stop-start) + " and target length: " + length);
+//            if (stop - start > length) {
+//                invokeAll(new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start, start + ((stop - start) / 2)),
+//                        new DerivedRegionForkPool(derivedRegionType, channels, stack, ResultsPointers, start + ((stop - start) / 2) + 1, stop));
+//                //System.out.println("PROFILING-DETAILS: ForkJoin Splitting...");
+//            } else {
+//                //System.out.println("PROFILING-DETAILS: ForkJoin Computing...");
+//                defineDerivedRegions();
+//            }
+//        }
+//    }
 
     private class RegionForkPool extends RecursiveAction {
 
@@ -973,23 +973,23 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
             return (short)(100*(float)(1/(1+(((Math.pow(x1-x2, 2))+yw*(Math.pow(y1-y2, 2))+zw*(Math.pow(z1-z2, 2)))))));
         }
 
-        private synchronized void volumeBuild(){
-            
-            microVolume volume = new microVolume();
-            
-            for(int i = 0; i < alRegionsLocal.size(); i++){
-                if(!(alRegionsLocal.get(i).isAMember())){
-                    alRegionsLocal.get(i).setMembership(i);
-                    volume = parseProbabilities(i,5);
-                    if (volume.getNRegions() > 1) {
-                        volume.calculateVolumeMeasurements();
-                        if (volume.getPixelCount() >= minConstantsLocal[0] && volume.getPixelCount() <= minConstantsLocal[1]) {
-                            alVolumes.add(volume);
-                        }
-                    }
-                }
-            }
-        }
+//        private synchronized void volumeBuild(){
+//            
+//            microVolume volume = new microVolume();
+//            
+//            for(int i = 0; i < alRegionsLocal.size(); i++){
+//                if(!(alRegionsLocal.get(i).isAMember())){
+//                    alRegionsLocal.get(i).setMembership(i);
+//                    volume = parseProbabilities(i,5);
+//                    if (volume.getNRegions() > 1) {
+//                        /volume.calculateVolumeMeasurements();
+//                        if (volume.getPixelCount() >= minConstantsLocal[0] && volume.getPixelCount() <= minConstantsLocal[1]) {
+//                            alVolumes.add(volume);
+//                        }
+//                    }
+//                }
+//            }
+//        }
         
         private synchronized microVolume parseProbabilities(int parent,double cutoff){           
             microVolume volume = new microVolume();   
@@ -1043,55 +1043,55 @@ public class LayerCake3D implements Cloneable, java.io.Serializable {
                         new VolumeForkPool(alRegions, minConstantsLocal, start + ((stop - start) / 2) + 1, stop));
                
             } else {
-                defineVolumes();
+                //defineVolumes();
                 //volumeBuild();
             }
         }
         
         
-        private synchronized void defineVolumes() {
-            int z;
-            microVolume volume = new microVolume();
-            double[] startRegion = new double[2];
-
-            microRegion test = new microRegion();
-
-            int i = start;
-
-            while (i < stop) {
-                test = alRegions.get(i);
-                if (!test.isAMember()) {
-                    nVolumesLocal++;
-                    startRegion[0] = test.getBoundCenterX();
-                    startRegion[1] = test.getBoundCenterY();
-                    test.setMembership(nVolumesLocal);
-                    test.setAMember(true);
-                    z = test.getZPosition();
-                    alRegionsProcessedLocal.add(test);
-                    findConnectedRegions(nVolumesLocal, startRegion, z);
-                }
-                i++;
-            }
-
-            for (int j = 1; j <= this.nVolumesLocal; j++) {
-                volume = new microVolume();
-                volume.setName("vol_" + j);
-                Iterator<microRegion> vol = alRegionsProcessedLocal.listIterator();
-                microRegion region = new microRegion();
-                while (vol.hasNext()) {
-                    region = vol.next();
-                    if (j == region.getMembership()) {
-                        volume.addRegion(region);
-                    }
-                }
-                if (volume.getNRegions() > 0) {
-                    volume.calculateVolumeMeasurements();
-                    if (volume.getPixelCount() >= minConstantsLocal[0] && volume.getPixelCount() <= minConstantsLocal[1]) {
-                        alVolumes.add(volume);
-                    }
-                }
-            }
-        }
+//        private synchronized void defineVolumes() {
+//            int z;
+//            microVolume volume = new microVolume();
+//            double[] startRegion = new double[2];
+//
+//            microRegion test = new microRegion();
+//
+//            int i = start;
+//
+//            while (i < stop) {
+//                test = alRegions.get(i);
+//                if (!test.isAMember()) {
+//                    nVolumesLocal++;
+//                    startRegion[0] = test.getBoundCenterX();
+//                    startRegion[1] = test.getBoundCenterY();
+//                    test.setMembership(nVolumesLocal);
+//                    test.setAMember(true);
+//                    z = test.getZPosition();
+//                    alRegionsProcessedLocal.add(test);
+//                    findConnectedRegions(nVolumesLocal, startRegion, z);
+//                }
+//                i++;
+//            }
+//
+//            for (int j = 1; j <= this.nVolumesLocal; j++) {
+//                volume = new microVolume();
+//                volume.setName("vol_" + j);
+//                Iterator<microRegion> vol = alRegionsProcessedLocal.listIterator();
+//                microRegion region = new microRegion();
+//                while (vol.hasNext()) {
+//                    region = vol.next();
+//                    if (j == region.getMembership()) {
+//                        volume.addRegion(region);
+//                    }
+//                }
+//                if (volume.getNRegions() > 0) {
+//                    volume.calculateVolumeMeasurements();
+//                    if (volume.getPixelCount() >= minConstantsLocal[0] && volume.getPixelCount() <= minConstantsLocal[1]) {
+//                        alVolumes.add(volume);
+//                    }
+//                }
+//            }
+//        }
 
 
 
