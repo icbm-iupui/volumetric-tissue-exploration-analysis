@@ -136,6 +136,9 @@ public class MicroObject implements MicroObjectModel {
         
         centroid = getCentroid(x,y,z);
         
+        max_Z = this.setMaxZ();
+        min_Z = this.setMinZ();
+        
         centroid_x = ((Number)centroid.get(0)).floatValue();
         centroid_y = ((Number)centroid.get(1)).floatValue();
         centroid_z = ((Number)centroid.get(2)).floatValue();

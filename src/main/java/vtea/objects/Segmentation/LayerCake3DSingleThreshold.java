@@ -285,8 +285,6 @@ public LayerCake3DSingleThreshold(){
                 if (volume.getNRegions() > 0) {
                     volume.makePixelArrays();
                     volume.setCentroid();
-
-                    
                     volume.setSerialID(alVolumes.size());
                     if ((volume.getPixelsX()).length >= minConstants[0] && (volume.getPixelsX()).length <= minConstants[1]) {
                         alVolumes.add(volume);
