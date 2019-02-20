@@ -199,7 +199,7 @@ public LayerCake3DLargeScaleSingleThreshold(){
 
         System.out.println("PROFILING: processing on Connect3D LargeScale...");
 
-        
+        notifyProgressListeners("Processing on large scale 3D Connect...", 10.0); 
          /**segmentation and measurement protocol redefining.
          * 0: title text, 1: method (as String), 2: channel, 3: ArrayList of JComponents used 
          * for analysis 3: ArrayList of Arraylist for morphology determination
@@ -221,14 +221,7 @@ public LayerCake3DLargeScaleSingleThreshold(){
         
         int width = is[0].getWidth();
         int height = is[0].getHeight();
-        
-//        System.out.println("PROFILING: Making sub images: " + minConstants[4] + " wide, with an overlap of " + minConstants[5]);
-//        System.out.println("PROFILING: for an image: " + width + " wide and " + height + " high."); 
-//        System.out.println("PROFILING: Intensity cutoff: " + minConstants[3]);
-//        System.out.println("PROFILING: Offset: " + minConstants[2]);
-//        System.out.println("PROFILING: minimum size: " + minConstants[0]);
-//        System.out.println("PROFILING: maximum size: " + minConstants[1]);
-        
+
         //build the volumes
         
         int xyDim = minConstants[4];
@@ -358,13 +351,15 @@ public LayerCake3DLargeScaleSingleThreshold(){
  
     }
         
-        
+        notifyProgressListeners("Made " + volumes.size() + " total sub-images.", 15.0); 
         
         System.out.println("PROFILING:  Made " + volumes.size() + " total sub-images.");
         
         SegmentationForkPool sfp = new SegmentationForkPool(volumes, 1, volumes.size());       
         ForkJoinPool pool = new ForkJoinPool();       
         pool.invoke(sfp);
+        
+        notifyProgressListeners("LargeScale 3D Connect found " + alVolumes.size() + " total volumes.", 100.0); 
 
         System.out.println("PROFILING: LargeScale 3D Connect found " + alVolumes.size() + " total volumes.");
         
@@ -409,8 +404,7 @@ public LayerCake3DLargeScaleSingleThreshold(){
     
             } else {
                     LayerCake3DSingleThreshold lc3dst1 = new LayerCake3DSingleThreshold();
-                    
-                    //((ImagePlus)imps.get(start-1)).show();
+
                     lc3dst1.process(getInterleavedStacks(imps.get(start-1)), protocol, watershedImageJ);
 
                     if(((ArrayList)(lc3dst1.getObjects())).size() > 0){
@@ -427,6 +421,7 @@ public LayerCake3DLargeScaleSingleThreshold(){
                             MicroObject object = itr.next(); 
                             object.setPixelsX(addOffset((int)xStart.get(start-1), object.getPixelsX()));
                             object.setPixelsY(addOffset((int)yStart.get(start-1), object.getPixelsY()));
+                            object.setCentroid();
                         }
 
                         alVolumes.addAll(al);
@@ -461,12 +456,8 @@ public LayerCake3DLargeScaleSingleThreshold(){
 
         min = ipmin + (min / 255.0) * (ipmax - ipmin);
         max = ipmin + (max / 255.0) * (ipmax - ipmin);
-        
-        //System.out.println("PROFILING: threshold minimum changes to: " + String.valueOf(Math.round(min)));
-        
-        f1.setText(""+String.valueOf(Math.round(min)));
-        
 
+        f1.setText(""+String.valueOf(Math.round(min)));
         }
     }
 }

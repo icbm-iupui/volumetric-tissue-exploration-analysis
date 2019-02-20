@@ -46,16 +46,11 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI;
-import static vtea._vtea.LUTMAP;
-import static vtea._vtea.LUTOPTIONS;
-import static vtea._vtea.MORPHOLOGICALMAP;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.ImageHighlightSelectionListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
-import vtea.objects.morphology.AbstractMorphology;
-import vteaobjects.MicroObject;
-//import javax.swing.plaf.LayerUI;
+
 
 
 /*
@@ -91,16 +86,19 @@ public class GateLayer implements ActionListener, ItemListener {
     
     private Gate selectedGate;
     
-    String[] colors = {
-
-            "red","green", "blue", "yellow"
+    String[] colors = {"red","green", "blue", "yellow", "orange", "yellow green",
+        "light green", "cyan", "light blue", "dark blue", "purple", "pink",
+        "salmon"
         };
     
        Color[] colorsRGB = {
-            new Color(255,0,0), new Color(0,255,0), new Color(0,0,255), new Color(255, 255, 0)
+            new Color(255,0,0), new Color(0,255,0), new Color(0,0,255), 
+            new Color(255, 255, 0), new Color(255,51,51), 
+            new Color(153, 255, 51), new Color(51, 255, 153), 
+            new Color(51, 255, 255), new Color(102, 178, 255),
+            new Color(102, 102, 255), new Color(178, 102, 255),
+            new Color(255, 102, 255), new Color(255, 102, 178)
         };
-                
-    
     
     public static Gate clipboardGate;
     public static boolean gateInClipboard = false;

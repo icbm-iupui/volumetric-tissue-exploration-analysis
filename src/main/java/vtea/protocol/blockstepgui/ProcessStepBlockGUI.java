@@ -24,6 +24,7 @@ import vtea.protocol.listeners.RebuildPanelListener;
 import vtea.protocol.setup.MicroBlockProcessSetup;
 import vtea.protocol.setup.MicroBlockSetup;
 import ij.ImagePlus;
+import ij.gui.Roi;
 import ij.plugin.Duplicator;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -102,12 +103,36 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
     ;
         
     private void BuildProcessStepBlock(String ProcessText, String CommentText, Color BlockColor, 
-            boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, 
+            boolean multiple, ImagePlus ThumbnailImage, ImagePlus imp, ArrayList<String> Channels, 
             final int type, ArrayList<ProcessStepBlockGUI> protocol, final int position) {
 
-        //this.ThumbnailImage = ThumbnailImage;
+        
+        int impWidth = imp.getWidth();
+        int impHeight = imp.getHeight();
+        
+        int previewHeight = 256;
+        int previewWidth = 256;
+        int previewStartX = impWidth/4;
+        int previewStartY = impHeight/4;
+        
+        
+        if(imp.getWidth() < 256) {
+            previewWidth = imp.getWidth();
+            previewStartX = 0;
+        }
+        if(imp.getHeight() < 256) {
+            previewHeight = imp.getHeight();
+            previewStartY = 0;
+        }
+        
+
+            
+        imp.setRoi(new Roi(previewStartX, previewStartY, previewWidth, previewHeight));
+        OriginalImage = new Duplicator().run(imp);
+        imp.deleteRoi();
+        
         this.OriginalImage = OriginalImage;
-        //this.PreviewThumbnailImage = ThumbnailImage.createImagePlus();
+        
         this.Channels = (ArrayList) Channels.clone();
         this.Channels.add("All");
         this.position = position;
@@ -254,14 +279,14 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
     @Override
         protected void showThumbnail(int x, int y) {  
             
-        int previewSize = 255;  
+        int previewSize = 256;  
 
         int previewWidth = previewSize;
         int previewHeight = previewSize;
         
 
-        if(OriginalImage.getWidth() < 255){previewWidth = OriginalImage.getWidth();}
-        if(OriginalImage.getHeight() < 255){previewHeight = OriginalImage.getHeight();}
+        if(OriginalImage.getWidth() < 256){previewWidth = OriginalImage.getWidth();}
+        if(OriginalImage.getHeight() < 256){previewHeight = OriginalImage.getHeight();}
         
         thumb = new JWindow(); 
         thumb.setSize(new Dimension(previewWidth, previewHeight));
@@ -269,27 +294,21 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
       
         if(OriginalImage.getWidth() > previewSize && OriginalImage.getHeight() > previewSize){   
             OriginalImage.setRoi(((OriginalImage.getWidth()-previewSize)/2), ((OriginalImage.getHeight()-previewSize)/2), previewWidth, previewHeight);
-            
-            System.out.println("PROFILING: Both " + (OriginalImage.getWidth()-previewSize)/2 + ", " + ((OriginalImage.getHeight()-previewSize)/2));
- 
-            ThumbnailImage = new Duplicator().run(OriginalImage);
+             
+            ThumbnailImage = new Duplicator().run(OriginalImage); 
             OriginalImage.deleteRoi();
         }else if(OriginalImage.getWidth() > previewSize){
             OriginalImage.setRoi(((OriginalImage.getWidth()-previewSize)/2), 0, previewWidth, previewHeight);
-            
-            System.out.println("PROFILING: Width " + (OriginalImage.getWidth()-previewSize)/2 + ", " + OriginalImage.getHeight());
+             ThumbnailImage = new Duplicator().run(OriginalImage);
 
-            ThumbnailImage = new Duplicator().run(OriginalImage);
-            
             OriginalImage.deleteRoi();
         }else if(OriginalImage.getHeight() > previewSize){
             OriginalImage.setRoi(0, ((OriginalImage.getHeight()-previewSize)/2), previewWidth, previewHeight);
             
-            System.out.println("PROFILING: Height " + OriginalImage.getWidth() + ", " + ((OriginalImage.getHeight()-previewSize)/2));
- 
-            
+             
             ThumbnailImage = new Duplicator().run(OriginalImage);
             OriginalImage.deleteRoi();
+
         }else{
             ThumbnailImage = new Duplicator().run(OriginalImage);
         }      
@@ -300,7 +319,7 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
             ThumbnailImage = previewThumbnail(ThumbnailImage);
             ThumbnailImage.setZ(ThumbnailImage.getNSlices()/2);  
             thumb.add(new PreviewImagePanel(ThumbnailImage.getImage()));
-            updatePreviewImage = false;
+            
            
         } else {
             ThumbnailImage = new Duplicator().run(OriginalImage);

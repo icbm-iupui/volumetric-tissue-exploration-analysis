@@ -76,7 +76,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         comment = new javax.swing.JLabel();
 
-        setTitle("VTC-Select Image");
+        setTitle("VTEA Select Image");
         setBackground(vtea._vtea.BACKGROUND);
         setIconImages(null);
         setLocation(new java.awt.Point(130, 180));

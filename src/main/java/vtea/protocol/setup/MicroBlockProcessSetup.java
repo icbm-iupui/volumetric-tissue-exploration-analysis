@@ -20,6 +20,7 @@ package vtea.protocol.setup;
 import vtea.protocol.blockstepgui.ProcessStepBlockGUI;
 import ij.ImagePlus;
 import ij.LookUpTable;
+import ij.gui.Roi;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Duplicator;
 import ij.process.LUT;
@@ -87,8 +88,8 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         super(step, Channels);
 
         ProtocolAll = Protocols;
-
-        OriginalImage = imp;
+        OriginalImage = new Duplicator().run(imp);
+        imp.deleteRoi();
 
         currentSlice = OriginalImage.getNSlices() / 2;
         //subclass specific settings

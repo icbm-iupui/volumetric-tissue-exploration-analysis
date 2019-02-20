@@ -180,17 +180,21 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         Point p = new Point();
         try {
             p = ThresholdPreview.getWindow().getLocation();
+            ThresholdPreview.flush();
             ThresholdPreview.close();
         } catch (NullPointerException e) {
             GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
             p = new Point(gd.getDisplayMode().getWidth() / 2, gd.getDisplayMode().getHeight() / 2);
         }
-        ThresholdPreview.close();
+        ThresholdPreview.flush();
         ThresholdPreview = getThresholdPreview();
         IJ.run(ThresholdPreview, "Grays", "");
         ThresholdPreview.updateImage();
         ThresholdPreview.show();
         ThresholdPreview.getWindow().setLocation(p);
+        ThresholdPreview.hide();
+        
+        
 
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);

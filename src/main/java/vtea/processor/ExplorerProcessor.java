@@ -86,15 +86,8 @@ public class ExplorerProcessor extends AbstractProcessor {
 
             firePropertyChange("progress", 0, 5);
             firePropertyChange("comment", "", "Starting explorer processing on " + objects.size() + " objects...");
-            //ListIterator<Object> litr = this.protocol.listIterator();
-
-           // ArrayList<ArrayList<Number>> cropped = (ArrayList) measurements.subList(4, measurements.size() - 1);
 
             HashMap<Integer, String> hm = new HashMap<Integer, String>();
-            
-//            hm.put(0, "X");
-//            hm.put(1, "Y");
-//            hm.put(2, "Z");
             
             for (int i = 0; i < descriptions.size(); i++) {
                 hm.put(i, descriptions.get(i).toString());
@@ -103,13 +96,14 @@ public class ExplorerProcessor extends AbstractProcessor {
             XYExplorationPanel XY = new XYExplorationPanel(measurements, hm, objects);
             DefaultPlotPanels DPP = new DefaultPlotPanels();
 
-            String title = "Segmentation_" + key;
+            String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
 
             MicroExplorer explorer = new MicroExplorer();
-            explorer.setTitle(impOriginal.getTitle().replace("DUP_", ""));
-            explorer.setTitle(explorer.getTitle().replace(".tif", ""));
-            explorer.setTitle(explorer.getTitle().concat("_" + title));
-            explorer.process(impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels);
+//            explorer.setTitle(impOriginal.getTitle().replace("DUP_", ""));
+//            explorer.setTitle(explorer.getTitle().replace(".tif", ""));
+//            explorer.setTitle(explorer.getTitle().concat("_" + title));
+            explorer.setTitle(title);
+            explorer.process(key, impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels);
 
             setProgress(100);
             firePropertyChange("comment", "", "Done.");

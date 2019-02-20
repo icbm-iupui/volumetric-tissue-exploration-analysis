@@ -568,7 +568,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
         if (this.ObjectStepsList.size() > 0) {
             this.ObjectGo.setEnabled(true);
-            this.ObjectGo.setText("Update");
+       
         }
     }//GEN-LAST:event_PreProcessingGoActionPerformed
 

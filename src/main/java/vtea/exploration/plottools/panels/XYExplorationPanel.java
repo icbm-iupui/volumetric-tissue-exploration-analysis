@@ -146,24 +146,20 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
                 double xValue = 0;
                 double yValue = 0;
-                
-                
-
-                //ListIterator<MicroObject> it = volumes.listIterator();
 
                 try {
                     for (int i = 0; i < volumes.size(); i++) {
 
                         ArrayList<Number> measured = measurements.get(i);
 
-                        xValue = measured.get(xAxis).doubleValue();
-                        yValue = measured.get(yAxis).doubleValue();
+                        xValue = measured.get(xAxis).floatValue();
+                        yValue = measured.get(yAxis).floatValue();
                         
                         if (path.contains(xValue, yValue)) {
                             result.add((MicroObject) objects.get(i));
                         }
                         
-                        //System.out.println("PROFILING: Searching for included objects...  at object: " + i);
+                        
                     }
 
                 } catch (NullPointerException e) {
@@ -258,31 +254,34 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     BigDecimal totalGatedSelectedBD = new BigDecimal(total);
                     percentageGatedSelected = percentageGatedSelected.divide(totalGatedSelectedBD, 4, BigDecimal.ROUND_UP);
 
-                    if (impoverlay.getWidth() > 256) {
+                    if (impoverlay.getWidth() > 512) {
                         
                         //f = new Font("Arial", Font.PLAIN, 100);
 
-                        TextRoi textTotal = new TextRoi(5, 10, selected + "/" + total + " gated (" + 100 * percentage.doubleValue() + "%)");
+                        TextRoi textTotal = new TextRoi(5, 10, selected + "/" + total + " gated (" + 100 * percentage.floatValue() + "%)");
 
                         if (gated > 0) {
-                            textTotal = new TextRoi(5, 10, selected + "/" + total + " total (" + 100 * percentage.doubleValue() + "%)"
-                                    + "; " + gated + "/" + total + " roi (" + 100 * percentageGated.doubleValue() + "%)"
-                                    + "; " + gatedSelected + "/" + total + " overlap (" + 100 * percentageGatedSelected.doubleValue() + "%)", f);
+                            textTotal = new TextRoi(5, 10, selected + "/" + total + " total (" + 100 * percentage.floatValue() + "%)"
+                                    + "; " + gated + "/" + total + " roi (" + 100 * percentageGated.floatValue() + "%)"
+                                    + "; " + gatedSelected + "/" + total + " overlap (" + 100 * percentageGatedSelected.floatValue() + "%)", f);
                         }
                         textTotal.setPosition(i);
                         overlay.add(textTotal);
                     } else {
                         f = new Font("Arial", Font.PLAIN, 10);
-                        TextRoi line1 = new TextRoi(5, 5, selected + "/" + total + " gated" + "(" + 100 * percentage.doubleValue() + "%)", f);
+                        TextRoi line1 = new TextRoi(5, 5, selected + "/" + total + " gated" + "(" + 100 * percentage.floatValue() + "%)", f);
+                        line1.setPosition(i);
                         overlay.add(line1);
                         if (gated > 0) {
                             f = new Font("Arial", Font.PLAIN, 10);
-                            TextRoi line2 = new TextRoi(5, 18, gated + "/" + total + " roi (" + 100 * percentageGated.doubleValue() + "%)", f);
+                            TextRoi line2 = new TextRoi(5, 18, gated + "/" + total + " roi (" + 100 * percentageGated.floatValue() + "%)", f);
+                            line2.setPosition(i);
                             overlay.add(line2);
-                            TextRoi line3 = new TextRoi(5, 31, gatedSelected + "/" + total + " overlap (" + 100 * percentageGatedSelected.doubleValue() + "%)", f);
+                            TextRoi line3 = new TextRoi(5, 31, gatedSelected + "/" + total + " overlap (" + 100 * percentageGatedSelected.floatValue() + "%)", f);
+                            line3.setPosition(i);
                             overlay.add(line3);
                         }
-                        line1.setPosition(i);
+                        
                     }
                 }
                 impoverlay.setOverlay(overlay);
@@ -356,8 +355,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                         while (it.hasNext()) {
                             measured = it.next();
                             if (measured != null) {
-                                xValue = measured.get(currentX).doubleValue();
-                                yValue = measured.get(currentY).doubleValue();
+                                xValue = measured.get(currentX).floatValue();
+                                yValue = measured.get(currentY).floatValue();
                                 if (path.contains(xValue, yValue)) {
                                     result.add(objects.get(i));
                                 }
@@ -375,6 +374,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         return result.size();
     }
 
+//    private Number processPosition(int a, MicroObject volume) {
+//        if (a <= 10) {
+//            return (Number) volume.getAnalysisMaskVolume()[a];
+//        } else {
+//            int row = ((a) / 11) - 1;
+//            int column = a % 11;
+//            return (Number) volume.getAnalysisResultsVolume()[row][column];
+//        }
+//    }
 
     @Override
     public void addMakeImageOverlayListener(MakeImageOverlayListener listener) {
@@ -903,16 +911,19 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                         imageGate = true;
                         //System.out.println("PROFILING: XYChartPanel, Roi modified... Completed. Imagegate: " + imageGate);    
                         addPlot(currentX, currentY, currentL, pointsize, LUT,hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                        makeOverlayImage(this.gates, 0, 0, currentX, currentY);
                         break;
                     case RoiListener.MOVED:
                         imageGate = true;
                         //System.out.println("PROFILING: XYChartPanel, roiListener, Roi modified... Moved. Imagegate: " + imageGate);                   
                         addPlot(currentX, currentY, currentL, pointsize, LUT,hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                        makeOverlayImage(this.gates, 0, 0, currentX, currentY);
                         break;
                     case RoiListener.DELETED:
                         imageGate = false;
                        //System.out.println("PROFILING: XYChartPanel, roiListener, Roi modified... Deleted. Imagegate: " + imageGate);  
                         addPlot(currentX, currentY, currentL, pointsize, LUT,hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                        makeOverlayImage(this.gates, 0, 0, currentX, currentY);
                         break;
                     default:
                         break;
@@ -1062,8 +1073,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                         while (it.hasNext()) {
                             measured = it.next();
                             if (measured != null) {
-                                xValue = measured.get(currentX).doubleValue();
-                                yValue = measured.get(currentY).doubleValue();
+                                xValue = measured.get(currentX).floatValue();
+                                yValue = measured.get(currentY).floatValue();
                                 if (path.contains(xValue, yValue)) {
                                     result.add(objects.get(i));
                                 }
@@ -1226,8 +1237,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             } else {
                 file = new File(file.toString() + ".vtg");  
             }
-            // System.out.println("PROFILING: Number of gates exporting: "+ al.size());
-            //System.out.println("PROFILING: Gate polygon size: " + al.get(0).size());
+ 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
                     try {

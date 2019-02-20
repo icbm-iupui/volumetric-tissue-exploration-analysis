@@ -33,6 +33,8 @@ import ij.ImageListener;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
+import ij.io.FileSaver;
+import ij.io.Opener;
 import ij.measure.ResultsTable;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -43,8 +45,14 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,6 +81,7 @@ import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
 import vtea.feature.FeatureFrame;
+import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
 
 /**
@@ -111,6 +120,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     ImagePlus impoverlay;
     int impMode;
     String title;
+    String key;
     ArrayList descriptions;
     ArrayList<String> descriptionsLabels = new ArrayList<String>();
     ArrayList<MicroObject> Objects = new ArrayList<MicroObject>();
@@ -160,12 +170,15 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     }
 
-    public void process(ImagePlus imp, String title, ArrayList plotvalues, ExplorationCenter ec, PlotAxesPanels pap, ArrayList AvailableData, ArrayList descriptionLabel) {
+    public void process(String key, ImagePlus imp, String title, ArrayList plotvalues, ExplorationCenter ec, PlotAxesPanels pap, ArrayList AvailableData, ArrayList descriptionLabel) {
         //Needs to be converted to a Factory metaphor.
 
         //Setup base dataseta
         //Available data is an arraylist of the available tags as they exist in microvolumes.
         //imp is the original image
+        
+        this.key = key;
+        
         this.descriptions = AvailableData;
         this.descriptionsLabels = descriptionLabel;
         //as taken from stackoverflow
@@ -377,7 +390,9 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         jSeparator8 = new javax.swing.JToolBar.Separator();
         ExportGraph = new javax.swing.JButton();
         exportCSV = new javax.swing.JButton();
-        importCSV = new javax.swing.JButton();
+        jSeparator9 = new javax.swing.JToolBar.Separator();
+        exportOBJ = new javax.swing.JButton();
+        importOBJ = new javax.swing.JButton();
         WestPanel = new javax.swing.JPanel();
         yTextPanel = new javax.swing.JPanel();
         FlipAxes = new javax.swing.JButton();
@@ -480,8 +495,9 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         toolbarGate.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         toolbarGate.setFloatable(false);
         toolbarGate.setRollover(true);
-        toolbarGate.setMinimumSize(new java.awt.Dimension(680, 42));
-        toolbarGate.setPreferredSize(new java.awt.Dimension(640, 40));
+        toolbarGate.setMaximumSize(new java.awt.Dimension(692, 41));
+        toolbarGate.setMinimumSize(new java.awt.Dimension(692, 41));
+        toolbarGate.setPreferredSize(new java.awt.Dimension(692, 41));
 
         addPolygonGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/polygon-filled.png"))); // NOI18N
         addPolygonGate.setToolTipText("Add polygon gate");
@@ -690,6 +706,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         jButtonDistance.setBackground(new java.awt.Color(102, 255, 102));
         jButtonDistance.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
         jButtonDistance.setToolTipText("Add distance measure");
+        jButtonDistance.setEnabled(false);
         jButtonDistance.setFocusable(false);
         jButtonDistance.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonDistance.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -706,7 +723,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         toolbarGate.add(jSeparator8);
 
         ExportGraph.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/insert-image-2 copy.png"))); // NOI18N
-        ExportGraph.setToolTipText("Export PNG...");
+        ExportGraph.setToolTipText("Export graph as PNG...");
         ExportGraph.setFocusable(false);
         ExportGraph.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         ExportGraph.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -721,8 +738,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         });
         toolbarGate.add(ExportGraph);
 
-        exportCSV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save-2_24.png"))); // NOI18N
-        exportCSV.setToolTipText("Export objects...");
+        exportCSV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save_csv-2_32.png"))); // NOI18N
+        exportCSV.setToolTipText("Export objects as csv...");
         exportCSV.setFocusable(false);
         exportCSV.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         exportCSV.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -736,23 +753,39 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
             }
         });
         toolbarGate.add(exportCSV);
+        toolbarGate.add(jSeparator9);
 
-        importCSV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-open-folder_24.png"))); // NOI18N
-        importCSV.setToolTipText("Import...");
-        importCSV.setEnabled(false);
-        importCSV.setFocusable(false);
-        importCSV.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        importCSV.setMaximumSize(new java.awt.Dimension(35, 40));
-        importCSV.setMinimumSize(new java.awt.Dimension(35, 40));
-        importCSV.setName(""); // NOI18N
-        importCSV.setPreferredSize(new java.awt.Dimension(35, 40));
-        importCSV.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        importCSV.addActionListener(new java.awt.event.ActionListener() {
+        exportOBJ.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save_obj-2_32.png"))); // NOI18N
+        exportOBJ.setToolTipText("Export objects...");
+        exportOBJ.setFocusable(false);
+        exportOBJ.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        exportOBJ.setMaximumSize(new java.awt.Dimension(35, 40));
+        exportOBJ.setMinimumSize(new java.awt.Dimension(35, 40));
+        exportOBJ.setName(""); // NOI18N
+        exportOBJ.setPreferredSize(new java.awt.Dimension(35, 40));
+        exportOBJ.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        exportOBJ.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                importCSVActionPerformed(evt);
+                exportOBJActionPerformed(evt);
             }
         });
-        toolbarGate.add(importCSV);
+        toolbarGate.add(exportOBJ);
+
+        importOBJ.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-open-folder-obj_32.png"))); // NOI18N
+        importOBJ.setToolTipText("Import objects...");
+        importOBJ.setFocusable(false);
+        importOBJ.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        importOBJ.setMaximumSize(new java.awt.Dimension(35, 40));
+        importOBJ.setMinimumSize(new java.awt.Dimension(35, 40));
+        importOBJ.setName(""); // NOI18N
+        importOBJ.setPreferredSize(new java.awt.Dimension(35, 40));
+        importOBJ.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        importOBJ.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importOBJActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(importOBJ);
 
         North.add(toolbarGate);
 
@@ -908,14 +941,31 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         }
     }//GEN-LAST:event_BWLUTActionPerformed
 
-    private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
-        ExportCSV ex = new ExportCSV();
-        ex.export(this.descriptions, this.measurements);
-    }//GEN-LAST:event_exportCSVActionPerformed
+    private void exportOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportOBJActionPerformed
+      new Thread(() -> {
+            try {
+        
+        ExportOBJ ex = new ExportOBJ();
+        ex.export(key, imp, ec.getObjects(), 
+                measurements, descriptions, 
+                descriptionsLabels);
+    } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();     
+    }//GEN-LAST:event_exportOBJActionPerformed
 
-    private void importCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importCSVActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_importCSVActionPerformed
+    private void importOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importOBJActionPerformed
+              new Thread(() -> {
+            try {
+                ImportOBJ io = new ImportOBJ();
+                io.importObjects();
+                
+    } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();  
+    }//GEN-LAST:event_importOBJActionPerformed
 
     private void AxesSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AxesSettingsActionPerformed
         AxesSetup.setVisible(true);
@@ -925,13 +975,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         
         al.add(new JLabel("Graph LUT:"));
         al.add(new JComboBox(vtea._vtea.LUTOPTIONS));
-//        al.add(new JLabel("Overlay Color:"));
-//        
-//        String[] colors = {
-//            "Red","Green", "Blue", "Yellow", "Cyan", "Magenta"
-//        };
-//    
-//        al.add(new JComboBox(colors));
 
         AxesSetup.setLUT(al);
         AxesSetup.addAxesChangeListener(this);
@@ -969,6 +1012,20 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private void jButtonDistanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDistanceActionPerformed
         
     }//GEN-LAST:event_jButtonDistanceActionPerformed
+
+    private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
+        
+              new Thread(() -> {
+            try {
+        
+        ExportCSV ex = new ExportCSV();
+        ex.export(this.descriptions, this.measurements);
+    } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();  
+
+    }//GEN-LAST:event_exportCSVActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1024,9 +1081,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     protected javax.swing.JToggleButton addRectangularGate;
     private javax.swing.JButton exportCSV;
     private javax.swing.JButton exportGates;
+    private javax.swing.JButton exportOBJ;
     private javax.swing.JButton get3DProjection;
     private javax.swing.JButton getSegmentation;
-    private javax.swing.JButton importCSV;
+    private javax.swing.JButton importOBJ;
     private javax.swing.JButton jButtonDistance;
     private javax.swing.JButton jButtonFeature;
     private javax.swing.JComboBox jComboBox1;
@@ -1047,11 +1105,13 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private javax.swing.JToolBar.Separator jSeparator5;
     private javax.swing.JToolBar.Separator jSeparator7;
     private javax.swing.JToolBar.Separator jSeparator8;
+    private javax.swing.JToolBar.Separator jSeparator9;
     private javax.swing.JToolBar toolbarGate;
     private javax.swing.JToolBar toolbarPlot;
     private javax.swing.JPanel yTextPanel;
     // End of variables declaration//GEN-END:variables
 
+    
     private void setPanels(List plotvalues, ExplorationCenter ec, PlotAxesPanels pap) {
 
         this.measurements = (ArrayList) plotvalues;
@@ -1275,7 +1335,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
             if (n == JOptionPane.YES_OPTION) {
                 this.impoverlay = imp.duplicate();
-                //this.impoverlay.addImageListener(this);
                 ec.setGatedOverlay(impoverlay);
                 impoverlay.setTitle(title);
                 impoverlay.show();
@@ -1688,7 +1747,121 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         this.tooltips = tooltips;
     }
 }
+    //this needs to be runnable
+    
+    class ExportOBJ {
 
+        public ExportOBJ() {
+        }
+
+        public void export(String k, ImagePlus imp, ArrayList<MicroObject> objects, 
+                ArrayList measurements, ArrayList headers, 
+                ArrayList headerLabels) {
+            
+
+        //Arraylist to save to file
+        //key; Objects; Measurements; headers; headerLabels
+        //string; ImagePlus; ArrayList; ArrayList; ArrayList; ArrayList
+        
+        ArrayList output = new ArrayList();
+        
+        output.add(k);
+        output.add(objects);
+        output.add(measurements);
+        output.add(headers);
+        output.add(headerLabels);
+        
+            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            jf.setDialogTitle("Export VTEA objects...");
+            
+            int returnVal = jf.showSaveDialog(Main);
+            File file = jf.getSelectedFile(); 
+            
+            MicroExplorer.LASTDIRECTORY =  file.getPath();
+             
+            file = jf.getSelectedFile();
+            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
+            
+            } else {
+                file = new File(file.toString() + ".obx");  
+            }
+ 
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                try {
+                    try {
+                        FileOutputStream fos = new FileOutputStream(file);
+                        ObjectOutputStream oos = new ObjectOutputStream(fos);
+                        oos.writeObject(output);
+                        oos.close();
+                        
+                        FileSaver fs = new FileSaver(imp);
+                        fs.saveAsTiffStack(file.getParent() + "/" + key + ".tif");
+  
+                    } catch (IOException e) {
+                        System.out.println("ERROR: Could not save the file" + e);
+                    }
+                } catch (NullPointerException ne) {
+                    System.out.println("ERROR: NPE in object export");
+                }
+            } else {
+            }
+        }
+
+    }
+    
+    class ImportOBJ {
+
+        public ImportOBJ() {
+        }
+        
+        protected void importObjects() {
+
+            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            int returnVal = jf.showOpenDialog(Main);
+            File file = jf.getSelectedFile();
+
+            ArrayList result = new ArrayList();
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                try {
+                    try {
+                        FileInputStream fis = new FileInputStream(file);
+                        ObjectInputStream ois = new ObjectInputStream(fis);
+                        result = (ArrayList) ois.readObject();
+                        ois.close();        
+                        Opener op = new Opener();
+                        ImagePlus imp = op.openImage(file.getParent(), ((String)result.get(0))+".tif");
+
+                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
+    
+                    } catch (IOException e) {
+                        System.out.println("ERROR: Could not open the file.");
+                    }
+                } catch (ClassNotFoundException ne) {
+                    System.out.println("ERROR: Not Found.");
+                }
+            } else {
+            }
+            
+        }
+        
+        private void executeExploring(String name, ArrayList result, ImagePlus imp){
+
+        String k = (String)result.get(0);
+        ArrayList<MicroObject> objects = (ArrayList<MicroObject>)result.get(1);
+        ArrayList measures = (ArrayList)result.get(2);
+        ArrayList descriptions = (ArrayList)result.get(3);
+        ArrayList descriptionLabels = (ArrayList)result.get(4);
+            
+        ExplorerProcessor ep = new ExplorerProcessor(name, imp, objects, measures, descriptions, descriptionLabels);
+        ep.execute();
+
+        }
+
+    }
+
+    
+    
 
     class ExportCSV {
 
