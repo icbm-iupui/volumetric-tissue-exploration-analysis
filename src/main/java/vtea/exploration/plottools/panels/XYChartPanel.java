@@ -207,13 +207,13 @@ public class XYChartPanel implements RoiListener {
         
         
         if(l >= 0){
-            double max = getMaximumOfData((ArrayList) measurements, l);
-            double min = getMinimumOfData((ArrayList) measurements, l);
+            double max = Math.round(getMaximumOfData((ArrayList) measurements, l));
+            double min = Math.round(getMinimumOfData((ArrayList) measurements, l));
             double range = max - min;
         if (max == 0) {
             max = 1;
         }
-        
+         
         LookupPaintScale ps = new LookupPaintScale(min, max+1, new Color(0x999999));
 
         renderer.setPaintScale(ps);
@@ -276,7 +276,7 @@ public class XYChartPanel implements RoiListener {
         
         plot.getDomainAxis();
         plot.getRangeAxis();
-
+        
         plot.setDomainPannable(false);
         plot.setRangePannable(false);
 
@@ -302,6 +302,7 @@ public class XYChartPanel implements RoiListener {
         }
 
         plot.setDataset(0, createXYZDataset((ArrayList) measurements, x, y, l));
+        
 
 
         try {
@@ -316,6 +317,9 @@ public class XYChartPanel implements RoiListener {
                 logAxisY.setAutoRange(true);
                 plot.setRangeAxis(logAxisY);
             }
+            
+            //System.out.println("PROFILING: data range x " + getRangeofData((ArrayList) measurements, x));
+            //System.out.println("PROFILING: data range y " + getRangeofData((ArrayList) measurements, y));
         } catch (NullPointerException e) {
         };
 

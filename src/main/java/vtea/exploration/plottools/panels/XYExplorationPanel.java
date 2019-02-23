@@ -232,7 +232,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
                     //old setPosition not functional as of imageJ 1.5m
                     ir.setOpacity(0.4);
-
+                    overlay.selectable(false);
                     overlay.add(ir);
 
                     gateOverlay.addSlice(ir.getProcessor());
@@ -1038,35 +1038,40 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
     @Override
     public int getGatedSelected(ImagePlus ip) {
-        ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
-        try {
+        ArrayList<ArrayList<Number>> ImageGatedObjects = new ArrayList<ArrayList<Number>>();
+        int index = 0;
             ListIterator<MicroObject> itr = objects.listIterator();
             while (itr.hasNext()) {
                 MicroObject m = itr.next();
+                try {
+                
 
                 if (ip.getRoi().contains((int)m.getCentroidX(), (int)m.getCentroidY())) {
-                    ImageGatedObjects.add(m);
+                    ImageGatedObjects.add(measurements.get(index));
                 }
-            }
-        } catch (NullPointerException e) {
+                index++;
+                 } catch (NullPointerException e) {
             return 0;
         }
+            }
+       
 
         Gate gate;
         ListIterator<Gate> gate_itr = gates.listIterator();
-        ArrayList<MicroObject> result = new ArrayList<MicroObject>();
+        int result = 0;
 
         while (gate_itr.hasNext()) {
             gate = gate_itr.next();
             if (gate.getSelected()) {
                 Path2D path = gate.createPath2DInChartSpace();
 
-                MicroObjectModel volume;
+       
                 double xValue = 0;
                 double yValue = 0;
-                for (int i = 0; i < objects.size(); i++) {
+                
 
-                    ListIterator<ArrayList<Number>> it = measurements.listIterator();
+
+                    ListIterator<ArrayList<Number>> it = ImageGatedObjects.listIterator();
                     ArrayList<Number> measured;
 
                     try {
@@ -1076,7 +1081,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                                 xValue = measured.get(currentX).floatValue();
                                 yValue = measured.get(currentY).floatValue();
                                 if (path.contains(xValue, yValue)) {
-                                    result.add(objects.get(i));
+                                    result++;
                                 }
                             }
 
@@ -1086,8 +1091,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     }
                 }
             }
-        }
-        return result.size();
+        
+        return result;
     }
 
     @Override
@@ -1133,14 +1138,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         JComboBox j = new JComboBox(new DefaultComboBoxModel(cOptions));
 
         al.add(new JLabel("X min"));
-        al.add(new JTextField(String.valueOf(plot.getDomainAxis().getLowerBound())));
+        al.add(new JTextField(String.valueOf(Math.round(plot.getDomainAxis().getLowerBound()))));
         al.add(new JLabel("X max"));
-        al.add(new JTextField(String.valueOf(plot.getDomainAxis().getUpperBound())));
+        al.add(new JTextField(String.valueOf(Math.round(plot.getDomainAxis().getUpperBound()))));
         al.add(new JComboBox(new DefaultComboBoxModel(cOptions)));
         al.add(new JLabel("Y min"));
-        al.add(new JTextField(String.valueOf(plot.getRangeAxis().getLowerBound())));
+        al.add(new JTextField(String.valueOf(Math.round(plot.getRangeAxis().getLowerBound()))));
         al.add(new JLabel("Y max"));
-        al.add(new JTextField(String.valueOf(plot.getRangeAxis().getUpperBound())));
+        al.add(new JTextField(String.valueOf(Math.round(plot.getRangeAxis().getUpperBound()))));
         al.add(new JComboBox(new DefaultComboBoxModel(cOptions)));
 
         return al;
