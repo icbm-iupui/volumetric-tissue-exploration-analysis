@@ -31,8 +31,6 @@ import javax.swing.SpinnerNumberModel;
 import org.scijava.plugin.Plugin;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  *K-Means Clustering.
@@ -116,7 +114,7 @@ public class KMeans extends AbstractFeatureProcessing{
                
                 performValidation(feature, n_clust, numTrials, seed);
                 
-                String randScript = getCWD() + "/src/main/resources/KmeansRandom.py";
+                String randScript = getCWD() + String.format("%1$csrc%1$cmain%1$cresources%1$cKmeansRandom.py", File.pathSeparator);;
                 String[] randomGen = new String[]{s, randScript, String.valueOf(seed), String.valueOf(feature.length), String.valueOf(n_clust), String.valueOf(numTrials)};
                 Process p = rt.exec(randomGen);
                 BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
