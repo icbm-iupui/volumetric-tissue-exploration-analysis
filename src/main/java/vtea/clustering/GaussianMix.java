@@ -173,7 +173,7 @@ public class GaussianMix extends AbstractFeatureProcessing{
                     performValidation(feature, n_clust, seed);
 
                     String s = getPython();
-                    String randScript = getCWD() + String.format("%1$csrc%1$cmain%1$cresources%1$cGaussianRandom.py", File.pathSeparator);
+                    String randScript = getCWD() + String.format("%1$csrc%1$cmain%1$cresources%1$cGaussianRandom.py", File.separatorChar);
                     String[] randomGen = new String[]{s, randScript, String.valueOf(seed), String.valueOf(n_clust)};
                     Process p = rt.exec(randomGen);
                     BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));

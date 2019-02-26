@@ -1,6 +1,9 @@
 import numpy as np
 import sys
 
+##  Provides the same initialization for K-means as scikit-learn does. Outputs 
+##  the rows from the initial data to use as the starting centroids.
+
 if len(sys.argv) < 4:
     print('python3 KmeansRandom.py [RandomState seed] [n_samples] [n_clusters] [n_init = 10]')
 else:
