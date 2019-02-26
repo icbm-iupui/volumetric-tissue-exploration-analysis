@@ -187,12 +187,12 @@ public class GaussianMix extends AbstractFeatureProcessing{
                     IJ.log("VALIDATING: Completed in " + (end-start)/1000000000 + " seconds" );
                     
                     IJ.log("VALIDATING: Retrieving random list for the Java Method" );
-                    int[] list = getIntList("random_inital_values_for_GM.csv");
+                    int[] list = getIntList("random_initial_values_for_GM.csv");
                     
                     IJ.log("PROFILING: Finding Gaussian Mixture Model for " + n_clust + " clusters on " + feature[0].length + " features");
                     run(feature, n_clust, list);
                     
-                    deleteFiles(new String[]{"random_initial_row_for_GM.csv", "matrix_for_python.csv"});
+                    deleteFiles(new String[]{"random_initial_values_for_GM.csv", "matrix_for_python.csv"});
                 }catch(IOException | InterruptedException ie){
                     ie.printStackTrace();
                 }
@@ -255,10 +255,14 @@ public class GaussianMix extends AbstractFeatureProcessing{
     private int[] getRandom(double[][] data, int n_clust, int seed){
         int[] list = new int[n_clust];
         int l = 0;
-        Random randGen = new Random(seed);
         
-        double[] centroid = data[randGen.nextInt(n)];
-        list[l]=centroid;
+        int n = data.length;
+        int d = data[0].length;
+        
+        Random randGen = new Random(seed);
+        int val = randGen.nextInt(n);
+        double[] centroid = data[val];
+        list[l] = val;
         l++;
         double[] D = new double[n];
         for (int i = 0; i < n; i++) {
@@ -286,8 +290,10 @@ public class GaussianMix extends AbstractFeatureProcessing{
             }
 
             centroid = data[index];
-            list[l] = centroid;
+            list[l] = index;
         }
+        
+        return list;
     }
     private void run(double[][] data, int n_clust, int[] list){
         if (n_clust < 2)

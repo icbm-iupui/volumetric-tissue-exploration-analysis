@@ -179,7 +179,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
                 IJ.log("PROFILING: Reducing " + feature[0].length + " dimensions to " + outDim + " dimensions");
                 performReduction(feature, outDim, itr, eta, perpl, inDim, pca, list);
                 
-                deleteFiles(new String[]{"random_initial_row_for_tsne.csv", "matrix_for_python.csv"});
+                deleteFiles(new String[]{"random_initial_values_for_tsne.csv", "matrix_for_python.cs"});
             }catch(IOException | InterruptedException ie){
                 ie.printStackTrace();
             }
