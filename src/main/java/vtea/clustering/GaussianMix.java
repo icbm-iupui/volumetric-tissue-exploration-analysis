@@ -20,6 +20,10 @@ package vtea.clustering;
 import ij.IJ;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -46,6 +50,8 @@ import vtea.featureprocessing.FeatureProcessing;
 @Plugin (type = FeatureProcessing.class)
 public class GaussianMix extends AbstractFeatureProcessing{
     List<MultivariateMixture.Component> components;
+    Runtime rt;
+    Random rand;
     
     public static boolean validate = true;
     /**
@@ -133,11 +139,15 @@ public class GaussianMix extends AbstractFeatureProcessing{
      */
     @Override
     public boolean process(ArrayList al, double[][] feature, boolean val){
-        int n_clust;
-        MultivariateGaussianMixture mgm;
-        JCheckBox auto_clust;
         long start;
+        int n_clust;
         
+        long randSeed = System.nanoTime();
+        rand = new Random(randSeed);
+        
+        MultivariateGaussianMixture mgm;
+        
+        JCheckBox auto_clust;
         components = new ArrayList<>();
         
         ArrayList selectData = (ArrayList)al.get(1);
@@ -150,12 +160,51 @@ public class GaussianMix extends AbstractFeatureProcessing{
         if(!auto_clust.isSelected()){
             JSpinner clust = (JSpinner)al.get(5);
             n_clust = ((Integer)clust.getValue()); 
-            IJ.log("PROFILING: Finding Gaussian Mixture Model for " + n_clust + " clusters on " + feature[0].length + " features");
-            start = System.nanoTime();
-            run(feature, n_clust, 5);       //last value is the random seed
+           
+            int seed = java.lang.Math.abs(rand.nextInt() - 1);
+            if(val){
+                start = System.nanoTime();
+                try{
+                    IJ.log("VALIDATING: Beginning");
+                    start = System.nanoTime();
+                    rt = Runtime.getRuntime();
+                    
+
+                    performValidation(feature, n_clust, seed);
+
+                    String s = getPython();
+                    String randScript = getCWD() + "/src/main/resources/GaussianRandom.py";
+                    String[] randomGen = new String[]{s, randScript, String.valueOf(seed), String.valueOf(n_clust)};
+                    Process p = rt.exec(randomGen);
+                    BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                    p.waitFor();
+
+                    String e = null;
+                    while((e = stdError.readLine()) != null){
+                            System.out.println(e);
+                    }
+                    long end = System.nanoTime();
+                    IJ.log("VALIDATING: Completed in " + (end-start)/1000000000 + " seconds" );
+                    
+                    IJ.log("VALIDATING: Retrieving random list for the Java Method" );
+                    int[] list = getIntList("random_inital_values_for_GM.csv");
+                    
+                    IJ.log("PROFILING: Finding Gaussian Mixture Model for " + n_clust + " clusters on " + feature[0].length + " features");
+                    run(feature, n_clust, list);
+                    
+                    deleteFiles(new String[]{"random_initial_row_for_GM.csv", "matrix_for_python.csv"});
+                }catch(IOException | InterruptedException ie){
+                    ie.printStackTrace();
+                }
+            }else{
+                start = System.nanoTime();
+                IJ.log("PROFILING: Finding Gaussian Mixture Model for " + n_clust + " clusters on " + feature[0].length + " features");
+                int[] list = getRandom(feature, n_clust, seed);
+                run(feature, n_clust, list);
+            }
+        }else{
+            if(val){IJ.log("VALIDATING: *Cannot be validated when using Automatic*");}
             
-        }
-        else{
             start = System.nanoTime();
             IJ.log("PROFILING: Finding Gaussian Mixture Model on " + feature[0].length + " features with lowest BIC");
             run(feature, ((JComboBox)al.get(7)).getSelectedIndex());
@@ -164,11 +213,84 @@ public class GaussianMix extends AbstractFeatureProcessing{
         getMembership(feature);
         long end = System.nanoTime();
         IJ.log("PROFILING: Gaussian Mixture Model completed in " + (end-start)/1000000 + " ms" );
+//        auto_clust = (JCheckBox)al.get(6);
+//        if(!auto_clust.isSelected()){
+//            JSpinner clust = (JSpinner)al.get(5);
+//            n_clust = ((Integer)clust.getValue()); 
+//            IJ.log("PROFILING: Finding Gaussian Mixture Model for " + n_clust + " clusters on " + feature[0].length + " features");
+//            start = System.nanoTime();
+//            run(feature, n_clust, 5);       //last value is the random seed
+//            
+//        }
+//        else{
+//            start = System.nanoTime();
+//            IJ.log("PROFILING: Finding Gaussian Mixture Model on " + feature[0].length + " features with lowest BIC");
+//            run(feature, ((JComboBox)al.get(7)).getSelectedIndex());
+//        }
+//        IJ.log("PROFILING: Extracting membership of clusters");
+//        getMembership(feature);
+//        long end = System.nanoTime();
+//        IJ.log("PROFILING: Gaussian Mixture Model completed in " + (end-start)/1000000 + " ms" );
         return true;
     }
+    private void performValidation(double[][] matrix, int n_clust, int seed){
+        makeMatrixCSVFile(matrix);
+        String s = getPython();
+        String pathAddOn = String.format("%1$csrc%1$cmain%1$cresources%1$cvalidation_script.py", File.separatorChar);
+        String validationScript = getCWD() + pathAddOn;
+        try{
+            String[] validationGen = new String[]{s, validationScript, "matrix_for_python.csv", "GAUSSMIX", String.valueOf(seed), String.valueOf(n_clust)};
+            Process p = rt.exec(validationGen);
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            p.waitFor();
+            
+            String e = null;
+            while((e = stdError.readLine()) != null)
+                System.out.println(e);
+        }catch(IOException | InterruptedException ie){
+            ie.printStackTrace();
+        }
+    }
     
-    private void run(double[][] data, int k, long randomSeed){
-        if (k < 2)
+    private int[] getRandom(double[][] data, int n_clust, int seed){
+        int[] list = new int[n_clust];
+        int l = 0;
+        Random randGen = new Random(seed);
+        
+        double[] centroid = data[randGen.nextInt(n)];
+        list[l]=centroid;
+        l++;
+        double[] D = new double[n];
+        for (int i = 0; i < n; i++) {
+            D[i] = Double.MAX_VALUE;
+        }
+        
+        for (int i = 1; i < n_clust; i++) {
+            // Loop over the samples and compare them to the most recent center.  Store
+            // the distance from each sample to its closest center in scores.
+            for (int j = 0; j < n; j++) {
+                // compute the distance between this sample and the current center
+                double dist = Math.squaredDistance(data[j], centroid);
+                if (dist < D[j]) {
+                    D[j] = dist;
+                }
+            }
+
+            double cutoff = randGen.nextDouble() * Math.sum(D);
+            double cost = 0.0;
+            int index = 0;
+            for (; index < n; index++) {
+                cost += D[index];
+                if (cost >= cutoff)
+                    break;
+            }
+
+            centroid = data[index];
+            list[l] = centroid;
+        }
+    }
+    private void run(double[][] data, int n_clust, int[] list){
+        if (n_clust < 2)
             throw new IllegalArgumentException("Invalid number of components in the mixture.");
 
         int n = data.length;
@@ -200,46 +322,47 @@ public class GaussianMix extends AbstractFeatureProcessing{
                 sigma[l][j] = sigma[j][l];
             }
         }
-        Random randGen = new Random(randomSeed);
+//        int seed = java.lang.Math.abs(rand.nextInt() - 1);
+//        Random randGen = new Random(seed);
         
-        double[] centroid = data[randGen.nextInt(n)];
+        double[] centroid = data[list[0]];
         MultivariateMixture.Component c = new MultivariateMixture.Component();
-        c.priori = 1.0 / k;
+        c.priori = 1.0 / n_clust;
         MultivariateGaussianDistribution gaussian = new MultivariateGaussianDistribution(centroid, sigma);
         c.distribution = gaussian;
         components.add(c);
 
         // We use a the kmeans++ algorithm to find the initial centers.
         // Initially, all components have same covariance matrix.
-        double[] D = new double[n];
-        for (int i = 0; i < n; i++) {
-            D[i] = Double.MAX_VALUE;
-        }
+//        double[] D = new double[n];
+//        for (int i = 0; i < n; i++) {
+//            D[i] = Double.MAX_VALUE;
+//        }
 
         // pick the next center
-        for (int i = 1; i < k; i++) {
-            // Loop over the samples and compare them to the most recent center.  Store
-            // the distance from each sample to its closest center in scores.
-            for (int j = 0; j < n; j++) {
-                // compute the distance between this sample and the current center
-                double dist = Math.squaredDistance(data[j], centroid);
-                if (dist < D[j]) {
-                    D[j] = dist;
-                }
-            }
+        for (int i = 1; i < n_clust; i++) {
+//            // Loop over the samples and compare them to the most recent center.  Store
+//            // the distance from each sample to its closest center in scores.
+//            for (int j = 0; j < n; j++) {
+//                // compute the distance between this sample and the current center
+//                double dist = Math.squaredDistance(data[j], centroid);
+//                if (dist < D[j]) {
+//                    D[j] = dist;
+//                }
+//            }
+//
+//            double cutoff = randGen.nextDouble() * Math.sum(D);
+//            double cost = 0.0;
+//            int index = 0;
+//            for (; index < n; index++) {
+//                cost += D[index];
+//                if (cost >= cutoff)
+//                    break;
+//            }
 
-            double cutoff = randGen.nextDouble() * Math.sum(D);
-            double cost = 0.0;
-            int index = 0;
-            for (; index < n; index++) {
-                cost += D[index];
-                if (cost >= cutoff)
-                    break;
-            }
-
-            centroid = data[index];
+            centroid = data[list[i]];
             c = new MultivariateMixture.Component();
-            c.priori = 1.0 / k;
+            c.priori = 1.0 / n_clust;
             gaussian = new MultivariateGaussianDistribution(centroid, sigma);
             c.distribution = gaussian;
             components.add(c);

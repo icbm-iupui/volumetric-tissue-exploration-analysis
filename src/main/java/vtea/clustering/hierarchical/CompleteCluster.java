@@ -18,7 +18,12 @@
 package vtea.clustering.hierarchical;
 
 import ij.IJ;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Random;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import org.scijava.plugin.Plugin;
@@ -75,9 +80,11 @@ public class CompleteCluster extends AbstractHierarchical{
      */
     @Override
     public boolean process(ArrayList al, double[][] feature, boolean val){
-        progress = 0;
+        long start;
         int nclusters;
         double[][] proximity;
+        
+        progress = 0;
         
         ArrayList selectData = (ArrayList)al.get(1);
         boolean znorm = (boolean)al.get(0);
@@ -87,14 +94,55 @@ public class CompleteCluster extends AbstractHierarchical{
         dataResult.ensureCapacity(feature.length);
         JSpinner clust = (JSpinner)al.get(5);
         nclusters = ((Integer)clust.getValue());
-        
-        IJ.log("PROFILING: Calculating Proximity Matrix for " + feature[1].length + " features");
-        proximity = calculateProximity(feature);
-        IJ.log("PROFILING: Creating Complete-Link Linkage");
-        CompleteLinkage cl = new CompleteLinkage(proximity);
-        calculateClusters(cl, nclusters, NAME);
+        if(val){
+            start = System.nanoTime();
+            IJ.log("VALIDATING: Beginning Python");
+            start = System.nanoTime();
+            rt = Runtime.getRuntime();
+
+
+            performValidation(feature, nclusters, 1);
+
+            long end = System.nanoTime();
+            IJ.log("VALIDATING: Completed Python in " + (end-start)/1000000000 + " seconds" );
+
+            start = System.nanoTime();
+            IJ.log("PROFILING: Calculating Proximity Matrix for " + feature.length + " volumes in "+ (feature[1].length) + "-D space" );
+            proximity = calculateProximity(feature);
+            IJ.log("PROFILING: Creating Complete-Link Linkage");
+            CompleteLinkage cl = new CompleteLinkage(proximity);
+            calculateClusters(cl, nclusters, NAME);
+        }else{
+            start = System.nanoTime();
+            IJ.log("PROFILING: Calculating Proximity Matrix for " + feature.length + " volumes in "+ (feature[1].length) + "-D space" );
+            proximity = calculateProximity(feature);
+            IJ.log("PROFILING: Creating Complete-Link Linkage");
+            CompleteLinkage cl = new CompleteLinkage(proximity);
+            calculateClusters(cl, nclusters, NAME);
+        }
+        long end = System.nanoTime();
+        IJ.log("PROFILING: Complete-Link Tree completed in " + (end-start)/1000000 + " ms" );
 
         return true;
+    }
+    
+    private void performValidation(double[][] matrix, int n_clust, int seed){
+        makeMatrixCSVFile(matrix);
+        String s = getPython();
+        String pathAddOn = String.format("%1$csrc%1$cmain%1$cresources%1$cvalidation_script.py", File.separatorChar);
+        String validationScript = getCWD() + pathAddOn;
+        try{
+            String[] validationGen = new String[]{s, validationScript, "matrix_for_python.csv", "COMPLETE", String.valueOf(seed), String.valueOf(n_clust)};
+            Process p = rt.exec(validationGen);
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            p.waitFor();
+            
+            String e = null;
+            while((e = stdError.readLine()) != null)
+                System.out.println(e);
+        }catch(IOException | InterruptedException ie){
+            ie.printStackTrace();
+        }
     }
     
      /**

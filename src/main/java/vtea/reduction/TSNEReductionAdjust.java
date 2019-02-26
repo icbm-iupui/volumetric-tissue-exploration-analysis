@@ -132,6 +132,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
      */
     @Override
     public boolean process(ArrayList al, double[][] feature, boolean val){
+        long start;
         long randSeed = System.nanoTime();
         rand = new Random(randSeed);
         
@@ -151,6 +152,8 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         
         if(val){
             try{
+                IJ.log("VALIDATING: Beginning");
+                start = System.nanoTime();
                 rt = Runtime.getRuntime();
                 int seed = Math.abs(rand.nextInt() - 1);
 
@@ -167,14 +170,21 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
                 while((e = stdError.readLine()) != null){
                         System.out.println(e);
                 }
-
+                long end = System.nanoTime();
+                IJ.log("VALIDATING: Completed in " + (end-start)/1000000000 + " seconds" );
+                
+                IJ.log("VALIDATING: Retrieving random list for the Java Method" );
                 double[][] list = getDoubleList("random_inital_values_for_tsne.csv");
 
+                IJ.log("PROFILING: Reducing " + feature[0].length + " dimensions to " + outDim + " dimensions");
                 performReduction(feature, outDim, itr, eta, perpl, inDim, pca, list);
+                
+                deleteFiles(new String[]{"random_initial_row_for_tsne.csv", "matrix_for_python.csv"});
             }catch(IOException | InterruptedException ie){
                 ie.printStackTrace();
             }
         }else{
+            IJ.log("PROFILING: Reducing " + feature[0].length + " dimensions to " + outDim + " dimensions");
             performReduction(feature, outDim, itr, eta, perpl, inDim, pca);
         }
         

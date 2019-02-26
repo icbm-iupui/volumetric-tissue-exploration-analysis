@@ -1,32 +1,23 @@
 import numpy as np
-from scipy import sparse
+import scipy.sparse as sp
+from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.utils.extmath import stable_cumsum,row_norms
 import sys
 
-def row_norms(X):
-    if sparse.issparse(X):
-        if not isinstance(X, sparse.csr_matrix):
-            X = sparse.csr_matrix(X)
-        norms = csr_row_norms(X)
-    else:
-        norms = np.einsum('ij,ij->i', X, X)
-
-    return norms
-
-if len(sys.argv) < 4:
+if len(sys.argv) < 3:
     print('python3 GaussianRandom.py [seed] [n_clusters]')
 else:
     seed = int(sys.argv[1])
+    random_state = np.random.RandomState(seed)
     n_clusters = int(sys.argv[2])
-    x_squared_norms = row_norms(X)
-    rs = np.random.RandomState(seed)
-    first = rs.randint(n_samples)
 
-    X = np.genfromtxt('matrix_from_java_to_python.csv', delimiter=',')
-
+    X = np.genfromtxt('matrix_for_python.csv', delimiter=',')
+    x_squared_norms = row_norms(X, squared=True)
     n_samples, n_features = X.shape
+    first = random_state.randint(n_samples)
 
     centers = np.empty((n_clusters, n_features), dtype=X.dtype)
-    centers_row = np.empty((n_clusters,1), dtype=int32)
+    centers_row = np.empty((n_clusters,1), dtype=np.int32)
     
     n_local_trials = 2 + int(np.log(n_clusters))
 
@@ -77,4 +68,4 @@ else:
             
         current_pot = best_pot
         closest_dist_sq = best_dist_sq
-    np.savetxt('random_initial_rows_for_GM.csv', centers_row, fmt='%1d', delimiter=',')
+    np.savetxt('random_initial_values_for_GM.csv', centers_row, fmt='%1d', delimiter=',')

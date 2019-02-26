@@ -19,6 +19,7 @@ package vtea.clustering;
 
 import ij.IJ;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -85,6 +86,7 @@ public class KMeans extends AbstractFeatureProcessing{
      */
     @Override
     public boolean process(ArrayList al, double[][] feature, boolean val){
+        long start;
         int n_clust;
         int numTrials;
         
@@ -106,6 +108,8 @@ public class KMeans extends AbstractFeatureProcessing{
         Centroids best;
         if(val){
             try{
+                IJ.log("VALIDATING: Beginning");
+                start = System.nanoTime();
                 int seed = Math.abs(rand.nextInt() - 1);
                 rt = Runtime.getRuntime();
                 String s = getPython();
@@ -121,8 +125,15 @@ public class KMeans extends AbstractFeatureProcessing{
                 while((e = stdError.readLine()) != null){
                         System.out.println(e);
                 }
+                long end = System.nanoTime();
+                IJ.log("VALIDATING: Completed in " + (end-start)/1000000000 + " seconds" );
+                
+                IJ.log("VALIDATING: Retrieving random list for the Java Method" );
                 int[][] list = getList("random_initial_row_for_kmeans.csv");
+                
+                IJ.log("PROFILING: Finding KMeans clusters for " + n_clust + " clusters on " + feature[0].length + " features");
                 best = performClustering(feature, n_clust, numTrials, list);
+                
                 deleteFiles(new String[]{"random_initial_row_for_kmeans.csv", "matrix_for_python.csv"});
             }catch(IOException | InterruptedException e){
                 e.printStackTrace();
@@ -144,15 +155,18 @@ public class KMeans extends AbstractFeatureProcessing{
     private void performValidation(double[][] matrix,int n_clust,int numTrials, int seed){
         makeMatrixCSVFile(matrix);
         String s = getPython();
-        String validationScript = getCWD() + "/src/main/resources/validation_script.py";
+        String validationScript = getCWD() + String.format("%1$csrc%1$cmain%1$cresources%1$cvalidation_script.py", File.separatorChar);
         try{
             String[] validationGen = new String[]{s, validationScript, "matrix_for_python.csv", "KMEANS", String.valueOf(seed), String.valueOf(n_clust), String.valueOf(numTrials)};
             Process p = rt.exec(validationGen);
             BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            BufferedReader print = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String e = null;
             
             p.waitFor();
             while((e = stdError.readLine()) != null)
+                System.out.println(e);
+            while((e = print.readLine()) != null)
                 System.out.println(e);
         }catch(IOException | InterruptedException ie){
             ie.printStackTrace();

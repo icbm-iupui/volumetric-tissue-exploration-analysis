@@ -31,7 +31,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 import static vtea._vtea.FEATUREMAP;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MicroBlockSetupListener;
@@ -314,7 +313,9 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
             ValidationSelector.setEnabled(true);
         }else{
             ValidationSelector.setEnabled(false);
+            ValidationSelector.setSelected(false);
         }
+        setupForValidation(ValidationSelector.isSelected());
     }
     
     @Override

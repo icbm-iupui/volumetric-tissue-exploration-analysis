@@ -21,6 +21,7 @@ import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -192,6 +193,32 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
             for(int j = 0; j < ((ArrayList)temp.get(0)).size(); j++){
                 table[i][j] = (double)((ArrayList)temp.get(i)).get(j);
             }
+        }
+        
+        return table;
+    }
+    
+    public int[] getIntList(String location){
+        ArrayList temp = new ArrayList();
+        int[] table;
+        String line;
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(location));
+                
+            while((line = br.readLine()) != null){
+                if (!line.equals("null")) {
+                    temp.add(Integer.parseInt(line));
+                } else {
+                    temp.add(0);
+                }
+            }
+        }catch(IOException | NumberFormatException e){
+            e.printStackTrace();
+        }
+        
+        table = new int[temp.size()];
+        for(int i = 0; i < temp.size(); i++){
+                table[i] = (int)(temp.get(i));
         }
         
         return table;
@@ -379,17 +406,15 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
     
     public void deleteFiles(String[] files){
         try{
-            if(isWindows()){
-
-            }else{
-                for(String file: files){
-                    Process p = Runtime.getRuntime().exec(String.format("sh rm %s", file));
-                    p.waitFor();
-                }
+            for(String file: files){
+                File deleted = new File(file);
+                boolean isFileDeleted = deleted.delete();
+//                System.out.println(isFileDeleted);
             }
-        }catch(IOException | InterruptedException ie){
+        }catch(java.lang.SecurityException ie){
             ie.printStackTrace();
         }
+        
     }
         
     public void makeMatrixCSVFile(double[][] feature){
@@ -399,11 +424,12 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
             StringBuilder sb = new StringBuilder();
 
             for(double[] row: feature){
-                for(int i = 1; i < row.length; i++){
+                for(int i = 0; i < row.length; i++){
                     sb.append(row[i]);
                     sb.append(',');
                 }
-                sb.replace(row.length, row.length + 1, "\n");
+                sb.replace(sb.lastIndexOf(","),sb.length(),"\n");
+                //sb.append("\n");
             }
 
             pw.write(sb.toString());

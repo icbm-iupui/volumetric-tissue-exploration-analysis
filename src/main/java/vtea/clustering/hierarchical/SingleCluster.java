@@ -75,6 +75,7 @@ public class SingleCluster extends AbstractHierarchical{
      */
     @Override
     public boolean process(ArrayList al, double[][] feature, boolean val){
+        long start;
         progress = 0;
         int nclusters;
         double[][] proximity;
@@ -88,11 +89,14 @@ public class SingleCluster extends AbstractHierarchical{
         JSpinner clust = (JSpinner)al.get(5);
         nclusters = ((Integer)clust.getValue());
         
-        IJ.log("PROFILING: Calculating Proximity Matrix for " + feature[1].length + " features");
+        IJ.log("PROFILING: Calculating Proximity Matrix for " + feature.length + " volumes in "+ (feature[1].length - 1) + "-D space" );
+        start = System.nanoTime();
         proximity = calculateProximity(feature);
         IJ.log("PROFILING: Creating Single-Link Linkage");
         SingleLinkage sl = new SingleLinkage(proximity);
         calculateClusters(sl, nclusters, NAME);
+        long end = System.nanoTime();
+        IJ.log("PROFILING: Single-Link Tree completed in " + (end-start)/1000000 + " ms" );
 
         return true;
     }

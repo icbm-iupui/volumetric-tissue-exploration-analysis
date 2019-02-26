@@ -19,6 +19,7 @@ package vtea.clustering.hierarchical;
 
 import ij.IJ;
 import java.util.ArrayList;
+import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
@@ -34,7 +35,8 @@ import smile.plot.PlotCanvas;
  * @author drewmcnutt
  */
 public abstract class AbstractHierarchical extends AbstractFeatureProcessing{
-    
+    Runtime rt;
+    Random rand;
     /**
      * Basic Constructor. Sets all protected variables
      */
