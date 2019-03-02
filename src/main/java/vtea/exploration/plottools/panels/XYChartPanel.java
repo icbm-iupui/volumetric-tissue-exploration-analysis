@@ -109,6 +109,8 @@ public class XYChartPanel implements RoiListener {
     
     private Connection connection;
     
+    private String keySQLSafe;
+    
     public XYChartPanel() {
 
     }
@@ -131,7 +133,7 @@ public class XYChartPanel implements RoiListener {
        // process(xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
     }
     
-    public XYChartPanel(ArrayList objects, int x, int y, int l, String xText, String yText, String lText, int size, ImagePlus ip, boolean imageGate, Color imageGateColor) {
+    public XYChartPanel(String key, ArrayList objects, int x, int y, int l, String xText, String yText, String lText, int size, ImagePlus ip, boolean imageGate, Color imageGateColor) {
 
         impoverlay = ip;
         this.imageGate = imageGate;
@@ -139,6 +141,7 @@ public class XYChartPanel implements RoiListener {
         this.measurements = measurements;
         this.objects = objects;
         this.size = size;
+        this.keySQLSafe = key;
         xValues = x;
         yValues = y;
         lValues = l;
@@ -328,10 +331,8 @@ public class XYChartPanel implements RoiListener {
         
         
         if(l >= 0){
-            double max = Math.round(getMaximumOfData(
-                    H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE, lText), 0));
-            double min = Math.round(getMinimumOfData(
-                    H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE, lText), 0));
+            double max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+            double min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
             double range = max - min;
         if (max == 0) {
             max = 1;
@@ -395,7 +396,7 @@ public class XYChartPanel implements RoiListener {
         xAxis.setAutoRangeIncludesZero(false);
         yAxis.setAutoRangeIncludesZero(false);
 
-        XYPlot plot = new XYPlot(createXYZDataset(H2DatabaseEngine.getColumns3D(vtea._vtea.H2_MEASUREMENTS_TABLE, xText, yText, lText), 
+        XYPlot plot = new XYPlot(createXYZDataset(H2DatabaseEngine.getColumns3D(vtea._vtea.H2_MEASUREMENTS_TABLE+ "_" + keySQLSafe, xText, yText, lText), 
                 xText, yText, lText, l), xAxis, yAxis, renderer);
         
         plot.getDomainAxis();
@@ -797,7 +798,7 @@ public class XYChartPanel implements RoiListener {
                 int yValue = 0;
                 
                 ArrayList<ArrayList> resultKey = 
-                H2DatabaseEngine.getObjectsInRange2DSubSelect(vtea._vtea.H2_MEASUREMENTS_TABLE, 
+                H2DatabaseEngine.getObjectsInRange2DSubSelect(vtea._vtea.H2_MEASUREMENTS_TABLE+ "_" + keySQLSafe, 
                 xValuesText,
                 yValuesText,
                 lValuesText,

@@ -163,6 +163,12 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         return KEY;
     }
     
+    /**
+     * Makes a two dimensional integer array from a file.
+     * Rows are delimited by newlines and columns are delimited by ','
+     * @param location the location of the file(just the file name if it is in the current path)
+     * @return 2D integer array
+     */
     public double[][] getDoubleList(String location){
         ArrayList temp = new ArrayList();
         double[][] table;
@@ -198,10 +204,17 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         return table;
     }
     
+    /**
+     * Makes a one dimensional integer array from a file. 
+     * Values are delimited by newlines
+     * @param location the location of the file(just the file name if it is in the current path)
+     * @return 1D integer array
+     */
     public int[] getIntList(String location){
         ArrayList temp = new ArrayList();
         int[] table;
         String line;
+        
         try{
             BufferedReader br = new BufferedReader(new FileReader(location));
                 
@@ -375,14 +388,26 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         return table;
     }
     
+    /**
+     * Determines if the operating system is Windows or not 
+     * @return True if Windows, False otherwise
+     */
     public boolean isWindows(){
         return System.getProperty("os.name").toLowerCase().startsWith("windows");
     }
     
+    /**
+     * Retrieves the current working directory
+     * @return path of the current working directory
+     */
     public String getCWD(){
         return Paths.get("").toAbsolutePath().toString();
     }
     
+    /**
+     * Provides the call name for executing a python script
+     * @return the name of python on the computer
+     */
     public String getPython(){
         Process p;
         String s = new String();
@@ -404,6 +429,10 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         return s;
     }
     
+    /**
+     * Deletes the files with the given names in the current path
+     * @param files String array holding the names of the files to be deleted
+     */
     public void deleteFiles(String[] files){
         try{
             for(String file: files){
@@ -416,7 +445,13 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         }
         
     }
-        
+    
+    /**
+     * Creates a new file composed of the data provided.
+     * Writes a file 'matrix_for_python.csv' using the data given
+     * The file does not have a header row or header column.
+     * @param feature data to put into a file
+     */
     public void makeMatrixCSVFile(double[][] feature){
         try{
 
@@ -466,6 +501,10 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         }
     }
     
+    /**
+     * Provides the current time
+     * @return a string of the current time in h:mm:s format
+     */
     @Override
     public String getCurrentTime(){
         DateTimeFormatter time = DateTimeFormatter.ofPattern("h'_'mm'_'s");

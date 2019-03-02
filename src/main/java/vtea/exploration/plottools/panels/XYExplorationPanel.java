@@ -111,6 +111,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     int selected = 0;
     int gated = 0;
     String key = "";
+    String keySQLSafe = "";
 
     private Connection connection;
     
@@ -124,8 +125,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         this.descriptions = descriptions;
         this.connection = connection;
         
+        keySQLSafe = key.replace("-", "_");
+        
         writeCSV(ij.Prefs.getImageJDir() + key);
-        startH2Database(ij.Prefs.getImageJDir() + key + ".csv", vtea._vtea.H2_MEASUREMENTS_TABLE);
+        startH2Database(ij.Prefs.getImageJDir() + key + ".csv", vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe);
         
         
 
@@ -146,9 +149,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
  try{
         Connection cn = H2DatabaseEngine.getDBConnection();
         
-          //drop table if there
+        
           
-        H2DatabaseEngine.dropTable(table);  
+        //H2DatabaseEngine.dropTable(table);  
         H2DatabaseEngine.insertFromCSV(new File(file), cn, table);
         cn.commit();
         
@@ -426,7 +429,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 double xValue = 0;
                 double yValue = 0;
                 
-                ArrayList<ArrayList> resultKey = H2DatabaseEngine.getObjectsInRange2D(vtea._vtea.H2_MEASUREMENTS_TABLE, 
+                ArrayList<ArrayList> resultKey = H2DatabaseEngine.getObjectsInRange2D(vtea._vtea.H2_MEASUREMENTS_TABLE+ "_" + keySQLSafe, 
                 this.descriptions.get(xAxis), path.getBounds().getX(), 
                 path.getBounds().getX()+path.getBounds().getWidth(), 
                 this.descriptions.get(yAxis), path.getBounds().getY(), 
@@ -709,7 +712,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         
         //H2 SQL based
         
-        cpd = new XYChartPanel(objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
+        cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
 
         
         cpd.addUpdatePlotWindowListener(this);
@@ -1431,9 +1434,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         this.hm = descriptions;
         this.measurements = measurements;
         
-        H2DatabaseEngine.dropTable(vtea._vtea.H2_MEASUREMENTS_TABLE);
+        H2DatabaseEngine.dropTable(vtea._vtea.H2_MEASUREMENTS_TABLE+ "_" + keySQLSafe);
         writeCSV(ij.Prefs.getImageJDir() + key);
-        startH2Database(ij.Prefs.getImageJDir() + key + ".csv", vtea._vtea.H2_MEASUREMENTS_TABLE);
+        startH2Database(ij.Prefs.getImageJDir() + key + ".csv", vtea._vtea.H2_MEASUREMENTS_TABLE+ "_" + keySQLSafe);
 
     }
     

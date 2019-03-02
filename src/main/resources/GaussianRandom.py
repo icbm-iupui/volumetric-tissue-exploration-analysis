@@ -4,6 +4,11 @@ from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.utils.extmath import stable_cumsum,row_norms
 import sys
 
+##  Performs the same initialization as scikit-learn does for a standard 
+##  Gaussian Mixture. Uses a K-means clustering as the initial setup of the 
+##  centroids. Outputs the row of the data that should be used as the starting 
+##  centroids of the Gaussian Mixture method
+
 if len(sys.argv) < 3:
     print('python3 GaussianRandom.py [seed] [n_clusters]')
 else:
