@@ -160,7 +160,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
                 performValidation(feature, outDim, itr, eta, perpl, seed);
 
                 String s = getPython();
-                String randScript = getCWD() + "/src/main/resources/TSNERandom.py";
+                String randScript = getCWD() + String.format("%1$csrc%1$cmain%1$cresources%1$cTSNERandom.py", File.separatorChar);
                 String[] randomGen = new String[]{s, randScript, String.valueOf(seed), String.valueOf(feature.length), String.valueOf(outDim)};
                 Process p = rt.exec(randomGen);
                 BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -179,7 +179,7 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
                 IJ.log("PROFILING: Reducing " + feature[0].length + " dimensions to " + outDim + " dimensions");
                 performReduction(feature, outDim, itr, eta, perpl, inDim, pca, list);
                 
-                deleteFiles(new String[]{"random_initial_values_for_tsne.csv", "matrix_for_python.cs"});
+                deleteFiles(new String[]{"random_initial_values_for_tsne.csv", "matrix_for_python.csv"});
             }catch(IOException | InterruptedException ie){
                 ie.printStackTrace();
             }
