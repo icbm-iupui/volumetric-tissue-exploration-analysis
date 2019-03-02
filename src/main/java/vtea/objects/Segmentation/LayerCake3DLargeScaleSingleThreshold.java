@@ -20,7 +20,9 @@ package vtea.objects.Segmentation;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.RGBStackMerge;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -226,11 +228,7 @@ public LayerCake3DLargeScaleSingleThreshold(){
         
         int xyDim = minConstants[4];
         
-        int xyIncrement = xyDim-1;
-        
-        
-        
-        int overlap = minConstants[5];
+        //int overlap = minConstants[5];
         
         RGBStackMerge rsm = new RGBStackMerge();
           
@@ -257,7 +255,7 @@ public LayerCake3DLargeScaleSingleThreshold(){
             
             xPositions.add(x);
             
-//            System.out.println("PROFILING: x start position: " + x );
+            //System.out.println("PROFILING: x start position: " + x );
             
               
         }
@@ -266,7 +264,7 @@ public LayerCake3DLargeScaleSingleThreshold(){
             
             yPositions.add(y);
             
-//            System.out.println("PROFILING: y start position: " + y );
+            //System.out.println("PROFILING: y start position: " + y );
             
         }
         
@@ -282,11 +280,14 @@ public LayerCake3DLargeScaleSingleThreshold(){
                 
                 int y = (int)yPositions.get(p);
                 
-                imageOriginal.setRoi(x, y, xyDim, xyDim);
+                imageOriginal.setRoi(new Rectangle(x, y, xyDim, xyDim));
                  volumes.add(imageOriginal.duplicate());
+                 imageOriginal.deleteRoi();
                  
                 xStart.add(x);
                 yStart.add(y);
+                
+                //System.out.println("PROFILING: Added new image at, " + x + ", " + y + " with dimensions " + xyDim);
 
             } 
         }
@@ -304,11 +305,14 @@ public LayerCake3DLargeScaleSingleThreshold(){
                 
                 int y = (int)yPositions.get(p);
                 
-                imageOriginal.setRoi(x, y, xRemain, xyDim);
+                imageOriginal.setRoi(new Rectangle(x, y, xRemain, xyDim));
                  volumes.add(imageOriginal.duplicate());
+                 imageOriginal.deleteRoi();
                  
                 xStart.add(x);
                 yStart.add(y);
+                
+                //System.out.println("PROFILING: Added new image at, " + x + ", " + y + " with dimensions " + xRemain + " by "+ xyDim);
 
             } 
         }
@@ -326,11 +330,14 @@ public LayerCake3DLargeScaleSingleThreshold(){
                 
                 int x = (int)xPositions.get(p);
                 
-                imageOriginal.setRoi(x, y, xyDim, yRemain);
+                imageOriginal.setRoi(new Rectangle(x, y, xyDim, yRemain));
                  volumes.add(imageOriginal.duplicate());
+                 imageOriginal.deleteRoi();
                  
                 xStart.add(x);
                 yStart.add(y);
+                
+                //System.out.println("PROFILING: Added new image at, " + x + ", " + y + " with dimensions " + xyDim + " by " + yRemain);
 
             } 
         }   
@@ -343,13 +350,19 @@ public LayerCake3DLargeScaleSingleThreshold(){
         int xLast = ((int)xPositions.get(xPositions.size()-1)+xyDim);   
         int yLast = ((int)yPositions.get(yPositions.size()-1)+xyDim);  
            
-        imageOriginal.setRoi(xLast, yLast, xRemain, yRemain);
+        imageOriginal.setRoi(new Rectangle(xLast, yLast, xRemain, yRemain));
         volumes.add(imageOriginal.duplicate());
-        
+        imageOriginal.deleteRoi();
+
         xStart.add(xLast);
         yStart.add(yLast);
+        
+                       //System.out.println("PROFILING: Added new image at, " + xLast + ", " + yLast + " with dimensions " + xRemain + " by " + yRemain);
+
  
     }
+        
+        
         
         notifyProgressListeners("Made " + volumes.size() + " total sub-images.", 15.0); 
         
@@ -428,6 +441,14 @@ public LayerCake3DLargeScaleSingleThreshold(){
                     }
                     
             }
+            //reset serial id
+            ListIterator<MicroObject> allObjects = alVolumes.listIterator();
+            int serial = 0;
+            while(allObjects.hasNext()){
+                MicroObject object = allObjects.next();
+                object.setSerialID(serial);
+                serial++;
+            }
         }
         
         private int[] addOffset(int d, int[] pixels){
@@ -447,6 +468,7 @@ public LayerCake3DLargeScaleSingleThreshold(){
         
         JTextFieldLinked(String str, int i){
             super(str, i);
+             setBackground(new Color(255,152,152));
         }
 
         @Override
@@ -456,6 +478,13 @@ public LayerCake3DLargeScaleSingleThreshold(){
 
         min = ipmin + (min / 255.0) * (ipmax - ipmin);
         max = ipmin + (max / 255.0) * (ipmax - ipmin);
+        
+        if(min > 0){
+            this.setBackground(Color.WHITE);
+        } else {
+            
+            this.setBackground(new Color(255,152,152));
+        }
 
         f1.setText(""+String.valueOf(Math.round(min)));
         }

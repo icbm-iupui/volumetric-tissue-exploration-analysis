@@ -20,6 +20,7 @@ package vtea.objects.Segmentation;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,7 +90,7 @@ public LayerCake3DSingleThreshold(){
     
     protocol = new ArrayList();
     
-            
+
             
             f1.setPreferredSize(new Dimension(20, 30));
             f1.setMaximumSize(f1.getPreferredSize());
@@ -178,6 +179,7 @@ public LayerCake3DSingleThreshold(){
     public boolean process(ImageStack[] is, List protocol, boolean count) {
 
         System.out.println("PROFILING: processing on LayerCake3D...");
+        //System.out.println("PROFILING: Image width: " + is[0].getWidth() + ", height: " + is[0].getHeight());
 
         
          /**segmentation and measurement protocol redefining.
@@ -559,7 +561,10 @@ public LayerCake3DSingleThreshold(){
         
         JTextFieldLinked(String str, int i){
             super(str, i);
+            setBackground(new Color(255,152,152));
         }
+        
+        
 
         @Override
         public void thresholdChanged(double min, double max) {
@@ -569,6 +574,12 @@ public LayerCake3DSingleThreshold(){
         min = ipmin + (min / 255.0) * (ipmax - ipmin);
         max = ipmin + (max / 255.0) * (ipmax - ipmin);
         
+        if(min > 0){
+            this.setBackground(Color.WHITE);
+        } else {  
+            this.setBackground(new Color(255,152,152));
+        }
+
         //System.out.println("PROFILING: threshold minimum changes to: " + String.valueOf(Math.round(min)));
         
         f1.setText(""+String.valueOf(Math.round(min)));

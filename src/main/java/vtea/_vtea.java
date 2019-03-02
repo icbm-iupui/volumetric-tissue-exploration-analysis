@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.sql.Connection;
 import static java.sql.DriverManager.println;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -35,8 +36,7 @@ import java.util.logging.Logger;
 import javax.swing.JScrollBar;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
-import org.hsqldb.Server;
-import org.hsqldb.persist.HsqlProperties;
+import org.h2.tools.DeleteDbFiles;
 import org.scijava.Context;
 import org.scijava.Prioritized;
 import org.scijava.Priority;
@@ -44,6 +44,7 @@ import org.scijava.log.LogService;
 import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
 import org.scijava.plugin.RichPlugin;
+import vtea.jdbc.H2DatabaseEngine;
 import vtea.protocol.ProtocolManagerMulti;
 import vtea.services.FeatureService;
 import vtea.services.FileTypeService;
@@ -58,6 +59,8 @@ import vtea.services.WorkflowService;
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
+     public static String VERSION = new String("0.7b");
+    
     public static Color BACKGROUND = new Color(204, 204, 204);
     public static Color BUTTONBACKGROUND = new Color(200, 200, 200);
     public static Color ACTIONPANELBACKGROUND = new Color(240, 240, 240);
@@ -66,7 +69,14 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension SMALLBUTTONSIZE = new Dimension(32, 32);
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
-    public static String VERSION = new String("0.7b");
+    
+    public static String H2_DATABASE = new String("VTEADB");
+    
+    public static String H2_MEASUREMENTS_TABLE = new String("MEASUREMENTS");
+    public static String H2_OBJECT_TABLE = new String("OBJECTS");
+    
+    
+   
 
     //public static String[] PROCESSOPTIONS = {"LayerCake 3D"};
     
@@ -110,7 +120,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
             public void run() {new ImageJ(); }
         });
     }
-    private Server sonicServer;
+    //private Server sonicServer;
 
 
     @Override
@@ -122,17 +132,37 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 priority = Priority.FIRST_PRIORITY;
                 
                 
+                
                 System.out.println("Starting up VTEA... ");
                 System.out.println("-------------------------------- ");
                 System.out.println("Available memory: " + getAvailableMemory()/(1000000000) + " GB");
                 System.out.println("Available processors: " + Runtime.getRuntime().availableProcessors());
                 System.out.println("-------------------------------- ");
-                
+
                 System.setProperty("java.util.Arrays.sort", "true");
 
                 ImagePlus.addImageListener(this);
                 
+//                try {
+//                    
+//            H2DatabaseEngine h2 = new H2DatabaseEngine();
+//            System.out.println("-------------------------------- ");
+//            System.out.println("H2 Database Test ");
+////            DeleteDbFiles.execute(ij.Prefs.getImageJDir(), "vtea", true);
+////            h2.insertWithStatement(); 
+////            DeleteDbFiles.execute(ij.Prefs.getImageJDir(), "vtea", true);
+////            h2.insertWithPreparedStatement();
+//            DeleteDbFiles.execute(ij.Prefs.getImageJDir(), "vtea", true);
+//            h2.insertFromCSV();
+//
+//        } catch (SQLException e) {
+//
+//            e.printStackTrace();
+//            System.out.println("-------------------------------- ");
+//        }
+            System.out.println("-------------------------------- ");
                 
+
                 protocolWindow = new ProtocolManagerMulti();
                 protocolWindow.setVisible(true);
                 

@@ -459,7 +459,7 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
         return true;
         
         } catch(Exception e){
-            
+
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
             
             return false;
@@ -468,7 +468,7 @@ public abstract class AbstractFeatureProcessing<T extends Component, A extends R
     
     @Override
     public String getCurrentTime(){
-        DateTimeFormatter time = DateTimeFormatter.ofPattern("h':'mm':'s");
+        DateTimeFormatter time = DateTimeFormatter.ofPattern("h'_'mm'_'s");
         return LocalTime.now().format(time);
     }
 }

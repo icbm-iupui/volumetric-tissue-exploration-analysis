@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +75,7 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import org.apache.commons.io.FilenameUtils;
+import org.scijava.plugin.Plugin;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.AxesChangeListener;
 import vtea.exploration.listeners.PlotUpdateListener;
@@ -81,6 +83,7 @@ import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
 import vtea.feature.FeatureFrame;
+import vtea.objects.measurements.Measurements;
 import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
 
@@ -89,6 +92,7 @@ import vtea.protocol.setup.SegmentationPreviewer;
  * @author vinfrais
  *
  */
+
 public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesListener, RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
 
     private XYPanels DefaultXYPanels;
@@ -160,6 +164,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     public JMenuExploration ProcessingMenu;
     public JMenuExploration ObjectMenu;
     public JMenuExploration WorkflowMenu;
+    
+ 
 
     /**
      * Creates new form MicroExplorer
@@ -1269,20 +1275,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         ec.updatePlotPointSize(size);
     }
 
-//    private Number processPosition(int a, MicroObject volume) {
-//        if (a <= 10) {
-//            return (Number) volume.getAnalysisMaskVolume()[a];
-//        } else {
-//            int row = ((a) / 11) - 1;
-//            int column = a % 11;
-//            return (Number) volume.getAnalysisResultsVolume()[row][column];
-//        }
-//    }
-
     public void addMenuItems() {
-
         this.jMenuBar.removeAll();
-
     }
 
     @Override
@@ -1298,12 +1292,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     @Override
     public void onChangePointSize(int size, boolean imagegate) {
-
     }
 
     @Override
     public void changeLUT(int x) {
-        //updatePlotByPopUpMenu(x, y);
     }
 
     @Override
@@ -1320,7 +1312,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     public void imageClosed(ImagePlus ip) {
 
         if (ip.getID() == impoverlay.getID()) {
-
             JFrame frame = new JFrame();
             frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
             Object[] options = {"Yes", "No"};
@@ -1332,7 +1323,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                     null,
                     options,
                     options[0]);
-
             if (n == JOptionPane.YES_OPTION) {
                 this.impoverlay = imp.duplicate();
                 ec.setGatedOverlay(impoverlay);
@@ -1392,11 +1382,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                     ListIterator<MicroObject> itr = this.Objects.listIterator();
                     while (itr.hasNext()) {
                         MicroObject m = itr.next();
-                        //int[] c = new int[2];
-                        //c = m.getBoundsCenter();
                         int x = (int)m.getCentroidX();
                         int y = (int)m.getCentroidY();
-
                         if (ip.getRoi().contains(x, y)) {
                             ImageGatedObjects.add(m);
                         }
@@ -1514,6 +1501,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
         String descr;
         
+        //add desrciptions, grab for SQL column name additions
+        
+        //add results as columns,  need to check size.
+        
         
 
         for (int i = startSize; i < newFeatures + startSize; i++) {
@@ -1528,7 +1519,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
              if (descr.length() > 10) {
                  
-                    String truncated = name.substring(0, 8) + "..." + name.substring(name.length() - 5, name.length());
+                    String truncated = name.substring(0, 8) + "__" + name.substring(name.length() - 5, name.length());
                     descr = truncated + "_" + (i - startSize);
              }
 

@@ -73,7 +73,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-            <version>1.52k</version>
+            <version>1.51w</version>
             <type>jar</type>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.imagej/imagej-ui-swing -->
@@ -98,9 +98,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>1.0.21</version>
         </dependency>
         <dependency>
-	<groupId>hsqldb</groupId>
-	<artifactId>hsqldb</artifactId>
-	<version>1.8.0.10</version>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.198</version>
         </dependency>
         <dependency>
             <groupId>org.swinglabs</groupId>

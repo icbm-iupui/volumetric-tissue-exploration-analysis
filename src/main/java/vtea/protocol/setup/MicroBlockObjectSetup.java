@@ -174,27 +174,40 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         repaint();
         pack();
     }
+    
+    public void setProcessedImage(ImagePlus imp) {
+        this.ThresholdOriginal = imp;
+        //ThresholdPreview = getThresholdPreview();
+        //IJ.run(ThresholdPreview, "Grays", "");
+    }
 
     public void updateNewImage() {
 
         Point p = new Point();
         try {
             p = ThresholdPreview.getWindow().getLocation();
-            ThresholdPreview.flush();
-            ThresholdPreview.close();
         } catch (NullPointerException e) {
             GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
             p = new Point(gd.getDisplayMode().getWidth() / 2, gd.getDisplayMode().getHeight() / 2);
         }
+        ThresholdPreview.removeImageListener(this);
+        
+        ThresholdPreview.hide();
         ThresholdPreview.flush();
         ThresholdPreview = getThresholdPreview();
         IJ.run(ThresholdPreview, "Grays", "");
         ThresholdPreview.updateImage();
-        ThresholdPreview.show();
-        ThresholdPreview.getWindow().setLocation(p);
+        //ThresholdPreview.show();
+        //ThresholdPreview.getWindow().setLocation(p);
         ThresholdPreview.hide();
         
+                
+        if(this.isVisible()){
+            ThresholdPreview.show();
+            ThresholdPreview.getWindow().setLocation(p);
+        }
         
+        ThresholdPreview.addImageListener(this);
 
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
@@ -306,9 +319,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
        Approach = getSegmentationApproach(str);
        Approach.setImage(ThresholdPreview);
-
-        ProcessVisualization = Approach.getSegmentationTool();
-        ProcessComponents = Approach.getOptions();
+        
+       ProcessComponents = Approach.getOptions();
+        
+        
         
         //process components have description and swing object
         //Current Process list is handed to Arraylist for SIP processing
@@ -321,7 +335,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
         methodBuild.removeAll();
-        methodBuild.add(ProcessVisualization);
+        
 
         double width = 4;
         int rows = (int)Math.ceil(ProcessComponents.size()/width);
@@ -339,8 +353,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
                     count++;
                     }
                 }
-            }    
-
+            }  
+        ProcessVisualization = Approach.getSegmentationTool();
+        methodBuild.add(ProcessVisualization);
+        
         pack();
         MethodDetails.setVisible(true);
 
@@ -399,11 +415,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         return result;
     }
 
-    public void setProcessedImage(ImagePlus imp) {
-        this.ThresholdOriginal = imp;
-        ThresholdPreview = getThresholdPreview();
-        IJ.run(ThresholdPreview, "Grays", "");
-    }
+ 
 
     private void updateProcessVariables() {
         ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = ((JTextField) CurrentStepProtocol.get(1)).getText();

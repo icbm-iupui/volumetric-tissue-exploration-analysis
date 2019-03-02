@@ -44,7 +44,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import org.jfree.data.xy.DefaultXYZDataset;
 import vtea.ImageSelectionListener;
 import vtea.processor.ExplorerProcessor;
 import vtea.processor.ImageProcessingProcessor;
@@ -66,7 +65,6 @@ import vtea.protocol.listeners.UpdatedProtocolListener;
 import vtea.protocol.menus.MultipleFilesMenu;
 import vtea.protocol.setup.MicroBlockObjectSetup;
 import vteaobjects.MicroObject;
-import vteaobjects.MicroObjectModel;
 
 /**
  *
@@ -113,17 +111,11 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
     private ArrayList<UpdatedImageListener> UpdatedImageListeners = new ArrayList<UpdatedImageListener>();
     private ArrayList<UpdatedProtocolListener> UpdatedProtocolListeners = new ArrayList<UpdatedProtocolListener>();
-
-//    private SegmentationProcessor sp = new SegmentationProcessor();
-//    private ExplorerProcessor ep = new ExplorerProcessor();
-//    private MeasurementProcessor mp = new MeasurementProcessor();
     
     private ArrayList<SegmentationProcessor> segmentationProcessors = new ArrayList();
     private ArrayList<ExplorerProcessor> explorerProcessors = new ArrayList();
     private ArrayList<MeasurementProcessor> measurementProcessors = new ArrayList();
-    
-    private int segmentationStep;
-    
+
     private int segmentationCount = 0;
     
     private int tab;
@@ -545,30 +537,23 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     }//GEN-LAST:event_AddStep_PreprocessingActionPerformed
 
     private void DeleteAllSteps_PreProcessingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteAllSteps_PreProcessingActionPerformed
-        // TODO add your handling code here:
-
         ProcessingStepsList.clear();
         PreProcessingStepsPanel.removeAll();
         AddStep_Preprocessing.setEnabled(false);
         PreProcessingGo.setEnabled(false);
         this.OpenImage.setEnabled(true);
         PreProcessingStepsPanel.repaint();
-        //pack();
     }//GEN-LAST:event_DeleteAllSteps_PreProcessingActionPerformed
 
     private void PreProcessingGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreProcessingGoActionPerformed
          
         this.firePropertyChange("comment", "", "Processing image data...");
-        
         executeProcessing();
-
         VTEAProgressBar.setValue(0);
-        this.FindObjectText.setForeground(vtea._vtea.ACTIVETEXT);
-        this.AddStep_Object.setEnabled(true);
-
-        if (this.ObjectStepsList.size() > 0) {
-            this.ObjectGo.setEnabled(true);
-       
+        FindObjectText.setForeground(vtea._vtea.ACTIVETEXT);
+        AddStep_Object.setEnabled(true);
+        if (ObjectStepsList.size() > 0) {
+            ObjectGo.setEnabled(true);
         }
     }//GEN-LAST:event_PreProcessingGoActionPerformed
 
@@ -661,13 +646,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         this.tabName = st;
     }
 
-    public void processBatchFileList() {
-    }
-
-    public void findObjectsBatchFileList() {
-    }
-
-    //public void 
     @Override
     public void transferThese(int type, int tab, String arg) {
         if (this.tab == tab) {
@@ -683,7 +661,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             case ProtocolManagerMulti.OBJECT:
                 this.RebuildPanelObject();
                 return;
-
             default:
                 return;
         }
@@ -695,11 +672,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             case ProtocolManagerMulti.PROCESS:
                 this.deleteProcessStep(position);
                 return;
-
             case ProtocolManagerMulti.OBJECT:
                 this.deleteObjectStep(position);
                 return;
-
             default:
                 return;
         }
@@ -718,7 +693,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         if (this.selected) {
             System.out.println("PROFILING: Opening settings for tab: " + this.tab);
             JFileChooser chooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA file.", ".vtf", "vtf");
+            FileNameExtensionFilter filter = 
+                    new FileNameExtensionFilter("VTEA file.", ".vtf", "vtf");
             chooser.addChoosableFileFilter(filter);
             chooser.setFileFilter(filter);
             int returnVal = chooser.showOpenDialog(this);
@@ -792,12 +768,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
     @Override
     public void onUpdateSegmentation(int i) {
-//        if(ep.ExploreDrawer.size() > 0){
-//          ep.emptyExplorerDrawer();
-//          ep.emptyFolderDrawer();
-//          
-        ObjectGo.setText("Update");
-//        }
         ObjectGo.setEnabled(true);
     }
 
@@ -843,20 +813,21 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             
             
             ListIterator itr = measurementProcessors.listIterator();
-            
-            //System.out.println("PROFILING: Number of measurment processors: " + measurementProcessors.size());
-            
+
             while(itr.hasNext()){
                 MeasurementProcessor mp = (MeasurementProcessor)itr.next();
                 if(mp.getUIDKey().equals(key)){
-                    executeExploring(key, mp.getObjects(), mp.getFeatures(), mp.getDescriptions(), mp.getDescriptionLabels());
+                    //add conditional here to not launch explorer, but keep objects.
+                    executeExploring(key, mp.getObjects(), mp.getFeatures(), 
+                            mp.getDescriptions(), mp.getDescriptionLabels());
                 }
               }
         }
         if (evt.getPropertyName().equals("comment")) {
             ProgressComment.setText((String) evt.getNewValue());
         }
-        if (evt.getPropertyName().equals("escape") && (Boolean) evt.getNewValue()) {
+        if (evt.getPropertyName().equals("escape") && 
+                (Boolean) evt.getNewValue()) {
 
             ImagePlus ProcessedShow = new ImagePlus("Processed");
             ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
@@ -877,7 +848,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     }
 
 //classes for step blocks
-    private final class ObjectStepBlockGUI extends Object implements MicroBlockSetupListener, UpdatedImageListener, UpdatedProtocolListener {
+    private final class ObjectStepBlockGUI extends Object implements 
+            MicroBlockSetupListener, UpdatedImageListener, UpdatedProtocolListener {
 
         JPanel step = new JPanel();
         Font PositionFont = new Font("Arial", Font.PLAIN, 14);
@@ -900,18 +872,21 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
         private ArrayList settings;
 
-        private ArrayList<UpdateSegmentationListener> UpdateSegmentationListeners = new ArrayList<UpdateSegmentationListener>();
+        private ArrayList<UpdateSegmentationListener> 
+            UpdateSegmentationListeners = new ArrayList<UpdateSegmentationListener>();
 
         public ObjectStepBlockGUI() {
             BuildStepBlock("Setup segmentation...", "", Color.LIGHT_GRAY);
         }
 
-        public ObjectStepBlockGUI(String ProcessText, String CommentText, Color BlockColor) {
+        public ObjectStepBlockGUI(String ProcessText, 
+                String CommentText, Color BlockColor) {
             
             BuildStepBlock(ProcessText, CommentText, Color.GREEN);
         }
 
-        private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor) {
+        private void BuildStepBlock(String ProcessText, 
+                String CommentText, Color BlockColor) {
 
             if (ObjectStepsList.isEmpty()) {
                 position = 1;
@@ -963,16 +938,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
                 }
             });
 
-//            MeasureButton = new JButton();
-//            MeasureButton.setPreferredSize(new Dimension(20, 20));
-//            MeasureButton.addActionListener(new java.awt.event.ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent ae) {
-//                    //mbs.setVisible(true);
-//
-//                }
-//            });
-//            MeasureButton.setEnabled(false);
 
             UpdateExplorer = new JButton();
             UpdateExplorer.addActionListener(new java.awt.event.ActionListener() {
@@ -993,15 +958,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
             EditButton.setToolTipText("Edit segmentation protocol...");
 
-//            MeasureButton.setSize(20, 20);
-//            MeasureButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
-//            MeasureButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png")));
-//            MeasureButton.setToolTipText("Edit measurements...");
-
-            UpdateExplorer.setSize(20, 20);
-            UpdateExplorer.setBackground(vtea._vtea.BUTTONBACKGROUND);
-            UpdateExplorer.setText("UPDATE");
-            UpdateExplorer.setToolTipText("UPDATE");
 
             JPanel fill = new JPanel();
             fill.setPreferredSize(new Dimension(20, 20));
@@ -1012,12 +968,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             step.setLayout(new GridBagLayout());
             GridBagConstraints layoutConstraints = new GridBagConstraints();
 
-//            layoutConstraints.fill = GridBagConstraints.BOTH;
-//            layoutConstraints.gridx = 0;
-//            layoutConstraints.gridy = 0;
-//            layoutConstraints.weightx = 1;
-//            layoutConstraints.weighty = 1;
-//            step.add(UpdateExplorer, layoutConstraints);
+
             layoutConstraints.fill = GridBagConstraints.BOTH;
             layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 0;
@@ -1032,14 +983,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             layoutConstraints.weighty = 10;
             step.add(Comment, layoutConstraints);
 
-//            layoutConstraints.fill = GridBagConstraints.BOTH;
-//            layoutConstraints.gridx = 2;
-//            layoutConstraints.gridy = 0;
-//            layoutConstraints.weightx = -1;
-//            layoutConstraints.weighty = -1;
-//            layoutConstraints.ipadx = -1;
-//            layoutConstraints.ipady = -1;
-//            step.add(UpdateExplorer, layoutConstraints);
             layoutConstraints.fill = GridBagConstraints.BOTH;
             layoutConstraints.gridx = 2;
             layoutConstraints.gridy = 0;
@@ -1057,25 +1000,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             layoutConstraints.ipadx = 0;
             layoutConstraints.ipady = 20;
             step.add(EditButton, layoutConstraints);
-
-//            layoutConstraints.fill = GridBagConstraints.BOTH;
-//            layoutConstraints.gridx = 2;
-//            layoutConstraints.gridy = 2;
-//            layoutConstraints.weightx = -1;
-//            layoutConstraints.weighty = -1;
-//            layoutConstraints.ipadx = 0;
-//            layoutConstraints.ipady = 20;
-//            step.add(MeasureButton, layoutConstraints);
-//
-//            layoutConstraints.fill = GridBagConstraints.BOTH;
-//            layoutConstraints.gridx = 1;
-//            layoutConstraints.gridy = 2;
-//            layoutConstraints.weightx = -1;
-//            layoutConstraints.weighty = -1;
-//            layoutConstraints.ipadx = 0;
-//            layoutConstraints.ipady = 20;
-//
-//            step.add(fill, layoutConstraints);
 
             step.addMouseListener(new java.awt.event.MouseListener() {
                 @Override
@@ -1144,20 +1068,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         @Override
         public void onChangeSetup(ArrayList al2) {
 
-            //ArrayList al = new ArrayList();
-            //ArrayList al_key = new ArrayList();
-            
-            
-            //System.out.println("PROFILING: segmentation settings:  " + (String)al2.get(0));
-
-            //al = (ArrayList) al2.get(0);
-            //al_key = (ArrayList) al.get(2);
-
+      
             String MethodText = new String();
             
-            //MethodText = " " + al_key.get(0).toString() + ": " + al.get(3).toString() + " " + al_key.get(2).toString() + ": " + al.get(5).toString() + " " + al_key.get(3).toString() + ": " + al.get(6).toString();
-            
-            ArrayList<ArrayList> morphologies = (ArrayList<ArrayList>)al2.get(4);
+             ArrayList<ArrayList> morphologies = (ArrayList<ArrayList>)al2.get(4);
             
             MethodText = "Approach: " + (String)(al2.get(1)) + " on channel " + ((int)al2.get(2)+1) +".  Measuring in "  + morphologies.size() + " morphologies.";
             
