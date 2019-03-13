@@ -47,14 +47,28 @@ public interface FileOperationListener {
 	 * 
 	 * @throws Exception
 	 */
-	public int onFileOpen() throws Exception;
+	public int onProccessingFileOpen() throws Exception;
 	/**
 	 * Notifies listeners to attempt to save a file of the appropriate type.  Exceptions must be handled by
 	 * the caller
 	 * 
 	 * @throws Exception
 	 */
-	public void onFileSave() throws Exception;
+	public void onProcessingFileSave() throws Exception;
+	/**
+	 * Notifies listeners to attempt to export a file of the appropriate type.  Exceptions must be handled by
+	 * the caller
+	 * 
+	 * @throws Exception
+	 */
+        public void onSegmentationFileOpen() throws Exception;
+	/**
+	 * Notifies listeners to attempt to export a file of the appropriate type.  Exceptions must be handled by
+	 * the caller
+	 * 
+	 * @throws Exception
+	 */
+        public void onSegmentationFileSave() throws Exception;
 	/**
 	 * Notifies listeners to attempt to export a file of the appropriate type.  Exceptions must be handled by
 	 * the caller
@@ -62,6 +76,8 @@ public interface FileOperationListener {
 	 * @throws Exception
 	 */
 	public void onFileExport() throws Exception;
+        
+        public void onLoadDatasets() throws Exception;
 	
 }
 

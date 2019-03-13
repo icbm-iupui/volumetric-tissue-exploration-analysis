@@ -128,7 +128,7 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
     }
 
     @Override
-    public boolean copyComponentParameter(int index, ArrayList dComponents, ArrayList sComponents) {
+    public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
     
         try{
             
@@ -141,6 +141,36 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
             return false;
         }
     }
+    
+    @Override
+    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+            
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
+    
+    @Override
+    public boolean saveComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+            
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
+
+    
 
     
 }

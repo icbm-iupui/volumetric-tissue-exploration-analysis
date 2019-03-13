@@ -581,7 +581,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         return new JPanel();
     }
     
-    public void cloneMethodComponentsArray(String str, ArrayList al){
+    public void cloneProcessList(String str, ArrayList al){
          
     }
 
@@ -715,9 +715,12 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
     }
     
+    
     public ArrayList getProcessList(){
-        return new ArrayList();
+        return CurrentProcessList;
     }
+    
+
     protected void setImage(ImagePlus imp){
     }
     
@@ -744,6 +747,116 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     @Override    
     public Object clone() throws CloneNotSupportedException {
         return super.clone(); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public String getTitle(){
+        return this.TitleText.getText();
+    }
+    
+    @Override
+        public void setTitle(String title){
+        TitleText.setText(title);
+    }
+    
+    public void setChannel(int position){
+        this.ChannelComboBox.setSelectedIndex(position);
+    }
+    
+    public void setMethod(String str){
+        this.ProcessSelectComboBox.setSelectedItem(str);
+
+    }
+    
+       public String getMethod(){
+        return (String)ProcessSelectComboBox.getSelectedItem();
+    }
+   
+    public int getChannel(){
+        return this.ChannelComboBox.getSelectedIndex();
+    }
+    
+    
+     
+    public void setSetup(ArrayList ProcessComponents){
+        try{
+            
+        
+            
+        MethodDetails.setVisible(false);
+        MethodDetails.removeAll();
+
+        //BuiltPanel.setLayout(new GridBagLayout());
+        GridBagConstraints layoutConstraints = new GridBagConstraints();
+
+        //MethodDetail
+        if (ProcessComponents.size() > 0) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 0;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            MethodDetails.add((Component) ProcessComponents.get(0), layoutConstraints);
+        }
+
+        if (ProcessComponents.size() > 1) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 1;
+            layoutConstraints.gridy = 0;
+            MethodDetails.add((Component) ProcessComponents.get(1), layoutConstraints);
+        }
+
+        if (ProcessComponents.size() > 2) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 2;
+            layoutConstraints.gridy = 0;
+            MethodDetails.add((Component) ProcessComponents.get(2), layoutConstraints);
+        }
+        if (ProcessComponents.size() > 3) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 3;
+            layoutConstraints.gridy = 0;
+            MethodDetails.add((Component) ProcessComponents.get(3), layoutConstraints);
+        }
+        if (ProcessComponents.size() > 4) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 0;
+            layoutConstraints.gridy = 1;
+            MethodDetails.add((Component) ProcessComponents.get(4), layoutConstraints);
+        }
+        if (ProcessComponents.size() > 5) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 1;
+            layoutConstraints.gridy = 1;
+            MethodDetails.add((Component) ProcessComponents.get(5), layoutConstraints);
+        }
+        if (ProcessComponents.size() > 6) {
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 2;
+            layoutConstraints.gridy = 1;
+            MethodDetails.add((Component) ProcessComponents.get(6), layoutConstraints);
+        }
+        if (ProcessComponents.size() > 7) {
+            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.gridx = 3;
+            layoutConstraints.gridy = 1;
+            MethodDetails.add((Component) ProcessComponents.get(7), layoutConstraints);
+        }
+
+        pack();
+        MethodDetails.setVisible(true);
+        
+        CurrentProcessList.clear();
+
+        CurrentProcessList.add(processComboBox.getSelectedItem());
+        CurrentProcessList.add(channelsComboBox.getIndexOf(channelsComboBox.getSelectedItem()));
+        CurrentProcessList.addAll(ProcessComponents);
+            
+           
+            
+        }catch (Exception e){}
+        
+        
     }
  
 

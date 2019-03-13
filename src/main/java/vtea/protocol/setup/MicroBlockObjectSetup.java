@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -46,11 +45,10 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
+import static vtea._vtea.PROCESSINGMAP;
 import static vtea._vtea.SEGMENTATIONMAP;
+import vtea.imageprocessing.AbstractImageProcessing;
 import vtea.morphology.MorphologyFrame;
 import vtea.objects.Segmentation.AbstractSegmentation;
 import vtea.processor.ImageProcessingProcessor;
@@ -63,14 +61,6 @@ import vtea.protocol.listeners.MorphologyFrameListener;
  */
 public final class MicroBlockObjectSetup extends MicroBlockSetup implements ActionListener, SegmentationListener, MorphologyFrameListener, ImageListener, RoiListener {
 
-    public static String getMethod(int i) {
-        return null;
-    }
-
-//    private DefaultCellEditor channelEditor = new DefaultCellEditor(new channelNumber());
-//    private DefaultCellEditor analysisEditor = new DefaultCellEditor(new analysisType());
-    
-   
     private Object[] columnTitles = {"Channel", "Method"};
 
     private boolean[] canEditColumns = new boolean[]{false, false};
@@ -80,6 +70,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
     private AbstractSegmentation Approach;
     
     private ArrayList<ArrayList> Morphology;
+    
+    private ArrayList CurrentProtocol;
     
     private MorphologyFrame MorphologyMenu;
     
@@ -96,7 +88,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         MorphologyMenu.addMorphologyListener(this);
         
    
-
+        CurrentProtocol = new ArrayList();
         
         Morphology = new ArrayList<ArrayList>();
         
@@ -115,7 +107,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         ProcessSelectComboBox.setModel(processComboBox);
         ProcessSelectComboBox.setVisible(true);  
         
-        ProcessVariables = new String[vtea._vtea.SEGMENTATIONOPTIONS.length][10];        
+        //ProcessVariables = new String[vtea._vtea.SEGMENTATIONOPTIONS.length][10];        
 
         //setup thresholder       
 
@@ -146,33 +138,37 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
           
         tablePane.setVisible(true);
 
-        Object[][] CellValues = makeDerivedRegionTable();
-
-        secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
-                CellValues,
-                columnTitles
-        ) {
-            boolean[] canEdit = canEditColumns;
-
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
-            }
-        });
-
-        channelColumn = secondaryTable.getColumnModel().getColumn(0);
-        analysisColumn = secondaryTable.getColumnModel().getColumn(1);
-
-//        channelColumn.setCellEditor(channelEditor);
-//        analysisColumn.setCellEditor(analysisEditor);
+//        Object[][] CellValues = makeDerivedRegionTable();
+//
+//        secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
+//                CellValues,
+//                columnTitles
+//        ) {
+//            boolean[] canEdit = canEditColumns;
+//
+//            @Override
+//            public boolean isCellEditable(int rowIndex, int columnIndex) {
+//                return canEdit[columnIndex];
+//            }
+//        });
+//
+//        channelColumn = secondaryTable.getColumnModel().getColumn(0);
+//        analysisColumn = secondaryTable.getColumnModel().getColumn(1);
+//
+////        channelColumn.setCellEditor(channelEditor);
+////        analysisColumn.setCellEditor(analysisEditor);
 
         PreviewButton.setVisible(true);
         PreviewButton.setEnabled(true);
         
-        secondaryTable.setVisible(true);
+//        secondaryTable.setVisible(true);
 
         repaint();
         pack();
+    }
+    
+    public AbstractSegmentation getSegmentation(){
+        return this.Approach;
     }
     
     public void setProcessedImage(ImagePlus imp) {
@@ -221,22 +217,22 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
     }
 
-    private Object[][] makeDerivedRegionTable() {
-        Object[][] CellValues = new Object[this.Channels.size()][4];
-
-        for (int i = 0; i < this.Channels.size(); i++) {
-            CellValues[i][0] = Channels.get(i);
-            CellValues[i][1] = "Grow";
-            CellValues[i][2] = 1;
-        }
-        return CellValues;
-    }
+//    private Object[][] makeDerivedRegionTable() {
+//        Object[][] CellValues = new Object[this.Channels.size()][4];
+//
+//        for (int i = 0; i < this.Channels.size(); i++) {
+//            CellValues[i][0] = Channels.get(i);
+//            CellValues[i][1] = "Grow";
+//            CellValues[i][2] = 1;
+//        }
+//        return CellValues;
+//    }
 
     @Override
     protected void getSegmentationPreview() {
         CurrentStepProtocol = CurrentProcessList;
 
-        updateProcessVariables();
+//        updateProcessVariables();
 
         ThresholdOriginal.setRoi(ThresholdPreview.getRoi());
 
@@ -327,7 +323,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         //process components have description and swing object
         //Current Process list is handed to Arraylist for SIP processing
 
-        CurrentProcessList = ProcessComponents;
+        CurrentProcessList = (ArrayList)ProcessComponents.clone();
 
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
@@ -359,8 +355,12 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         
         pack();
         MethodDetails.setVisible(true);
-
+        
         return MethodDetails;
+    }
+    
+    public ArrayList getCurrentProtocol(){
+        return CurrentProtocol;
     }
 
     @Override
@@ -372,11 +372,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
     private ImagePlus getThresholdPreview() {
         
         ChannelSplitter cs = new ChannelSplitter();
-        
-        
-        
-        //System.out.println("PROFILING:  Channel selected: " + this.ChannelComboBox.getSelectedItem());
- 
         ImagePlus imp = new ImagePlus("Threshold " + super.TitleText.getText(),
                 cs.getChannel(ThresholdOriginal,
                         this.ChannelComboBox.getSelectedIndex() + 1).duplicate()) {
@@ -385,55 +380,25 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         return imp;
     }
 
-    private int getChannelIndex(String text) {
-        return Channels.indexOf(text);
-    }
-
     @Override
     protected ArrayList makeMethodComponentsArray(String method, String[][] str) {
-//        Object iImp = new Object();
-//
-//        try {
-//            Class<?> c;
-//            c = Class.forName(SEGMENTATIONMAP.get(method));
-//            Constructor<?> con;
-//            try {
-//                con = c.getConstructor();
-//                iImp = con.newInstance();
-//                ((AbstractSegmentation) iImp).setImage(ThresholdPreview);
-//                return ((AbstractSegmentation) iImp).getOptions();
-//                
-//            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-//                Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//
-//        } catch (ClassNotFoundException ex) {
-//            Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
-//        }
 
         ArrayList result = new ArrayList();
+
         return result;
     }
 
- 
-
-    private void updateProcessVariables() {
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][0] = ((JTextField) CurrentStepProtocol.get(1)).getText();
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][1] = ((JTextField) CurrentStepProtocol.get(3)).getText();
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][2] = ((JTextField) CurrentStepProtocol.get(5)).getText();
-        ProcessVariables[ProcessSelectComboBox.getSelectedIndex()][3] = ((JTextField) CurrentStepProtocol.get(7)).getText();
-    }
 
     @Override
-    protected void blockSetupOKAction() {
+    public void blockSetupOKAction() {
         ThresholdPreview.removeImageListener(this);
         CurrentStepProtocol = CurrentProcessList;
         
-        //updateProcessVariables();
+
         notifyMicroBlockSetupListeners(getSettings());
         
-         setVisible(false);
-         ThresholdPreview.addImageListener(this);
+        setVisible(false);
+        ThresholdPreview.addImageListener(this);
     }
 
     @Override
@@ -459,16 +424,13 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
      */
     // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     //field key 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
-    private ArrayList getSettings() {
+    public ArrayList getSettings() {
         
          /**segmentation and measurement protocol redefining.
          * 0: title text, 1: method (as String), 2: channel, 3: ArrayList of JComponents used 
          * for analysis 3: ArrayList of Arraylist for morphology determination
          */
-        
 
-        //ArrayList repeated = new ArrayList();
-        //ArrayList key = new ArrayList();
         ArrayList result = new ArrayList();
 
         result.add(TitleText.getText());
@@ -501,16 +463,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         result.add(Measures);
         return result;
     }
-
-    private String getAnalysisTypeInt(int row, TableModel ChannelTableValues) {
-
-//        if (ChannelTableValues.getValueAt(row, 1) == null) {
-//            return 2;
-//        }
-
-        String comp = ChannelTableValues.getValueAt(row, 1).toString();
-
-    return comp;
+    
+    @Override
+    public ArrayList getProcessList(){
+        return this.CurrentProcessList;
     }
 
     @Override
@@ -582,7 +538,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
                    con = c.getConstructor();
                    iImp = con.newInstance();
 
-                   //((AbstractSegmentation) iImp).setImage(ThresholdPreview);
                    return (AbstractSegmentation)iImp;
 
                } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
@@ -602,12 +557,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
     public void updateGui(String str, Double dbl) {
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
-        //MethodDetails.removeAll();
- 
-        //makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
-        
-        //add reflection?
-        
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);

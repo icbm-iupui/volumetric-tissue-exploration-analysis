@@ -17,6 +17,7 @@
  */
 package vtea;
 
+import ij.IJ;
 import ij.ImageJ;
 import ij.ImageListener;
 import ij.ImagePlus;
@@ -59,7 +60,7 @@ import vtea.services.WorkflowService;
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
-     public static String VERSION = new String("0.7b");
+     public static String VERSION = new String("1.0 alpha");
     
     public static Color BACKGROUND = new Color(204, 204, 204);
     public static Color BUTTONBACKGROUND = new Color(200, 200, 200);
@@ -74,6 +75,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     
     public static String H2_MEASUREMENTS_TABLE = new String("MEASUREMENTS");
     public static String H2_OBJECT_TABLE = new String("OBJECTS");
+    
+    public static String LASTDIRECTORY = new String(System.getProperty("user.home") + "/Desktop");
     
     
    
@@ -138,28 +141,16 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 System.out.println("Available memory: " + getAvailableMemory()/(1000000000) + " GB");
                 System.out.println("Available processors: " + Runtime.getRuntime().availableProcessors());
                 System.out.println("-------------------------------- ");
-
+                System.out.println("Seting JVM configurations...");
                 System.setProperty("java.util.Arrays.sort", "true");
+                System.out.println("Setting ImageJ configurations...");
+                IJ.run("Options...", "iterations=1 count=1");
+                System.out.println("-------------------------------- ");
+
 
                 ImagePlus.addImageListener(this);
                 
-//                try {
-//                    
-//            H2DatabaseEngine h2 = new H2DatabaseEngine();
-//            System.out.println("-------------------------------- ");
-//            System.out.println("H2 Database Test ");
-////            DeleteDbFiles.execute(ij.Prefs.getImageJDir(), "vtea", true);
-////            h2.insertWithStatement(); 
-////            DeleteDbFiles.execute(ij.Prefs.getImageJDir(), "vtea", true);
-////            h2.insertWithPreparedStatement();
-//            DeleteDbFiles.execute(ij.Prefs.getImageJDir(), "vtea", true);
-//            h2.insertFromCSV();
-//
-//        } catch (SQLException e) {
-//
-//            e.printStackTrace();
-//            System.out.println("-------------------------------- ");
-//        }
+
             System.out.println("-------------------------------- ");
                 
 

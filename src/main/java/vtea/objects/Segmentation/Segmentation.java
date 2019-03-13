@@ -19,9 +19,11 @@ package vtea.objects.Segmentation;
 
 import ij.ImagePlus;
 import ij.ImageStack;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
+import net.imglib2.type.numeric.RealType;
 import vtea.VTEAModule;
 import vtea.processor.listeners.SegmentationListener;
 import vteaobjects.MicroObject;
@@ -30,7 +32,7 @@ import vteaobjects.MicroObject;
  *
  * @author winfrees
  */
-public interface Segmentation extends VTEAModule {
+public interface Segmentation<T extends Component, A extends RealType> extends VTEAModule {
     
     public ImagePlus getSegmentation();
     
@@ -71,5 +73,11 @@ public interface Segmentation extends VTEAModule {
     public void setImage(ImagePlus thresholdPreview);
     
     public void updateImage(ImagePlus thresholdPreview);
+
+    public boolean copyComponentParameter(String version, ArrayList<T> dComponents, ArrayList<T> sComponents);
+    
+    public boolean loadComponentParameter(String version, ArrayList<T> dComponents, ArrayList fields);
+    
+    public boolean saveComponentParameter(String version, ArrayList<T> dComponents, ArrayList fields);
     
 }

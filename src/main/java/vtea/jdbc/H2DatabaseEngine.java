@@ -19,7 +19,6 @@ package vtea.jdbc;
 
 import java.awt.Polygon;
 import java.io.File;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -29,8 +28,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import org.h2.tools.Csv;
-import org.h2.tools.DeleteDbFiles;
-import org.jhotdraw.geom.Polygon2D;
 import vteaobjects.MicroObject;
 
 
@@ -49,6 +46,8 @@ public class H2DatabaseEngine {
     
     private static final String DB_NAME = vtea._vtea.H2_DATABASE;
     
+    private static String DB_PATH =  ij.Prefs.getImageJDir();
+    
     private static ResultSetMetaData meta;
     
     public void H2DatabaseEngine(String path){
@@ -62,12 +61,10 @@ public class H2DatabaseEngine {
         }
     }
     
-    
+
     //H2 method for importing CSV file
     public static void insertFromCSV(File csvFile, Connection connection, String table) throws SQLException {
-        
-      
-        
+
       PreparedStatement createPreparedStatement = null;
 
         try {

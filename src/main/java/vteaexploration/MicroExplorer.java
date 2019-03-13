@@ -73,7 +73,9 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.ProgressMonitorInputStream;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FilenameUtils;
 import org.scijava.plugin.Plugin;
 import vtea.exploration.listeners.AddFeaturesListener;
@@ -1768,7 +1770,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
             int returnVal = jf.showSaveDialog(Main);
             File file = jf.getSelectedFile(); 
             
-            MicroExplorer.LASTDIRECTORY =  file.getPath();
+            
              
             file = jf.getSelectedFile();
             if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
@@ -1794,13 +1796,14 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                 } catch (NullPointerException ne) {
                     System.out.println("ERROR: NPE in object export");
                 }
+                MicroExplorer.LASTDIRECTORY =  file.getPath();
             } else {
             }
         }
 
     }
     
-    class ImportOBJ {
+    public class ImportOBJ {
 
         public ImportOBJ() {
         }
@@ -1808,8 +1811,14 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         protected void importObjects() {
 
             JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            FileNameExtensionFilter filter = 
+            new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
+            jf.addChoosableFileFilter(filter);
+            jf.setFileFilter(filter);
             int returnVal = jf.showOpenDialog(Main);
             File file = jf.getSelectedFile();
+            
+            
 
             ArrayList result = new ArrayList();
 
@@ -1818,6 +1827,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                     try {
                         FileInputStream fis = new FileInputStream(file);
                         ObjectInputStream ois = new ObjectInputStream(fis);
+                        
+                        ProgressMonitorInputStream pm = 
+                        new ProgressMonitorInputStream(Main,"Reading" + file.getName() ,fis);
+                        
                         result = (ArrayList) ois.readObject();
                         ois.close();        
                         Opener op = new Opener();
@@ -1866,8 +1879,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
             int returnVal = jf.showSaveDialog(Main);
 
             File file = jf.getSelectedFile();
-
-            MicroExplorer.LASTDIRECTORY = file.getPath();
 
             file = jf.getSelectedFile();
             if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("csv")) {
@@ -1933,7 +1944,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
                 } catch (NullPointerException ne) {
                 }
-
+                MicroExplorer.LASTDIRECTORY =  file.getPath();
             } else {
             }
 

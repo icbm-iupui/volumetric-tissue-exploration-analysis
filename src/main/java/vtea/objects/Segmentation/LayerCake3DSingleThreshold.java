@@ -152,6 +152,117 @@ public LayerCake3DSingleThreshold(){
         panel.add(mta.getPanel());
         return panel;
     }
+     /** Copies components between an source and destination arraylist
+     * 
+     * @param version
+     * @param dComponents
+     * @param sComponents
+     * @return 
+     */
+        @Override
+    public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
+      try{
+            dComponents.clear();
+
+            JTextFieldLinked f1 = (JTextFieldLinked) sComponents.get(1);
+            JTextField f2 = (JTextField) sComponents.get(3);
+            JTextField f3 = (JTextField) sComponents.get(5);
+            JTextField f4 = (JTextField) sComponents.get(7);
+            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox)(sComponents.get(8))).isSelected());
+            
+            
+   
+        dComponents.add(new JLabel("Low Threshold"));
+        dComponents.add(f1);
+        dComponents.add(new JLabel("Centroid Offset"));
+        dComponents.add(f2);
+        dComponents.add(new JLabel("Min Vol (vox)"));
+        dComponents.add(f3);
+        dComponents.add(new JLabel("Max Vol (vox)"));
+        dComponents.add(f4);
+        dComponents.add(watershed);
+
+
+        return true;
+        } catch(Exception e){
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            return false;
+        }
+    }
+    /**Takes  a set of values from 'fields' and populates the components , 
+     * as defined herein 
+     * 
+     * @param version
+     * @param dComponents
+     * @param fields
+     * @return 
+     */
+   
+    
+    @Override
+    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+            
+        //dComponents.clear();
+        
+        
+        JTextFieldLinked n1 = (JTextFieldLinked)dComponents.get(1);
+        JTextField n2 = (JTextField)dComponents.get(3);
+        JTextField n3 = (JTextField)dComponents.get(5);
+        JTextField n4 = (JTextField)dComponents.get(7);
+        JCheckBox n5 = (JCheckBox)dComponents.get(8);
+        
+        
+        n1.setText((String)fields.get(0));
+        n2.setText((String)fields.get(1));
+        n3.setText((String)fields.get(2));
+        n4.setText((String)fields.get(3));
+        n5.setSelected((boolean)fields.get(4));
+        
+        
+        return true;
+        } catch(Exception e){
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            return false;
+        }
+    }
+    /**
+     * Takes the a set of components, as defined herein and populates the fields
+     * ArrayList for serialization.
+     * @param version in case multiple versions need support 
+     * @param sComponents
+     * @param fields
+     * @return 
+     */
+    @Override
+    public boolean saveComponentParameter(String version, ArrayList fields, ArrayList sComponents) {
+            
+        
+        try{
+            
+            JTextFieldLinked f1 = (JTextFieldLinked) sComponents.get(1);
+            JTextField f2 = (JTextField) sComponents.get(3);
+            JTextField f3 = (JTextField) sComponents.get(5);
+            JTextField f4 = (JTextField) sComponents.get(7);
+            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox)(sComponents.get(8))).isSelected());
+            
+
+            fields.add(f1.getText());
+            fields.add(f2.getText());
+            fields.add(f3.getText());
+            fields.add(f4.getText());
+            fields.add(((JCheckBox)(sComponents.get(8))).isSelected()); 
+
+
+            return true;
+        } catch(Exception e){
+            System.out.println("ERROR: Could not save parameter(s) for " + NAME + "\n" + e.getLocalizedMessage());
+            return false;
+        }
+    }
+
+
+
         
     @Override
     public String runImageJMacroCommand(String str) {

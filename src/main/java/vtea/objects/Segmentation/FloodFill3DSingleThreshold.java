@@ -205,5 +205,40 @@ public FloodFill3DSingleThreshold(ImageStack stack, int[] min, boolean parameter
         }
         return result;
     }
+    
+        @Override
+    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+                  dComponents.clear();
+            
+            String sRadius = (String)fields.get(0);
+       
+            dComponents.add(new JLabel("Minimum dimension of object (pixels):"));
+            dComponents.add((new JTextField(sRadius, 3))); 
+            
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
+    
+    @Override
+    public boolean saveComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+            try{
+                  fields.clear();
+                  fields.add(((JTextField)(dComponents.get(1))).getText());
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
 
 }

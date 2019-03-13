@@ -36,12 +36,18 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
+import static vtea._vtea.PROCESSINGMAP;
+import vtea.imageprocessing.AbstractImageProcessing;
 import vtea.processor.ImageProcessingProcessor;
 import vtea.protocol.datastructure.ImageProcessingProtocol;
 import vtea.workflow.ImageProcessingWorkflow;
@@ -78,7 +84,7 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
 
     Boolean updatePreviewImage = true;
 
-    MicroBlockSetup mbs;
+    public MicroBlockProcessSetup mbs;
 
     private ArrayList settings;
 
@@ -170,6 +176,10 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
         Comment.setFont(CommentFont);
 
         mbs = new vtea.protocol.setup.MicroBlockProcessSetup(position, Channels, protocol, OriginalImage);
+        
+       
+        
+        
         mbs.setVisible(false);
         mbs.addMicroBlockSetupListener(this);
 
@@ -410,8 +420,8 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
         
         super.clone();
         
-        //System.out.println("PROFILING: Copying image processing: " + Process.getText());
-        //System.out.println("PROFILING: with parameter count: " + this.mbs.getProcessList().size());
+        System.out.println("PROFILING: Copying image processing: " + Process.getText());
+        System.out.println("PROFILING: with parameter count: " + this.mbs.getProcessList().size());
         
         ProcessStepBlockGUI Copy = new ProcessStepBlockGUI(Process.getText(), Comment.getText(), this.BlockColor, false, this.ThumbnailImage.duplicate(), OriginalImage.duplicate(), this.Channels, this.type, this.ProtocolAll, this.position);
 
@@ -421,16 +431,31 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
         Copy.mbs = new vtea.protocol.setup.MicroBlockProcessSetup(position, Channels, ProtocolAll, OriginalImage);
         Copy.mbs.setVisible(false);
         Copy.mbs.addMicroBlockSetupListener(Copy);
-        Copy.mbs.cloneMethodComponentsArray(Process.getText(), this.mbs.getProcessList());
+        Copy.mbs.cloneProcessList(Process.getText(), this.mbs.getProcessList());
         
         
 
         return Copy;
     }
     
-    public MicroBlockSetup getSetup(){
-        return mbs;
+    public ArrayList getSetup(){
+        //Arraylist for making a new Setup window
+        
+        //0: Channel
+        //1: Method
+        //2: Arraylist of components for method detail
+        
+        ArrayList setup = new ArrayList();
+        
+        setup.add(mbs.getChannel());
+        setup.add(mbs.getMethod());
+        setup.add(mbs.getProcessList());
+        
+        return setup;
+        
     }
+    
+        
     
     public void updateSetup(){
         ((MicroBlockProcessSetup)mbs).updateProtocol();

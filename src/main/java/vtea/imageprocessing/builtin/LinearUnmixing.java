@@ -109,19 +109,48 @@ public LinearUnmixing(){
     }
     
     @Override
-    public boolean copyComponentParameter(int index, ArrayList dComponents, ArrayList sComponents) {
+    public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
     
         try{
             
-            JTextField sRadius = (JTextField) sComponents.get(3);
-       
-            dComponents.set(3, (new JTextField(sRadius.getText(), 3))); 
+//            JTextField sRadius = (JTextField) sComponents.get(0);
+//       
+//            dComponents.add(0, (new JTextField(sRadius.getText(), 3))); 
         
         return true;
         } catch(Exception e){
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
             return false;
         }
+    }
+    
+        @Override
+    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+
+            
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
+    
+        @Override
+    public boolean saveComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+            try{
+
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
     }
         
     private Object[] unmix(float[][] spectra, float[][] data, int startch,int endch,boolean outresid,boolean outc2,boolean truncneg,boolean outerrs){
