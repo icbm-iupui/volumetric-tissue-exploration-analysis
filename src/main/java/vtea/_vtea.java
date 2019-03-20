@@ -142,9 +142,14 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 System.out.println("Available processors: " + Runtime.getRuntime().availableProcessors());
                 System.out.println("-------------------------------- ");
                 System.out.println("Seting JVM configurations...");
+                
                 System.setProperty("java.util.Arrays.sort", "true");
+                
+                System.out.println("-------------------------------- ");
                 System.out.println("Setting ImageJ configurations...");
+                
                 IJ.run("Options...", "iterations=1 count=1");
+                
                 System.out.println("-------------------------------- ");
 
 
@@ -385,34 +390,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                     }
                 }
                 
-//              Renjin r = new Renjin();
-//                
-//            try {
-//                RServe rS = new RServe();
-//            } catch (RserveException ex) {
-//               
-//            } catch (REXPMismatchException ex) {
-//                
-//            }
-            
- 
-  
-//    final String dbLocation = System.getProperty("user.dir")+File.separator; 
-//
-//    Connection dbConn = null;
-//  
-//  HsqlProperties props = new HsqlProperties();
-//    props.setProperty("server.database.0", "file:" + dbLocation + "mydb;");
-//    props.setProperty("server.dbname.0", "vteadb");
-//    sonicServer = new org.hsqldb.Server();
-//    try {
-//        sonicServer.setProperties(props);
-//    } catch (Exception e) {
-//        return;
-//    }
-//    sonicServer.start();
-//     System.out.println("HPSQL started in directory: " + dbLocation);
-//            
+                System.out.println("-------------------------------- ");
+                    
     }
 
 

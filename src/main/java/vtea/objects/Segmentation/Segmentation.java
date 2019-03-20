@@ -80,4 +80,6 @@ public interface Segmentation<T extends Component, A extends RealType> extends V
     
     public boolean saveComponentParameter(String version, ArrayList<T> dComponents, ArrayList fields);
     
+    public void doUpdateOfTool();
+    
 }

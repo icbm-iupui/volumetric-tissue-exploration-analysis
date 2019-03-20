@@ -84,6 +84,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
         super(step, Channels);
         
+        this.setTitle("Object_" + (step));
+        
         MorphologyMenu = new MorphologyFrame(Channels);
         MorphologyMenu.addMorphologyListener(this);
         
@@ -352,10 +354,9 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
             }  
         ProcessVisualization = Approach.getSegmentationTool();
         methodBuild.add(ProcessVisualization);
-        
         pack();
         MethodDetails.setVisible(true);
-        
+     
         return MethodDetails;
     }
     
@@ -537,6 +538,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
                try {
                    con = c.getConstructor();
                    iImp = con.newInstance();
+                   
 
                    return (AbstractSegmentation)iImp;
 

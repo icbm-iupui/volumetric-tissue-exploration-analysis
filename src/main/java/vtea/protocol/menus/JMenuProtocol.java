@@ -207,35 +207,35 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                 try {
                     listener.onProcessingFileSave();
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this.getParent(),
-                            "File could not be saved...\n" +
-                                e.getMessage(),
-                            vtea._vtea.VERSION,
-                            JOptionPane.WARNING_MESSAGE);
-                    System.out.println("ERROR: "+ e.getLocalizedMessage());
+//                    JOptionPane.showMessageDialog(this.getParent(),
+//                            "File could not be saved...\n" +
+//                                e.getMessage(),
+//                            vtea._vtea.VERSION,
+//                            JOptionPane.WARNING_MESSAGE);
+//                    System.out.println("ERROR: "+ e.getLocalizedMessage());
                 }
             } else if (temp.getText().equals("Save Segmentation...")) {
                 try {
                     listener.onSegmentationFileSave();
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this.getParent(),
-                            "File could not be saved...\n" +
-                                e.getMessage(),
-                            vtea._vtea.VERSION,
-                            JOptionPane.WARNING_MESSAGE);
-                    System.out.println("ERROR: "+ e.getLocalizedMessage());
+//                    JOptionPane.showMessageDialog(this.getParent(),
+//                            "File could not be saved...\n" +
+//                                e.getMessage(),
+//                            vtea._vtea.VERSION,
+//                            JOptionPane.WARNING_MESSAGE);
+//                    System.out.println("ERROR: "+ e.getLocalizedMessage());
                 }
             } else if (temp.getText().equals("Save All...")) {
                 try {
                     listener.onProcessingFileSave();
                     listener.onSegmentationFileSave();
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this.getParent(),
-                            "Could not save settings...\n" +
-                                e.getMessage(),
-                            vtea._vtea.VERSION,
-                            JOptionPane.WARNING_MESSAGE);
-                    System.out.println("ERROR: "+ e.getLocalizedMessage());
+//                    JOptionPane.showMessageDialog(this.getParent(),
+//                            "Could not save settings...\n" +
+//                                e.getMessage(),
+//                            vtea._vtea.VERSION,
+//                            JOptionPane.WARNING_MESSAGE);
+//                    System.out.println("ERROR: "+ e.getLocalizedMessage());
                 }
             } else if (temp.getText().equals("Load Dataset...")) {
                 try {
@@ -264,11 +264,11 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                 try {
                     listener.onFileExport();
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this.getParent(),
-                            "File could not be exported...",
-                            vtea._vtea.VERSION,
-                            JOptionPane.WARNING_MESSAGE);
-                    //System.out.println("PROFILING: "+ e.getMessage());
+//                    JOptionPane.showMessageDialog(this.getParent(),
+//                            "File could not be exported...",
+//                            vtea._vtea.VERSION,
+//                            JOptionPane.WARNING_MESSAGE);
+//                    //System.out.println("PROFILING: "+ e.getMessage());
                 }
             }
         }

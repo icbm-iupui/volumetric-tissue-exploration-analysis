@@ -69,6 +69,7 @@ import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.LogAxis;
 import org.jfree.chart.plot.XYPlot;
+import vtea._vtea;
 import static vtea._vtea.LUTMAP;
 import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.PlotUpdateListener;
@@ -1127,7 +1128,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
         JFrame j = new JFrame();
 
-        JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+        JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
         int returnVal = jf.showSaveDialog(CenterPanel);
         File file = jf.getSelectedFile();
 
@@ -1147,7 +1148,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
                 try {
                     ImageIO.write(image, "png", file);
-                    MicroExplorer.LASTDIRECTORY = file.getPath();
+                    _vtea.LASTDIRECTORY = file.getPath();
                 } catch (IOException e) {
                 }
             } catch (NullPointerException ne) {
@@ -1202,11 +1203,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
         public void export(ArrayList<ArrayList<Point2D.Double>> al) {
 
-            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
             int returnVal = jf.showSaveDialog(CenterPanel);
             File file = jf.getSelectedFile();
 
-            MicroExplorer.LASTDIRECTORY = file.getPath();
+            _vtea.LASTDIRECTORY = file.getPath();
 
             file = jf.getSelectedFile();
             if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("vtg")) {
@@ -1241,7 +1242,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
         protected ArrayList<ArrayList<Point2D.Double>> importGates() {
 
-            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
             int returnVal = jf.showOpenDialog(CenterPanel);
             File file = jf.getSelectedFile();
 

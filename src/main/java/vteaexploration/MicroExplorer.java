@@ -78,6 +78,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FilenameUtils;
 import org.scijava.plugin.Plugin;
+import vtea._vtea;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.AxesChangeListener;
 import vtea.exploration.listeners.PlotUpdateListener;
@@ -113,8 +114,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     public static final int LUTSTART = 1;
 
     public static final int POINTSIZE = 4;
-
-    public static String LASTDIRECTORY = "";
 
     int featureCount = 0;
 
@@ -994,7 +993,16 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     }//GEN-LAST:event_AutoScaleAxesActionPerformed
 
     private void exportGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGatesActionPerformed
-        ec.exportGates();
+             new Thread(() -> {
+            try {
+         ec.exportGates();
+        
+    } catch (Exception e) {
+             
+            }
+        }).start();  
+
+           
     }//GEN-LAST:event_exportGatesActionPerformed
 
     private void LoadGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadGatesActionPerformed
@@ -1002,7 +1010,17 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     }//GEN-LAST:event_LoadGatesActionPerformed
 
     private void ExportGraphActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportGraphActionPerformed
-        ec.getBufferedImage();
+       
+                     new Thread(() -> {
+            try {
+         ec.getBufferedImage();
+        
+    } catch (Exception e) {
+             
+            }
+        }).start();  
+
+        
     }//GEN-LAST:event_ExportGraphActionPerformed
 
     private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
@@ -1029,7 +1047,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         ExportCSV ex = new ExportCSV();
         ex.export(this.descriptions, this.measurements);
     } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
+                //System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();  
 
@@ -1764,7 +1782,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         output.add(headers);
         output.add(headerLabels);
         
-            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
             jf.setDialogTitle("Export VTEA objects...");
             
             int returnVal = jf.showSaveDialog(Main);
@@ -1796,7 +1814,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                 } catch (NullPointerException ne) {
                     System.out.println("ERROR: NPE in object export");
                 }
-                MicroExplorer.LASTDIRECTORY =  file.getPath();
+                _vtea.LASTDIRECTORY =  file.getPath();
             } else {
             }
         }
@@ -1810,7 +1828,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         
         protected void importObjects() {
 
-            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
             FileNameExtensionFilter filter = 
             new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
             jf.addChoosableFileFilter(filter);
@@ -1874,7 +1892,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
         protected void export(ArrayList header, ArrayList al) {
 
-            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
 
             int returnVal = jf.showSaveDialog(Main);
 
@@ -1944,7 +1962,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
                 } catch (NullPointerException ne) {
                 }
-                MicroExplorer.LASTDIRECTORY =  file.getPath();
+                _vtea.LASTDIRECTORY =  file.getPath();
             } else {
             }
 

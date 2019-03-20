@@ -101,12 +101,18 @@ public SingleThreshold(){
     public JPanel getSegmentationTool(){
         JPanel panel = new JPanel();
         panel.setBackground(vtea._vtea.BACKGROUND);
-        MicroThresholdAdjuster mta = new MicroThresholdAdjuster(imagePreview);
-        mta.addChangeThresholdListener(f1);
-        f1.setText(String.valueOf(mta.getMin()));
-        
+        mta = new MicroThresholdAdjuster(imagePreview);
         panel.add(mta.getPanel());
+        mta.addChangeThresholdListener(f1);
+        mta.notifyChangeThresholdListeners(mta.getMin(), mta.getMax()); 
         return panel;
+    }
+    
+        
+    @Override
+    public void doUpdateOfTool() {
+        f1.setText(String.valueOf(mta.getMin()));
+        mta.doUpdate();
     }
         
     @Override

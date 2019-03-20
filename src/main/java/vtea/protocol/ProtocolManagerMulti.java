@@ -71,6 +71,7 @@ import javax.swing.JTextField;
 import javax.swing.ProgressMonitorInputStream;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AbstractDocument;
+import vtea._vtea;
 import static vtea._vtea.PROCESSINGMAP;
 import static vtea._vtea.SEGMENTATIONMAP;
 import vteaexploration.GateManager;
@@ -826,12 +827,12 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
         //ArrayList result = new ArrayList();
         
-        for(int i = 0; i < fields.size(); i++){
-            System.out.println("PROFILING:  Importing field value: " + fields.get(i));
-        }
-         System.out.println("PROFILING:  To import to: " + dComponents.size() + " fields.");
-        
-        
+//        for(int i = 0; i < fields.size(); i++){
+//            //System.out.println("PROFILING:  Importing field value: " + fields.get(i));
+//        }
+//         //System.out.println("PROFILING:  To import to: " + dComponents.size() + " fields.");
+//        
+//        
         
         try {
             Class<?> c;
@@ -864,7 +865,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
             SingleImageProcessing DestinationSIP;
             DestinationSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
     
-            JFileChooser chooser = new JFileChooser(vtea._vtea.LASTDIRECTORY);
+            JFileChooser chooser = new JFileChooser(_vtea.LASTDIRECTORY);
             FileNameExtensionFilter filter = 
                     new FileNameExtensionFilter("VTEA processing file.", ".prc", "prc");
             chooser.addChoosableFileFilter(filter);
@@ -873,6 +874,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
             if (returnVal == JFileChooser.APPROVE_OPTION) {
 
                 File file = chooser.getSelectedFile();
+                _vtea.LASTDIRECTORY = file.getAbsolutePath();
                 FileInputStream fis = new FileInputStream(file);
                 ObjectInputStream ois = new ObjectInputStream(fis);
                 Object temp = ois.readObject();
@@ -925,13 +927,13 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
     @Override
     public void onProcessingFileSave() throws Exception {
       
-            JFileChooser chooser = new JFileChooser(vtea._vtea.LASTDIRECTORY);
+            JFileChooser chooser = new JFileChooser(_vtea.LASTDIRECTORY);
             FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA processing file.", ".prc", "prc");
             chooser.setFileFilter(filter);
             chooser.showSaveDialog(this);
             File file = chooser.getSelectedFile();
             
-            vtea._vtea.LASTDIRECTORY = file.getAbsolutePath();
+            _vtea.LASTDIRECTORY = file.getAbsolutePath();
 
 
             String filename = file.getName();
@@ -981,15 +983,15 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
             
             DestinationSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
             int startingCount = DestinationSIP.getObjectStepsList().size();
-            JFileChooser chooser = new JFileChooser(vtea._vtea.LASTDIRECTORY);
+            JFileChooser chooser = new JFileChooser(_vtea.LASTDIRECTORY);
             FileNameExtensionFilter filter = 
                     new FileNameExtensionFilter("VTEA segementation file.", ".seg", "seg");
             chooser.addChoosableFileFilter(filter);
             chooser.setFileFilter(filter);
             int returnVal = chooser.showOpenDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-
                 File file = chooser.getSelectedFile();
+                _vtea.LASTDIRECTORY = file.getAbsolutePath();
                 FileInputStream fis = new FileInputStream(file);
                 ObjectInputStream ois = new ObjectInputStream(fis);
                 Object temp = ois.readObject();
@@ -999,7 +1001,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
                 for(int j = 0; j < sourceProtocol.size(); j++){
                     
-                     System.out.println("PROFILING:  Found " + sourceProtocol.size() + " protocols to open.");
+                     //System.out.println("PROFILING:  Found " + sourceProtocol.size() + " protocols to open.");
                     
                            ArrayList sourceStep = sourceProtocol.get(j);
 
@@ -1018,7 +1020,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
                            destinationStep.mbs.setMethod((String)sourceStep.get(1));
                            destinationStep.mbs.setChannel((int)sourceStep.get(2));
 
-                           System.out.println("PROFILING:  Found " +  ((ArrayList)sourceStep.get(3)).size() + " steps.");
+                           //System.out.println("PROFILING:  Found " +  ((ArrayList)sourceStep.get(3)).size() + " steps.");
                            
                            makeObjectMethodsArray("version",(String)sourceStep.get(1),
                             (ArrayList)sourceStep.get(3),
@@ -1044,13 +1046,13 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
     @Override
     public void onSegmentationFileSave() throws Exception {
      
-            JFileChooser chooser = new JFileChooser(vtea._vtea.LASTDIRECTORY);
+            JFileChooser chooser = new JFileChooser(_vtea.LASTDIRECTORY);
             FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA segementation file.", ".seg", "seg");
             chooser.setFileFilter(filter);
             chooser.showSaveDialog(this);
             File file = chooser.getSelectedFile();
             
-            vtea._vtea.LASTDIRECTORY = file.getAbsolutePath();
+            _vtea.LASTDIRECTORY = file.getAbsolutePath();
 
             String filename = file.getName();
             if (!filename.endsWith(".seg")) {
@@ -1124,7 +1126,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
         protected void importObjects() {
 
             
-            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
             FileNameExtensionFilter filter = 
             new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
             jf.addChoosableFileFilter(filter);
@@ -1132,7 +1134,9 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
             int returnVal = jf.showOpenDialog(ImageTabs);
             File file = jf.getSelectedFile();
             
-                    
+            _vtea.LASTDIRECTORY = file.getAbsolutePath();
+            
+           
 
             ArrayList result = new ArrayList();
 
@@ -1158,7 +1162,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
                 } catch (ClassNotFoundException ne) {
                     System.out.println("ERROR: Not Found.");
                 }
-                MicroExplorer.LASTDIRECTORY =  file.getPath();
+                _vtea.LASTDIRECTORY =  file.getPath();
             } else {
             }
             

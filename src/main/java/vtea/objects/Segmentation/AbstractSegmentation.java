@@ -233,5 +233,12 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
         }   
     }
 
+    @Override
+    public void doUpdateOfTool() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
+
 
 }
