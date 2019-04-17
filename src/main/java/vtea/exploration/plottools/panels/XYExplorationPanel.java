@@ -28,9 +28,6 @@ import ij.gui.TextRoi;
 import ij.plugin.ChannelSplitter;
 import static ij.plugin.RGBStackMerge.mergeChannels;
 import ij.process.StackConverter;
-import net.imglib2.img.display.imagej.ImageJFunctions;
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.NumericType;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -1233,8 +1230,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         
     }
     
+    /**
+     * Outputs selected segmented nuclei as individual tiff images into a folder
+     * @param path path of the gate selecting the nuclei
+     * @param xAxis current measurement on the x-axis of the explorer
+     * @param yAxis current measurement on the x-axis of the explorer
+     */
     private void saveImages(Path2D path, int xAxis, int yAxis){
-        image.setC(1);
+        int depth = 5;
+        int depthPadding = 1;
         int info[] = image.getDimensions();
         ImageStack cropMe = image.getImageStack();
         
@@ -1242,32 +1246,19 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         int returnVal = objectimagejfc.showSaveDialog(this);
-
         File file = objectimagejfc.getSelectedFile();
 
-        MicroExplorer.LASTDIRECTORY = file.getPath();
-
-        file = objectimagejfc.getSelectedFile();
-
-//        if (!FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("tiff")) {
-//            file = new File(file.toString() + ".tiff");
-//        }
-        
-        
-
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-
-            ArrayList<MicroObject> result = new ArrayList<>();
-
             ArrayList<MicroObject> volumes = (ArrayList) objects;
-            int total = volumes.size();
-            double xValue = 0;
-            double yValue = 0;
             
-
+            ArrayList<MicroObject> result = new ArrayList<>();
+            int total = volumes.size();
+            double xValue;
+            double yValue;
+            
             try {
+                //Outputs the nuclei that are in the given gate to result
                 for (int i = 0; i < total; i++) {
-
                     ArrayList<Number> measured = measurements.get(i);
 
                     xValue = measured.get(xAxis).floatValue();
@@ -1276,46 +1267,46 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     if (path.contains(xValue, yValue)) {
                         result.add((MicroObject) objects.get(i));
                     }
-
-
                 }
 
             } catch (NullPointerException e) {
             }
-
+            
             int selectd = result.size();
 
             Collections.sort(result, new ZComparator()); 
 
             ListIterator<MicroObject> vitr = result.listIterator();
+            
+            //Not sure if this line does as intended, bigger output images if higher quality images
             int imageSize = ((MicroObject) vitr.next()).getRange(0) > 32? 64: 32;
             vitr.previous();
             int count = 0;
             while(vitr.hasNext()){
                 MicroObject vol = (MicroObject) vitr.next();
-                int minZ = vol.getMinZ();
-                int maxZ = vol.getMaxZ();
+                vol.setMaxZ();  //not already set for most MicroVolumes
+                vol.setMinZ();  //same as above
+                
                 int xStart = Math.round(vol.getCentroidX()) - imageSize/2;
                 int yStart = Math.round(vol.getCentroidY()) - imageSize/2;
-                int zStart = 0;//Math.round(vol.getCentroidZ()) - imageSize/2;
-                if(yStart < 0 || xStart < 0 || yStart+imageSize > image.getHeight() || xStart+imageSize > image.getWidth())
+                int zStart = vol.getMinZ() - depthPadding;
+
+                int zRange = vol.getMaxZ() - vol.getMinZ();
+                
+                //Throw out volumes that are on the edge or are improperly segmented(Zrange too big)
+                if(yStart*xStart < 0 || zStart < 0 || yStart+imageSize > image.getHeight() || xStart+imageSize > image.getWidth() || zRange > 5)
                     continue;
-                int add = 0;
-                if(zStart < 0){
-                    add = -1*zStart;
-                    zStart = 0;
-                }
-                vol.setMaxZ();
-                vol.setMinZ();
                 System.out.println(vol.getMaxZ()-vol.getMinZ());
-                ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, imageSize, imageSize,image.getNSlices()*image.getNChannels());
+                
+                ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, imageSize, imageSize,(depth+2*depthPadding)*image.getNChannels());
                 ImagePlus objImp = IJ.createHyperStack("nuclei", imageSize, imageSize, info[2], info[3], info[4], image.getBitDepth());
-                File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + Math.round(vol.getCentroidZ()) + ".tiff");
                 objImp.setStack(objImgStack);
+                
+                File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + Math.round(vol.getCentroidZ()) + ".tiff");
                 IJ.saveAsTiff(objImp,objfile.getPath());
                 count++;
             }   
-            System.out.println(selectd-count);
+            System.out.println(String.format("%d nuclei could not be exported out of %d nuclei", selectd-count, selectd));
         }
     }
 

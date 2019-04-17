@@ -20,7 +20,7 @@ package vtea.exploration.listeners;
 import java.awt.geom.Path2D;
 
 /**
- *
+ * Listener to output nuclei images via the given path in the exploration chart
  * @author drewmcnutt
  */
 public interface SaveGatedImagesListener {

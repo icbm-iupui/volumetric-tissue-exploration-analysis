@@ -682,11 +682,12 @@ public class GateLayer implements ActionListener, ItemListener {
         } else if(e.getActionCommand().equals("Delete All")){
             gates.clear();  
         } else if(e.getActionCommand().equals("Save Gated Obj Imgs")){
+            //Used to export individual images of each segmented nuclei
             ListIterator<Gate> gt = gates.listIterator();
             Path2D path = null;
             while(gt.hasNext()){
                 Gate g = gt.next();
-                if(g.getHovering()){
+                if(g.getSelected()){
                     path = g.createPath2DInChartSpace();
                 }
             }
@@ -707,11 +708,18 @@ public class GateLayer implements ActionListener, ItemListener {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    
+    /**
+     * Adds a SaveGatedImagesListener
+     * @param listener the listener to add to the ArrayList saveImageListeners
+     */
     public void addImagesListener(SaveGatedImagesListener listener) {
         saveImageListeners.add(listener);
     }
     
+    /**
+     * Notify the SaveGatedImagesListeners to save the gated nuclei
+     * @param path 
+     */
     private void notifyImageListeners(Path2D path){
         for (SaveGatedImagesListener listener : saveImageListeners) {
             listener.saveGated(path);
