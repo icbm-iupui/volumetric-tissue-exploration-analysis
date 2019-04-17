@@ -78,7 +78,7 @@ public class MicroObject implements Serializable, MicroObjectModel  {
     private boolean gated = false;
 
     private int color = 0;
-
+    
     public MicroObject() {
     }
 
@@ -106,7 +106,7 @@ public class MicroObject implements Serializable, MicroObjectModel  {
         max_Z = this.setMaxZ();
         min_Z = this.setMinZ();
         
-
+        
     }
     
     public void setCentroid(){
@@ -207,7 +207,43 @@ public class MicroObject implements Serializable, MicroObjectModel  {
         y = pixels.get(1);
         z = pixels.get(2);
     }
-
+    
+    private int getMax(int[] vals){
+        int max=0;
+        for(int i = 0; i < vals.length; i++){
+            if(vals[i] > max){
+                max = vals[i];
+            }
+        }
+        return max;
+    }
+    
+    private int getMin(int[] vals){
+        int min=Integer.MAX_VALUE;
+        for(int i = 0; i < vals.length; i++){
+            if(vals[i] < min){
+                min = vals[i];
+            }
+        }
+        return min;
+    }
+    
+    public int getRange(int dim){
+        int[] vals;
+        switch(dim){
+            case 0:     vals = x;
+                        break;
+            case 1:     vals = y;
+                        break;
+            case 2:     vals = z;
+            default:    vals = new int[0];
+            
+        }
+        
+        int min = getMin(vals);
+        int max = getMax(vals);
+        return max-min;
+    }
 
 
     @Override
@@ -265,6 +301,7 @@ public class MicroObject implements Serializable, MicroObjectModel  {
                 min = z[i];
             }
         }
+        min_Z = min;
         return min;
     }
     
@@ -275,6 +312,7 @@ public class MicroObject implements Serializable, MicroObjectModel  {
                 max = z[i];
             }
         }
+        max_Z = max;
         return max;
     }
     
@@ -458,5 +496,5 @@ public class MicroObject implements Serializable, MicroObjectModel  {
     public Rectangle getBoundingRectangle() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
 }

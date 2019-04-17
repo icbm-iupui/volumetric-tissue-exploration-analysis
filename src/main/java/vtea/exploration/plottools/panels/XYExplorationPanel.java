@@ -28,6 +28,9 @@ import ij.gui.TextRoi;
 import ij.plugin.ChannelSplitter;
 import static ij.plugin.RGBStackMerge.mergeChannels;
 import ij.process.StackConverter;
+import net.imglib2.img.display.imagej.ImageJFunctions;
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.NumericType;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -71,6 +74,7 @@ import org.jfree.chart.plot.XYPlot;
 import static vtea._vtea.LUTMAP;
 import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.PlotUpdateListener;
+import vtea.exploration.listeners.SaveGatedImagesListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plotgatetools.gates.Gate;
 import vtea.exploration.plotgatetools.gates.GateImporter;
@@ -84,8 +88,6 @@ import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vtea.lut.AbstractLUT;
-import vtea.objects.Segmentation.LayerCake3DSingleThreshold;
-import vtea.objects.layercake.microRegion;
 import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
@@ -94,16 +96,15 @@ import vteaobjects.MicroObjectModel;
  *
  * @author vinfrais
  */
-public class XYExplorationPanel extends AbstractExplorationPanel implements WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener {
-
+public class XYExplorationPanel extends AbstractExplorationPanel implements WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener {
+    ImagePlus image;
     XYChartPanel cpd;
     private boolean useGlobal = false;
     private boolean useCustom = false;
     int selected = 0;
     int gated = 0;
 
-    public XYExplorationPanel(ArrayList measurements, HashMap<Integer, String> hm, ArrayList<MicroObject> objects) {
-
+    public XYExplorationPanel(ArrayList measurements, HashMap<Integer, String> hm, ArrayList<MicroObject> objects, ImagePlus imp) {
         super();
         Roi.addRoiListener(this);
         this.objects = objects;
@@ -111,6 +112,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         this.LUT = 0;
         this.hm = hm;
         this.pointsize = MicroExplorer.POINTSIZE;
+        this.image = imp;
 
         //default plot 
         addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART, MicroExplorer.POINTSIZE, 0, hm.get(1), hm.get(4), hm.get(2));
@@ -599,6 +601,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         this.gl = new GateLayer();
         gl.addPolygonSelectionListener(this);
         gl.addImageHighLightSelectionListener(this);
+        
+        gl.addImagesListener(this);
 
         gl.msActive = false;
 
@@ -1221,6 +1225,98 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         this.hm = descriptions;
         this.measurements = measurements;
 
+    }
+    
+    @Override
+    public void saveGated(Path2D path){
+        saveImages(path, currentX, currentY);
+        
+    }
+    
+    private void saveImages(Path2D path, int xAxis, int yAxis){
+        image.setC(1);
+        int info[] = image.getDimensions();
+        ImageStack cropMe = image.getImageStack();
+        
+        JFileChooser objectimagejfc = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+        objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        int returnVal = objectimagejfc.showSaveDialog(this);
+
+        File file = objectimagejfc.getSelectedFile();
+
+        MicroExplorer.LASTDIRECTORY = file.getPath();
+
+        file = objectimagejfc.getSelectedFile();
+
+//        if (!FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("tiff")) {
+//            file = new File(file.toString() + ".tiff");
+//        }
+        
+        
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+            ArrayList<MicroObject> result = new ArrayList<>();
+
+            ArrayList<MicroObject> volumes = (ArrayList) objects;
+            int total = volumes.size();
+            double xValue = 0;
+            double yValue = 0;
+            
+
+            try {
+                for (int i = 0; i < total; i++) {
+
+                    ArrayList<Number> measured = measurements.get(i);
+
+                    xValue = measured.get(xAxis).floatValue();
+                    yValue = measured.get(yAxis).floatValue();
+
+                    if (path.contains(xValue, yValue)) {
+                        result.add((MicroObject) objects.get(i));
+                    }
+
+
+                }
+
+            } catch (NullPointerException e) {
+            }
+
+            int selectd = result.size();
+
+            Collections.sort(result, new ZComparator()); 
+
+            ListIterator<MicroObject> vitr = result.listIterator();
+            int imageSize = ((MicroObject) vitr.next()).getRange(0) > 32? 64: 32;
+            vitr.previous();
+            int count = 0;
+            while(vitr.hasNext()){
+                MicroObject vol = (MicroObject) vitr.next();
+                int minZ = vol.getMinZ();
+                int maxZ = vol.getMaxZ();
+                int xStart = Math.round(vol.getCentroidX()) - imageSize/2;
+                int yStart = Math.round(vol.getCentroidY()) - imageSize/2;
+                int zStart = 0;//Math.round(vol.getCentroidZ()) - imageSize/2;
+                if(yStart < 0 || xStart < 0 || yStart+imageSize > image.getHeight() || xStart+imageSize > image.getWidth())
+                    continue;
+                int add = 0;
+                if(zStart < 0){
+                    add = -1*zStart;
+                    zStart = 0;
+                }
+                vol.setMaxZ();
+                vol.setMinZ();
+                System.out.println(vol.getMaxZ()-vol.getMinZ());
+                ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, imageSize, imageSize,image.getNSlices()*image.getNChannels());
+                ImagePlus objImp = IJ.createHyperStack("nuclei", imageSize, imageSize, info[2], info[3], info[4], image.getBitDepth());
+                File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + Math.round(vol.getCentroidZ()) + ".tiff");
+                objImp.setStack(objImgStack);
+                IJ.saveAsTiff(objImp,objfile.getPath());
+                count++;
+            }   
+            System.out.println(selectd-count);
+        }
     }
 
     class ExportGates {

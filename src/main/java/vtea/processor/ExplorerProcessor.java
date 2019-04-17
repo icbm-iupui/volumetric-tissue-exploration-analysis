@@ -93,7 +93,7 @@ public class ExplorerProcessor extends AbstractProcessor {
                 hm.put(i, descriptions.get(i).toString());
             }
             
-            XYExplorationPanel XY = new XYExplorationPanel(measurements, hm, objects);
+            XYExplorationPanel XY = new XYExplorationPanel(measurements, hm, objects, impOriginal);
             DefaultPlotPanels DPP = new DefaultPlotPanels();
 
             String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");

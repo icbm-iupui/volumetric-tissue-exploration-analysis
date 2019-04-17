@@ -32,7 +32,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
@@ -46,6 +45,7 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI;
+import vtea.exploration.listeners.SaveGatedImagesListener;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.ImageHighlightSelectionListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
@@ -102,6 +102,8 @@ public class GateLayer implements ActionListener, ItemListener {
     
     public static Gate clipboardGate;
     public static boolean gateInClipboard = false;
+    
+    ArrayList<SaveGatedImagesListener> saveImageListeners = new ArrayList<SaveGatedImagesListener>();
 
     public GateLayer() {
 
@@ -643,6 +645,11 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
+        menu.add(new JSeparator());
+        
+        menuItem = new JMenuItem("Save Gated Obj Imgs");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
         
         
 
@@ -674,6 +681,17 @@ public class GateLayer implements ActionListener, ItemListener {
             } catch (NullPointerException n){}
         } else if(e.getActionCommand().equals("Delete All")){
             gates.clear();  
+        } else if(e.getActionCommand().equals("Save Gated Obj Imgs")){
+            ListIterator<Gate> gt = gates.listIterator();
+            Path2D path = null;
+            while(gt.hasNext()){
+                Gate g = gt.next();
+                if(g.getHovering()){
+                    path = g.createPath2DInChartSpace();
+                }
+            }
+            if(path != null)
+                notifyImageListeners(path);
         }    
         for(int i = 0; i < colors.length; i++){
          if(e.getActionCommand().equals(colors[i])){
@@ -688,7 +706,15 @@ public class GateLayer implements ActionListener, ItemListener {
     public void itemStateChanged(ItemEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-   
-
+    
+    
+    public void addImagesListener(SaveGatedImagesListener listener) {
+        saveImageListeners.add(listener);
+    }
+    
+    private void notifyImageListeners(Path2D path){
+        for (SaveGatedImagesListener listener : saveImageListeners) {
+            listener.saveGated(path);
+        }
+    }
 }
