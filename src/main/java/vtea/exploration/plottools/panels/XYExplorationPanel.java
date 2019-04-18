@@ -1296,7 +1296,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 //Throw out volumes that are on the edge or are improperly segmented(Zrange too big)
                 if(yStart*xStart < 0 || zStart < 0 || yStart+imageSize > image.getHeight() || xStart+imageSize > image.getWidth() || zRange > 5)
                     continue;
-                System.out.println(vol.getMaxZ()-vol.getMinZ());
+//                System.out.println(vol.getMaxZ()-vol.getMinZ());
                 
                 ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, imageSize, imageSize,(depth+2*depthPadding)*image.getNChannels());
                 ImagePlus objImp = IJ.createHyperStack("nuclei", imageSize, imageSize, info[2], info[3], info[4], image.getBitDepth());
