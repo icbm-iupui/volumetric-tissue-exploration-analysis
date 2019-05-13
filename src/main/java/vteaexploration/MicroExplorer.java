@@ -422,11 +422,11 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                 formComponentAdded(evt);
             }
         });
+        getContentPane().setLayout(new java.awt.BorderLayout());
 
         North.setMinimumSize(new java.awt.Dimension(638, 75));
         North.setPreferredSize(new java.awt.Dimension(638, 80));
-        North.setSize(new java.awt.Dimension(638, 80));
-        North.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 5));
+        North.setLayout(new java.awt.FlowLayout(0, 2, 5));
 
         toolbarPlot.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         toolbarPlot.setFloatable(false);
@@ -701,7 +701,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
         jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
         jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setRolloverEnabled(true);
         jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -719,7 +718,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         jButtonDistance.setMaximumSize(new java.awt.Dimension(35, 40));
         jButtonDistance.setMinimumSize(new java.awt.Dimension(35, 40));
         jButtonDistance.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonDistance.setRolloverEnabled(true);
         jButtonDistance.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jButtonDistance.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

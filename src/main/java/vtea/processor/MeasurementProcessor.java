@@ -206,7 +206,7 @@ public class MeasurementProcessor extends AbstractProcessor {
                         String descr = "Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName() + "_" + l;
                         
               if (descr.length() > 10) {
-                    descr = descr.substring(0, 8) + "..." + descr.substring(descr.length() - 5, descr.length());
+                    descr = descr.substring(0, 8) + "_" + descr.substring(descr.length() - 5, descr.length());
              }
                        
                         description.add(descr);
