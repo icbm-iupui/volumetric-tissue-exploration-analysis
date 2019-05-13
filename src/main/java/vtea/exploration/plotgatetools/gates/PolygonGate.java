@@ -41,8 +41,8 @@ import java.io.Serializable;
 
     private ArrayList<Point2D.Double> vertices = new ArrayList<Point2D.Double>();
     private ArrayList<Point2D.Double> verticesInChartSpace = new ArrayList<Point2D.Double>();
-    private Path2D path;
-    private Rectangle2D boundingbox;
+    private Path2D.Double path;
+    private Rectangle2D.Double boundingbox;
     private boolean selected = false;
     private boolean imagegated = false;
     private boolean mouseover = false;
@@ -59,7 +59,7 @@ import java.io.Serializable;
     super();
     vertices = points;
     path = createPath2D();
-    boundingbox = path.getBounds2D();
+    boundingbox = (Rectangle2D.Double) path.getBounds2D();
     this.setFocusable(true);
  
     }
@@ -74,7 +74,7 @@ import java.io.Serializable;
     }
 
     @Override
-    public Path2D createPath2D() {
+    public Path2D.Double createPath2D() {
 
     Point2D p;
     Path2D.Double polygon = new Path2D.Double();
@@ -129,7 +129,7 @@ import java.io.Serializable;
     }
 
     @Override
-    public Path2D getPath2D() {
+    public Path2D.Double getPath2D() {
     return this.path;
     }
 
@@ -159,19 +159,19 @@ import java.io.Serializable;
     }
 
     @Override
-    public Path2D createPath2DInChartSpace() {
+    public Path2D.Double createPath2DInChartSpace() {
 
     Point2D p;
     Path2D.Double polygon = new Path2D.Double();
 
     ListIterator<Point2D.Double> itr = verticesInChartSpace.listIterator();
 
-    p = (Point2D) verticesInChartSpace.get(0);
+    p = (Point2D.Double) verticesInChartSpace.get(0);
     //System.out.println(verticesInChartSpace.size() + " Gate points");
     //System.out.println("First Point: " + p);
     polygon.moveTo(p.getX(), p.getY());
     while (itr.hasNext()) {
-        p = (Point2D) itr.next();
+        p = (Point2D.Double) itr.next();
         //System.out.println("Next Point: " + p);
         polygon.lineTo(p.getX(), p.getY());
     }

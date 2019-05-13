@@ -304,6 +304,8 @@ public class H2DatabaseEngine {
                 high1 + ") AND (" +
                 column2 + " BETWEEN " + low2 + " AND " +
                 high2 + ")";
+        
+        System.out.println("SQL statement: " + SelectQuery);
             
         selectPreparedStatement = cn.prepareStatement(SelectQuery);
         rs = selectPreparedStatement.executeQuery();

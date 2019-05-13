@@ -215,7 +215,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
             if (gate.getSelected()) {
 
-                Path2D path = gate.createPath2DInChartSpace();
+                Path2D.Double path = gate.createPath2DInChartSpace();
 
                 ArrayList<MicroObject> result = new ArrayList<MicroObject>();
                 ArrayList<MicroObject> resultFinal = new ArrayList<MicroObject>();
@@ -227,10 +227,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 double yValue = 0;
 
                 ArrayList<ArrayList> resultKey = H2DatabaseEngine.getObjectsInRange2D(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
-                        this.descriptions.get(xAxis), path.getBounds().getX(),
-                        path.getBounds().getX() + path.getBounds().getWidth(),
-                        this.descriptions.get(yAxis), path.getBounds().getY(),
-                        path.getBounds().getY() + path.getBounds().getHeight());
+                        this.descriptions.get(xAxis), path.getBounds2D().getX(),
+                        path.getBounds2D().getX() + path.getBounds2D().getWidth(),
+                        this.descriptions.get(yAxis), path.getBounds2D().getY(),
+                        path.getBounds2D().getY() + path.getBounds2D().getHeight());
 
                 ListIterator<ArrayList> itr = resultKey.listIterator();
 
