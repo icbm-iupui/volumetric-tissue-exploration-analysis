@@ -132,39 +132,11 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         MorphologyButton.addActionListener(this);
         MorphologyButton.setToolTipText("Morphology settings for measurements");
         
-        comments.add(MorphologyButton);
-        
-        
-        
-        
-          
+        comments.add(MorphologyButton); 
         tablePane.setVisible(true);
-
-//        Object[][] CellValues = makeDerivedRegionTable();
-//
-//        secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
-//                CellValues,
-//                columnTitles
-//        ) {
-//            boolean[] canEdit = canEditColumns;
-//
-//            @Override
-//            public boolean isCellEditable(int rowIndex, int columnIndex) {
-//                return canEdit[columnIndex];
-//            }
-//        });
-//
-//        channelColumn = secondaryTable.getColumnModel().getColumn(0);
-//        analysisColumn = secondaryTable.getColumnModel().getColumn(1);
-//
-////        channelColumn.setCellEditor(channelEditor);
-////        analysisColumn.setCellEditor(analysisEditor);
-
         PreviewButton.setVisible(true);
         PreviewButton.setEnabled(true);
         
-//        secondaryTable.setVisible(true);
-
         repaint();
         pack();
     }
@@ -219,23 +191,9 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
     }
 
-//    private Object[][] makeDerivedRegionTable() {
-//        Object[][] CellValues = new Object[this.Channels.size()][4];
-//
-//        for (int i = 0; i < this.Channels.size(); i++) {
-//            CellValues[i][0] = Channels.get(i);
-//            CellValues[i][1] = "Grow";
-//            CellValues[i][2] = 1;
-//        }
-//        return CellValues;
-//    }
-
     @Override
     protected void getSegmentationPreview() {
         CurrentStepProtocol = CurrentProcessList;
-
-//        updateProcessVariables();
-
         ThresholdOriginal.setRoi(ThresholdPreview.getRoi());
 
         PreviewProgress.setText("Getting Preview...");

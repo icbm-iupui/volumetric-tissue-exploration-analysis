@@ -202,8 +202,6 @@ public class OpenImageWindow extends javax.swing.JFrame {
         notifyImageSelectionListeners(i, this.tab);
         this.setVisible(false);
         } catch (NullPointerException e){
-            
-           
         }
     }
     

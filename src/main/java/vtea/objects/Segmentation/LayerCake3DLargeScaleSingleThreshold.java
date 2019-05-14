@@ -19,19 +19,17 @@ package vtea.objects.Segmentation;
 
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.WindowManager;
+import ij.plugin.Duplicator;
 import ij.plugin.RGBStackMerge;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ForkJoinPool;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
 import java.util.concurrent.RecursiveAction;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -45,13 +43,7 @@ import static vtea._vtea.getInterleavedStacks;
 import vtea.protocol.listeners.ChangeThresholdListener;
 import vtea.protocol.setup.MicroThresholdAdjuster;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import javax.swing.JFileChooser;
-import javax.swing.JRadioButton;
-import org.apache.commons.io.FilenameUtils;
 import vtea.processor.listeners.ProgressListener;
-import vteaexploration.MicroExplorer;
 
 /**
  *
@@ -233,53 +225,40 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
         int width = is[0].getWidth();
         int height = is[0].getHeight();
         
-                //build the volumes
+        //build the volumes
         int xyDim = minConstants[4];
         
-        int lsxyDim = width;
-        
+        int lsxyDim = width;    
                 
-        if(extraLargeScale){
-            
-            if(width > height){
-                xyDim = width/3;
-            }else{
-                xyDim = height/3;
-            }
-        }
-        
+//        if(extraLargeScale){
+//            
+//            if(width > height){
+//                xyDim = width/3;
+//            }else{
+//                xyDim = height/3;
+//            }
+//        }   
 
-
-
-        //int overlap = minConstants[5];
-        RGBStackMerge rsm = new RGBStackMerge();
-
-        ImagePlus[] merged = new ImagePlus[is.length];
-
-        for (int i = 0; i < merged.length; i++) {
-            merged[i] = new ImagePlus("Ch_" + i, is[i]);
-        }
-
-        imageOriginal = rsm.mergeHyperstacks(merged, false);
+         int segmentationChannel = (int)protocol.get(2);
+                 
+        stackOriginal = is[segmentationChannel];
+        imageOriginal = new ImagePlus("Mask", stackOriginal);
+        stackResult = stackOriginal.duplicate();
 
         ArrayList<ImagePlus> volumes = new ArrayList<ImagePlus>();
 
         boolean processing = true;
 
         int round = 1;
+        
+        
 
         for (int x = 0; x < width; x = x + xyDim) {
-
             xPositions.add(x);
-
-            //System.out.println("PROFILING: x start position: " + x );
         }
 
         for (int y = 0; y < height; y = y + xyDim) {
-
             yPositions.add(y);
-
-            //System.out.println("PROFILING: y start position: " + y );
         }
 
         //get grid
@@ -292,9 +271,10 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
             for (int p = 0; p < yPositions.size(); p++) {
 
                 int y = (int) yPositions.get(p);
-
+                
+                Duplicator dup1 = new Duplicator();
                 imageOriginal.setRoi(new Rectangle(x, y, xyDim, xyDim));
-                volumes.add(imageOriginal.duplicate());
+                volumes.add(dup1.run(imageOriginal));
                 imageOriginal.deleteRoi();
 
                 xStart.add(x);
@@ -313,16 +293,14 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
             for (int p = 0; p < yPositions.size(); p++) {
 
                 int y = (int) yPositions.get(p);
-
+                 Duplicator dup2 = new Duplicator();
                 imageOriginal.setRoi(new Rectangle(x, y, xRemain, xyDim));
-                volumes.add(imageOriginal.duplicate());
+                volumes.add(dup2.run(imageOriginal));
                 imageOriginal.deleteRoi();
 
                 xStart.add(x);
                 yStart.add(y);
-
-                //System.out.println("PROFILING: Added new image at, " + x + ", " + y + " with dimensions " + xRemain + " by "+ xyDim);
-            }
+          }
         }
 
         //get y remain for all x
@@ -334,15 +312,13 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
             for (int p = 0; p < yPositions.size(); p++) {
 
                 int x = (int) xPositions.get(p);
-
+                 Duplicator dup3 = new Duplicator();
                 imageOriginal.setRoi(new Rectangle(x, y, xyDim, yRemain));
-                volumes.add(imageOriginal.duplicate());
+                volumes.add(dup3.run(imageOriginal));
                 imageOriginal.deleteRoi();
 
                 xStart.add(x);
                 yStart.add(y);
-
-                //System.out.println("PROFILING: Added new image at, " + x + ", " + y + " with dimensions " + xyDim + " by " + yRemain);
             }
         }
 
@@ -351,20 +327,16 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
 
             int xLast = ((int) xPositions.get(xPositions.size() - 1) + xyDim);
             int yLast = ((int) yPositions.get(yPositions.size() - 1) + xyDim);
-
+             Duplicator dup4 = new Duplicator();
             imageOriginal.setRoi(new Rectangle(xLast, yLast, xRemain, yRemain));
-            volumes.add(imageOriginal.duplicate());
+            volumes.add(dup4.run(imageOriginal));
             imageOriginal.deleteRoi();
 
             xStart.add(xLast);
             yStart.add(yLast);
-
-            //System.out.println("PROFILING: Added new image at, " + xLast + ", " + yLast + " with dimensions " + xRemain + " by " + yRemain);
         }
 
         notifyProgressListeners("Made " + volumes.size() + " total sub-images.", 15.0);
-
-      //  System.out.println("PROFILING:  Made " + volumes.size() + " total sub-images.");
 
         SegmentationForkPool sfp = new SegmentationForkPool(volumes, 1, volumes.size());
         ForkJoinPool pool = new ForkJoinPool();
