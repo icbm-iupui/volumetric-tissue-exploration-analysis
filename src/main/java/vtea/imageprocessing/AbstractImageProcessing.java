@@ -29,6 +29,17 @@ import net.imglib2.type.numeric.RealType;
  * @author sethwinfree
  * @param <T>
  * @param <A>
+ * 
+ * For saving, loading and copying of settings,
+ * 
+ * JComponent ArrayLists-only hold the GUI components for the class.
+ * 
+ * dComponent := ArrayList that is the destination for a copy action
+ * sComponent := Arraylist that is the source for a copy action
+ * 
+ * fields := In save and load methods contains the field values for setting the 
+ * JComponent values.
+ * 
  */
 public abstract class AbstractImageProcessing<T extends Component, A extends RealType>  implements ImageProcessing {
     

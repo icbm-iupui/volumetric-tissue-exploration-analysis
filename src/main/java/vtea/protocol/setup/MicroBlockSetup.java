@@ -398,10 +398,10 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         ProcessSelectComboBox.setMinimumSize(new java.awt.Dimension(150, 27));
         ProcessSelectComboBox.setPreferredSize(new java.awt.Dimension(200, 27));
         ProcessSelectComboBox.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-            }
             public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
                 ProcessSelectComboBoxCaretPositionChanged(evt);
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         ProcessSelectComboBox.addActionListener(new java.awt.event.ActionListener() {
