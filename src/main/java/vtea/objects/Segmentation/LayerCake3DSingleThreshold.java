@@ -317,6 +317,10 @@ public LayerCake3DSingleThreshold(){
         watershedImageJ = ((JCheckBox)(al.get(8))).isSelected();
         
         int segmentationChannel = (int)protocol.get(2);
+        
+           
+         //System.out.println("PROFILING: segmentation channel: " + segmentationChannel + " for " + is.length + " channels.");
+      
                  
         stackOriginal = is[segmentationChannel];
         imageOriginal = new ImagePlus("Mask", stackOriginal);

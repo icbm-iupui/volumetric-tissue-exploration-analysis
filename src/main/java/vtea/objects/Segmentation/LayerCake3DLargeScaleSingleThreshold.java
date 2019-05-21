@@ -240,7 +240,8 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
 //        }   
 
          int segmentationChannel = (int)protocol.get(2);
-                 
+         
+                  
         stackOriginal = is[segmentationChannel];
         imageOriginal = new ImagePlus("Mask", stackOriginal);
         stackResult = stackOriginal.duplicate();
@@ -387,6 +388,8 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
                 LayerCake3DSingleThreshold lc3dst1 = new LayerCake3DSingleThreshold();
                 
                 lc3dst1.addListener(this);
+                
+                protocol.set(2,(int)0);
 
                 lc3dst1.process(getInterleavedStacks(imps.get(start - 1)), protocol, watershedImageJ);
 
