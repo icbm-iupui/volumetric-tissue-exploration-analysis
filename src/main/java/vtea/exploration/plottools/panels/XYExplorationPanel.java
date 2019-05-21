@@ -32,6 +32,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
@@ -53,13 +56,18 @@ import java.util.HashMap;
 import java.util.ListIterator;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
@@ -1238,10 +1246,49 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
      */
     private void saveImages(Path2D path, int xAxis, int yAxis){
         int depth = 5;
-        int depthPadding = 1;
         int info[] = image.getDimensions();
         ImageStack cropMe = image.getImageStack();
         
+        
+        ArrayList<MicroObject> volumes = (ArrayList) objects;
+
+        ArrayList<MicroObject> result = new ArrayList<>();
+        int total = volumes.size();
+        double xValue;
+        double yValue;
+
+        try {
+            //Outputs the nuclei that are in the given gate to result
+            for (int i = 0; i < total; i++) {
+                ArrayList<Number> measured = measurements.get(i);
+
+                xValue = measured.get(xAxis).floatValue();
+                yValue = measured.get(yAxis).floatValue();
+
+                if (path.contains(xValue, yValue)) {
+                    result.add((MicroObject) objects.get(i));
+                }
+            }
+
+        } catch (NullPointerException e) {
+        }
+
+        int selectd = result.size();
+
+        Collections.sort(result, new ZComparator()); 
+
+        ListIterator<MicroObject> vitr = result.listIterator();
+
+        //Not sure if this line does as intended, bigger output images if higher quality images
+        int quality = ((MicroObject) vitr.next()).getRange(0) > 32? 64: 32;
+        int maxSize = info[0] > info[1]?info[1]:info[0];
+        vitr.previous();
+        ExportObjectImages options = new ExportObjectImages(info[3],maxSize, quality);
+        options.showDialog();
+        ArrayList chosenOptions = options.getInformation();
+        int size = Integer.parseInt(chosenOptions.get(0).toString());
+        depth = Integer.parseInt(chosenOptions.get(1).toString());
+        boolean dapi = Boolean.getBoolean(chosenOptions.get(2).toString());
         JFileChooser objectimagejfc = new JFileChooser(MicroExplorer.LASTDIRECTORY);
         objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -1249,64 +1296,85 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         File file = objectimagejfc.getSelectedFile();
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            ArrayList<MicroObject> volumes = (ArrayList) objects;
-            
-            ArrayList<MicroObject> result = new ArrayList<>();
-            int total = volumes.size();
-            double xValue;
-            double yValue;
-            
-            try {
-                //Outputs the nuclei that are in the given gate to result
-                for (int i = 0; i < total; i++) {
-                    ArrayList<Number> measured = measurements.get(i);
-
-                    xValue = measured.get(xAxis).floatValue();
-                    yValue = measured.get(yAxis).floatValue();
-
-                    if (path.contains(xValue, yValue)) {
-                        result.add((MicroObject) objects.get(i));
-                    }
-                }
-
-            } catch (NullPointerException e) {
-            }
-            
-            int selectd = result.size();
-
-            Collections.sort(result, new ZComparator()); 
-
-            ListIterator<MicroObject> vitr = result.listIterator();
-            
-            //Not sure if this line does as intended, bigger output images if higher quality images
-            int imageSize = ((MicroObject) vitr.next()).getRange(0) > 32? 64: 32;
-            vitr.previous();
             int count = 0;
             while(vitr.hasNext()){
                 MicroObject vol = (MicroObject) vitr.next();
                 vol.setMaxZ();  //not already set for most MicroVolumes
                 vol.setMinZ();  //same as above
-                
-                int xStart = Math.round(vol.getCentroidX()) - imageSize/2;
-                int yStart = Math.round(vol.getCentroidY()) - imageSize/2;
-                int zStart = vol.getMinZ() - depthPadding;
+
+                int xStart = Math.round(vol.getCentroidX()) - size/2;
+                int yStart = Math.round(vol.getCentroidY()) - size/2;
 
                 int zRange = vol.getMaxZ() - vol.getMinZ();
-                
+                int zStart = zRange > depth? (int)vol.getCentroidZ()-depth/2: vol.getMinZ()-(depth-zRange)/2;
+
                 //Throw out volumes that are on the edge or are improperly segmented(Zrange too big)
-                if(yStart*xStart < 0 || zStart < 0 || yStart+imageSize > image.getHeight() || xStart+imageSize > image.getWidth() || zRange > 5)
+                if(yStart*xStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth() || zRange > 5)
                     continue;
-//                System.out.println(vol.getMaxZ()-vol.getMinZ());
-                
-                ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, imageSize, imageSize,(depth+2*depthPadding)*image.getNChannels());
-                ImagePlus objImp = IJ.createHyperStack("nuclei", imageSize, imageSize, info[2], info[3], info[4], image.getBitDepth());
+
+                ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
+                ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
                 objImp.setStack(objImgStack);
-                
+
                 File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + Math.round(vol.getCentroidZ()) + ".tiff");
                 IJ.saveAsTiff(objImp,objfile.getPath());
                 count++;
             }   
-            System.out.println(String.format("%d nuclei could not be exported out of %d nuclei", selectd-count, selectd));
+            System.out.println(String.format("%d/%d nuclei could not be exported", selectd-count, selectd));
+        }
+    }
+    
+    class ExportObjectImages extends JPanel{
+        JTextArea size;
+        JSpinner depth;
+        JCheckBox dapi;
+        
+        public ExportObjectImages(int maxDepth, int maxSize, int recSize){
+            setLayout(new GridBagLayout());
+            JLabel sizeLabel = new JLabel("Select Size: ");
+            size = new JTextArea(String.valueOf(recSize),1,3);
+            size.addFocusListener(new java.awt.event.FocusListener(){
+                public void focusLost(java.awt.event.FocusEvent evt) {
+                    if(Integer.parseInt(size.getText())>maxSize)
+                        size.setText(String.valueOf(maxSize));
+                }
+                public void focusGained(java.awt.event.FocusEvent evt){
+                }
+            });
+            JLabel depthLabel = new JLabel("Select Depth: ");
+            depth = new JSpinner(new SpinnerNumberModel(7,1,maxDepth,1));
+            dapi = new JCheckBox("Only use DAPI channel in output ", false);
+            dapi.setEnabled(false);
+            
+            GridBagConstraints gbc = new GridBagConstraints(0,0,1,1,0.2,1.0,
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(sizeLabel, gbc);
+            gbc = new GridBagConstraints(1,0,1,1,1,1.0,GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(size, gbc);
+            gbc = new GridBagConstraints(0,1,1,1,0.2,1.0,GridBagConstraints.WEST,
+                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(depthLabel,gbc);
+            gbc = new GridBagConstraints(1,1,1,1,1,1.0,GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(depth,gbc);
+            gbc = new GridBagConstraints(0,2,1,1,1,1.0,GridBagConstraints.EAST,
+                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(dapi,gbc);
+        }
+        
+        public int showDialog() {
+            return JOptionPane.showOptionDialog(null, this, "Setup Output Images",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+            null, null);
+        }
+        
+        public ArrayList getInformation(){
+            ArrayList info = new ArrayList(3);
+            info.add(Integer.parseInt(size.getText()));
+            info.add(Integer.parseInt(depth.getValue().toString()));
+            info.add(dapi.isEnabled());
+            return info;
         }
     }
 
