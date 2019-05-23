@@ -269,9 +269,9 @@ public class XYChartPanel implements RoiListener {
 
         renderer.setPaintScale(ps);
         
-        if(range <= 10){
+        if(range <= 21){
             
-        ps.add(0, new Color(255,51,51));
+        ps.add(0, new Color(255, 51, 51));
         ps.add(1, new Color(255, 153, 51));
         ps.add(2, new Color(153, 255, 51));
         ps.add(3, new Color(51, 255, 153));
@@ -281,9 +281,21 @@ public class XYChartPanel implements RoiListener {
         ps.add(7, new Color(178, 102, 255));
         ps.add(8, new Color(255, 102, 255));
         ps.add(9, new Color(255, 102, 178));
+
+        ps.add(10, new Color(255, 51, 153));
+        ps.add(11, new Color(255, 153, 153));
+        ps.add(12, new Color(153, 255, 153));
+        ps.add(13, new Color(51, 255, 51));
+        ps.add(14, new Color(51, 255, 178));
+        ps.add(15, new Color(102, 178, 178));
+        ps.add(16, new Color(178, 102, 178));
+        ps.add(17, new Color(255, 102, 153));
+        ps.add(18, new Color(255, 102, 51));
+        ps.add(19, new Color(178, 153, 51));
+        ps.add(20, new Color(153, 178, 51));
   
         }else{
-
+        ps.add(min, XYChartPanel.ZEROPERCENT);      
         ps.add(min + (1 * (range / 10)), XYChartPanel.TENPERCENT);
         ps.add(min + (2 * (range / 10)), XYChartPanel.TWENTYPERCENT);
         ps.add(min + (3 * (range / 10)), XYChartPanel.THIRTYPERCENT);

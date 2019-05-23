@@ -551,7 +551,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 iImp = con.newInstance();
 
                 HashMap lutTable = ((AbstractLUT) iImp).getLUTMAP();
-
+                
+                XYChartPanel.ZEROPERCENT = ((AbstractLUT) iImp).getColor(0);
                 XYChartPanel.TENPERCENT = ((AbstractLUT) iImp).getColor(10);
                 XYChartPanel.TWENTYPERCENT = ((AbstractLUT) iImp).getColor(20);
                 XYChartPanel.THIRTYPERCENT = ((AbstractLUT) iImp).getColor(30);
