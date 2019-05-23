@@ -27,6 +27,7 @@ import ij.gui.RoiListener;
 import ij.gui.TextRoi;
 import ij.plugin.ChannelSplitter;
 import static ij.plugin.RGBStackMerge.mergeChannels;
+import ij.plugin.ZProjector;
 import ij.process.StackConverter;
 import java.awt.Color;
 import java.awt.Component;
@@ -42,10 +43,12 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -1289,11 +1292,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         int size = Integer.parseInt(chosenOptions.get(0).toString());
         depth = Integer.parseInt(chosenOptions.get(1).toString());
         boolean dapi = Boolean.getBoolean(chosenOptions.get(2).toString());
+        String label = chosenOptions.get(3).toString();
         JFileChooser objectimagejfc = new JFileChooser(MicroExplorer.LASTDIRECTORY);
         objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         int returnVal = objectimagejfc.showSaveDialog(this);
         File file = objectimagejfc.getSelectedFile();
+        
+        ArrayList<String> filenames = new ArrayList<>();
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             int count = 0;
@@ -1309,23 +1315,90 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 int zStart = zRange > depth? (int)vol.getCentroidZ()-depth/2: vol.getMinZ()-(depth-zRange)/2;
 
                 //Throw out volumes that are on the edge or are improperly segmented(Zrange too big)
-                if(yStart*xStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth() || zRange > 5)
+//                if(yStart*xStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth() || zRange > 5)
+//                    continue;
+                
+                    if(xStart < 0 || yStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth())
                     continue;
+                
 
-                ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
-                ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
-                objImp.setStack(objImgStack);
 
-                File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + Math.round(vol.getCentroidZ()) + ".tiff");
+               //ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
+                
+               //ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
+               
+               ImagePlus objImp = IJ.createImage("nuclei", image.getBitDepth()+" black", size, size, depth);
+               
+               ImageStack st = objImp.getImageStack();
+               ImageStack stSource = image.getImageStack();
+               
+               
+                
+                int[] xPixels = vol.getPixelsX();
+                int[] yPixels = vol.getPixelsY();
+                int[] zPixels = vol.getPixelsZ();
+                
+                for(int i = 0; i < xPixels.length; i++){
+                            st.setVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart, stSource.getVoxel(xPixels[i], yPixels[i], zPixels[i]));        
+                }
+
+                objImp.setStack(st);
+                
+                objImp = ZProjector.run(objImp,"sum");
+
+                File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
+                
+                filenames.add("nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
+                
                 IJ.saveAsTiff(objImp,objfile.getPath());
                 count++;
             }   
             System.out.println(String.format("%d/%d nuclei could not be exported", selectd-count, selectd));
         }
+        
+         try {
+
+                    try {
+
+                        PrintWriter pw = new PrintWriter(file.getPath()+ File.separator + "Label_" + label + ".csv");
+                        StringBuilder sb = new StringBuilder();
+
+                        ListIterator itr = filenames.listIterator();
+
+                        sb.append("Filename");
+                        sb.append(',');
+                        sb.append("Label");
+                        sb.append('\n');
+
+                        while (itr.hasNext()) {
+                            sb.append((String) itr.next());
+                            if (itr.hasNext()) {
+                                sb.append(",");
+                                sb.append(label);
+                                sb.append("\n");
+                            }
+                        }
+                        
+                        sb.append(",");
+                        sb.append(label);
+                        
+
+                        pw.write(sb.toString());
+                        pw.close();
+
+                    } catch (FileNotFoundException e) {
+                    }
+
+                } catch (NullPointerException ne) {
+                }
+        
+        
+        
     }
     
     class ExportObjectImages extends JPanel{
         JTextArea size;
+        JTextArea label;
         JSpinner depth;
         JCheckBox dapi;
         
@@ -1341,10 +1414,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 public void focusGained(java.awt.event.FocusEvent evt){
                 }
             });
+            
+            JLabel labelLabel = new JLabel("Class label: ");
+            label = new JTextArea("1");
+            
             JLabel depthLabel = new JLabel("Select Depth: ");
             depth = new JSpinner(new SpinnerNumberModel(7,1,maxDepth,1));
             dapi = new JCheckBox("Only use DAPI channel in output ", false);
             dapi.setEnabled(false);
+            
+            
             
             GridBagConstraints gbc = new GridBagConstraints(0,0,1,1,0.2,1.0,
                     GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
@@ -1358,6 +1437,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             gbc = new GridBagConstraints(1,1,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
             this.add(depth,gbc);
+ //Added label label
+            gbc = new GridBagConstraints(0,2,1,1,0.2,1.0,GridBagConstraints.WEST,
+                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(labelLabel,gbc);
+            gbc = new GridBagConstraints(1,2,1,1,1,1.0,GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(label,gbc);
+            
+            
             gbc = new GridBagConstraints(0,2,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
             this.add(dapi,gbc);
@@ -1374,6 +1462,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             info.add(Integer.parseInt(size.getText()));
             info.add(Integer.parseInt(depth.getValue().toString()));
             info.add(dapi.isEnabled());
+            info.add(label.getText());
             return info;
         }
     }
