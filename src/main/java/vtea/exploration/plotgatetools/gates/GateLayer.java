@@ -647,7 +647,7 @@ public class GateLayer implements ActionListener, ItemListener {
         
         menu.add(new JSeparator());
         
-        menuItem = new JMenuItem("Save Gated Obj Imgs");
+        menuItem = new JMenuItem("Make Ground Truth...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
@@ -681,7 +681,7 @@ public class GateLayer implements ActionListener, ItemListener {
             } catch (NullPointerException n){}
         } else if(e.getActionCommand().equals("Delete All")){
             gates.clear();  
-        } else if(e.getActionCommand().equals("Save Gated Obj Imgs")){
+        } else if(e.getActionCommand().equals("Make Ground Truth...")){
             //Used to export individual images of each segmented nuclei
             ListIterator<Gate> gt = gates.listIterator();
             Path2D path = null;

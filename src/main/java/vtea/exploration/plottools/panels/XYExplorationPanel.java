@@ -1344,6 +1344,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
                 objImp.setStack(st);
                 
+                //need to add projection adjustment
                 objImp = ZProjector.run(objImp,"sum");
 
                 File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
@@ -1446,7 +1447,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             this.add(label,gbc);
             
             
-            gbc = new GridBagConstraints(0,2,1,1,1,1.0,GridBagConstraints.EAST,
+            gbc = new GridBagConstraints(0,3,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
             this.add(dapi,gbc);
         }
