@@ -1248,9 +1248,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
      * @param yAxis current measurement on the x-axis of the explorer
      */
     private void saveImages(Path2D path, int xAxis, int yAxis){
-        int depth = 5;
         int info[] = image.getDimensions();
-        ImageStack cropMe = image.getImageStack();
+//        ImageStack cropMe = image.getImageStack();
         
         
         ArrayList<MicroObject> volumes = (ArrayList) objects;
@@ -1284,24 +1283,23 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
         //Not sure if this line does as intended, bigger output images if higher quality images
         int quality = ((MicroObject) vitr.next()).getRange(0) > 32? 64: 32;
-        int maxSize = info[0] > info[1]?info[1]:info[0];
         vitr.previous();
+        
+        int maxSize = info[0] > info[1]?info[1]:info[0];
         ExportObjectImages options = new ExportObjectImages(info[3],maxSize, quality);
         options.showDialog();
         ArrayList chosenOptions = options.getInformation();
         int size = Integer.parseInt(chosenOptions.get(0).toString());
-        depth = Integer.parseInt(chosenOptions.get(1).toString());
+        int depth = Integer.parseInt(chosenOptions.get(1).toString());
         boolean dapi = Boolean.getBoolean(chosenOptions.get(2).toString());
         String label = chosenOptions.get(3).toString();
-        JFileChooser objectimagejfc = new JFileChooser(MicroExplorer.LASTDIRECTORY);
-        objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-        int returnVal = objectimagejfc.showSaveDialog(this);
-        File file = objectimagejfc.getSelectedFile();
+        String projChoice = chosenOptions.get(4).toString();
+        
+        File file = options.chooseSaveLocation();
         
         ArrayList<String> filenames = new ArrayList<>();
 
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
+        if (file != null) {
             int count = 0;
             while(vitr.hasNext()){
                 MicroObject vol = (MicroObject) vitr.next();
@@ -1318,34 +1316,29 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 //                if(yStart*xStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth() || zRange > 5)
 //                    continue;
                 
-                    if(xStart < 0 || yStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth())
+                if(xStart < 0 || yStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth())
                     continue;
                 
+                //ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
+                //ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
+               
+                ImagePlus objImp = IJ.createImage("nuclei", image.getBitDepth()+" black", size, size, depth);
 
-
-               //ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
-                
-               //ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
+                ImageStack st = objImp.getImageStack();
+                ImageStack stSource = image.getImageStack();
                
-               ImagePlus objImp = IJ.createImage("nuclei", image.getBitDepth()+" black", size, size, depth);
-               
-               ImageStack st = objImp.getImageStack();
-               ImageStack stSource = image.getImageStack();
-               
-               
-                
                 int[] xPixels = vol.getPixelsX();
                 int[] yPixels = vol.getPixelsY();
                 int[] zPixels = vol.getPixelsZ();
-                
                 for(int i = 0; i < xPixels.length; i++){
                             st.setVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart, stSource.getVoxel(xPixels[i], yPixels[i], zPixels[i]));        
                 }
 
                 objImp.setStack(st);
                 
-                //need to add projection adjustment
-                objImp = ZProjector.run(objImp,"sum");
+                //ZProjection as based on the choice made in options
+                if(!projChoice.equalsIgnoreCase("No Z projection"))
+                    objImp = ZProjector.run(objImp,projChoice);
 
                 File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
                 
@@ -1358,40 +1351,37 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         }
         
          try {
+                try {
+                    PrintWriter pw = new PrintWriter(file.getPath()+ File.separator + "Label_" + label + ".csv");
+                    StringBuilder sb = new StringBuilder();
 
-                    try {
+                    ListIterator itr = filenames.listIterator();
 
-                        PrintWriter pw = new PrintWriter(file.getPath()+ File.separator + "Label_" + label + ".csv");
-                        StringBuilder sb = new StringBuilder();
+                    sb.append("Filename");
+                    sb.append(',');
+                    sb.append("Label");
+                    sb.append('\n');
 
-                        ListIterator itr = filenames.listIterator();
-
-                        sb.append("Filename");
-                        sb.append(',');
-                        sb.append("Label");
-                        sb.append('\n');
-
-                        while (itr.hasNext()) {
-                            sb.append((String) itr.next());
-                            if (itr.hasNext()) {
-                                sb.append(",");
-                                sb.append(label);
-                                sb.append("\n");
-                            }
+                    while (itr.hasNext()) {
+                        sb.append((String) itr.next());
+                        if (itr.hasNext()) {
+                            sb.append(",");
+                            sb.append(label);
+                            sb.append("\n");
                         }
-                        
-                        sb.append(",");
-                        sb.append(label);
-                        
-
-                        pw.write(sb.toString());
-                        pw.close();
-
-                    } catch (FileNotFoundException e) {
                     }
 
-                } catch (NullPointerException ne) {
+                    sb.append(",");
+                    sb.append(label);
+
+                    pw.write(sb.toString());
+                    pw.close();
+
+                } catch (FileNotFoundException e) {
                 }
+
+            } catch (NullPointerException ne) {
+            }
         
         
         
@@ -1402,16 +1392,19 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         JTextArea label;
         JSpinner depth;
         JCheckBox dapi;
+        JComboBox zproject;
         
         public ExportObjectImages(int maxDepth, int maxSize, int recSize){
             setLayout(new GridBagLayout());
             JLabel sizeLabel = new JLabel("Select Size: ");
             size = new JTextArea(String.valueOf(recSize),1,3);
             size.addFocusListener(new java.awt.event.FocusListener(){
+                @Override
                 public void focusLost(java.awt.event.FocusEvent evt) {
                     if(Integer.parseInt(size.getText())>maxSize)
                         size.setText(String.valueOf(maxSize));
                 }
+                @Override
                 public void focusGained(java.awt.event.FocusEvent evt){
                 }
             });
@@ -1424,30 +1417,43 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             dapi = new JCheckBox("Only use DAPI channel in output ", false);
             dapi.setEnabled(false);
             
+            JLabel zprojLabel = new JLabel("Select Z-projection: ");
+            String [] zprojList = {"No Z projection", "avg", "min", "max", "sum", "sd", "median"};
+            zproject = new JComboBox(zprojList);
             
-            
+            setupPanel(sizeLabel, labelLabel, depthLabel, zprojLabel); 
+        }
+        
+        private void setupPanel(JLabel sizeL, JLabel labelL, JLabel depthL, JLabel zprojL){
             GridBagConstraints gbc = new GridBagConstraints(0,0,1,1,0.2,1.0,
                     GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(sizeLabel, gbc);
+            this.add(sizeL, gbc);
             gbc = new GridBagConstraints(1,0,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
             this.add(size, gbc);
+            
             gbc = new GridBagConstraints(0,1,1,1,0.2,1.0,GridBagConstraints.WEST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(depthLabel,gbc);
+            this.add(depthL,gbc);
             gbc = new GridBagConstraints(1,1,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
             this.add(depth,gbc);
  //Added label label
             gbc = new GridBagConstraints(0,2,1,1,0.2,1.0,GridBagConstraints.WEST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(labelLabel,gbc);
+            this.add(labelL,gbc);
             gbc = new GridBagConstraints(1,2,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
             this.add(label,gbc);
             
+            gbc = new GridBagConstraints(0,3,1,1,0.2,1.0,GridBagConstraints.WEST,
+                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(zprojL,gbc);
+            gbc = new GridBagConstraints(1,3,1,1,1,1.0,GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(zproject,gbc);
             
-            gbc = new GridBagConstraints(0,3,1,1,1,1.0,GridBagConstraints.EAST,
+            gbc = new GridBagConstraints(0,4,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
             this.add(dapi,gbc);
         }
@@ -1464,7 +1470,21 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             info.add(Integer.parseInt(depth.getValue().toString()));
             info.add(dapi.isEnabled());
             info.add(label.getText());
+            info.add(zproject.getSelectedItem().toString());
             return info;
+        }
+        
+        public File chooseSaveLocation(){
+            JFileChooser objectimagejfc = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+            int returnVal = objectimagejfc.showSaveDialog(this);
+            File file = objectimagejfc.getSelectedFile();
+            
+            if(returnVal == JFileChooser.APPROVE_OPTION)
+                return file;
+            else
+                return null;
         }
     }
 
