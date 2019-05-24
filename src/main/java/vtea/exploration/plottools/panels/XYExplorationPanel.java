@@ -62,6 +62,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.io.FilenameUtils;
@@ -1128,20 +1129,30 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         CenterPanel.paint(image.getGraphics());
 
         JFrame j = new JFrame();
+        File file;
+        int choice = JOptionPane.OK_OPTION;
+        int returnVal=JFileChooser.CANCEL_OPTION;
+        do{
+            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+            returnVal = jf.showSaveDialog(CenterPanel);
+            file = jf.getSelectedFile();
+            
+            try {
 
-        JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
-        int returnVal = jf.showSaveDialog(CenterPanel);
-        File file = jf.getSelectedFile();
+                if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("png")) {
 
-        try {
-
-            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("png")) {
-
-            } else {
-                file = new File(file.toString() + ".png");
+                } else {
+                    file = new File(file.toString() + ".png");
+                }
+            } catch (Exception e) {
             }
-        } catch (Exception e) {
-        }
+            
+            if(file.exists()){
+                String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                choice = JOptionPane.showConfirmDialog(CenterPanel, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+            }
+        }while(choice != JOptionPane.OK_OPTION);
+        
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
 
@@ -1203,19 +1214,30 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         }
 
         public void export(ArrayList<ArrayList<Point2D.Double>> al) {
+            File file;
+            int returnVal = JFileChooser.CANCEL_OPTION;
+            int choice = JOptionPane.OK_OPTION;
+            do{
+                JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+                returnVal = jf.showSaveDialog(CenterPanel);
+                file = jf.getSelectedFile();
 
-            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
-            int returnVal = jf.showSaveDialog(CenterPanel);
-            File file = jf.getSelectedFile();
+                _vtea.LASTDIRECTORY = file.getPath();
 
-            _vtea.LASTDIRECTORY = file.getPath();
+                file = jf.getSelectedFile();
+                
+                if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("vtg")) {
 
-            file = jf.getSelectedFile();
-            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("vtg")) {
-
-            } else {
-                file = new File(file.toString() + ".vtg");
-            }
+                } else {
+                    file = new File(file.toString() + ".vtg");
+                }
+                
+                if(file.exists()){
+                    String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                    choice = JOptionPane.showConfirmDialog(CenterPanel, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                }
+            }while(choice != JOptionPane.OK_OPTION);
+            
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {

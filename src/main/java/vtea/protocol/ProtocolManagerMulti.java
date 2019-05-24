@@ -926,12 +926,14 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
     @Override
     public void onProcessingFileSave() throws Exception {
-      
+        File file;
+        int choice = JOptionPane.OK_OPTION;
+        do{
             JFileChooser chooser = new JFileChooser(_vtea.LASTDIRECTORY);
             FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA processing file.", ".prc", "prc");
             chooser.setFileFilter(filter);
             chooser.showSaveDialog(this);
-            File file = chooser.getSelectedFile();
+            file = chooser.getSelectedFile();
             
             _vtea.LASTDIRECTORY = file.getAbsolutePath();
 
@@ -943,33 +945,39 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
                 file = new File(path);
             }
             
-            SingleImageProcessing SourceSIP;
-            SourceSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
-            
-            ArrayList<ProcessStepBlockGUI> sourceProtocol = SourceSIP.getProcessStepsList();
-            ArrayList<ArrayList> destinationProtocol = new ArrayList<ArrayList>();
-            
-            ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
-            
-            for(int i = 1; i < sourceProtocol.size(); i++){
-                
-                ArrayList stepResult = new ArrayList();
-                
-                ProcessStepBlockGUI stepSource = sourceProtocol.get(i);
-                
-                stepResult.add(stepSource.mbs.getChannel());
-                stepResult.add(stepSource.mbs.getMethod());
-                stepResult.add(stepSource.mbs.getProcessList());
-
-                destinationProtocol.add(stepResult);
-                
+            if(file.exists()){
+                String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                choice = JOptionPane.showConfirmDialog(null, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
             }
+        }while(choice != JOptionPane.OK_OPTION);
+        
+        SingleImageProcessing SourceSIP;
+        SourceSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
 
-            FileOutputStream fos = new FileOutputStream(file);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(destinationProtocol);
-            oos.close();
-            repaint();
+        ArrayList<ProcessStepBlockGUI> sourceProtocol = SourceSIP.getProcessStepsList();
+        ArrayList<ArrayList> destinationProtocol = new ArrayList<ArrayList>();
+
+        ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
+
+        for(int i = 1; i < sourceProtocol.size(); i++){
+
+            ArrayList stepResult = new ArrayList();
+
+            ProcessStepBlockGUI stepSource = sourceProtocol.get(i);
+
+            stepResult.add(stepSource.mbs.getChannel());
+            stepResult.add(stepSource.mbs.getMethod());
+            stepResult.add(stepSource.mbs.getProcessList());
+
+            destinationProtocol.add(stepResult);
+
+        }
+
+        FileOutputStream fos = new FileOutputStream(file);
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(destinationProtocol);
+        oos.close();
+        repaint();
     }
 
     @Override
@@ -1045,12 +1053,14 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
     @Override
     public void onSegmentationFileSave() throws Exception {
-     
+        int choice = JOptionPane.OK_OPTION;
+        File file;
+        do{
             JFileChooser chooser = new JFileChooser(_vtea.LASTDIRECTORY);
             FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA segementation file.", ".seg", "seg");
             chooser.setFileFilter(filter);
             chooser.showSaveDialog(this);
-            File file = chooser.getSelectedFile();
+            file = chooser.getSelectedFile();
             
             _vtea.LASTDIRECTORY = file.getAbsolutePath();
 
@@ -1060,6 +1070,12 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
                 path += ".seg";
                 file = new File(path);
             }
+            
+            if(file.exists()){
+                String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                choice = JOptionPane.showConfirmDialog(null, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+            }
+        }while(choice != JOptionPane.OK_OPTION);
             
             SingleImageProcessing SourceSIP;
             SourceSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
