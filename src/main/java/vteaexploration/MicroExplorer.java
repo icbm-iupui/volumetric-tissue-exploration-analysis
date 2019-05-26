@@ -78,6 +78,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FilenameUtils;
 import org.scijava.plugin.Plugin;
+import vtea.OpenObxFormat;
 import vtea._vtea;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.AxesChangeListener;
@@ -422,11 +423,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                 formComponentAdded(evt);
             }
         });
-        getContentPane().setLayout(new java.awt.BorderLayout());
 
         North.setMinimumSize(new java.awt.Dimension(638, 75));
         North.setPreferredSize(new java.awt.Dimension(638, 80));
-        North.setLayout(new java.awt.FlowLayout(0, 2, 5));
+        North.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 5));
 
         toolbarPlot.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         toolbarPlot.setFloatable(false);
@@ -963,8 +963,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private void importOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importOBJActionPerformed
               new Thread(() -> {
             try {
-                ImportOBJ io = new ImportOBJ();
-                io.importObjects();
+                OpenObxFormat io = new OpenObxFormat();
+                io.importObjects(Main);
                 
     } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
@@ -1819,69 +1819,86 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     }
     
-    public class ImportOBJ {
-
-        public ImportOBJ() {
-        }
-        
-        protected void importObjects() {
-
-            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
-            FileNameExtensionFilter filter = 
-            new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
-            jf.addChoosableFileFilter(filter);
-            jf.setFileFilter(filter);
-            int returnVal = jf.showOpenDialog(Main);
-            File file = jf.getSelectedFile();
-            
-            
-
-            ArrayList result = new ArrayList();
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                try {
-                    try {
-                        FileInputStream fis = new FileInputStream(file);
-                        ObjectInputStream ois = new ObjectInputStream(fis);
-                        
-                        ProgressMonitorInputStream pm = 
-                        new ProgressMonitorInputStream(Main,"Reading" + file.getName() ,fis);
-                        
-                        result = (ArrayList) ois.readObject();
-                        ois.close();        
-                        Opener op = new Opener();
-                        ImagePlus imp = op.openImage(file.getParent(), ((String)result.get(0))+".tif");
-
-                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
-    
-                    } catch (IOException e) {
-                        System.out.println("ERROR: Could not open the file.");
-                    }
-                } catch (ClassNotFoundException ne) {
-                    System.out.println("ERROR: Not Found.");
-                }
-            } else {
-            }
-            
-        }
-        
-        private void executeExploring(String name, ArrayList result, ImagePlus imp){
-
-        String k = (String)result.get(0);
-        ArrayList<MicroObject> objects = (ArrayList<MicroObject>)result.get(1);
-        ArrayList measures = (ArrayList)result.get(2);
-        ArrayList descriptions = (ArrayList)result.get(3);
-        ArrayList descriptionLabels = (ArrayList)result.get(4);
-            
-        ExplorerProcessor ep = new ExplorerProcessor(name, imp, objects, measures, descriptions, descriptionLabels);
-        ep.execute();
-
-        }
-
-    }
-
-    
-    
+//    public class ImportOBJ {
+//
+//        public ImportOBJ() {
+//        }
+//        
+//        protected void importObjects() {
+//
+//            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+//            FileNameExtensionFilter filter = 
+//            new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
+//            jf.addChoosableFileFilter(filter);
+//            jf.setFileFilter(filter);
+//            int returnVal = jf.showOpenDialog(Main);
+//            File file = jf.getSelectedFile();
+//            
+//            
+//
+//            ArrayList result = new ArrayList();
+//
+//            if (returnVal == JFileChooser.APPROVE_OPTION) {
+//                try {
+//                    try {
+//                        FileInputStream fis = new FileInputStream(file);
+//                        ObjectInputStream ois = new ObjectInputStream(fis);
+//                        
+//                        ProgressMonitorInputStream pm = 
+//                        new ProgressMonitorInputStream(Main,"Reading" + file.getName() ,fis);
+//                        
+//                        result = (ArrayList) ois.readObject();
+//                        ois.close(); 
+//                        } catch (IOException e) {
+//                        System.out.println("ERROR: Could not open the file.");
+//                    }
+//                    try{
+//                        Opener op = new Opener();
+//                        ImagePlus imp = op.openImage(file.getParent(), ((String)result.get(0))+".tif");
+//                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
+//                    } catch (NullPointerException e) {
+//                        System.out.println("WARNING: Could not find the tiff file.");
+//                        JFileChooser jf2 = new JFileChooser(_vtea.LASTDIRECTORY);
+//                        FileNameExtensionFilter filter2 = 
+//                        new FileNameExtensionFilter("Tiff file.", ".tif", "tif");
+//                        jf.addChoosableFileFilter(filter2);
+//                        jf.setFileFilter(filter2);
+//                        int returnVal2 = jf2.showOpenDialog(Main);
+//                        File image = jf2.getSelectedFile();
+//                        
+//                        Opener op = new Opener();
+//                        ImagePlus imp = op.openImage(file.getParent(), image.getName());
+//                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
+//                    }
+//                    
+//                        
+//    
+//                    
+//                } catch (ClassNotFoundException ne) {
+//                    System.out.println("ERROR: Not Found.");
+//                }
+//            } else {
+//            }
+//            
+//        }
+//        
+//        private void executeExploring(String name, ArrayList result, ImagePlus imp){
+//
+//        String k = (String)result.get(0);
+//        ArrayList<MicroObject> objects = (ArrayList<MicroObject>)result.get(1);
+//        ArrayList measures = (ArrayList)result.get(2);
+//        ArrayList descriptions = (ArrayList)result.get(3);
+//        ArrayList descriptionLabels = (ArrayList)result.get(4);
+//            
+//        ExplorerProcessor ep = new ExplorerProcessor(name, imp, objects, measures, descriptions, descriptionLabels);
+//        ep.execute();
+//
+//        }
+//
+//    }
+//
+//    
+//    
 
     class ExportCSV {
 

@@ -465,6 +465,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
     public void makePolygonGate() throws Throwable {
         this.msPolygon = false;
+        points.remove(points.size()-1);
         notifyPolygonSelectionListeners(points);
         this.points.clear();
         this.finalize();

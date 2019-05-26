@@ -225,8 +225,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
                 double xValue = 0;
                 double yValue = 0;
+                
+                
+                //this is where we need to add logic for polygons...  this is tripping up things
 
-                ArrayList<ArrayList> resultKey = H2DatabaseEngine.getObjectsInRange2D(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
+                ArrayList<ArrayList> resultKey = H2DatabaseEngine.getObjectsInRange2D(path, vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
                         this.descriptions.get(xAxis), path.getBounds2D().getX(),
                         path.getBounds2D().getX() + path.getBounds2D().getWidth(),
                         this.descriptions.get(yAxis), path.getBounds2D().getY(),

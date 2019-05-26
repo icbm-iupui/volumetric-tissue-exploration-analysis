@@ -111,8 +111,6 @@ import java.io.Serializable;
         XYPlot plot = (XYPlot) chart.getChart().getPlot();
         xChartPoint = plot.getDomainAxis().java2DToValue(x1Points[index], plotArea, plot.getDomainAxisEdge());
         yChartPoint = plot.getRangeAxis().java2DToValue(y1Points[index], plotArea, plot.getRangeAxisEdge());
-
-        
         this.verticesInChartSpace.add(new Point2D.Double(xChartPoint, yChartPoint));
     }
 
@@ -164,15 +162,15 @@ import java.io.Serializable;
     Point2D p;
     Path2D.Double polygon = new Path2D.Double();
 
-    ListIterator<Point2D.Double> itr = verticesInChartSpace.listIterator();
+    ListIterator<Point2D.Double> itr = verticesInChartSpace.listIterator(1);
 
     p = (Point2D.Double) verticesInChartSpace.get(0);
-    //System.out.println(verticesInChartSpace.size() + " Gate points");
-    //System.out.println("First Point: " + p);
+    System.out.println(verticesInChartSpace.size() + " Gate points");
+    System.out.println("First Point: " + p);
     polygon.moveTo(p.getX(), p.getY());
     while (itr.hasNext()) {
         p = (Point2D.Double) itr.next();
-        //System.out.println("Next Point: " + p);
+        System.out.println("Next Point: " + p);
         polygon.lineTo(p.getX(), p.getY());
     }
     polygon.closePath();

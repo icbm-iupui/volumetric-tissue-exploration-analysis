@@ -18,6 +18,7 @@
 package vtea.jdbc;
 
 import java.awt.Polygon;
+import java.awt.geom.Path2D;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -74,7 +75,7 @@ public class H2DatabaseEngine {
             createPreparedStatement.executeUpdate();
             createPreparedStatement.close(); 
         } catch (SQLException e) {
-            System.out.println("Exception Message " + e.getLocalizedMessage());
+            System.out.println("ERROR: Exception Message " + e.getLocalizedMessage());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -284,7 +285,7 @@ public class H2DatabaseEngine {
 
 //H2 SQL for get Range of values query returned as 
     
-    public static ArrayList<ArrayList> getObjectsInRange2D(String table, String column1, double low1, 
+    public static ArrayList<ArrayList> getObjectsInRange2D(Path2D.Double p, String table, String column1, double low1, 
                         double high1, String column2, double low2, double high2) {
             
         Connection cn = getDBConnection();
@@ -311,11 +312,16 @@ public class H2DatabaseEngine {
         rs = selectPreparedStatement.executeQuery();
         
         while (rs.next()) {
+            
+            if(p.contains(rs.getDouble(column1), rs.getDouble(column2))){
+                    
+               
             ArrayList al = new ArrayList();
                 al.add(rs.getDouble(1));
                 al.add(rs.getDouble(2));
                 al.add(rs.getDouble(3));
                 result.add(al);
+            }
         }
         
         } catch (SQLException e) {
