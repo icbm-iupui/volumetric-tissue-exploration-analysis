@@ -1764,37 +1764,46 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         }
 
         public void export(String k, ImagePlus imp, ArrayList<MicroObject> objects, 
-                ArrayList measurements, ArrayList headers, 
-                ArrayList headerLabels) {
+            ArrayList measurements, ArrayList headers, 
+            ArrayList headerLabels) {
             
 
         //Arraylist to save to file
         //key; Objects; Measurements; headers; headerLabels
         //string; ImagePlus; ArrayList; ArrayList; ArrayList; ArrayList
         
-        ArrayList output = new ArrayList();
+            ArrayList output = new ArrayList();
+
+            output.add(k);
+            output.add(objects);
+            output.add(measurements);
+            output.add(headers);
+            output.add(headerLabels);
         
-        output.add(k);
-        output.add(objects);
-        output.add(measurements);
-        output.add(headers);
-        output.add(headerLabels);
-        
-            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
-            jf.setDialogTitle("Export VTEA objects...");
-            
-            int returnVal = jf.showSaveDialog(Main);
-            File file = jf.getSelectedFile(); 
-            
-            
-             
-            file = jf.getSelectedFile();
-            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
-            
-            } else {
-                file = new File(file.toString() + ".obx");  
-            }
- 
+            int returnVal = JFileChooser.CANCEL_OPTION;
+            File file;
+            int choice = JOptionPane.OK_OPTION;
+            do{
+                JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+                jf.setDialogTitle("Export VTEA objects...");
+
+                returnVal = jf.showSaveDialog(Main);
+                file = jf.getSelectedFile(); 
+
+
+
+                file = jf.getSelectedFile();
+                if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
+
+                } else {
+                    file = new File(file.toString() + ".obx");  
+                }
+                if(file.exists()){
+                    String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                    choice = JOptionPane.showConfirmDialog(null, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                }
+            }while(choice != JOptionPane.OK_OPTION);
+
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
                     try {
@@ -1802,10 +1811,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                         ObjectOutputStream oos = new ObjectOutputStream(fos);
                         oos.writeObject(output);
                         oos.close();
-                        
+
                         FileSaver fs = new FileSaver(imp);
                         fs.saveAsTiffStack(file.getParent() + "/" + key + ".tif");
-  
+
                     } catch (IOException e) {
                         System.out.println("ERROR: Could not save the file" + e);
                     }
@@ -1906,20 +1915,28 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         }
 
         protected void export(ArrayList header, ArrayList al) {
+            File file;
+            int returnVal = JFileChooser.CANCEL_OPTION;
+            int choice = JOptionPane.OK_OPTION;
+            do{
+                JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
 
-            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+                returnVal = jf.showSaveDialog(Main);
 
-            int returnVal = jf.showSaveDialog(Main);
+                file = jf.getSelectedFile();
 
-            File file = jf.getSelectedFile();
+                file = jf.getSelectedFile();
+                if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("csv")) {
 
-            file = jf.getSelectedFile();
-            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("csv")) {
-
-            } else {
-                file = new File(file.toString() + ".csv");
-            }
-
+                } else {
+                    file = new File(file.toString() + ".csv");
+                }
+                
+                if(file.exists()){
+                    String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                    choice = JOptionPane.showConfirmDialog(null, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                }
+            }while(choice != JOptionPane.OK_OPTION);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
 
                 try {
