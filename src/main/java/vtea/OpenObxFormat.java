@@ -64,6 +64,8 @@ public class OpenObxFormat {
 
                     ProgressMonitorInputStream pm
                             = new ProgressMonitorInputStream(parent, "Reading" + file.getName(), fis);
+                    
+                    pm.getProgressMonitor().setMillisToPopup(10);
 
                     result = (ArrayList) ois.readObject();
                     ois.close();

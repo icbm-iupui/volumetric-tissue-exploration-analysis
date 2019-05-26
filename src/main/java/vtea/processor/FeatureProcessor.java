@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.apache.commons.io.FilenameUtils;
 import static vtea._vtea.FEATUREMAP;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.featureprocessing.AbstractFeatureProcessing;
@@ -201,12 +202,25 @@ public class FeatureProcessor extends AbstractProcessor{
      * unique serial ID
      */
     public void outputResults(){
-        JFileChooser jf = new JFileChooser(new File("untitled.csv"));
-        jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
+        File file;
+        int returnVal = JFileChooser.CANCEL_OPTION;
+        int choice = JOptionPane.OK_OPTION;
+        do{
+            JFileChooser jf = new JFileChooser(new File("untitled.csv"));
+            jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values","csv"));
+            returnVal = jf.showSaveDialog(null);
+            file = jf.getSelectedFile();
             
-        int returnVal = jf.showSaveDialog(null);
+            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("csv")) {
+            } else {
+                file = new File(file.toString() + ".vtg");
+            }
             
-        File file = jf.getSelectedFile(); 
+            if(file.exists()){
+                String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                choice = JOptionPane.showConfirmDialog(null, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+            }
+        }while(choice != JOptionPane.OK_OPTION);
 
         if(returnVal == JFileChooser.APPROVE_OPTION) {
 //            if(file.getName().length() < 5 | file.getName().length() >= 5 && (file.getName().substring(file.getName().length()-3)).equals(".csv"))

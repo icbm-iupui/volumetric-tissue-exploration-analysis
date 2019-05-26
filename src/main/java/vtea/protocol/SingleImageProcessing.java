@@ -686,6 +686,11 @@ addObjectBlock();
     }
     
     public void addObjectBlock() {
+ 
+        new Thread(() -> {
+            try {
+                ProgressComment.setText("Processed image transferring...");
+                VTEAProgressBar.setIndeterminate(true);
         
                 ObjectStepBlockGUI block = new ObjectStepBlockGUI();
         addUpdatedImageListener(block);
@@ -702,7 +707,15 @@ addObjectBlock();
             AddStep_Object.setEnabled(false);
         }
         this.notifyRepaintTabListeners();
-        
+        VTEAProgressBar.setIndeterminate(false);
+        ProgressComment.setText("Processed image transferred...");
+                    } catch (Exception e) {
+                                VTEAProgressBar.setIndeterminate(false);
+        ProgressComment.setText("Processed image transferred...");
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();
+ 
     }
 
 
@@ -1468,8 +1481,13 @@ addObjectBlock();
             imp.deleteRoi();
             this.OriginalImage = imp;
             imp.restoreRoi();
-
+            
+            ProgressComment.setText("Image loading...");
+            VTEAProgressBar.setIndeterminate(true);
             ThumbnailImage = imp.duplicate();
+            
+            
+            
 
             ThumbnailImage = UtilityMethods.makeThumbnail(ThumbnailImage);
 
@@ -1504,7 +1522,7 @@ addObjectBlock();
         DeleteAllSteps_PreProcessing.setEnabled(true);
         AddStep_Preprocessing.setEnabled(true);
         PreProcessingGo.setEnabled(true);
-
+        VTEAProgressBar.setIndeterminate(false);
         ProgressComment.setText("Image loaded...");
     }
 
