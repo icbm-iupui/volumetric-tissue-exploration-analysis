@@ -58,6 +58,7 @@ public class NucleiExportation {
     protected ArrayList<ArrayList<Number>> measurements = new ArrayList();
     int size;
     int depth;
+    int[] info;
     
     NucleiExportation(ImagePlus image, ArrayList objects , ArrayList measurements){
         this.image = image;
@@ -72,7 +73,7 @@ public class NucleiExportation {
      * @param yAxis current measurement on the x-axis of the explorer
      */
     public void saveImages(Path2D path, int xAxis, int yAxis){
-        int info[] = image.getDimensions();
+        info = image.getDimensions();
 
         ArrayList<MicroObject> result = getGatedObjects(path, xAxis, yAxis);
 
@@ -100,7 +101,7 @@ public class NucleiExportation {
         
         Class thisclass = this.getClass();
         Method getProperVolume = null;
-        String methodName;
+        String methodName = null;
         switch(voltype){
             case "Mask Volume":
                 methodName = "getMaskStack";
@@ -108,11 +109,12 @@ public class NucleiExportation {
             case "Morphological Volume":
                 methodName = "getMorphStack";
                 break;
-            default:
-                methodName = "getMaskStack";
+            case "All Values in Box":
+                methodName = "getBoxStack";
+                break;
         }
         try{
-            getProperVolume = thisclass.getDeclaredMethod(methodName, new Class[]{ImageStack.class, MicroObject.class, Class.forName("[I")});
+            getProperVolume = thisclass.getDeclaredMethod(methodName, new Class[]{MicroObject.class, Class.forName("[I")});
             getProperVolume.setAccessible(true);
         }catch(NoSuchMethodException | ClassNotFoundException e){
             Logger.getLogger(NucleiExportation.class.getName()).log(Level.SEVERE, null, e);
@@ -230,31 +232,31 @@ public class NucleiExportation {
         //ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
         //ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
 
-        ImagePlus objImp = IJ.createImage("nuclei", image.getBitDepth()+" black", size, size, depth);
 
-        ImageStack st = objImp.getImageStack();
-        Object[] params = new Object[3];
-        params[0] = st;
-        params[1] = vol;
-        params[2] = starts;
+        ImagePlus objImp = null;
+        Object[] params = new Object[2];
+        params[0] = vol;
+        params[1] = starts;
         try{
-            st = (ImageStack) getProperVolume.invoke(this, st, vol, starts);
-            if(st == null)
+            objImp = (ImagePlus) getProperVolume.invoke(this, vol, starts);
+            if(objImp == null)
                 return null;
         }catch(IllegalAccessException | InvocationTargetException e){
             Logger.getLogger(NucleiExportation.class.getName()).log(Level.SEVERE, null, e);
         }
 
-        objImp.setStack(st);
+        
         
         return objImp;
     }
     
-    private ImageStack getMaskStack(ImageStack st, MicroObject vol, int[] starts ){
+    private ImagePlus getMaskStack(MicroObject vol, int[] starts ){
         int xStart = starts[0];
         int yStart = starts[1];
         int zStart = starts[2];
         ImageStack stSource = image.getImageStack();
+        ImagePlus objImp = IJ.createImage("nuclei", image.getBitDepth()+" black", size, size, depth);
+        ImageStack st = objImp.getImageStack();
         
         int[] xPixels = vol.getPixelsX();
         int[] yPixels = vol.getPixelsY();
@@ -263,14 +265,18 @@ public class NucleiExportation {
             st.setVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart, stSource.getVoxel(xPixels[i], yPixels[i], zPixels[i]));        
         }
         
-        return st;
+        objImp.setStack(st);
+        
+        return objImp;
     }
     
-    private ImageStack getMorphStack(ImageStack st, MicroObject vol, int[] starts){
+    private ImagePlus getMorphStack(MicroObject vol, int[] starts){
         int xStart = starts[0];
         int yStart = starts[1];
         int zStart = starts[2];
         ImageStack stSource = image.getImageStack();
+        ImagePlus objImp = IJ.createImage("nuclei", image.getBitDepth()+" black", size, size, depth);
+        ImageStack st = objImp.getImageStack();
         
         int numMorph = vol.getMorphologicalCount();
         int morphindex = 0;
@@ -290,7 +296,23 @@ public class NucleiExportation {
             st.setVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart, stSource.getVoxel(xPixels[i], yPixels[i], zPixels[i]));
         }
         
-        return st;
+        objImp.setStack(st);
+        
+        return objImp;
+    }
+    
+    private ImagePlus getBoxStack(MicroObject vol, int[] starts){
+        int xStart = starts[0];
+        int yStart = starts[1];
+        int zStart = starts[2];
+        
+        ImageStack cropMe = image.getImageStack();
+        ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
+        ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
+        
+        objImp.setStack(objImgStack);
+        
+        return objImp;
     }
 }
 class ExportObjImgOptions extends JPanel{
@@ -303,6 +325,10 @@ class ExportObjImgOptions extends JPanel{
         
         public ExportObjImgOptions(int maxDepth, int maxSize, int recSize, boolean allowMorph){
             ArrayList<JLabel> labels = new ArrayList();
+            
+            JLabel labelLabel = new JLabel("Class label: ");
+            labels.add(labelLabel);
+            label = new JTextArea("1");
             
             JLabel sizeLabel = new JLabel("Select Size: ");
             labels.add(sizeLabel);
@@ -318,10 +344,6 @@ class ExportObjImgOptions extends JPanel{
                 }
             });
             
-            JLabel labelLabel = new JLabel("Class label: ");
-            labels.add(labelLabel);
-            label = new JTextArea("1");
-            
             JLabel depthLabel = new JLabel("Select Depth: ");
             labels.add(depthLabel);
             depth = new JSpinner(new SpinnerNumberModel(7,1,maxDepth,1));
@@ -336,17 +358,6 @@ class ExportObjImgOptions extends JPanel{
             if(!allowMorph)
                 pixtypecbm.removeElement("Morphological Volume");
             pixeltype = new JComboBox(pixtypecbm);
-//            pixeltype.addItemListener(new ItemListener(){
-//                @Override
-//                public void itemStateChanged(ItemEvent ie){
-//                    //Don't allow using morphological volume if it does not exist
-//                    if(!allowMorph){
-//                        if(pixeltype.getSelectedItem().toString().equalsIgnoreCase("Morphological Volume")){
-//                            pixeltype.setSelectedIndex(0);
-//                        }
-//                    }
-//                }
-//            });
             
             JLabel zprojLabel = new JLabel("Select Z-projection: ");
             labels.add(zprojLabel);
@@ -367,7 +378,7 @@ class ExportObjImgOptions extends JPanel{
             this.add(curlabel, gbc);
             gbc = new GridBagConstraints(1,0,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(size, gbc);
+            this.add(label, gbc);
             
             curlabel = labiter.next();
             gbc = new GridBagConstraints(0,1,1,1,0.2,1.0,GridBagConstraints.WEST,
@@ -375,7 +386,7 @@ class ExportObjImgOptions extends JPanel{
             this.add(curlabel,gbc);
             gbc = new GridBagConstraints(1,1,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(depth,gbc);
+            this.add(size,gbc);
             
             //Added label label
             curlabel = labiter.next();
@@ -384,7 +395,7 @@ class ExportObjImgOptions extends JPanel{
             this.add(curlabel,gbc);
             gbc = new GridBagConstraints(1,2,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(label,gbc);
+            this.add(depth,gbc);
             
             curlabel = labiter.next();
             gbc = new GridBagConstraints(0,3,1,1,0.2,1.0,GridBagConstraints.WEST,
@@ -404,7 +415,7 @@ class ExportObjImgOptions extends JPanel{
             
             gbc = new GridBagConstraints(0,5,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(dapi,gbc);
+//            this.add(dapi,gbc);
         }
         
         public int showDialog() {

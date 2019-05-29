@@ -94,7 +94,7 @@ import vteaobjects.MicroObjectModel;
  * @author vinfrais
  */
 public class XYExplorationPanel extends AbstractExplorationPanel implements WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener {
-    ImagePlus image;
+    
     XYChartPanel cpd;
     private boolean useGlobal = false;
     private boolean useCustom = false;
@@ -109,7 +109,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         this.LUT = 0;
         this.hm = hm;
         this.pointsize = MicroExplorer.POINTSIZE;
-        this.image = imp;
+       
 
         //default plot 
         addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART, MicroExplorer.POINTSIZE, 0, hm.get(1), hm.get(4), hm.get(2));
@@ -1226,7 +1226,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     
     @Override
     public void saveGated(Path2D path){
-        NucleiExportation exportnuclei = new NucleiExportation(image, objects, measurements);
+        NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
         exportnuclei.saveImages(path, currentX, currentY);   
     }
     
