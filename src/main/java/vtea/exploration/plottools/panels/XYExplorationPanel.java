@@ -27,15 +27,11 @@ import ij.gui.RoiListener;
 import ij.gui.TextRoi;
 import ij.plugin.ChannelSplitter;
 import static ij.plugin.RGBStackMerge.mergeChannels;
-import ij.plugin.ZProjector;
 import ij.process.StackConverter;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
@@ -43,12 +39,10 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -59,18 +53,13 @@ import java.util.HashMap;
 import java.util.ListIterator;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
 import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
@@ -1237,256 +1226,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     
     @Override
     public void saveGated(Path2D path){
-        saveImages(path, currentX, currentY);
-        
+        NucleiExportation exportnuclei = new NucleiExportation(image, objects, measurements);
+        exportnuclei.saveImages(path, currentX, currentY);   
     }
     
-    /**
-     * Outputs selected segmented nuclei as individual tiff images into a folder
-     * @param path path of the gate selecting the nuclei
-     * @param xAxis current measurement on the x-axis of the explorer
-     * @param yAxis current measurement on the x-axis of the explorer
-     */
-    private void saveImages(Path2D path, int xAxis, int yAxis){
-        int info[] = image.getDimensions();
-//        ImageStack cropMe = image.getImageStack();
-        
-        
-        ArrayList<MicroObject> volumes = (ArrayList) objects;
-
-        ArrayList<MicroObject> result = new ArrayList<>();
-        int total = volumes.size();
-        double xValue;
-        double yValue;
-
-        try {
-            //Outputs the nuclei that are in the given gate to result
-            for (int i = 0; i < total; i++) {
-                ArrayList<Number> measured = measurements.get(i);
-
-                xValue = measured.get(xAxis).floatValue();
-                yValue = measured.get(yAxis).floatValue();
-
-                if (path.contains(xValue, yValue)) {
-                    result.add((MicroObject) objects.get(i));
-                }
-            }
-
-        } catch (NullPointerException e) {
-        }
-
-        int selectd = result.size();
-
-        Collections.sort(result, new ZComparator()); 
-
-        ListIterator<MicroObject> vitr = result.listIterator();
-
-        //Not sure if this line does as intended, bigger output images if higher quality images
-        int quality = ((MicroObject) vitr.next()).getRange(0) > 32? 64: 32;
-        vitr.previous();
-        
-        int maxSize = info[0] > info[1]?info[1]:info[0];
-        ExportObjectImages options = new ExportObjectImages(info[3],maxSize, quality);
-        options.showDialog();
-        ArrayList chosenOptions = options.getInformation();
-        int size = Integer.parseInt(chosenOptions.get(0).toString());
-        int depth = Integer.parseInt(chosenOptions.get(1).toString());
-        boolean dapi = Boolean.getBoolean(chosenOptions.get(2).toString());
-        String label = chosenOptions.get(3).toString();
-        String projChoice = chosenOptions.get(4).toString();
-        
-        File file = options.chooseSaveLocation();
-        
-        ArrayList<String> filenames = new ArrayList<>();
-
-        if (file != null) {
-            int count = 0;
-            while(vitr.hasNext()){
-                MicroObject vol = (MicroObject) vitr.next();
-                vol.setMaxZ();  //not already set for most MicroVolumes
-                vol.setMinZ();  //same as above
-
-                int xStart = Math.round(vol.getCentroidX()) - size/2;
-                int yStart = Math.round(vol.getCentroidY()) - size/2;
-
-                int zRange = vol.getMaxZ() - vol.getMinZ();
-                int zStart = zRange > depth? (int)vol.getCentroidZ()-depth/2: vol.getMinZ()-(depth-zRange)/2;
-
-                //Throw out volumes that are on the edge or are improperly segmented(Zrange too big)
-//                if(yStart*xStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth() || zRange > 5)
-//                    continue;
-                
-                if(xStart < 0 || yStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth())
-                    continue;
-                
-                //ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
-                //ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
-               
-                ImagePlus objImp = IJ.createImage("nuclei", image.getBitDepth()+" black", size, size, depth);
-
-                ImageStack st = objImp.getImageStack();
-                ImageStack stSource = image.getImageStack();
-               
-                int[] xPixels = vol.getPixelsX();
-                int[] yPixels = vol.getPixelsY();
-                int[] zPixels = vol.getPixelsZ();
-                for(int i = 0; i < xPixels.length; i++){
-                            st.setVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart, stSource.getVoxel(xPixels[i], yPixels[i], zPixels[i]));        
-                }
-
-                objImp.setStack(st);
-                
-                //ZProjection as based on the choice made in options
-                if(!projChoice.equalsIgnoreCase("No Z projection"))
-                    objImp = ZProjector.run(objImp,projChoice);
-
-                File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
-                
-                filenames.add("nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
-                
-                IJ.saveAsTiff(objImp,objfile.getPath());
-                count++;
-            }   
-            System.out.println(String.format("%d/%d nuclei could not be exported", selectd-count, selectd));
-        }
-        
-         try {
-                try {
-                    PrintWriter pw = new PrintWriter(file.getPath()+ File.separator + "Label_" + label + ".csv");
-                    StringBuilder sb = new StringBuilder();
-
-                    ListIterator itr = filenames.listIterator();
-
-                    sb.append("Filename");
-                    sb.append(',');
-                    sb.append("Label");
-                    sb.append('\n');
-
-                    while (itr.hasNext()) {
-                        sb.append((String) itr.next());
-                        if (itr.hasNext()) {
-                            sb.append(",");
-                            sb.append(label);
-                            sb.append("\n");
-                        }
-                    }
-
-                    sb.append(",");
-                    sb.append(label);
-
-                    pw.write(sb.toString());
-                    pw.close();
-
-                } catch (FileNotFoundException e) {
-                }
-
-            } catch (NullPointerException ne) {
-            }
-        
-        
-        
-    }
-    
-    class ExportObjectImages extends JPanel{
-        JTextArea size;
-        JTextArea label;
-        JSpinner depth;
-        JCheckBox dapi;
-        JComboBox zproject;
-        
-        public ExportObjectImages(int maxDepth, int maxSize, int recSize){
-            setLayout(new GridBagLayout());
-            JLabel sizeLabel = new JLabel("Select Size: ");
-            size = new JTextArea(String.valueOf(recSize),1,3);
-            size.addFocusListener(new java.awt.event.FocusListener(){
-                @Override
-                public void focusLost(java.awt.event.FocusEvent evt) {
-                    if(Integer.parseInt(size.getText())>maxSize)
-                        size.setText(String.valueOf(maxSize));
-                }
-                @Override
-                public void focusGained(java.awt.event.FocusEvent evt){
-                }
-            });
-            
-            JLabel labelLabel = new JLabel("Class label: ");
-            label = new JTextArea("1");
-            
-            JLabel depthLabel = new JLabel("Select Depth: ");
-            depth = new JSpinner(new SpinnerNumberModel(7,1,maxDepth,1));
-            dapi = new JCheckBox("Only use DAPI channel in output ", false);
-            dapi.setEnabled(false);
-            
-            JLabel zprojLabel = new JLabel("Select Z-projection: ");
-            String [] zprojList = {"No Z projection", "avg", "min", "max", "sum", "sd", "median"};
-            zproject = new JComboBox(zprojList);
-            
-            setupPanel(sizeLabel, labelLabel, depthLabel, zprojLabel); 
-        }
-        
-        private void setupPanel(JLabel sizeL, JLabel labelL, JLabel depthL, JLabel zprojL){
-            GridBagConstraints gbc = new GridBagConstraints(0,0,1,1,0.2,1.0,
-                    GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(sizeL, gbc);
-            gbc = new GridBagConstraints(1,0,1,1,1,1.0,GridBagConstraints.EAST,
-                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(size, gbc);
-            
-            gbc = new GridBagConstraints(0,1,1,1,0.2,1.0,GridBagConstraints.WEST,
-                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(depthL,gbc);
-            gbc = new GridBagConstraints(1,1,1,1,1,1.0,GridBagConstraints.EAST,
-                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(depth,gbc);
- //Added label label
-            gbc = new GridBagConstraints(0,2,1,1,0.2,1.0,GridBagConstraints.WEST,
-                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(labelL,gbc);
-            gbc = new GridBagConstraints(1,2,1,1,1,1.0,GridBagConstraints.EAST,
-                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(label,gbc);
-            
-            gbc = new GridBagConstraints(0,3,1,1,0.2,1.0,GridBagConstraints.WEST,
-                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(zprojL,gbc);
-            gbc = new GridBagConstraints(1,3,1,1,1,1.0,GridBagConstraints.EAST,
-                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(zproject,gbc);
-            
-            gbc = new GridBagConstraints(0,4,1,1,1,1.0,GridBagConstraints.EAST,
-                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(dapi,gbc);
-        }
-        
-        public int showDialog() {
-            return JOptionPane.showOptionDialog(null, this, "Setup Output Images",
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-            null, null);
-        }
-        
-        public ArrayList getInformation(){
-            ArrayList info = new ArrayList(3);
-            info.add(Integer.parseInt(size.getText()));
-            info.add(Integer.parseInt(depth.getValue().toString()));
-            info.add(dapi.isEnabled());
-            info.add(label.getText());
-            info.add(zproject.getSelectedItem().toString());
-            return info;
-        }
-        
-        public File chooseSaveLocation(){
-            JFileChooser objectimagejfc = new JFileChooser(MicroExplorer.LASTDIRECTORY);
-            objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-            int returnVal = objectimagejfc.showSaveDialog(this);
-            File file = objectimagejfc.getSelectedFile();
-            
-            if(returnVal == JFileChooser.APPROVE_OPTION)
-                return file;
-            else
-                return null;
-        }
-    }
 
     class ExportGates {
 
