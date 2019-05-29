@@ -24,8 +24,6 @@ import ij.plugin.ZProjector;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.geom.Path2D;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -274,13 +272,21 @@ public class NucleiExportation {
         int zStart = starts[2];
         ImageStack stSource = image.getImageStack();
         
-        int numVoxels = vol.getMorphologicalCount();
-        if(numVoxels == 0)
+        int numMorph = vol.getMorphologicalCount();
+        int morphindex = 0;
+        if(numMorph < 1)
             return null;
-        int[] xPixels = vol.getMorphPixelsX(0);
-        int[] yPixels = vol.getMorphPixelsY(0);
-        int[] zPixels = vol.getMorphPixelsZ(0);
-        for(int i = 0; i < numVoxels; i++){
+        else if(numMorph > 1){
+            ArrayList morphoptions = new ArrayList();
+            for(int i = 0; i<numMorph; i++)
+                morphoptions.add(String.valueOf(i));
+            String[] morphopt = (String[]) morphoptions.toArray();
+            morphindex =Integer.parseInt(JOptionPane.showInputDialog(null, "Which morphology to use?", "Morphology Choice", JOptionPane.QUESTION_MESSAGE, null, morphopt, morphopt[0]).toString());
+        }
+        int[] xPixels = vol.getMorphPixelsX(morphindex);
+        int[] yPixels = vol.getMorphPixelsY(morphindex);
+        int[] zPixels = vol.getMorphPixelsZ(morphindex);
+        for(int i = 0; i < xPixels.length; i++){
             st.setVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart, stSource.getVoxel(xPixels[i], yPixels[i], zPixels[i]));
         }
         
