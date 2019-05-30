@@ -19,9 +19,8 @@ package vtea.objects.measurements;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import net.imglib2.RealPoint;
 import org.scijava.plugin.Plugin;
-import vtea.processor.Processor;
+
 
 /**
  *
@@ -36,6 +35,7 @@ public class ThresholdMean extends AbstractMeasurement {
     COMMENT = "Calculate thresholded mean, mean of top 25% of values";
     NAME = "Mean Threshold";
     KEY = "MeanThresh";
+    TYPE = "Intensity";
     }
 
     @Override

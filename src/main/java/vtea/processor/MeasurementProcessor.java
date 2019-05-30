@@ -24,20 +24,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.RecursiveAction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.imglib2.RealPoint;
-import static vtea._vtea.MORPHOLOGICALMAP;
 import static vtea._vtea.OBJECTMEASUREMENTMAP;
 import static vtea._vtea.getInterleavedStacks;
 import vtea.objects.measurements.AbstractMeasurement;
-import vtea.objects.morphology.AbstractMorphology;
 import vteaobjects.MicroObject;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
+
 
 /**
  *
@@ -85,8 +79,17 @@ public class MeasurementProcessor extends AbstractProcessor {
         descriptionLabels = new ArrayList<>();
         measurements = new ArrayList<>();
         features = OBJECTMEASUREMENTMAP.values();
+     
         
 
+    }
+    
+    public void setupAdHocMeasurementProcessor(Collection newFeatures){
+        features = newFeatures;
+
+        //set morphology arraylist
+        
+        
     }
 
     @Override

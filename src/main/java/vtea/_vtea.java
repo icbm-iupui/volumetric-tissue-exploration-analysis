@@ -85,6 +85,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     
     public static String[] FEATURETYPE = {"Cluster", "Reduction", "Other"};
     
+    public static String[] MEASUREMENTTYPE = {"Intensity", "Shape", 
+        "Texture", "Relationship"};
+    
     public static String[] SEGMENTATIONOPTIONS;
     public static String[] PROCESSINGOPTIONS;
     public static String[] WORKFLOWOPTIONS;
@@ -133,9 +136,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         
                 context = new Context( LogService.class, PluginService.class );
                 priority = Priority.FIRST_PRIORITY;
-                
-                
-                
+
                 System.out.println("Starting up VTEA... ");
                 System.out.println("-------------------------------- ");
                 System.out.println("Available memory: " + getAvailableMemory()/(1000000000) + " GB");

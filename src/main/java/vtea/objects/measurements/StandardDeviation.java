@@ -36,6 +36,7 @@ public class StandardDeviation extends AbstractMeasurement {
     COMMENT = "Calculate standard deviation";
     NAME = "StDev";
     KEY = "SD";
+    TYPE = "Intensity";
     }
 
     @Override

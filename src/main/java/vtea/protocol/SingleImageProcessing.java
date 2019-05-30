@@ -758,19 +758,17 @@ addObjectBlock();
                 if(sp.getUIDKey().equals(key)){
                 executeMeasuring(key, sp.getObjects(), sp.getProtocol());
                 }
-              }
+            }
         } 
         if (evt.getPropertyName().equals("measurementDone")) {
             ProgressComment.setText((String) evt.getNewValue());
             String key = (String)evt.getOldValue(); 
-            
-            
-            ListIterator itr = measurementProcessors.listIterator();
 
+            ListIterator itr = measurementProcessors.listIterator();
+            
             while(itr.hasNext()){
                 MeasurementProcessor mp = (MeasurementProcessor)itr.next();
                 if(mp.getUIDKey().equals(key)){
-                    //add conditional here to not launch explorer, but keep objects.
                     executeExploring(key, mp.getObjects(), mp.getFeatures(), 
                             mp.getDescriptions(), mp.getDescriptionLabels());
                 }

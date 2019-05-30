@@ -34,7 +34,6 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.io.FileSaver;
-import ij.io.Opener;
 import ij.measure.ResultsTable;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -45,16 +44,12 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,11 +68,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.ProgressMonitorInputStream;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FilenameUtils;
-import org.scijava.plugin.Plugin;
 import vtea.OpenObxFormat;
 import vtea._vtea;
 import vtea.exploration.listeners.AddFeaturesListener;
@@ -87,8 +79,7 @@ import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
 import vtea.feature.FeatureFrame;
-import vtea.objects.measurements.Measurements;
-import vtea.processor.ExplorerProcessor;
+import vtea.measurement.MeasurementFrame;
 import vtea.protocol.setup.SegmentationPreviewer;
 
 /**
@@ -156,12 +147,13 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     ArrayList<AddFeaturesListener> FeatureListeners = new ArrayList<AddFeaturesListener>();
 
-    FeatureFrame ff;
-    boolean checked = false;
+    FeatureFrame ff; 
+    boolean ffchecked = false;
+    
+    MeasurementFrame mf;
+    boolean mfchecked = false;
 
-    String[] sizes = {"2", "4", "8", "10", "15", "20"};
-
-    int[] sizes_val = {6, 2, 4, 8, 10, 15, 20};
+    String[] sizes = {"4", "6", "8", "10", "15", "20"};
 
     public JMenuExploration ProcessingMenu;
     public JMenuExploration ObjectMenu;
@@ -350,6 +342,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
         ff = new FeatureFrame(descriptions, ObjectIDs, imp);
         ff.addListener(this);
+        
+        mf = new MeasurementFrame(descriptions, ec.getObjects(), imp);
+        mf.addListener(this);
+       
 
     }
 
@@ -388,13 +384,13 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         AxesSettings = new javax.swing.JButton();
         SetGlobalToLocal = new javax.swing.JButton();
         UseGlobal = new javax.swing.JToggleButton();
-        BWLUT = new javax.swing.JToggleButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
         get3DProjection = new javax.swing.JButton();
         getSegmentation = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
-        jButtonFeature = new javax.swing.JButton();
+        jButtonMeas = new javax.swing.JButton();
         jButtonDistance = new javax.swing.JButton();
+        jButtonFeature = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
         ExportGraph = new javax.swing.JButton();
         exportCSV = new javax.swing.JButton();
@@ -644,21 +640,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
             }
         });
         toolbarGate.add(UseGlobal);
-
-        BWLUT.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/removeLUT.png"))); // NOI18N
-        BWLUT.setToolTipText("Remove LUT");
-        BWLUT.setFocusable(false);
-        BWLUT.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        BWLUT.setMaximumSize(new java.awt.Dimension(35, 40));
-        BWLUT.setMinimumSize(new java.awt.Dimension(35, 40));
-        BWLUT.setPreferredSize(new java.awt.Dimension(35, 40));
-        BWLUT.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        BWLUT.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BWLUTActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(BWLUT);
         toolbarGate.add(jSeparator5);
 
         get3DProjection.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cube.png"))); // NOI18N
@@ -693,21 +674,22 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         toolbarGate.add(getSegmentation);
         toolbarGate.add(jSeparator7);
 
-        jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
-        jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
-        jButtonFeature.setToolTipText("Add features");
-        jButtonFeature.setFocusable(false);
-        jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
+        jButtonMeas.setBackground(new java.awt.Color(102, 255, 102));
+        jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
+        jButtonMeas.setToolTipText("Add measurements");
+        jButtonMeas.setEnabled(false);
+        jButtonMeas.setFocusable(false);
+        jButtonMeas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonMeas.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonMeas.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonMeas.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonMeas.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonMeas.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonFeatureActionPerformed(evt);
+                jButtonMeasActionPerformed(evt);
             }
         });
-        toolbarGate.add(jButtonFeature);
+        toolbarGate.add(jButtonMeas);
 
         jButtonDistance.setBackground(new java.awt.Color(102, 255, 102));
         jButtonDistance.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
@@ -725,6 +707,22 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
             }
         });
         toolbarGate.add(jButtonDistance);
+
+        jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
+        jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
+        jButtonFeature.setToolTipText("Add features");
+        jButtonFeature.setFocusable(false);
+        jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFeatureActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(jButtonFeature);
         toolbarGate.add(jSeparator8);
 
         ExportGraph.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/insert-image-2 copy.png"))); // NOI18N
@@ -936,16 +934,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     }//GEN-LAST:event_UseGlobalActionPerformed
 
-    private void BWLUTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BWLUTActionPerformed
-        if (!noLUT) {
-            onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
-        } else {
-            
-            //need to fix this.
-            onRemoveLUTChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), -1, jComboBoxPointSize.getSelectedIndex(), imageGate);
-        }
-    }//GEN-LAST:event_BWLUTActionPerformed
-
     private void exportOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportOBJActionPerformed
       new Thread(() -> {
             try {
@@ -1023,8 +1011,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
         ff.setVisible(true);
-        if (!checked) {
-            checked = true;
+        if (!ffchecked) {
+            ffchecked = true;
         }
 
     }//GEN-LAST:event_jButtonFeatureActionPerformed
@@ -1050,6 +1038,13 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         }).start();  
 
     }//GEN-LAST:event_exportCSVActionPerformed
+
+    private void jButtonMeasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMeasActionPerformed
+        mf.setVisible(true);
+        if (!mfchecked) {
+            mfchecked = true;
+        }
+    }//GEN-LAST:event_jButtonMeasActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1088,7 +1083,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AutoScaleAxes;
     private javax.swing.JButton AxesSettings;
-    private javax.swing.JToggleButton BWLUT;
     private javax.swing.JMenu Edit;
     private javax.swing.JButton ExportGraph;
     private javax.swing.JButton FlipAxes;
@@ -1111,6 +1105,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private javax.swing.JButton importOBJ;
     private javax.swing.JButton jButtonDistance;
     private javax.swing.JButton jButtonFeature;
+    private javax.swing.JButton jButtonMeas;
     private javax.swing.JComboBox jComboBox1;
     protected javax.swing.JComboBox jComboBoxLUTPlot;
     private javax.swing.JComboBox jComboBoxPointSize;
@@ -1201,11 +1196,11 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     }
 
     private void flipAxes() {
-        if (!BWLUT.isSelected()) {
-            updatePlotByPopUpMenu(this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
-        } else {
+//        if (!BWLUT.isSelected()) {
+//            updatePlotByPopUpMenu(this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
+//        } else {
             updatePlotByPopUpMenu(this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
-        }
+       // }
 
     }
 
@@ -1230,16 +1225,16 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     }
 
     public void onPlotChangeRequest(int x, int y, int z, int size, boolean imagegate) {
-        if (BWLUT.isSelected()) {
-            onRemoveLUTChangeRequest(x, y, z, size, imagegate);
-        } else {
+//        if (BWLUT.isSelected()) {
+//            onRemoveLUTChangeRequest(x, y, z, size, imagegate);
+//        } else {
             Main.removeAll();
             ec.updatePlot(x, y, z, size);
             Main.add(ec.getPanel());
             updateBorderPanels(DefaultXYPanels);
             updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
             pack();
-        }
+     //   }
     }
 
     public void onRemoveLUTChangeRequest(int x, int y, int z, int size, boolean imagegate) {
