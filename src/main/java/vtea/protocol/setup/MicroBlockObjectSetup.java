@@ -443,7 +443,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
      */
     // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     //field key 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
-    private ArrayList getSettings() {
+    public ArrayList getSettings() {
         
          /**segmentation and measurement protocol redefining.
          * 0: title text, 1: method (as String), 2: channel, 3: ArrayList of JComponents used 
