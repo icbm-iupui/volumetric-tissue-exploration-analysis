@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <version>1.0alpha-SNAPSHOT</version>
 
 
-    <name>VTEA master</name>
+    <name>VTEA_truth</name>
     <description>Volumetric analysis</description>
     
     <properties>
@@ -114,15 +114,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>2.1</version>
         </dependency>
         <dependency>
-    <groupId>com.github.quickhull3d</groupId>
-    <artifactId>quickhull3d</artifactId>
-    <version>1.0.0</version>
+            <groupId>com.github.quickhull3d</groupId>
+            <artifactId>quickhull3d</artifactId>
+            <version>1.0.0</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2</artifactId>
             <version>3.2.1</version>
             <type>jar</type>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>net.imglib2</groupId>
+            <artifactId>imglib2</artifactId>
+            <version>5.6.3</version>
         </dependency>
         <dependency>
             <groupId>org.scijava</groupId>

@@ -133,7 +133,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     JLabel xLabel;
     JLabel yLabel;
     JLabel lLabel;
-
+    
     GatePercentages ResultsWindow;
 
     double[][] ObjectIDs;
@@ -205,8 +205,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         
         addMenuItems();
         
-        
-
         this.title = title;
 
         AxesSetup.setDescriptor(this.getTitle());
@@ -316,7 +314,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
             public void mouseExited(MouseEvent me) {
             }
         });
-
+        
         DefaultXYPanels = new XYPanels(AvailableData);
         DefaultXYPanels.addChangePlotAxesListener(this);
 
@@ -422,6 +420,12 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
         North.setMinimumSize(new java.awt.Dimension(638, 75));
         North.setPreferredSize(new java.awt.Dimension(638, 80));
+        North.setSize(new java.awt.Dimension(638, 80));
+        North.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                NorthMouseClicked(evt);
+            }
+        });
         North.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 5));
 
         toolbarPlot.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -1046,6 +1050,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         }
     }//GEN-LAST:event_jButtonMeasActionPerformed
 
+    private void NorthMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NorthMouseClicked
+
+    }//GEN-LAST:event_NorthMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -1291,7 +1299,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     public void addMenuItems() {
         this.jMenuBar.removeAll();
     }
-
+    
     @Override
     @SuppressWarnings("empty-statementget3DProjection.setEnabled(true);")
     public void makeOverlayImage(ArrayList gates, int x, int y, int xAxis, int yAxis) {

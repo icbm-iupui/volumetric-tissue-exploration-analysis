@@ -74,6 +74,7 @@ import vtea._vtea;
 import static vtea._vtea.LUTMAP;
 import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.PlotUpdateListener;
+import vtea.exploration.listeners.SaveGatedImagesListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plotgatetools.gates.Gate;
 import vtea.exploration.plotgatetools.gates.GateImporter;
@@ -96,8 +97,8 @@ import vteaobjects.MicroObjectModel;
  *
  * @author vinfrais
  */
-public class XYExplorationPanel extends AbstractExplorationPanel implements WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener {
-
+public class XYExplorationPanel extends AbstractExplorationPanel implements WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener {
+    
     XYChartPanel cpd;
     private boolean useGlobal = false;
     private boolean useCustom = false;
@@ -126,6 +127,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         this.LUT = 0;
         this.hm = hm;
         this.pointsize = MicroExplorer.POINTSIZE;
+       
 
         //default plot 
         addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART, MicroExplorer.POINTSIZE, 0, hm.get(1), hm.get(4), hm.get(2));
@@ -585,6 +587,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         this.gl = new GateLayer();
         gl.addPolygonSelectionListener(this);
         gl.addImageHighLightSelectionListener(this);
+        
+        gl.addImagesListener(this);
 
         gl.msActive = false;
 
@@ -1210,6 +1214,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         startH2Database(ij.Prefs.getImageJDir() + key + ".csv", vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe);
 
     }
+    
+    @Override
+    public void saveGated(Path2D path){
+        NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
+        exportnuclei.saveImages(path, currentX, currentY);   
+    }
+    
 
     class ExportGates {
 
