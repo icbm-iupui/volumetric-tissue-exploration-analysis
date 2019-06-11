@@ -36,6 +36,7 @@ public class Minimum extends AbstractMeasurement {
     COMMENT = "Calculate minimum";
     NAME = "Min";
     KEY = "Min";
+    TYPE = "Intensity";
     }
 
     @Override

@@ -36,6 +36,7 @@ public class Mean extends AbstractMeasurement {
     COMMENT = "Calculate mean";
     NAME = "Mean";
     KEY = "Mean";
+    TYPE = "Intensity";
     }
 
     @Override

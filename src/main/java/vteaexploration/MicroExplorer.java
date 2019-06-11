@@ -34,7 +34,6 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.io.FileSaver;
-import ij.io.Opener;
 import ij.measure.ResultsTable;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -46,11 +45,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -73,6 +70,8 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import org.apache.commons.io.FilenameUtils;
+import vtea.OpenObxFormat;
+import vtea._vtea;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.AxesChangeListener;
 import vtea.exploration.listeners.PlotUpdateListener;
@@ -80,7 +79,7 @@ import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
 import vtea.feature.FeatureFrame;
-import vtea.processor.ExplorerProcessor;
+import vtea.measurement.MeasurementFrame;
 import vtea.protocol.setup.SegmentationPreviewer;
 
 /**
@@ -88,6 +87,7 @@ import vtea.protocol.setup.SegmentationPreviewer;
  * @author vinfrais
  *
  */
+
 public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesListener, RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
 
     private XYPanels DefaultXYPanels;
@@ -106,8 +106,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     public static final int LUTSTART = 1;
 
     public static final int POINTSIZE = 4;
-
-    public static String LASTDIRECTORY = "";
 
     int featureCount = 0;
 
@@ -149,16 +147,19 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     ArrayList<AddFeaturesListener> FeatureListeners = new ArrayList<AddFeaturesListener>();
 
-    FeatureFrame ff;
-    boolean checked = false;
+    FeatureFrame ff; 
+    boolean ffchecked = false;
+    
+    MeasurementFrame mf;
+    boolean mfchecked = false;
 
-    String[] sizes = {"2", "4", "8", "10", "15", "20"};
-
-    int[] sizes_val = {6, 2, 4, 8, 10, 15, 20};
+    String[] sizes = {"4", "6", "8", "10", "15", "20"};
 
     public JMenuExploration ProcessingMenu;
     public JMenuExploration ObjectMenu;
     public JMenuExploration WorkflowMenu;
+    
+ 
 
     /**
      * Creates new form MicroExplorer
@@ -339,6 +340,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
         ff = new FeatureFrame(descriptions, ObjectIDs, imp);
         ff.addListener(this);
+        
+        mf = new MeasurementFrame(descriptions, ec.getObjects(), imp);
+        mf.addListener(this);
+       
 
     }
 
@@ -377,13 +382,13 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         AxesSettings = new javax.swing.JButton();
         SetGlobalToLocal = new javax.swing.JButton();
         UseGlobal = new javax.swing.JToggleButton();
-        BWLUT = new javax.swing.JToggleButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
         get3DProjection = new javax.swing.JButton();
         getSegmentation = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
-        jButtonFeature = new javax.swing.JButton();
+        jButtonMeas = new javax.swing.JButton();
         jButtonDistance = new javax.swing.JButton();
+        jButtonFeature = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
         ExportGraph = new javax.swing.JButton();
         exportCSV = new javax.swing.JButton();
@@ -639,21 +644,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
             }
         });
         toolbarGate.add(UseGlobal);
-
-        BWLUT.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/removeLUT.png"))); // NOI18N
-        BWLUT.setToolTipText("Remove LUT");
-        BWLUT.setFocusable(false);
-        BWLUT.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        BWLUT.setMaximumSize(new java.awt.Dimension(35, 40));
-        BWLUT.setMinimumSize(new java.awt.Dimension(35, 40));
-        BWLUT.setPreferredSize(new java.awt.Dimension(35, 40));
-        BWLUT.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        BWLUT.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BWLUTActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(BWLUT);
         toolbarGate.add(jSeparator5);
 
         get3DProjection.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cube.png"))); // NOI18N
@@ -688,22 +678,22 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         toolbarGate.add(getSegmentation);
         toolbarGate.add(jSeparator7);
 
-        jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
-        jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
-        jButtonFeature.setToolTipText("Add features");
-        jButtonFeature.setFocusable(false);
-        jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setRolloverEnabled(true);
-        jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
+        jButtonMeas.setBackground(new java.awt.Color(102, 255, 102));
+        jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
+        jButtonMeas.setToolTipText("Add measurements");
+        jButtonMeas.setEnabled(false);
+        jButtonMeas.setFocusable(false);
+        jButtonMeas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonMeas.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonMeas.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonMeas.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonMeas.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonMeas.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonFeatureActionPerformed(evt);
+                jButtonMeasActionPerformed(evt);
             }
         });
-        toolbarGate.add(jButtonFeature);
+        toolbarGate.add(jButtonMeas);
 
         jButtonDistance.setBackground(new java.awt.Color(102, 255, 102));
         jButtonDistance.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
@@ -714,7 +704,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         jButtonDistance.setMaximumSize(new java.awt.Dimension(35, 40));
         jButtonDistance.setMinimumSize(new java.awt.Dimension(35, 40));
         jButtonDistance.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonDistance.setRolloverEnabled(true);
         jButtonDistance.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jButtonDistance.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -722,6 +711,22 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
             }
         });
         toolbarGate.add(jButtonDistance);
+
+        jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
+        jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
+        jButtonFeature.setToolTipText("Add features");
+        jButtonFeature.setFocusable(false);
+        jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFeatureActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(jButtonFeature);
         toolbarGate.add(jSeparator8);
 
         ExportGraph.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/insert-image-2 copy.png"))); // NOI18N
@@ -933,16 +938,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     }//GEN-LAST:event_UseGlobalActionPerformed
 
-    private void BWLUTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BWLUTActionPerformed
-        if (!noLUT) {
-            onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
-        } else {
-            
-            //need to fix this.
-            onRemoveLUTChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), -1, jComboBoxPointSize.getSelectedIndex(), imageGate);
-        }
-    }//GEN-LAST:event_BWLUTActionPerformed
-
     private void exportOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportOBJActionPerformed
       new Thread(() -> {
             try {
@@ -960,8 +955,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private void importOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importOBJActionPerformed
               new Thread(() -> {
             try {
-                ImportOBJ io = new ImportOBJ();
-                io.importObjects();
+                OpenObxFormat io = new OpenObxFormat();
+                io.importObjects(Main);
                 
     } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
@@ -988,7 +983,16 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     }//GEN-LAST:event_AutoScaleAxesActionPerformed
 
     private void exportGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGatesActionPerformed
-        ec.exportGates();
+             new Thread(() -> {
+            try {
+         ec.exportGates();
+        
+    } catch (Exception e) {
+             
+            }
+        }).start();  
+
+           
     }//GEN-LAST:event_exportGatesActionPerformed
 
     private void LoadGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadGatesActionPerformed
@@ -996,13 +1000,23 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     }//GEN-LAST:event_LoadGatesActionPerformed
 
     private void ExportGraphActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportGraphActionPerformed
-        ec.getBufferedImage();
+       
+                     new Thread(() -> {
+            try {
+         ec.getBufferedImage();
+        
+    } catch (Exception e) {
+             
+            }
+        }).start();  
+
+        
     }//GEN-LAST:event_ExportGraphActionPerformed
 
     private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
         ff.setVisible(true);
-        if (!checked) {
-            checked = true;
+        if (!ffchecked) {
+            ffchecked = true;
         }
 
     }//GEN-LAST:event_jButtonFeatureActionPerformed
@@ -1023,11 +1037,18 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         ExportCSV ex = new ExportCSV();
         ex.export(this.descriptions, this.measurements);
     } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
+                //System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();  
 
     }//GEN-LAST:event_exportCSVActionPerformed
+
+    private void jButtonMeasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMeasActionPerformed
+        mf.setVisible(true);
+        if (!mfchecked) {
+            mfchecked = true;
+        }
+    }//GEN-LAST:event_jButtonMeasActionPerformed
 
     private void NorthMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NorthMouseClicked
 
@@ -1070,7 +1091,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AutoScaleAxes;
     private javax.swing.JButton AxesSettings;
-    private javax.swing.JToggleButton BWLUT;
     private javax.swing.JMenu Edit;
     private javax.swing.JButton ExportGraph;
     private javax.swing.JButton FlipAxes;
@@ -1093,6 +1113,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private javax.swing.JButton importOBJ;
     private javax.swing.JButton jButtonDistance;
     private javax.swing.JButton jButtonFeature;
+    private javax.swing.JButton jButtonMeas;
     private javax.swing.JComboBox jComboBox1;
     protected javax.swing.JComboBox jComboBoxLUTPlot;
     private javax.swing.JComboBox jComboBoxPointSize;
@@ -1183,11 +1204,11 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     }
 
     private void flipAxes() {
-        if (!BWLUT.isSelected()) {
-            updatePlotByPopUpMenu(this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
-        } else {
+//        if (!BWLUT.isSelected()) {
+//            updatePlotByPopUpMenu(this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
+//        } else {
             updatePlotByPopUpMenu(this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
-        }
+       // }
 
     }
 
@@ -1212,16 +1233,16 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     }
 
     public void onPlotChangeRequest(int x, int y, int z, int size, boolean imagegate) {
-        if (BWLUT.isSelected()) {
-            onRemoveLUTChangeRequest(x, y, z, size, imagegate);
-        } else {
+//        if (BWLUT.isSelected()) {
+//            onRemoveLUTChangeRequest(x, y, z, size, imagegate);
+//        } else {
             Main.removeAll();
             ec.updatePlot(x, y, z, size);
             Main.add(ec.getPanel());
             updateBorderPanels(DefaultXYPanels);
             updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
             pack();
-        }
+     //   }
     }
 
     public void onRemoveLUTChangeRequest(int x, int y, int z, int size, boolean imagegate) {
@@ -1275,20 +1296,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         ec.updatePlotPointSize(size);
     }
 
-//    private Number processPosition(int a, MicroObject volume) {
-//        if (a <= 10) {
-//            return (Number) volume.getAnalysisMaskVolume()[a];
-//        } else {
-//            int row = ((a) / 11) - 1;
-//            int column = a % 11;
-//            return (Number) volume.getAnalysisResultsVolume()[row][column];
-//        }
-//    }
-
     public void addMenuItems() {
-
         this.jMenuBar.removeAll();
-
     }
     
     @Override
@@ -1304,12 +1313,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     @Override
     public void onChangePointSize(int size, boolean imagegate) {
-
     }
 
     @Override
     public void changeLUT(int x) {
-        //updatePlotByPopUpMenu(x, y);
     }
 
     @Override
@@ -1326,7 +1333,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     public void imageClosed(ImagePlus ip) {
 
         if (ip.getID() == impoverlay.getID()) {
-
             JFrame frame = new JFrame();
             frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
             Object[] options = {"Yes", "No"};
@@ -1338,7 +1344,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                     null,
                     options,
                     options[0]);
-
             if (n == JOptionPane.YES_OPTION) {
                 this.impoverlay = imp.duplicate();
                 ec.setGatedOverlay(impoverlay);
@@ -1398,11 +1403,8 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                     ListIterator<MicroObject> itr = this.Objects.listIterator();
                     while (itr.hasNext()) {
                         MicroObject m = itr.next();
-                        //int[] c = new int[2];
-                        //c = m.getBoundsCenter();
                         int x = (int)m.getCentroidX();
                         int y = (int)m.getCentroidY();
-
                         if (ip.getRoi().contains(x, y)) {
                             ImageGatedObjects.add(m);
                         }
@@ -1520,6 +1522,10 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
         String descr;
         
+        //add desrciptions, grab for SQL column name additions
+        
+        //add results as columns,  need to check size.
+        
         
 
         for (int i = startSize; i < newFeatures + startSize; i++) {
@@ -1534,7 +1540,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
              if (descr.length() > 10) {
                  
-                    String truncated = name.substring(0, 8) + "..." + name.substring(name.length() - 5, name.length());
+                    String truncated = name.substring(0, 8) + "__" + name.substring(name.length() - 5, name.length());
                     descr = truncated + "_" + (i - startSize);
              }
 
@@ -1761,37 +1767,46 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         }
 
         public void export(String k, ImagePlus imp, ArrayList<MicroObject> objects, 
-                ArrayList measurements, ArrayList headers, 
-                ArrayList headerLabels) {
+            ArrayList measurements, ArrayList headers, 
+            ArrayList headerLabels) {
             
 
         //Arraylist to save to file
         //key; Objects; Measurements; headers; headerLabels
         //string; ImagePlus; ArrayList; ArrayList; ArrayList; ArrayList
         
-        ArrayList output = new ArrayList();
+            ArrayList output = new ArrayList();
+
+            output.add(k);
+            output.add(objects);
+            output.add(measurements);
+            output.add(headers);
+            output.add(headerLabels);
         
-        output.add(k);
-        output.add(objects);
-        output.add(measurements);
-        output.add(headers);
-        output.add(headerLabels);
-        
-            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
-            jf.setDialogTitle("Export VTEA objects...");
-            
-            int returnVal = jf.showSaveDialog(Main);
-            File file = jf.getSelectedFile(); 
-            
-            MicroExplorer.LASTDIRECTORY =  file.getPath();
-             
-            file = jf.getSelectedFile();
-            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
-            
-            } else {
-                file = new File(file.toString() + ".obx");  
-            }
- 
+            int returnVal = JFileChooser.CANCEL_OPTION;
+            File file;
+            int choice = JOptionPane.OK_OPTION;
+            do{
+                JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+                jf.setDialogTitle("Export VTEA objects...");
+
+                returnVal = jf.showSaveDialog(Main);
+                file = jf.getSelectedFile(); 
+
+
+
+                file = jf.getSelectedFile();
+                if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
+
+                } else {
+                    file = new File(file.toString() + ".obx");  
+                }
+                if(file.exists()){
+                    String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                    choice = JOptionPane.showConfirmDialog(null, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                }
+            }while(choice != JOptionPane.OK_OPTION);
+
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
                     try {
@@ -1799,75 +1814,103 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                         ObjectOutputStream oos = new ObjectOutputStream(fos);
                         oos.writeObject(output);
                         oos.close();
-                        
+
                         FileSaver fs = new FileSaver(imp);
                         fs.saveAsTiffStack(file.getParent() + "/" + key + ".tif");
-  
+
                     } catch (IOException e) {
                         System.out.println("ERROR: Could not save the file" + e);
                     }
                 } catch (NullPointerException ne) {
                     System.out.println("ERROR: NPE in object export");
                 }
+                _vtea.LASTDIRECTORY =  file.getPath();
             } else {
             }
         }
 
     }
     
-    class ImportOBJ {
-
-        public ImportOBJ() {
-        }
-        
-        protected void importObjects() {
-
-            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
-            int returnVal = jf.showOpenDialog(Main);
-            File file = jf.getSelectedFile();
-
-            ArrayList result = new ArrayList();
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                try {
-                    try {
-                        FileInputStream fis = new FileInputStream(file);
-                        ObjectInputStream ois = new ObjectInputStream(fis);
-                        result = (ArrayList) ois.readObject();
-                        ois.close();        
-                        Opener op = new Opener();
-                        ImagePlus imp = op.openImage(file.getParent(), ((String)result.get(0))+".tif");
-
-                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
-    
-                    } catch (IOException e) {
-                        System.out.println("ERROR: Could not open the file.");
-                    }
-                } catch (ClassNotFoundException ne) {
-                    System.out.println("ERROR: Not Found.");
-                }
-            } else {
-            }
-            
-        }
-        
-        private void executeExploring(String name, ArrayList result, ImagePlus imp){
-
-        String k = (String)result.get(0);
-        ArrayList<MicroObject> objects = (ArrayList<MicroObject>)result.get(1);
-        ArrayList measures = (ArrayList)result.get(2);
-        ArrayList descriptions = (ArrayList)result.get(3);
-        ArrayList descriptionLabels = (ArrayList)result.get(4);
-            
-        ExplorerProcessor ep = new ExplorerProcessor(name, imp, objects, measures, descriptions, descriptionLabels);
-        ep.execute();
-
-        }
-
-    }
-
-    
-    
+//    public class ImportOBJ {
+//
+//        public ImportOBJ() {
+//        }
+//        
+//        protected void importObjects() {
+//
+//            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+//            FileNameExtensionFilter filter = 
+//            new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
+//            jf.addChoosableFileFilter(filter);
+//            jf.setFileFilter(filter);
+//            int returnVal = jf.showOpenDialog(Main);
+//            File file = jf.getSelectedFile();
+//            
+//            
+//
+//            ArrayList result = new ArrayList();
+//
+//            if (returnVal == JFileChooser.APPROVE_OPTION) {
+//                try {
+//                    try {
+//                        FileInputStream fis = new FileInputStream(file);
+//                        ObjectInputStream ois = new ObjectInputStream(fis);
+//                        
+//                        ProgressMonitorInputStream pm = 
+//                        new ProgressMonitorInputStream(Main,"Reading" + file.getName() ,fis);
+//                        
+//                        result = (ArrayList) ois.readObject();
+//                        ois.close(); 
+//                        } catch (IOException e) {
+//                        System.out.println("ERROR: Could not open the file.");
+//                    }
+//                    try{
+//                        Opener op = new Opener();
+//                        ImagePlus imp = op.openImage(file.getParent(), ((String)result.get(0))+".tif");
+//                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
+//                    } catch (NullPointerException e) {
+//                        System.out.println("WARNING: Could not find the tiff file.");
+//                        JFileChooser jf2 = new JFileChooser(_vtea.LASTDIRECTORY);
+//                        FileNameExtensionFilter filter2 = 
+//                        new FileNameExtensionFilter("Tiff file.", ".tif", "tif");
+//                        jf.addChoosableFileFilter(filter2);
+//                        jf.setFileFilter(filter2);
+//                        int returnVal2 = jf2.showOpenDialog(Main);
+//                        File image = jf2.getSelectedFile();
+//                        
+//                        Opener op = new Opener();
+//                        ImagePlus imp = op.openImage(file.getParent(), image.getName());
+//                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
+//                    }
+//                    
+//                        
+//    
+//                    
+//                } catch (ClassNotFoundException ne) {
+//                    System.out.println("ERROR: Not Found.");
+//                }
+//            } else {
+//            }
+//            
+//        }
+//        
+//        private void executeExploring(String name, ArrayList result, ImagePlus imp){
+//
+//        String k = (String)result.get(0);
+//        ArrayList<MicroObject> objects = (ArrayList<MicroObject>)result.get(1);
+//        ArrayList measures = (ArrayList)result.get(2);
+//        ArrayList descriptions = (ArrayList)result.get(3);
+//        ArrayList descriptionLabels = (ArrayList)result.get(4);
+//            
+//        ExplorerProcessor ep = new ExplorerProcessor(name, imp, objects, measures, descriptions, descriptionLabels);
+//        ep.execute();
+//
+//        }
+//
+//    }
+//
+//    
+//    
 
     class ExportCSV {
 
@@ -1875,22 +1918,28 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         }
 
         protected void export(ArrayList header, ArrayList al) {
+            File file;
+            int returnVal = JFileChooser.CANCEL_OPTION;
+            int choice = JOptionPane.OK_OPTION;
+            do{
+                JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
 
-            JFileChooser jf = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+                returnVal = jf.showSaveDialog(Main);
 
-            int returnVal = jf.showSaveDialog(Main);
+                file = jf.getSelectedFile();
 
-            File file = jf.getSelectedFile();
+                file = jf.getSelectedFile();
+                if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("csv")) {
 
-            MicroExplorer.LASTDIRECTORY = file.getPath();
-
-            file = jf.getSelectedFile();
-            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("csv")) {
-
-            } else {
-                file = new File(file.toString() + ".csv");
-            }
-
+                } else {
+                    file = new File(file.toString() + ".csv");
+                }
+                
+                if(file.exists()){
+                    String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                    choice = JOptionPane.showConfirmDialog(null, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                }
+            }while(choice != JOptionPane.OK_OPTION);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
 
                 try {
@@ -1948,7 +1997,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
                 } catch (NullPointerException ne) {
                 }
-
+                _vtea.LASTDIRECTORY =  file.getPath();
             } else {
             }
 

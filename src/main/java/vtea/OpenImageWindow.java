@@ -189,11 +189,17 @@ public class OpenImageWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_OpenImagesValueChanged
     
     protected void ListActionPerformed(ActionEvent evt){
-//        int i = OpenImages.getSelectedIndex();
-//        notifyImageSelectionListeners(i, this.tab);
-//        this.setVisible(false);
-            openImage();
-       
+                new Thread(() -> {
+            try {
+                comment.setText("Loading...");
+                comment.setVisible(true);
+                openImage();
+                comment.setText("Done.");
+                comment.setVisible(false);
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();
     }
     
     protected void openImage(){
@@ -202,8 +208,6 @@ public class OpenImageWindow extends javax.swing.JFrame {
         notifyImageSelectionListeners(i, this.tab);
         this.setVisible(false);
         } catch (NullPointerException e){
-            
-           
         }
     }
     

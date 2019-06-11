@@ -18,12 +18,14 @@
 package vtea.processor;
 
 import ij.ImagePlus;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import org.scijava.plugin.Plugin;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vtea.exploration.plottools.panels.XYExplorationPanel;
+import vtea.jdbc.H2DatabaseEngine;
 import vteaexploration.MicroExplorer;
 
 /**
@@ -93,12 +95,15 @@ public class ExplorerProcessor extends AbstractProcessor {
                 hm.put(i, descriptions.get(i).toString());
             }
             
-            XYExplorationPanel XY = new XYExplorationPanel(measurements, hm, objects, impOriginal);
+            Connection connection = H2DatabaseEngine.getDBConnection();
+
+            
+            XYExplorationPanel XY = new XYExplorationPanel(key, connection, measurements, descriptions, hm, objects);
             DefaultPlotPanels DPP = new DefaultPlotPanels();
 
             String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
 
-            MicroExplorer explorer = new MicroExplorer();
+             MicroExplorer explorer = new MicroExplorer();
 //            explorer.setTitle(impOriginal.getTitle().replace("DUP_", ""));
 //            explorer.setTitle(explorer.getTitle().replace(".tif", ""));
 //            explorer.setTitle(explorer.getTitle().concat("_" + title));

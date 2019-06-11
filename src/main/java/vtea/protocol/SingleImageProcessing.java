@@ -32,6 +32,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.UUID;
@@ -44,8 +46,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import org.jfree.data.xy.DefaultXYZDataset;
 import vtea.ImageSelectionListener;
+import static vtea._vtea.PROCESSINGMAP;
+import vtea.imageprocessing.AbstractImageProcessing;
 import vtea.processor.ExplorerProcessor;
 import vtea.processor.ImageProcessingProcessor;
 import vtea.processor.MeasurementProcessor;
@@ -66,13 +69,12 @@ import vtea.protocol.listeners.UpdatedProtocolListener;
 import vtea.protocol.menus.MultipleFilesMenu;
 import vtea.protocol.setup.MicroBlockObjectSetup;
 import vteaobjects.MicroObject;
-import vteaobjects.MicroObjectModel;
 
 /**
  *
  * @author vinfrais
  */
-public class SingleImageProcessing extends javax.swing.JPanel implements PropertyChangeListener, FileOperationListener, UpdateSegmentationListener, UpdateProgressListener, ImageSelectionListener, TransferProtocolStepsListener, RebuildPanelListener, DeleteBlockListener {
+public class SingleImageProcessing extends javax.swing.JPanel implements PropertyChangeListener, UpdateSegmentationListener, UpdateProgressListener, ImageSelectionListener, TransferProtocolStepsListener, RebuildPanelListener, DeleteBlockListener {
 
     public static final int WORKFLOW = 0;
     public static final int PROCESSBLOCKS = 1;
@@ -113,23 +115,19 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
     private ArrayList<UpdatedImageListener> UpdatedImageListeners = new ArrayList<UpdatedImageListener>();
     private ArrayList<UpdatedProtocolListener> UpdatedProtocolListeners = new ArrayList<UpdatedProtocolListener>();
-
-//    private SegmentationProcessor sp = new SegmentationProcessor();
-//    private ExplorerProcessor ep = new ExplorerProcessor();
-//    private MeasurementProcessor mp = new MeasurementProcessor();
     
     private ArrayList<SegmentationProcessor> segmentationProcessors = new ArrayList();
     private ArrayList<ExplorerProcessor> explorerProcessors = new ArrayList();
     private ArrayList<MeasurementProcessor> measurementProcessors = new ArrayList();
-    
-    private int segmentationStep;
-    
+
     private int segmentationCount = 0;
     
     private int tab;
     private boolean selected = false;
     
     private int[] thread = {0,0,0,0,0,0,0,0,0,0};
+    
+    private boolean imageLoaded = false;
    
 
     /**
@@ -525,70 +523,34 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
     private void AddStep_PreprocessingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStep_PreprocessingActionPerformed
 
-        if (ProcessingStepsList.size() > 0) {
-            ProcessStepBlockGUI block = new ProcessStepBlockGUI("Process Step", "", Color.LIGHT_GRAY, false, ThumbnailImage, OriginalImage, Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, ProcessingStepsList.size() + 1);
-            block.addDeleteBlockListener(this);
-            block.addRebuildPanelListener(this);
-            this.notifyRepaintTabListeners();
-            PreProcessingStepsPanel.setLayout(PreProcessingLayout);
-            PreProcessingStepsPanel.add(block.getPanel());
-            PreProcessingStepsPanel.repaint();
-            ProcessingStepsList.add(block);
-            if (ProcessingStepsList.size() <= 9) {
-                AddStep_Preprocessing.setEnabled(true);
-            }
-            if (ProcessingStepsList.size() >= 10) {
-                AddStep_Preprocessing.setEnabled(false);
-            }
-        }
-        this.notifyRepaintTabListeners();
+        addPreprocessingBlock();
     }//GEN-LAST:event_AddStep_PreprocessingActionPerformed
 
     private void DeleteAllSteps_PreProcessingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteAllSteps_PreProcessingActionPerformed
-        // TODO add your handling code here:
-
         ProcessingStepsList.clear();
         PreProcessingStepsPanel.removeAll();
         AddStep_Preprocessing.setEnabled(false);
         PreProcessingGo.setEnabled(false);
         this.OpenImage.setEnabled(true);
         PreProcessingStepsPanel.repaint();
-        //pack();
     }//GEN-LAST:event_DeleteAllSteps_PreProcessingActionPerformed
 
     private void PreProcessingGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreProcessingGoActionPerformed
-         
-        this.firePropertyChange("comment", "", "Processing image data...");
         
+        this.firePropertyChange("comment", "", "Processing image data...");
         executeProcessing();
-
         VTEAProgressBar.setValue(0);
-        this.FindObjectText.setForeground(vtea._vtea.ACTIVETEXT);
-        this.AddStep_Object.setEnabled(true);
-
-        if (this.ObjectStepsList.size() > 0) {
-            this.ObjectGo.setEnabled(true);
-       
+        FindObjectText.setForeground(vtea._vtea.ACTIVETEXT);
+        AddStep_Object.setEnabled(true);
+        if (ObjectStepsList.size() > 0) {
+            ObjectGo.setEnabled(true);
         }
     }//GEN-LAST:event_PreProcessingGoActionPerformed
 
     private void AddStep_ObjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStep_ObjectActionPerformed
 
-        ObjectStepBlockGUI block = new ObjectStepBlockGUI();
-        addUpdatedImageListener(block);
-        block.addUpdateSegmentationListener(this);
-        ObjectStepsPanel.setLayout(ObjectLayout);
-        ObjectStepsPanel.add(block.getPanel());
-        ObjectStepsPanel.repaint();
+addObjectBlock();
 
-        ObjectStepsList.add(block);
-        if (ObjectStepsList.size() <= 1) {
-            AddStep_Object.setEnabled(true);
-        }
-        if (ObjectStepsList.size() >= 4) {
-            AddStep_Object.setEnabled(false);
-        }
-        this.notifyRepaintTabListeners();
     }//GEN-LAST:event_AddStep_ObjectActionPerformed
 
     private void DeleteAllSteps_ObjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteAllSteps_ObjectActionPerformed
@@ -661,13 +623,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         this.tabName = st;
     }
 
-    public void processBatchFileList() {
-    }
-
-    public void findObjectsBatchFileList() {
-    }
-
-    //public void 
     @Override
     public void transferThese(int type, int tab, String arg) {
         if (this.tab == tab) {
@@ -683,7 +638,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             case ProtocolManagerMulti.OBJECT:
                 this.RebuildPanelObject();
                 return;
-
             default:
                 return;
         }
@@ -695,11 +649,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             case ProtocolManagerMulti.PROCESS:
                 this.deleteProcessStep(position);
                 return;
-
             case ProtocolManagerMulti.OBJECT:
                 this.deleteObjectStep(position);
                 return;
-
             default:
                 return;
         }
@@ -712,92 +664,63 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         VTEAProgressBar.setValue(position);
         ProgressComment.setText(text);
     }
-
-    @Override
-    public int onFileOpen() throws Exception {
-        if (this.selected) {
-            System.out.println("PROFILING: Opening settings for tab: " + this.tab);
-            JFileChooser chooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA file.", ".vtf", "vtf");
-            chooser.addChoosableFileFilter(filter);
-            chooser.setFileFilter(filter);
-            int returnVal = chooser.showOpenDialog(this);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-
-                System.out.println("PROFILING: Opening settings...");
-
-                File file = chooser.getSelectedFile();
-                FileInputStream fis = new FileInputStream(file);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-                Object temp = ois.readObject();
-
-                //Add logic here for file type loading...
-                ProcessStepBlockGUI image = ProcessingStepsList.get(0);
-                ProcessingStepsList.clear();
-                ProcessingStepsList.add(image);
-
-                //Extract returns ArrayList of arraylists...  make new ProcessingBlockGUIs by arraylist.
-                ListIterator<ArrayList> itr = ((ArrayList<ArrayList>) temp).listIterator();
-
-                while (itr.hasNext()) {
-                    ProcessStepBlockGUI ppsb = new ProcessStepBlockGUI("Process Step", "", Color.LIGHT_GRAY, false, ThumbnailImage, OriginalImage, Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, ProcessingStepsList.size() + 1);
-                    ppsb.onChangeSetup(itr.next());
-                }
-
-                this.RebuildPanelProcessing();
-
-                repaint();
-                ois.close();
-
-                return 1;
-            } else {
-                repaint();
-
-                return -1;
+    
+    public void addPreprocessingBlock(){
+        if (ProcessingStepsList.size() > 0) {
+            ProcessStepBlockGUI block = new ProcessStepBlockGUI("Process Step", "", Color.LIGHT_GRAY, false, ThumbnailImage, OriginalImage, Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, ProcessingStepsList.size() + 1);
+            block.addDeleteBlockListener(this);
+            block.addRebuildPanelListener(this);     
+            this.notifyRepaintTabListeners();
+            PreProcessingStepsPanel.setLayout(PreProcessingLayout);
+            PreProcessingStepsPanel.add(block.getPanel());
+            PreProcessingStepsPanel.repaint();
+            ProcessingStepsList.add(block);
+            if (ProcessingStepsList.size() <= 9) {
+                AddStep_Preprocessing.setEnabled(true);
+            }
+            if (ProcessingStepsList.size() >= 10) {
+                AddStep_Preprocessing.setEnabled(false);
             }
         }
-
-        return -1;
+        this.notifyRepaintTabListeners();
     }
+    
+    public void addObjectBlock() {
+ 
+        new Thread(() -> {
+            try {
+                ProgressComment.setText("Processed image transferring...");
+                VTEAProgressBar.setIndeterminate(true);
+        
+                ObjectStepBlockGUI block = new ObjectStepBlockGUI();
+        addUpdatedImageListener(block);
+        block.addUpdateSegmentationListener(this);
+        ObjectStepsPanel.setLayout(ObjectLayout);
+        ObjectStepsPanel.add(block.getPanel());
+        ObjectStepsPanel.repaint();
 
-    @Override
-    public void onFileSave() throws Exception {
-        if (this.selected) {
-            System.out.println("PROFILING: Saving settings...");
-            JFileChooser chooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA file.", ".vtf", "vtf");
-            chooser.setFileFilter(filter);
-            chooser.showSaveDialog(this);
-            File file = chooser.getSelectedFile();
-
-            String filename = file.getName();
-            if (!filename.endsWith(".vtf")) {
-                String path = file.getPath();
-                path += ".vtf";
-                file = new File(path);
-            }
-
-            FileOutputStream fos = new FileOutputStream(file);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(extractSteps(this.ProcessingStepsList, PROCESSBLOCKS));
-            oos.close();
-            repaint();
+        ObjectStepsList.add(block);
+        if (ObjectStepsList.size() <= 1) {
+            AddStep_Object.setEnabled(true);
         }
+        if (ObjectStepsList.size() >= 4) {
+            AddStep_Object.setEnabled(false);
+        }
+        this.notifyRepaintTabListeners();
+        VTEAProgressBar.setIndeterminate(false);
+        ProgressComment.setText("Processed image transferred...");
+                    } catch (Exception e) {
+                                VTEAProgressBar.setIndeterminate(false);
+        ProgressComment.setText("Processed image transferred...");
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();
+ 
     }
 
-    @Override
-    public void onFileExport() throws Exception {
-
-    }
 
     @Override
     public void onUpdateSegmentation(int i) {
-//        if(ep.ExploreDrawer.size() > 0){
-//          ep.emptyExplorerDrawer();
-//          ep.emptyFolderDrawer();
-//          
-        ObjectGo.setText("Update");
-//        }
         ObjectGo.setEnabled(true);
     }
 
@@ -835,28 +758,27 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
                 if(sp.getUIDKey().equals(key)){
                 executeMeasuring(key, sp.getObjects(), sp.getProtocol());
                 }
-              }
+            }
         } 
         if (evt.getPropertyName().equals("measurementDone")) {
             ProgressComment.setText((String) evt.getNewValue());
             String key = (String)evt.getOldValue(); 
-            
-            
+
             ListIterator itr = measurementProcessors.listIterator();
-            
-            //System.out.println("PROFILING: Number of measurment processors: " + measurementProcessors.size());
             
             while(itr.hasNext()){
                 MeasurementProcessor mp = (MeasurementProcessor)itr.next();
                 if(mp.getUIDKey().equals(key)){
-                    executeExploring(key, mp.getObjects(), mp.getFeatures(), mp.getDescriptions(), mp.getDescriptionLabels());
+                    executeExploring(key, mp.getObjects(), mp.getFeatures(), 
+                            mp.getDescriptions(), mp.getDescriptionLabels());
                 }
               }
         }
         if (evt.getPropertyName().equals("comment")) {
             ProgressComment.setText((String) evt.getNewValue());
         }
-        if (evt.getPropertyName().equals("escape") && (Boolean) evt.getNewValue()) {
+        if (evt.getPropertyName().equals("escape") && 
+                (Boolean) evt.getNewValue()) {
 
             ImagePlus ProcessedShow = new ImagePlus("Processed");
             ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
@@ -877,7 +799,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     }
 
 //classes for step blocks
-    private final class ObjectStepBlockGUI extends Object implements MicroBlockSetupListener, UpdatedImageListener, UpdatedProtocolListener {
+    public final class ObjectStepBlockGUI extends Object implements 
+            MicroBlockSetupListener, UpdatedImageListener, UpdatedProtocolListener {
 
         JPanel step = new JPanel();
         Font PositionFont = new Font("Arial", Font.PLAIN, 14);
@@ -900,18 +823,21 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
         private ArrayList settings;
 
-        private ArrayList<UpdateSegmentationListener> UpdateSegmentationListeners = new ArrayList<UpdateSegmentationListener>();
+        private ArrayList<UpdateSegmentationListener> 
+            UpdateSegmentationListeners = new ArrayList<UpdateSegmentationListener>();
 
         public ObjectStepBlockGUI() {
             BuildStepBlock("Setup segmentation...", "", Color.LIGHT_GRAY);
         }
 
-        public ObjectStepBlockGUI(String ProcessText, String CommentText, Color BlockColor) {
+        public ObjectStepBlockGUI(String ProcessText, 
+                String CommentText, Color BlockColor) {
             
             BuildStepBlock(ProcessText, CommentText, Color.GREEN);
         }
 
-        private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor) {
+        private void BuildStepBlock(String ProcessText, 
+                String CommentText, Color BlockColor) {
 
             if (ObjectStepsList.isEmpty()) {
                 position = 1;
@@ -963,16 +889,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
                 }
             });
 
-//            MeasureButton = new JButton();
-//            MeasureButton.setPreferredSize(new Dimension(20, 20));
-//            MeasureButton.addActionListener(new java.awt.event.ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent ae) {
-//                    //mbs.setVisible(true);
-//
-//                }
-//            });
-//            MeasureButton.setEnabled(false);
 
             UpdateExplorer = new JButton();
             UpdateExplorer.addActionListener(new java.awt.event.ActionListener() {
@@ -993,15 +909,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
             EditButton.setToolTipText("Edit segmentation protocol...");
 
-//            MeasureButton.setSize(20, 20);
-//            MeasureButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
-//            MeasureButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png")));
-//            MeasureButton.setToolTipText("Edit measurements...");
-
-            UpdateExplorer.setSize(20, 20);
-            UpdateExplorer.setBackground(vtea._vtea.BUTTONBACKGROUND);
-            UpdateExplorer.setText("UPDATE");
-            UpdateExplorer.setToolTipText("UPDATE");
 
             JPanel fill = new JPanel();
             fill.setPreferredSize(new Dimension(20, 20));
@@ -1012,12 +919,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             step.setLayout(new GridBagLayout());
             GridBagConstraints layoutConstraints = new GridBagConstraints();
 
-//            layoutConstraints.fill = GridBagConstraints.BOTH;
-//            layoutConstraints.gridx = 0;
-//            layoutConstraints.gridy = 0;
-//            layoutConstraints.weightx = 1;
-//            layoutConstraints.weighty = 1;
-//            step.add(UpdateExplorer, layoutConstraints);
+
             layoutConstraints.fill = GridBagConstraints.BOTH;
             layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 0;
@@ -1032,14 +934,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             layoutConstraints.weighty = 10;
             step.add(Comment, layoutConstraints);
 
-//            layoutConstraints.fill = GridBagConstraints.BOTH;
-//            layoutConstraints.gridx = 2;
-//            layoutConstraints.gridy = 0;
-//            layoutConstraints.weightx = -1;
-//            layoutConstraints.weighty = -1;
-//            layoutConstraints.ipadx = -1;
-//            layoutConstraints.ipady = -1;
-//            step.add(UpdateExplorer, layoutConstraints);
             layoutConstraints.fill = GridBagConstraints.BOTH;
             layoutConstraints.gridx = 2;
             layoutConstraints.gridy = 0;
@@ -1057,25 +951,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             layoutConstraints.ipadx = 0;
             layoutConstraints.ipady = 20;
             step.add(EditButton, layoutConstraints);
-
-//            layoutConstraints.fill = GridBagConstraints.BOTH;
-//            layoutConstraints.gridx = 2;
-//            layoutConstraints.gridy = 2;
-//            layoutConstraints.weightx = -1;
-//            layoutConstraints.weighty = -1;
-//            layoutConstraints.ipadx = 0;
-//            layoutConstraints.ipady = 20;
-//            step.add(MeasureButton, layoutConstraints);
-//
-//            layoutConstraints.fill = GridBagConstraints.BOTH;
-//            layoutConstraints.gridx = 1;
-//            layoutConstraints.gridy = 2;
-//            layoutConstraints.weightx = -1;
-//            layoutConstraints.weighty = -1;
-//            layoutConstraints.ipadx = 0;
-//            layoutConstraints.ipady = 20;
-//
-//            step.add(fill, layoutConstraints);
 
             step.addMouseListener(new java.awt.event.MouseListener() {
                 @Override
@@ -1144,20 +1019,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         @Override
         public void onChangeSetup(ArrayList al2) {
 
-            //ArrayList al = new ArrayList();
-            //ArrayList al_key = new ArrayList();
-            
-            
-            //System.out.println("PROFILING: segmentation settings:  " + (String)al2.get(0));
-
-            //al = (ArrayList) al2.get(0);
-            //al_key = (ArrayList) al.get(2);
-
+      
             String MethodText = new String();
             
-            //MethodText = " " + al_key.get(0).toString() + ": " + al.get(3).toString() + " " + al_key.get(2).toString() + ": " + al.get(5).toString() + " " + al_key.get(3).toString() + ": " + al.get(6).toString();
-            
-            ArrayList<ArrayList> morphologies = (ArrayList<ArrayList>)al2.get(4);
+             ArrayList<ArrayList> morphologies = (ArrayList<ArrayList>)al2.get(4);
             
             MethodText = "Approach: " + (String)(al2.get(1)) + " on channel " + ((int)al2.get(2)+1) +".  Measuring in "  + morphologies.size() + " morphologies.";
             
@@ -1215,7 +1080,26 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         //pack();
 
     }
+    
+    public void rebuildProcessingGUI(){
+                PreProcessingStepsPanel.removeAll();
+        PreProcessingStepsPanel.setLayout(PreProcessingLayout);
 
+        if (ProcessingStepsList.size() < 0) {
+        } else {
+            RebuildPanelProcessing();
+        }
+
+        if (ProcessingStepsList.size() < 5) {
+            AddStep_Preprocessing.setEnabled(true);
+        }
+
+        PreProcessingStepsPanel.repaint();
+        this.notifyRepaintTabListeners();
+        //pack();
+
+    
+    }
     private void deleteObjectStep(int position) {
 
         ObjectStepsList.remove(position - 1);
@@ -1236,8 +1120,25 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         ObjectStepsPanel.repaint();
         this.notifyRepaintTabListeners();
     }
+        public ArrayList<ProcessStepBlockGUI> getProcessStepsList() {
+        return this.ProcessingStepsList;
+    }
+    
+    public void setProcessStepsList(ArrayList<ProcessStepBlockGUI> ProcessingStepsList) {
+        if(this.ProcessingStepsList.size() > 1){
+            ArrayList<ProcessStepBlockGUI> temp = new ArrayList<ProcessStepBlockGUI>();
+            temp.add(this.ProcessingStepsList.get(0));
+            this.ProcessingStepsList.clear();
+            this.ProcessingStepsList.addAll(temp);
+            this.ProcessingStepsList.addAll(ProcessingStepsList);
+            UpdatePositionProcessing(0);
+            this.RebuildPanelProcessing();
+        } else {
+            //this.ProcessingStepsList.addAll(ProcessingStepsList);
+        }
+    }
 
-    public ArrayList getProcessSteps() {
+    public ArrayList<ProcessStepBlockGUI> cloneProcessStepsList() {
 
         ArrayList<ProcessStepBlockGUI> export = new ArrayList<ProcessStepBlockGUI>();
 
@@ -1252,7 +1153,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         return export;
     }
 
-    public ArrayList getObjectSteps() {
+    public ArrayList<ObjectStepBlockGUI> getObjectStepsList() {
         return this.ObjectStepsList;
     }
 
@@ -1260,11 +1161,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         return extractSteps(ProcessingStepsList, PROCESSBLOCKS);
     }
 
-    public ArrayList getProcessingProtocolList() {
-        return this.ProcessingStepsList;
-    }
 
-    public void setProcessSteps(ArrayList ProcessingStepsList) {
+
+    public void addProcessSteps(ArrayList ProcessingStepsList) {
         ProcessingStepsList.trimToSize();
         this.ProcessingStepsList.addAll(ProcessingStepsList);
         UpdatePositionProcessing(0);
@@ -1580,8 +1479,13 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             imp.deleteRoi();
             this.OriginalImage = imp;
             imp.restoreRoi();
-
+            
+            ProgressComment.setText("Image loading...");
+            VTEAProgressBar.setIndeterminate(true);
             ThumbnailImage = imp.duplicate();
+            
+            
+            
 
             ThumbnailImage = UtilityMethods.makeThumbnail(ThumbnailImage);
 
@@ -1591,6 +1495,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             }
 
             AddStep_Preprocessing.setEnabled(true);
+            imageLoaded = true;
 
             ProcessStepBlockGUI block = new ProcessStepBlockGUI(imp.getTitle(), "New Image", ImageBlockBackground, this.batch, this.ThumbnailImage, this.OriginalImage, this.Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, getBlockPosition());
             block.addRebuildPanelListener(this);
@@ -1615,7 +1520,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         DeleteAllSteps_PreProcessing.setEnabled(true);
         AddStep_Preprocessing.setEnabled(true);
         PreProcessingGo.setEnabled(true);
-
+        VTEAProgressBar.setIndeterminate(false);
         ProgressComment.setText("Image loaded...");
     }
 

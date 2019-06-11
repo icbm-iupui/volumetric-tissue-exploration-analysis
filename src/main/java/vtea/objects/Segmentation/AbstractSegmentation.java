@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
@@ -198,6 +199,46 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
             listener.updateGui(str, dbl);
         }
     }
+
+    @Override
+    public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
+        return false;
+    }
+    
+    @Override
+    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+            
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
+    
+    @Override
+    public boolean saveComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+            
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
+
+    @Override
+    public void doUpdateOfTool() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
 
 
 }

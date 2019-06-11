@@ -35,13 +35,7 @@ import javax.swing.JPanel;
  */
 public class ProcessStepBlock extends Object implements MicroBlockSetupListener {
 
-    
-    
-    
-    
-    
-    
-    
+
     @Override
     public void onChangeSetup(ArrayList al) {
 

@@ -20,6 +20,7 @@ package vtea.objects.Segmentation;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,7 +90,7 @@ public LayerCake3DSingleThreshold(){
     
     protocol = new ArrayList();
     
-            
+
             
             f1.setPreferredSize(new Dimension(20, 30));
             f1.setMaximumSize(f1.getPreferredSize());
@@ -142,15 +143,132 @@ public LayerCake3DSingleThreshold(){
     
     @Override
     public JPanel getSegmentationTool(){
-        JPanel panel = new JPanel();
+ JPanel panel = new JPanel();
         panel.setBackground(vtea._vtea.BACKGROUND);
-        MicroThresholdAdjuster mta = new MicroThresholdAdjuster(imagePreview);
-        mta.addChangeThresholdListener(f1);
-        f1.setText(String.valueOf(mta.getMin()));
-        
+        mta = new MicroThresholdAdjuster(imagePreview);
         panel.add(mta.getPanel());
+        mta.addChangeThresholdListener(f1);
+        mta.notifyChangeThresholdListeners(mta.getMin(), mta.getMax()); 
         return panel;
     }
+    
+        
+    @Override
+    public void doUpdateOfTool() {
+        f1.setText(String.valueOf(mta.getMin()));
+        mta.doUpdate();
+    }
+     /** Copies components between an source and destination arraylist
+     * 
+     * @param version
+     * @param dComponents
+     * @param sComponents
+     * @return 
+     */
+        @Override
+    public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
+      try{
+            dComponents.clear();
+
+            JTextFieldLinked f1 = (JTextFieldLinked) sComponents.get(1);
+            JTextField f2 = (JTextField) sComponents.get(3);
+            JTextField f3 = (JTextField) sComponents.get(5);
+            JTextField f4 = (JTextField) sComponents.get(7);
+            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox)(sComponents.get(8))).isSelected());
+            
+            
+   
+        dComponents.add(new JLabel("Low Threshold"));
+        dComponents.add(f1);
+        dComponents.add(new JLabel("Centroid Offset"));
+        dComponents.add(f2);
+        dComponents.add(new JLabel("Min Vol (vox)"));
+        dComponents.add(f3);
+        dComponents.add(new JLabel("Max Vol (vox)"));
+        dComponents.add(f4);
+        dComponents.add(watershed);
+
+
+        return true;
+        } catch(Exception e){
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            return false;
+        }
+    }
+    /**Takes  a set of values from 'fields' and populates the components , 
+     * as defined herein 
+     * 
+     * @param version
+     * @param dComponents
+     * @param fields
+     * @return 
+     */
+   
+    
+    @Override
+    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+            
+        //dComponents.clear();
+        
+        
+        JTextFieldLinked n1 = (JTextFieldLinked)dComponents.get(1);
+        JTextField n2 = (JTextField)dComponents.get(3);
+        JTextField n3 = (JTextField)dComponents.get(5);
+        JTextField n4 = (JTextField)dComponents.get(7);
+        JCheckBox n5 = (JCheckBox)dComponents.get(8);
+        
+        
+        n1.setText((String)fields.get(0));
+        n2.setText((String)fields.get(1));
+        n3.setText((String)fields.get(2));
+        n4.setText((String)fields.get(3));
+        n5.setSelected((boolean)fields.get(4));
+        
+        
+        return true;
+        } catch(Exception e){
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            return false;
+        }
+    }
+    /**
+     * Takes the a set of components, as defined herein and populates the fields
+     * ArrayList for serialization.
+     * @param version in case multiple versions need support 
+     * @param sComponents
+     * @param fields
+     * @return 
+     */
+    @Override
+    public boolean saveComponentParameter(String version, ArrayList fields, ArrayList sComponents) {
+            
+        
+        try{
+            
+            JTextFieldLinked f1 = (JTextFieldLinked) sComponents.get(1);
+            JTextField f2 = (JTextField) sComponents.get(3);
+            JTextField f3 = (JTextField) sComponents.get(5);
+            JTextField f4 = (JTextField) sComponents.get(7);
+            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox)(sComponents.get(8))).isSelected());
+            
+
+            fields.add(f1.getText());
+            fields.add(f2.getText());
+            fields.add(f3.getText());
+            fields.add(f4.getText());
+            fields.add(((JCheckBox)(sComponents.get(8))).isSelected()); 
+
+
+            return true;
+        } catch(Exception e){
+            System.out.println("ERROR: Could not save parameter(s) for " + NAME + "\n" + e.getLocalizedMessage());
+            return false;
+        }
+    }
+
+
+
         
     @Override
     public String runImageJMacroCommand(String str) {
@@ -178,6 +296,7 @@ public LayerCake3DSingleThreshold(){
     public boolean process(ImageStack[] is, List protocol, boolean count) {
 
         System.out.println("PROFILING: processing on LayerCake3D...");
+        //System.out.println("PROFILING: Image width: " + is[0].getWidth() + ", height: " + is[0].getHeight());
 
         
          /**segmentation and measurement protocol redefining.
@@ -198,6 +317,10 @@ public LayerCake3DSingleThreshold(){
         watershedImageJ = ((JCheckBox)(al.get(8))).isSelected();
         
         int segmentationChannel = (int)protocol.get(2);
+        
+           
+         //System.out.println("PROFILING: segmentation channel: " + segmentationChannel + " for " + is.length + " channels.");
+      
                  
         stackOriginal = is[segmentationChannel];
         imageOriginal = new ImagePlus("Mask", stackOriginal);
@@ -559,7 +682,10 @@ public LayerCake3DSingleThreshold(){
         
         JTextFieldLinked(String str, int i){
             super(str, i);
+            setBackground(new Color(255,152,152));
         }
+        
+        
 
         @Override
         public void thresholdChanged(double min, double max) {
@@ -569,6 +695,12 @@ public LayerCake3DSingleThreshold(){
         min = ipmin + (min / 255.0) * (ipmax - ipmin);
         max = ipmin + (max / 255.0) * (ipmax - ipmin);
         
+        if(min > 0){
+            this.setBackground(Color.WHITE);
+        } else {  
+            this.setBackground(new Color(255,152,152));
+        }
+
         //System.out.println("PROFILING: threshold minimum changes to: " + String.valueOf(Math.round(min)));
         
         f1.setText(""+String.valueOf(Math.round(min)));

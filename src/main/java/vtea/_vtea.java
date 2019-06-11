@@ -17,6 +17,7 @@
  */
 package vtea;
 
+import ij.IJ;
 import ij.ImageJ;
 import ij.ImageListener;
 import ij.ImagePlus;
@@ -28,6 +29,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.sql.Connection;
 import static java.sql.DriverManager.println;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -35,8 +37,7 @@ import java.util.logging.Logger;
 import javax.swing.JScrollBar;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
-import org.hsqldb.Server;
-import org.hsqldb.persist.HsqlProperties;
+import org.h2.tools.DeleteDbFiles;
 import org.scijava.Context;
 import org.scijava.Prioritized;
 import org.scijava.Priority;
@@ -44,6 +45,7 @@ import org.scijava.log.LogService;
 import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
 import org.scijava.plugin.RichPlugin;
+import vtea.jdbc.H2DatabaseEngine;
 import vtea.protocol.ProtocolManagerMulti;
 import vtea.services.FeatureService;
 import vtea.services.FileTypeService;
@@ -58,6 +60,8 @@ import vtea.services.WorkflowService;
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
+     public static String VERSION = new String("1.0 alpha");
+    
     public static Color BACKGROUND = new Color(204, 204, 204);
     public static Color BUTTONBACKGROUND = new Color(200, 200, 200);
     public static Color ACTIONPANELBACKGROUND = new Color(240, 240, 240);
@@ -66,11 +70,23 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension SMALLBUTTONSIZE = new Dimension(32, 32);
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
-    public static String VERSION = new String("0.7b");
+    
+    public static String H2_DATABASE = new String("VTEADB");
+    
+    public static String H2_MEASUREMENTS_TABLE = new String("MEASUREMENTS");
+    public static String H2_OBJECT_TABLE = new String("OBJECTS");
+    
+    public static String LASTDIRECTORY = new String(System.getProperty("user.home") + "/Desktop");
+    
+    
+   
 
     //public static String[] PROCESSOPTIONS = {"LayerCake 3D"};
     
     public static String[] FEATURETYPE = {"Cluster", "Reduction", "Other"};
+    
+    public static String[] MEASUREMENTTYPE = {"Intensity", "Shape", 
+        "Texture", "Relationship"};
     
     public static String[] SEGMENTATIONOPTIONS;
     public static String[] PROCESSINGOPTIONS;
@@ -110,7 +126,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
             public void run() {new ImageJ(); }
         });
     }
-    private Server sonicServer;
+    //private Server sonicServer;
 
 
     @Override
@@ -120,19 +136,30 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         
                 context = new Context( LogService.class, PluginService.class );
                 priority = Priority.FIRST_PRIORITY;
-                
-                
+
                 System.out.println("Starting up VTEA... ");
                 System.out.println("-------------------------------- ");
                 System.out.println("Available memory: " + getAvailableMemory()/(1000000000) + " GB");
                 System.out.println("Available processors: " + Runtime.getRuntime().availableProcessors());
                 System.out.println("-------------------------------- ");
+                System.out.println("Seting JVM configurations...");
                 
                 System.setProperty("java.util.Arrays.sort", "true");
+                
+                System.out.println("-------------------------------- ");
+                System.out.println("Setting ImageJ configurations...");
+                
+                IJ.run("Options...", "iterations=1 count=1");
+                
+                System.out.println("-------------------------------- ");
+
 
                 ImagePlus.addImageListener(this);
                 
+
+            System.out.println("-------------------------------- ");
                 
+
                 protocolWindow = new ProtocolManagerMulti();
                 protocolWindow.setVisible(true);
                 
@@ -364,34 +391,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                     }
                 }
                 
-//              Renjin r = new Renjin();
-//                
-//            try {
-//                RServe rS = new RServe();
-//            } catch (RserveException ex) {
-//               
-//            } catch (REXPMismatchException ex) {
-//                
-//            }
-            
- 
-  
-//    final String dbLocation = System.getProperty("user.dir")+File.separator; 
-//
-//    Connection dbConn = null;
-//  
-//  HsqlProperties props = new HsqlProperties();
-//    props.setProperty("server.database.0", "file:" + dbLocation + "mydb;");
-//    props.setProperty("server.dbname.0", "vteadb");
-//    sonicServer = new org.hsqldb.Server();
-//    try {
-//        sonicServer.setProperties(props);
-//    } catch (Exception e) {
-//        return;
-//    }
-//    sonicServer.start();
-//     System.out.println("HPSQL started in directory: " + dbLocation);
-//            
+                System.out.println("-------------------------------- ");
+                    
     }
 
 

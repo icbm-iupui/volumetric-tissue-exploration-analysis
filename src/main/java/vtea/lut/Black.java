@@ -1,5 +1,5 @@
-/* 
- * Copyright (C) 2016-2018 Indiana University
+/*
+ * Copyright (C) 2018 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,39 +15,39 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.objects.measurements;
+package vtea.lut;
 
-import java.util.ArrayList;
-import java.util.ListIterator;
-import net.imglib2.RealPoint;
+import java.awt.Color;
 import org.scijava.plugin.Plugin;
 
 /**
  *
  * @author sethwinfree
  */
-@Plugin(type = Measurements.class)
-public class Sum extends AbstractMeasurement {
+@Plugin (type = LUT.class)
+public class Black extends AbstractLUT {
     
-    public Sum(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate sum or integrated density";
-    NAME = "Sum";
-    KEY = "Sum";
-    TYPE = "Intensity";
-}
-    
-    @Override
-    public Number process(ArrayList al, ArrayList values)  {
-    double n = 0;
-    ListIterator<Number> itr = values.listIterator();   
-    while(itr.hasNext()){          
-        Number value = itr.next();  
-        n = n + value.doubleValue();
-    }   
-    return n;
-};
-    
-}
 
+    
+    public Black(){
+        VERSION = "0.1";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Implements LUTs for VTEA";
+        NAME = "Black";
+        KEY = "BLACK";
+        
+    ZEROPERCENT = new Color(0x000000);
+    TENPERCENT = new Color(0x000000);
+    TWENTYPERCENT = new Color(0x000000);
+    THIRTYPERCENT = new Color(0x000000);
+    FORTYPERCENT = new Color(0x000000);
+    FIFTYPERCENT = new Color(0x000000);
+    SIXTYPERCENT = new Color(0x000000);
+    SEVENTYPERCENT = new Color(0x000000);
+    EIGHTYPERCENT = new Color(0x000000);
+    NINETYPERCENT = new Color(0x000000);
+    ALLPERCENT = new Color(0x000000);
+    
+    }
+    
+}

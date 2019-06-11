@@ -42,145 +42,237 @@ import javax.swing.event.MenuListener;
  * @author vinfrais
  */
 public class JMenuProtocol extends JMenu implements ActionListener, ItemListener {
-                JMenuItem LoadSteps;
-                JMenuItem SaveSteps;
-                JMenu CopySteps;
-                //JMenuItem Item3;
-                boolean batch;              
-                int ProtocolType;
-                
-                String ItemString1 = "Load...";
-                String ItemString2 = "Save...";
-                String ItemString3 = "Copy from...";
-                
-                private ArrayList<BatchStateListener> listeners = new ArrayList<BatchStateListener>();
-                private ArrayList<CopyBlocksListener> CopyListeners = new ArrayList<CopyBlocksListener>();
-                private ArrayList<FileOperationListener> fileOperationListeners = new ArrayList<FileOperationListener>();
-                
-                public JMenuProtocol(final String text, ArrayList<String> tabs, int type){
-                    
-                    super(text);
-                    
-                    this.ProtocolType = type;
-                    
-                     LoadSteps = new JMenuItem("Load...");
-                     LoadSteps.setActionCommand("Load");
-                     LoadSteps.addActionListener(new ActionListener(){
-                         @Override
-                         public void actionPerformed(ActionEvent ae) {   
-                            notifyFileOperationListener(ae);
-                         }
-                     });
-                     
-                     SaveSteps = new JMenuItem("Save...");
-                     SaveSteps.setActionCommand("Save");
-                     SaveSteps.addActionListener(new ActionListener(){
-                         @Override
-                         public void actionPerformed(ActionEvent ae) {   
-                             notifyFileOperationListener(ae);
-                         }
-                     });
-                     
-                     CopySteps = new JMenu("Copy from...");
-                     CopySteps.setActionCommand("Copy");
-                     CopySteps.addActionListener(this);
-                     
-                     ListIterator<String> itr = tabs.listIterator();
-                     
-                     JMenuItem OpenTab = new JMenuItem(); 
-                     
-                     while(itr.hasNext())
-                     {  
-                     OpenTab = new JMenuItem(itr.next());
-                     OpenTab.setActionCommand(this.getName());
-                     OpenTab.addActionListener(new ActionListener(){
-                         @Override
-                         public void actionPerformed(ActionEvent ae) {   
-                            notifyStepCopierListener(((JMenuItem)ae.getSource()).getText(), ProtocolType);
-                         }
-                     });
-                     CopySteps.add(OpenTab);
-                     }
-                    add(LoadSteps);
-                    add(SaveSteps);
-                    add(CopySteps);
-                } 
 
-                
+    JMenuItem LoadProcessSteps;
+    JMenuItem SaveProcessSteps;
+
+    JMenuItem LoadObjectSteps;
+    JMenuItem SaveObjectSteps;
+    
+    JMenuItem SaveAllSteps;
+    
+    JMenuItem LoadExplorer;
+    
+    JMenu CopySteps;
+    //JMenuItem Item3;
+    boolean batch;
+    int ProtocolType;
+
+    private ArrayList<BatchStateListener> listeners = new ArrayList<BatchStateListener>();
+    private ArrayList<CopyBlocksListener> CopyListeners = new ArrayList<CopyBlocksListener>();
+    private ArrayList<FileOperationListener> fileOperationListeners = new ArrayList<FileOperationListener>();
+
+    public JMenuProtocol(final String text, ArrayList<String> tabs, int type) {
+
+        super(text);
+
+        this.ProtocolType = type;
+
+        LoadProcessSteps = new JMenuItem("Load Processing...");
+        LoadProcessSteps.setActionCommand("LoadProcess");
+        LoadProcessSteps.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                notifyFileOperationListener(ae);
+            }
+        });
+
+        SaveProcessSteps = new JMenuItem("Save Processing...");
+        SaveProcessSteps.setActionCommand("SaveProcess");
+        SaveProcessSteps.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                notifyFileOperationListener(ae);
+            }
+        });
+
+        LoadObjectSteps = new JMenuItem("Load Segmentation...");
+        LoadObjectSteps.setActionCommand("LoadObject");
+        LoadObjectSteps.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                notifyFileOperationListener(ae);
+            }
+        });
+
+        SaveObjectSteps = new JMenuItem("Save Segmentation...");
+        SaveObjectSteps.setActionCommand("SaveObject");
+        SaveObjectSteps.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                notifyFileOperationListener(ae);
+            }
+        });
+
+        CopySteps = new JMenu("Copy from...");
+        CopySteps.setActionCommand("Copy");
+        CopySteps.addActionListener(this);
+
+        ListIterator<String> itr = tabs.listIterator();
+
+        JMenuItem OpenTab = new JMenuItem();
+ 
+        while (itr.hasNext()) {
+            OpenTab = new JMenuItem(itr.next());
+            OpenTab.setActionCommand(this.getName());
+            OpenTab.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    notifyStepCopierListener(((JMenuItem) ae.getSource()).getText(), ProtocolType);
+                }
+            });
+            CopySteps.add(OpenTab);
+        }
+        
+        SaveAllSteps = new JMenuItem("Save All...");
+        SaveAllSteps.setActionCommand("SaveAll");
+        SaveAllSteps.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                notifyFileOperationListener(ae);
+            }
+        });
+        
+        LoadExplorer = new JMenuItem("Load Dataset...");
+        LoadExplorer.setActionCommand("LoadDataset");
+        LoadExplorer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                notifyFileOperationListener(ae);
+            }
+        });
+        
+        
+        add(LoadProcessSteps);
+        add(SaveProcessSteps);
+        add(CopySteps);
+        addSeparator();
+        add(LoadObjectSteps);
+        add(SaveObjectSteps);
+        addSeparator();
+        add(SaveAllSteps);
+        addSeparator();
+        add(LoadExplorer);
+
+    }
+
     //private void copySteps           
-                
-                
     @Override
     public void itemStateChanged(ItemEvent ie) {
-        
+
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
-        
+
     }
-    
-    
-    public void addStepCopierListener(CopyBlocksListener listener){
-         CopyListeners.add(listener);
-         
+
+    public void addStepCopierListener(CopyBlocksListener listener) {
+        CopyListeners.add(listener);
+
     }
-    
-    public void notifyStepCopierListener(String source, int type){
-        for (CopyBlocksListener listener : CopyListeners){
-     //IJ.log(type + ", Event: " + source);
+
+    public void notifyStepCopierListener(String source, int type) {
+        for (CopyBlocksListener listener : CopyListeners) {
             listener.onCopy(source, type);
         }
     }
-    
+
     public void addFileOperationListener(FileOperationListener listener) {
-		fileOperationListeners.add(listener);
-	   }
+        fileOperationListeners.add(listener);
+    }
 
     private void notifyFileOperationListener(ActionEvent ae) {
-            JMenuItem temp = (JMenuItem)(ae.getSource());
-	     for (FileOperationListener listener : fileOperationListeners) {
-	    	 
-	    	 if(temp.getText().equals("Load...")){
-				try {
-                                    System.out.println("PROFILING: loading.");
-                                    int returnVal = listener.onFileOpen();
-                                    
-						if(returnVal == 1){
-							
-						}
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(this.getParent(),
-					"File was opened...",
-					vtea._vtea.VERSION,
-					JOptionPane.WARNING_MESSAGE);
-                                        System.out.println("PROFILING: "+ e.getMessage());
-					}
-					
-	    	} else if (temp.getText().equals("Save...")){
-				try {
-					listener.onFileSave();
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(this.getParent(),
-					"File was not saved...",
-					vtea._vtea.VERSION,
-					JOptionPane.WARNING_MESSAGE);
-                                        System.out.println("PROFILING: "+ e.getMessage());
-				}
-		} else if (temp.getText().equals("Export")){
-				try {
-					listener.onFileExport();
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(this.getParent(),
-					"File could not be exported...",
-					vtea._vtea.VERSION,
-					JOptionPane.WARNING_MESSAGE);
-                                        System.out.println("PROFILING: "+ e.getMessage());
-				}
-			}
-                }
-            
-	}
+        JMenuItem temp = (JMenuItem) (ae.getSource());
+        for (FileOperationListener listener : fileOperationListeners) {
 
-    
+            if (temp.getText().equals("Load Processing...")) {
+                try {
+                    //System.out.println("PROFILING: loading.");
+                    int returnVal = listener.onProccessingFileOpen();
+
+                    if (returnVal == 1) {
+
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this.getParent(),
+                            "File could not be opened...\n" +
+                                e.getMessage(),
+                            vtea._vtea.VERSION,
+                            JOptionPane.WARNING_MESSAGE);
+                    System.out.println("ERROR: "+ e.getLocalizedMessage());
                 }
+
+            } else if (temp.getText().equals("Save Processing...")) {
+                try {
+                    listener.onProcessingFileSave();
+                } catch (Exception e) {
+//                    JOptionPane.showMessageDialog(this.getParent(),
+//                            "File could not be saved...\n" +
+//                                e.getMessage(),
+//                            vtea._vtea.VERSION,
+//                            JOptionPane.WARNING_MESSAGE);
+//                    System.out.println("ERROR: "+ e.getLocalizedMessage());
+                }
+            } else if (temp.getText().equals("Save Segmentation...")) {
+                try {
+                    listener.onSegmentationFileSave();
+                } catch (Exception e) {
+//                    JOptionPane.showMessageDialog(this.getParent(),
+//                            "File could not be saved...\n" +
+//                                e.getMessage(),
+//                            vtea._vtea.VERSION,
+//                            JOptionPane.WARNING_MESSAGE);
+//                    System.out.println("ERROR: "+ e.getLocalizedMessage());
+                }
+            } else if (temp.getText().equals("Save All...")) {
+                try {
+                    listener.onProcessingFileSave();
+                    listener.onSegmentationFileSave();
+                } catch (Exception e) {
+//                    JOptionPane.showMessageDialog(this.getParent(),
+//                            "Could not save settings...\n" +
+//                                e.getMessage(),
+//                            vtea._vtea.VERSION,
+//                            JOptionPane.WARNING_MESSAGE);
+//                    System.out.println("ERROR: "+ e.getLocalizedMessage());
+                }
+            } else if (temp.getText().equals("Load Dataset...")) {
+                try {
+                    listener.onLoadDatasets();                  
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this.getParent(),
+                            "Could not load data set...\n" +
+                                e.getMessage(),
+                            vtea._vtea.VERSION,
+                            JOptionPane.WARNING_MESSAGE);
+                    System.out.println("ERROR: "+ e.getLocalizedMessage());
+                }    
+             
+            } else if (temp.getText().equals("Load Segmentation...")) {
+                try {
+                    listener.onSegmentationFileOpen();
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this.getParent(),
+                            "File could not be opened...\n" +
+                                e.getMessage(),
+                            vtea._vtea.VERSION,
+                            JOptionPane.WARNING_MESSAGE);
+                    System.out.println("ERROR: "+ e.getLocalizedMessage());
+                }
+            } else if (temp.getText().equals("Export")) {
+                try {
+                    listener.onFileExport();
+                } catch (Exception e) {
+//                    JOptionPane.showMessageDialog(this.getParent(),
+//                            "File could not be exported...",
+//                            vtea._vtea.VERSION,
+//                            JOptionPane.WARNING_MESSAGE);
+//                    //System.out.println("PROFILING: "+ e.getMessage());
+                }
+            }
+        }
+
+    }
+
+}

@@ -40,9 +40,9 @@ public interface Gate {
 
     public Path2D createPath2D();
 
-    public Path2D createPath2DInChartSpace();
+    public Path2D.Double createPath2DInChartSpace();
 
-    public Path2D getPath2D();
+    public Path2D.Double getPath2D();
     
     public boolean getImageGated();
     

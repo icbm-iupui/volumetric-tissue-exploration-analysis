@@ -101,19 +101,56 @@ public class Denoise extends AbstractImageProcessing {
     }
     
     @Override
-    public boolean copyComponentParameter(int index, ArrayList dComponents, ArrayList sComponents) {
+    public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
     
         try{
+            dComponents.clear();
             
-            JTextField sRadius = (JTextField) sComponents.get(3);
-       
-            dComponents.set(3, (new JTextField(sRadius.getText(), 3))); 
+            JTextField sRadius = (JTextField) sComponents.get(1);
+            
+            dComponents.add(new JLabel("Radius (pixels):"));
+            dComponents.add((new JTextField(sRadius.getText(), 3))); 
         
         return true;
         } catch(Exception e){
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
             return false;
         }
+    }
+    
+    @Override
+    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+                  dComponents.clear();
+            
+            String sRadius = (String)fields.get(0);
+       
+            dComponents.add(new JLabel("Radius (pixels):"));
+            dComponents.add((new JTextField(sRadius, 3))); 
+            
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
+    
+    @Override
+    public boolean saveComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+            try{
+                  fields.clear();
+                  fields.add(((JTextField)(dComponents.get(1))).getText());
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
     }
 
 }

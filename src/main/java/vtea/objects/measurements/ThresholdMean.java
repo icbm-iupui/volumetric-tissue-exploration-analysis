@@ -19,35 +19,53 @@ package vtea.objects.measurements;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import net.imglib2.RealPoint;
 import org.scijava.plugin.Plugin;
+
 
 /**
  *
  * @author sethwinfree
  */
 @Plugin(type = Measurements.class)
-public class Sum extends AbstractMeasurement {
+public class ThresholdMean extends AbstractMeasurement {
     
-    public Sum(){
+    public ThresholdMean(){
     VERSION = "1.0";
     AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate sum or integrated density";
-    NAME = "Sum";
-    KEY = "Sum";
+    COMMENT = "Calculate thresholded mean, mean of top 25% of values";
+    NAME = "Mean Threshold";
+    KEY = "MeanThresh";
     TYPE = "Intensity";
-}
-    
-    @Override
-    public Number process(ArrayList al, ArrayList values)  {
-    double n = 0;
-    ListIterator<Number> itr = values.listIterator();   
-    while(itr.hasNext()){          
-        Number value = itr.next();  
-        n = n + value.doubleValue();
-    }   
-    return n;
-};
-    
-}
+    }
 
+    @Override
+    public Number process(ArrayList al, ArrayList values) {
+          
+    return getMean(values);
+    }  
+    
+    static public Number getMean(ArrayList values) {
+        
+       Number max = Maximum.getMaximum(values);
+       Number min = Minimum.getMinimum(values);
+       
+       double cutoff = max.doubleValue()-((max.doubleValue()-min.doubleValue())/4);
+        
+       double n = 0;
+       int count = 0;
+        ListIterator<Number> itr = values.listIterator();   
+    while(itr.hasNext()){
+        try{
+        Number value = itr.next(); 
+        if(value.doubleValue() >= cutoff){
+        n = n + value.doubleValue();
+        count++;
+        }
+        } catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }   
+    return n/count;
+        
+    }
+}

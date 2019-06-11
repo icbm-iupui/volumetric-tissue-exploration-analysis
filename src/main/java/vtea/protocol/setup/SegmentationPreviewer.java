@@ -21,7 +21,9 @@ import vtea.protocol.MicroExperiment;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.WindowManager;
 import ij.gui.Roi;
+import ij.plugin.Duplicator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -51,18 +53,14 @@ boolean Preview = false; //or "Done"
 
     
 SegmentationPreviewer(ImagePlus imp, ArrayList al){   
-        Image = imp;
-        
+        Image = imp;     
         protocol = al;    
 }
 
 public void SegmentationPreviewFactory(){
-        if(checkImage(Image)){
-        Roi r = Image.getRoi();
-
-        segmentationPreview = r.getImage().duplicate(); 
-        //Image.deleteRoi();
-
+        if(checkImage(Image)){   
+        Duplicator dup = new Duplicator();
+        segmentationPreview = dup.run(Image); 
         sp = new SegmentationProcessor("Preview", segmentationPreview, protocol);
         sp.addPropertyChangeListener(this);
         sp.execute(); 
@@ -70,9 +68,7 @@ public void SegmentationPreviewFactory(){
 }
 
 public static void SegmentationFactory(ImagePlus imp, ArrayList<MicroObject> objects){
-
-makeImage(imp, objects);
-  
+    makeImage(imp, objects);  
 }
 
 static private boolean checkImage(ImagePlus imp){
@@ -92,16 +88,12 @@ static private boolean checkImage(ImagePlus imp){
 }
 
 static private void makeImage(ImagePlus imp, ArrayList<MicroObject> objects){
-    
-    
-    ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices()); 
-    
-    ImageStack resultStack = resultImage.getStack();
-    
-    int value = 1;
-    
+
+    ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());    
+    ImageStack resultStack = resultImage.getStack();   
+    int value = 1;   
     ListIterator<MicroObject> citr = objects.listIterator();
-    
+   
     while(citr.hasNext()){
                             MicroObject vol = (MicroObject) citr.next();
                             vol.setColor(value);
@@ -110,23 +102,15 @@ static private void makeImage(ImagePlus imp, ArrayList<MicroObject> objects){
     }
 
         for (int i = 0; i <= imp.getNSlices(); i++) {
-                 //System.out.println("PROFILING: generating segmentation image, slice "+ i);
-                 ListIterator<MicroObject> itr = objects.listIterator();
+                ListIterator<MicroObject> itr = objects.listIterator();
                 while(itr.hasNext()){
                         try {
                             MicroObject vol = (MicroObject) itr.next();
-                            
-                          
-
                             int[] x_pixels = vol.getXPixelsInRegion(i);
                             int[] y_pixels = vol.getYPixelsInRegion(i);
-
                             for (int c = 0; c < x_pixels.length; c++) {
-
-                                resultStack.setVoxel(x_pixels[c], y_pixels[c], i, vol.getColor());
-                                
+                                resultStack.setVoxel(x_pixels[c], y_pixels[c], i, vol.getColor());                               
                             }
- 
 
                         } catch (NullPointerException e) {
                         }

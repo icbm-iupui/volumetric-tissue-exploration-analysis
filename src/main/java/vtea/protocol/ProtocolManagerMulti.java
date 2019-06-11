@@ -26,12 +26,12 @@ import vtea.protocol.listeners.RepaintTabListener;
 import vtea.protocol.listeners.RequestImageListener;
 import vtea.protocol.listeners.TransferProtocolStepsListener;
 import vtea.protocol.menus.AvailableWorkflowsMenu;
-import vtea.protocol.menus.JMenuBatch;
 import vtea.protocol.menus.JMenuProtocol;
 import vtea.protocol.menus.LengthFilter;
 import vtea.ImageSelectionListener;
 import vtea.OpenImageWindow;
 import ij.ImagePlus;
+import ij.io.Opener;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -39,26 +39,27 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import static java.awt.event.InputEvent.BUTTON1_DOWN_MASK;
 import static java.awt.event.InputEvent.BUTTON2_DOWN_MASK;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import static java.awt.event.MouseEvent.BUTTON3;
-import java.awt.event.MouseListener;
-import java.beans.PropertyChangeListener;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -67,25 +68,27 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.Border;
+import javax.swing.ProgressMonitorInputStream;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AbstractDocument;
-import org.jdesktop.jxlayer.JXLayer;
+import vtea.OpenObxFormat;
+import vtea._vtea;
 import static vtea._vtea.PROCESSINGMAP;
+import static vtea._vtea.SEGMENTATIONMAP;
 import vteaexploration.GateManager;
-import vtea.exploration.plotgatetools.gates.Gate;
-import static vtea.exploration.plotgatetools.gates.GateLayer.clipboardGate;
-import static vtea.exploration.plotgatetools.gates.GateLayer.gateInClipboard;
 import vtea.imageprocessing.AbstractImageProcessing;
-import vtea.protocol.setup.MicroBlockProcessSetup;
+import vtea.objects.Segmentation.AbstractSegmentation;
+import vtea.processor.ImageProcessingProcessor;
+import vtea.protocol.SingleImageProcessing.ObjectStepBlockGUI;
+import vtea.protocol.listeners.FileOperationListener;
+import vtea.protocol.setup.MicroBlockObjectSetup;
+
 
 /**
  *
  * @author winfrees
  */
-public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSelectionListener, RequestImageListener, RepaintTabListener, RenameTabListener, CopyBlocksListener, BatchStateListener, ActionListener {
+public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOperationListener, ImageSelectionListener, RequestImageListener, RepaintTabListener, RenameTabListener, CopyBlocksListener, BatchStateListener, ActionListener {
 
     private static int WORKFLOW = 0;
     private static int PROCESSBLOCKS = 1;
@@ -109,8 +112,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
 
     public JMenuProtocol ProcessingMenu;
     public JMenuProtocol ObjectMenu;
-    public JMenuProtocol WorkflowMenu;
-    public JMenuBatch BatchMenu;
+
     
     private JPopupMenu menu = new JPopupMenu();
 
@@ -406,9 +408,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         openerWindow.addImageSelectionListener(NewPanel);
         NewPanel.addRequestImageListener(this);
         NewPanel.addRepaintTabListener(this);
-        
-        ProcessingMenu.addFileOperationListener(NewPanel);
-        
+
         Tabs.add(NewPanel);
 
         addTransferProtocolStepsListener(NewPanel);
@@ -530,26 +530,29 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
         SingleImageProcessing sip = (SingleImageProcessing) (this.ImageTabs.getComponentAt(tabs.indexOf(selected)));
 
         NewPanel.setPreProcessingProtocols(sip.getProProcessingProtocol());
-        NewPanel.setObjectProcotols(sip.getObjectSteps());
-        NewPanel.setProtocolSynopsis(sip.getProProcessingProtocol(), sip.getObjectSteps());
+        NewPanel.setObjectProcotols(sip.getObjectStepsList());
+        NewPanel.setProtocolSynopsis(sip.getProProcessingProtocol(), sip.getObjectStepsList());
 
     }
 
     public void addMenuItems() {
-        this.WorkflowMenu = new JMenuProtocol("Workflow", this.getTabNames(), SingleImageProcessing.WORKFLOW);
-        this.ProcessingMenu = new JMenuProtocol("Processing", this.getTabNames(), SingleImageProcessing.PROCESSBLOCKS);
-        this.ObjectMenu = new JMenuProtocol("Objects", this.getTabNames(), SingleImageProcessing.OBJECTBLOCKS);
+        //this.WorkflowMenu = new JMenuProtocol("Workflow", this.getTabNames(), SingleImageProcessing.WORKFLOW);
+        this.ProcessingMenu = new JMenuProtocol("Protocol", this.getTabNames(), SingleImageProcessing.PROCESSBLOCKS);
+        this.ObjectMenu = new JMenuProtocol("Explorer", this.getTabNames(), SingleImageProcessing.OBJECTBLOCKS);
 
         ProcessingMenu.addStepCopierListener(this);  
         ObjectMenu.addStepCopierListener(this);
         
-        ListIterator<JPanel> itr = Tabs.listIterator();
+        ProcessingMenu.addFileOperationListener(this);
+        ObjectMenu.addFileOperationListener(this);
         
-        while(itr.hasNext()){            
-            SingleImageProcessing sip = (SingleImageProcessing)itr.next();    
-            ProcessingMenu.addFileOperationListener(sip);
-            ObjectMenu.addFileOperationListener(sip);           
-        }
+//        ListIterator<JPanel> itr = Tabs.listIterator();
+//        
+//        //while(itr.hasNext()){            
+//            SingleImageProcessing sip = (SingleImageProcessing)itr.next();    
+//            
+//            //           
+//        //}
  
         this.MenuBar.removeAll();
         //this.MenuBar.add(WorkflowMenu);
@@ -669,11 +672,13 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
     @Override
     public void onCopy(String source, int StepsList) {
 
-        //System.out.println("PROFILING: copy blocks to " +  ((JTextField)ImageTabs.getTabComponentAt(ImageTabs.getSelectedIndex())).getText()  +" from " + source + " of type " + StepsList);
+    //this is used in copying  
+        
         SingleImageProcessing SourceSIP;
         SingleImageProcessing DestinationSIP;
-
         
+//        System.out.println("__________________________________________________");
+//        System.out.println("PROFILING: Copying image processing from " + source);
 
         DestinationSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
 
@@ -685,41 +690,74 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
                 
                 switch (StepsList) {
                     case SingleImageProcessing.PROCESSBLOCKS:
-                        DestinationSIP.setProcessSteps((ArrayList) SourceSIP.getProcessSteps());
-                        ListIterator<ProcessStepBlockGUI> itr = DestinationSIP.ProcessingStepsList.listIterator();
-                        while (itr.hasNext()) {
-                            ProcessStepBlockGUI psbgSource = (ProcessStepBlockGUI) DestinationSIP.getProcessingProtocolList().get(itr.nextIndex());
-                            ProcessStepBlockGUI psbg = (ProcessStepBlockGUI) itr.next();
-                            
-                            MicroBlockProcessSetup mbpsSource = (MicroBlockProcessSetup)psbgSource.getSetup();
-                            MicroBlockProcessSetup mbpsDestination = (MicroBlockProcessSetup)psbgSource.getSetup();
 
-                            
-                            psbg.setImages(DestinationSIP.getOriginalImage(), DestinationSIP.getThumbnailImage());
-                            psbg.deleteblocklisteners.clear();
-                            psbg.rebuildpanelisteners.clear();
-                            psbg.addRebuildPanelListener(DestinationSIP);
-                            psbg.addDeleteBlockListener(DestinationSIP); 
-                            
-                            
-                            //psbg.getSetup().
-                        }   
+                        ArrayList<ProcessStepBlockGUI> destinationProtocol =
+                                DestinationSIP.getProcessStepsList();
+                        ArrayList<ProcessStepBlockGUI> sourceProtocol =
+                                SourceSIP.getProcessStepsList();
+ 
+//                        //System.out.println("PROFILING: Processing " 
+//                                + sourceProtocol.size() + 
+//                                " image processing blocks.");
                         
-//                        ListIterator<ProcessStepBlockGUI> itr2 = DestinationSIP.ProcessingStepsList.listIterator();
-//                        while (itr2.hasNext()) {
-//                            psbg = (ProcessStepBlockGUI) itr2.next();  
-//                            psbg.updateSetup();
-//                        }  
-                        
-                        DestinationSIP.UpdatePositionProcessing(1);
-                        DestinationSIP.RebuildPanelProcessing();
-                        SourceSIP.RebuildPanelProcessing();
+                        for(int j = 1; j < sourceProtocol.size(); j++){
+//                            System.out.println("PROFILING: "
+//                                    + "Adding processing step " + j);
+                           DestinationSIP.addPreprocessingBlock();
+                           DestinationSIP.UpdatePositionProcessing(1);
+                           DestinationSIP.RebuildPanelProcessing();
+                           
+                           ProcessStepBlockGUI destinationStep = 
+                                   DestinationSIP.getProcessStepsList().get(j);
+                           ProcessStepBlockGUI sourceStep = 
+                                   SourceSIP.getProcessStepsList().get(j);
+      
+                           destinationStep.mbs.setChannel(sourceStep.mbs.getChannel());
+                           destinationStep.mbs.setMethod(sourceStep.mbs.getMethod());
+                           destinationStep.mbs.setSetup(
+                                   makeProcessingMethodsArray("version",sourceStep.mbs.getMethod(), 
+                                           sourceStep.mbs.getProcessList()));
+                           destinationStep.mbs.blockSetupOKAction();
+                        }
+
+
                         break;
+                        
+                        
                     case SingleImageProcessing.OBJECTBLOCKS:
-                        DestinationSIP.setObjectSteps((ArrayList) SourceSIP.getObjectSteps().clone());
-                        DestinationSIP.UpdatePositionObject(1);
-                        DestinationSIP.RebuildPanelObject();
-                        SourceSIP.RebuildPanelObject();
+                        ArrayList<SingleImageProcessing.ObjectStepBlockGUI> destinationObjectProtocol =
+                                DestinationSIP.getObjectStepsList();
+                        ArrayList<SingleImageProcessing.ObjectStepBlockGUI> sourceObjectProtocol =
+                                SourceSIP.getObjectStepsList();
+//                        //System.out.println("PROFILING: Object " 
+//                                + sourceObjectProtocol.size() + 
+//                                " image processing blocks.");
+                        
+                        for(int j = 1; j < sourceObjectProtocol.size(); j++){
+//                            System.out.println("PROFILING: "
+//                                    + "Adding object step " + j);
+                           DestinationSIP.addObjectBlock();
+                           //DestinationSIP.UpdatePositionProcessing(1);
+                           DestinationSIP.RebuildPanelObject();
+                           
+                           SingleImageProcessing.ObjectStepBlockGUI destinationStep = 
+                                   DestinationSIP.getObjectStepsList().get(j);
+                           SingleImageProcessing.ObjectStepBlockGUI sourceStep = 
+                                   SourceSIP.getObjectStepsList().get(j);
+      
+                           /** This all needs help to implement copy and paste of 
+                            * segmentation methods and saving of image processing
+                            */
+//                           destinationStep.mbs.setChannel(sourceStep.mbs.g);
+//                           destinationStep.mbs.setMethod(sourceStep.mbs.getMethod());
+//                           destinationStep.mbs.setSetup(
+//                                   makeMethodsArray("version",sourceStep.mbs.getMethod(), 
+//                                           sourceStep.mbs.getProcessList()));
+//                           destinationStep.mbs.blockSetupOKAction();
+                        }
+                        
+                        //need to add the populating of the Setup window here and keep it flexible for 
+                        //importing settings.
 
                         break;
 
@@ -729,11 +767,458 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements ImageSel
             }
         }
     }
+    
+    
+    private ArrayList makeProcessingMethodsArray(String version, String method, ArrayList sourceSettings){
+        Object iImp = new Object();
+
+        ArrayList result = new ArrayList();
+        
+        try {
+            Class<?> c;
+            c = Class.forName(PROCESSINGMAP.get(method));
+            Constructor<?> con;
+            try {
+                con = c.getConstructor();
+                iImp = con.newInstance();  
+                
+                ((AbstractImageProcessing)iImp).copyComponentParameter(version, result, sourceSettings);
+
+            } catch ( NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        } catch (NullPointerException | ClassNotFoundException ex) {
+            Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+    
+    private ArrayList saveObjectMethodsArray(String version, String method, ArrayList sourceSettings){
+        Object iImp = new Object();
+
+        ArrayList result = new ArrayList();
+        
+        try {
+            Class<?> c;
+            c = Class.forName(SEGMENTATIONMAP.get(method));
+            Constructor<?> con;
+            try {
+                con = c.getConstructor();
+                iImp = con.newInstance();  
+                
+                ((AbstractSegmentation)iImp).saveComponentParameter(version, result, sourceSettings);
+
+            } catch ( NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        } catch (NullPointerException | ClassNotFoundException ex) {
+            Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+    
+        private void makeObjectMethodsArray(String version, String method, 
+                ArrayList fields, ArrayList dComponents){
+        Object iImp = new Object();
+
+        //ArrayList result = new ArrayList();
+        
+//        for(int i = 0; i < fields.size(); i++){
+//            //System.out.println("PROFILING:  Importing field value: " + fields.get(i));
+//        }
+//         //System.out.println("PROFILING:  To import to: " + dComponents.size() + " fields.");
+//        
+//        
+        
+        try {
+            Class<?> c;
+            c = Class.forName(SEGMENTATIONMAP.get(method));
+            Constructor<?> con;
+            try {
+                con = c.getConstructor();
+                iImp = con.newInstance();  
+                
+                ((AbstractSegmentation)iImp).loadComponentParameter(version, dComponents, fields);
+
+            } catch ( NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        } catch (NullPointerException | ClassNotFoundException ex) {
+            Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
 
     @Override
     public void batchStateAdd(String selected, ArrayList tabs) {
         this.addBatchPanel(selected, tabs);
     }
 
+    @Override
+    public int onProccessingFileOpen() throws Exception {
+        
+            SingleImageProcessing DestinationSIP;
+            DestinationSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
+    
+            JFileChooser chooser = new JFileChooser(_vtea.LASTDIRECTORY);
+            FileNameExtensionFilter filter = 
+                    new FileNameExtensionFilter("VTEA processing file.", ".prc", "prc");
+            chooser.addChoosableFileFilter(filter);
+            chooser.setFileFilter(filter);
+            int returnVal = chooser.showOpenDialog(this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+                File file = chooser.getSelectedFile();
+                _vtea.LASTDIRECTORY = file.getAbsolutePath();
+                FileInputStream fis = new FileInputStream(file);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                Object temp = ois.readObject();
+
+
+                ArrayList<ArrayList> sourceProtocol = (ArrayList)temp;
+                
+                ArrayList<ProcessStepBlockGUI> protocolExisting = DestinationSIP.getProcessStepsList();
+                
+                ProcessStepBlockGUI image = protocolExisting.get(0);
+                
+                DestinationSIP.ProcessingStepsList.clear();
+                
+                 DestinationSIP.ProcessingStepsList.add(image);
+                
+                DestinationSIP.rebuildProcessingGUI();
+                
+
+                for(int j = 0; j < sourceProtocol.size(); j++){
+                    
+                           ArrayList sourceStep = sourceProtocol.get(j);
+
+                           DestinationSIP.addPreprocessingBlock();
+                           DestinationSIP.UpdatePositionProcessing(1);
+                           DestinationSIP.RebuildPanelProcessing();
+                           
+                           ProcessStepBlockGUI destinationStep = 
+                                   DestinationSIP.getProcessStepsList().get(j+1);
+      
+                           destinationStep.mbs.setChannel((int)sourceStep.get(0));
+                           destinationStep.mbs.setMethod((String)sourceStep.get(1));
+                           destinationStep.mbs.setSetup(makeProcessingMethodsArray("version",
+                                   (String)sourceStep.get(1),
+                                   (ArrayList)sourceStep.get(2)));
+                           destinationStep.mbs.blockSetupOKAction();
+                            
+                        }
+                
+                repaint();
+                ois.close();
+
+                return 1;
+            } else {
+                repaint();
+
+                return -1;
+            }
+        }
+
+    @Override
+    public void onProcessingFileSave() throws Exception {
+        File file;
+        int choice = JOptionPane.OK_OPTION;
+        do{
+            JFileChooser chooser = new JFileChooser(_vtea.LASTDIRECTORY);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA processing file.", ".prc", "prc");
+            chooser.setFileFilter(filter);
+            chooser.showSaveDialog(this);
+            file = chooser.getSelectedFile();
+            
+            _vtea.LASTDIRECTORY = file.getAbsolutePath();
+
+
+            String filename = file.getName();
+            if (!filename.endsWith(".prc")) {
+                String path = file.getPath();
+                path += ".prc";
+                file = new File(path);
+            }
+            
+            if(file.exists()){
+                String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                choice = JOptionPane.showConfirmDialog(null, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+            }
+        }while(choice != JOptionPane.OK_OPTION);
+        
+        SingleImageProcessing SourceSIP;
+        SourceSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
+
+        ArrayList<ProcessStepBlockGUI> sourceProtocol = SourceSIP.getProcessStepsList();
+        ArrayList<ArrayList> destinationProtocol = new ArrayList<ArrayList>();
+
+        ArrayList<ArrayList> protocol = new ArrayList<ArrayList>();
+
+        for(int i = 1; i < sourceProtocol.size(); i++){
+
+            ArrayList stepResult = new ArrayList();
+
+            ProcessStepBlockGUI stepSource = sourceProtocol.get(i);
+
+            stepResult.add(stepSource.mbs.getChannel());
+            stepResult.add(stepSource.mbs.getMethod());
+            stepResult.add(stepSource.mbs.getProcessList());
+
+            destinationProtocol.add(stepResult);
+
+        }
+
+        FileOutputStream fos = new FileOutputStream(file);
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(destinationProtocol);
+        oos.close();
+        repaint();
+    }
+
+    @Override
+    public void onFileExport() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void onSegmentationFileOpen() throws Exception {
+    SingleImageProcessing DestinationSIP;
+            
+            DestinationSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
+            int startingCount = DestinationSIP.getObjectStepsList().size();
+            JFileChooser chooser = new JFileChooser(_vtea.LASTDIRECTORY);
+            FileNameExtensionFilter filter = 
+                    new FileNameExtensionFilter("VTEA segementation file.", ".seg", "seg");
+            chooser.addChoosableFileFilter(filter);
+            chooser.setFileFilter(filter);
+            int returnVal = chooser.showOpenDialog(this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
+                _vtea.LASTDIRECTORY = file.getAbsolutePath();
+                FileInputStream fis = new FileInputStream(file);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                Object temp = ois.readObject();
+
+                ArrayList<ArrayList> sourceProtocol = (ArrayList)temp;
+               
+
+                for(int j = 0; j < sourceProtocol.size(); j++){
+                    
+                     //System.out.println("PROFILING:  Found " + sourceProtocol.size() + " protocols to open.");
+                    
+                           ArrayList sourceStep = sourceProtocol.get(j);
+
+                           DestinationSIP.addObjectBlock();
+                           DestinationSIP.UpdatePositionObject(1);
+                           DestinationSIP.RebuildPanelObject();
+                           
+                           ObjectStepBlockGUI destinationStep = 
+                                   DestinationSIP.getObjectStepsList().get(j+startingCount);
+
+                        /**segmentation and measurement protocol redefining.
+                        * 0: title text, 1: method (as String), 2: channel, 3: ArrayList of JComponents used 
+                         * for analysis 4: ArrayList of Arraylist for morphology determination
+                        */
+                           destinationStep.mbs.setTitle((String)sourceStep.get(0));
+                           destinationStep.mbs.setMethod((String)sourceStep.get(1));
+                           destinationStep.mbs.setChannel((int)sourceStep.get(2));
+
+                           //System.out.println("PROFILING:  Found " +  ((ArrayList)sourceStep.get(3)).size() + " steps.");
+                           
+                           makeObjectMethodsArray("version",(String)sourceStep.get(1),
+                            (ArrayList)sourceStep.get(3),
+                            (ArrayList)destinationStep.mbs.getSegmentation().getOptions());
+//                           
+                           //need to add the morphology ArrayList here.
+                           
+                           destinationStep.mbs.blockSetupOKAction();
+                            
+                        }
+                
+                repaint();
+                ois.close();
+
+               
+            } else {
+                repaint();
+
+               
+            }
+        }
+
+    @Override
+    public void onSegmentationFileSave() throws Exception {
+        int choice = JOptionPane.OK_OPTION;
+        File file;
+        do{
+            JFileChooser chooser = new JFileChooser(_vtea.LASTDIRECTORY);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("VTEA segementation file.", ".seg", "seg");
+            chooser.setFileFilter(filter);
+            chooser.showSaveDialog(this);
+            file = chooser.getSelectedFile();
+            
+            _vtea.LASTDIRECTORY = file.getAbsolutePath();
+
+            String filename = file.getName();
+            if (!filename.endsWith(".seg")) {
+                String path = file.getPath();
+                path += ".seg";
+                file = new File(path);
+            }
+            
+            if(file.exists()){
+                String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                choice = JOptionPane.showConfirmDialog(null, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+            }
+        }while(choice != JOptionPane.OK_OPTION);
+            
+            SingleImageProcessing SourceSIP;
+            SourceSIP = (SingleImageProcessing) (ImageTabs.getComponentAt(ImageTabs.getSelectedIndex()));
+            
+            ArrayList<ObjectStepBlockGUI> sourceProtocol = SourceSIP.getObjectStepsList();
+            
+            System.out.println("PROFILING:  Found " + sourceProtocol.size() + " protocols to save.");
+            ArrayList<ArrayList> destinationProtocol = new ArrayList<ArrayList>();
+
+            for(int i = 0; i < sourceProtocol.size(); i++){
+                
+                ArrayList stepResult = new ArrayList();
+                
+                ObjectStepBlockGUI stepSource = sourceProtocol.get(i);
+                
+                //destinationProtocol.add(((MicroBlockObjectSetup)(stepSource.mbs)).getSettings());
+                /**segmentation and measurement protocol redefining.
+                * 0: title text, 1: method (as String), 2: channel, 3: ArrayList of JComponents used 
+                * for analysis 4: ArrayList of Arraylist for morphology determination
+                */
+                
+                //System.out.println("PROFILING:  Adding " + ((MicroBlockObjectSetup)(stepSource.mbs)).getTitle());
+                //System.out.println("PROFILING:  Adding " + ((MicroBlockObjectSetup)(stepSource.mbs)).getMethod());
+                //System.out.println("PROFILING:  Adding " + ((MicroBlockObjectSetup)(stepSource.mbs)).getChannel());
+                
+                stepResult.add(((MicroBlockObjectSetup)(stepSource.mbs)).getTitle());
+                stepResult.add(((MicroBlockObjectSetup)(stepSource.mbs)).getMethod());
+                stepResult.add(((MicroBlockObjectSetup)(stepSource.mbs)).getChannel());
+                
+                stepResult.add(saveObjectMethodsArray("version",
+                    ((MicroBlockObjectSetup)(stepSource.mbs)).getMethod(),
+                    ((MicroBlockObjectSetup)(stepSource.mbs)).getProcessList()));
+                
+                
+                
+                destinationProtocol.add(stepResult);
+            }
+
+            FileOutputStream fos = new FileOutputStream(file);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(destinationProtocol);
+            oos.close();
+            repaint();
+    }
+
+    @Override
+    public void onLoadDatasets() throws Exception {
+        new Thread(() -> {
+            try {
+                OpenObxFormat io = new OpenObxFormat();
+                io.importObjects(ImageTabs);
+                
+    } catch (Exception e) {
+                //System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();  
+    }
+    
+     
+//    public class ImportOBJ {
+//
+//        public ImportOBJ() {
+//        }
+//        
+//        protected void importObjects() {
+//
+//            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+//            FileNameExtensionFilter filter = 
+//            new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
+//            jf.addChoosableFileFilter(filter);
+//            jf.setFileFilter(filter);
+//            int returnVal = jf.showOpenDialog(ImageTabs);
+//            File file = jf.getSelectedFile();
+//            
+//
+//            ArrayList result = new ArrayList();
+//
+//            if (returnVal == JFileChooser.APPROVE_OPTION) {
+//                try {
+//                    try {
+//                        FileInputStream fis = new FileInputStream(file);
+//                        ObjectInputStream ois = new ObjectInputStream(fis);
+//                        
+//                        ProgressMonitorInputStream pm = 
+//                        new ProgressMonitorInputStream(ImageTabs,"Reading" + file.getName() ,fis);
+//                        
+//                        result = (ArrayList) ois.readObject();
+//                        ois.close(); 
+//                        } catch (IOException e) {
+//                        System.out.println("ERROR: Could not open the object file.");
+//                        } 
+//                    
+//                        File image = new File(file.getParent(), ((String)result.get(0))+".tif");
+//                      
+//                        if(image.exists()){
+//                            
+//                            Opener op = new Opener();
+//                            ImagePlus imp = op.openImage(file.getParent(), ((String)result.get(0))+".tif");
+//                            
+//                            executeExploring((file.getName()).replace(".obx", ""), result, imp);
+//
+//                        }else{
+//                            
+//                             System.out.println("WARNING: Could not find the image file.");
+//                             
+//                             JFileChooser jf2 = new JFileChooser(_vtea.LASTDIRECTORY);
+//                            
+//                             FileNameExtensionFilter filter2 = 
+//                             new FileNameExtensionFilter("Tiff file.", ".tif", "tif");
+//                             jf2.addChoosableFileFilter(filter2);
+//                             jf2.setFileFilter(filter2);
+//                             int returnVal2 = jf2.showOpenDialog(ImageTabs);
+//                             File file2 = jf2.getSelectedFile();
+//                             //System.out.println("PROFILING: Getting image file: " + file2.getName());
+//                             Opener op = new Opener();
+//                             ImagePlus imp = op.openImage(file2.getParent(), file2.getName());
+//                             //imp.setTitle(file.getName());
+//                             executeExploring((file.getName()).replace(".obx", ""), result, imp);                          
+//                        }
+//                        }catch (Exception e) {
+//                    System.out.println("ERROR: Not Found.");
+// 
+//                    }
+//            
+//            }
+//        }
+//
+//        
+//        private void executeExploring(String name, ArrayList result, ImagePlus imp){
+//
+//        String k = (String)result.get(0);
+//        ArrayList<MicroObject> objects = (ArrayList<MicroObject>)result.get(1);
+//        ArrayList measures = (ArrayList)result.get(2);
+//        ArrayList descriptions = (ArrayList)result.get(3);
+//        ArrayList descriptionLabels = (ArrayList)result.get(4);
+//            
+//        ExplorerProcessor ep = new ExplorerProcessor(name, imp, objects, measures, descriptions, descriptionLabels);
+//        ep.execute();
+//
+//        }
+//
+//    }
+
+   
 
 }
+
+   

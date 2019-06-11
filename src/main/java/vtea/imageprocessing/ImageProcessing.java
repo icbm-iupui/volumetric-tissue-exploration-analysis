@@ -60,6 +60,10 @@ public interface ImageProcessing<T extends Component, A extends RealType> extend
     
     public String getProgressComment();
     
-    public boolean copyComponentParameter(int index, ArrayList<T> dComponents, ArrayList<T> sComponents);
+    public boolean copyComponentParameter(String version, ArrayList<T> dComponents, ArrayList<T> sComponents);
+    
+    public boolean loadComponentParameter(String version, ArrayList<T> dComponents, ArrayList fields);
+    
+    public boolean saveComponentParameter(String version, ArrayList<T> dComponents, ArrayList fields);
     
 }

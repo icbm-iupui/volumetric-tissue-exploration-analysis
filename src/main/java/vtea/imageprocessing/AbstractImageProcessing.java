@@ -29,6 +29,17 @@ import net.imglib2.type.numeric.RealType;
  * @author sethwinfree
  * @param <T>
  * @param <A>
+ * 
+ * For saving, loading and copying of settings,
+ * 
+ * JComponent ArrayLists-only hold the GUI components for the class.
+ * 
+ * dComponent := ArrayList that is the destination for a copy action
+ * sComponent := Arraylist that is the source for a copy action
+ * 
+ * fields := In save and load methods contains the field values for setting the 
+ * JComponent values.
+ * 
  */
 public abstract class AbstractImageProcessing<T extends Component, A extends RealType>  implements ImageProcessing {
     
@@ -128,7 +139,7 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
     }
 
     @Override
-    public boolean copyComponentParameter(int index, ArrayList dComponents, ArrayList sComponents) {
+    public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
     
         try{
             
@@ -141,6 +152,36 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
             return false;
         }
     }
+    
+    @Override
+    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+            
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
+    
+    @Override
+    public boolean saveComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+            
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
+
+    
 
     
 }

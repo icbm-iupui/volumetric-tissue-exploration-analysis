@@ -126,26 +126,73 @@ String[] labels = {"normalize","equalize","process_all","use"};
     }
     
     @Override
-    public boolean copyComponentParameter(int index, ArrayList dComponents, ArrayList sComponents) {
+    public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
     
         try{
-    
-            JTextField fractionsaturated = (JTextField) sComponents.get(3);
-            JRadioButton normalize = (JRadioButton) sComponents.get(4);
-            JRadioButton equalize = (JRadioButton) sComponents.get(5);
-            JRadioButton stack = (JRadioButton) sComponents.get(6);
-            JRadioButton stackhistogram = (JRadioButton) sComponents.get(7);
+            dComponents.clear();
+
+            JTextField fractionsaturated = (JTextField) sComponents.get(1);
+            JRadioButton normalize = (JRadioButton) sComponents.get(2);
+            JRadioButton equalize = (JRadioButton) sComponents.get(3);
+            JRadioButton stack = (JRadioButton) sComponents.get(4);
+            JRadioButton stackhistogram = (JRadioButton) sComponents.get(5);
+            
+            dComponents.add(new JLabel("saturation (%)"));
        
-            dComponents.set(3, (new JTextField(fractionsaturated.getText(), 3))); 
-            dComponents.set(4, (new JRadioButton(labels[0], normalize.isSelected()))); 
-            dComponents.set(5, (new JRadioButton(labels[1], equalize.isSelected()))); 
-            dComponents.set(6, (new JRadioButton(labels[2], stack.isSelected()))); 
-            dComponents.set(7, (new JRadioButton(labels[3], stackhistogram.isSelected()))); 
+            dComponents.add(new JTextField(fractionsaturated.getText(), 3)); 
+            dComponents.add(new JRadioButton(labels[0], normalize.isSelected())); 
+            dComponents.add(new JRadioButton(labels[1], equalize.isSelected())); 
+            dComponents.add(new JRadioButton(labels[2], stack.isSelected())); 
+            dComponents.add(new JRadioButton(labels[3], stackhistogram.isSelected())); 
         
         return true;
         } catch(Exception e){
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
             return false;
         }
+    }
+    
+    @Override
+    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+             try{
+                  dComponents.clear();
+            
+            String fSaturated = (String)fields.get(0);
+       
+            dComponents.add(new JLabel("saturation (%)"));
+       
+            dComponents.add(new JTextField(fSaturated, 3)); 
+            dComponents.add(new JRadioButton(labels[0], (boolean)fields.get(1))); 
+            dComponents.add(new JRadioButton(labels[1], (boolean)fields.get(2))); 
+            dComponents.add(new JRadioButton(labels[2], (boolean)fields.get(3))); 
+            dComponents.add(new JRadioButton(labels[3], (boolean)fields.get(4))); 
+            
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
+    }
+    
+    @Override
+    public boolean saveComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+            try{
+                  fields.clear();
+                  fields.add(((JTextField)(dComponents.get(1))).getText());
+                  fields.add(((JRadioButton)(dComponents.get(2))).isSelected());
+                  fields.add(((JRadioButton)(dComponents.get(3))).isSelected());
+                  fields.add(((JRadioButton)(dComponents.get(4))).isSelected());
+                  fields.add(((JRadioButton)(dComponents.get(5))).isSelected());
+        return true;
+        
+        } catch(Exception e){
+            
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            
+            return false;
+        }   
     }
 }

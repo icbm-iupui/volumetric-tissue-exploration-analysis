@@ -78,6 +78,8 @@ public class Grow_6C extends AbstractMorphology {
         return panel;
     }
     
+    
+    
     private ArrayList<ArrayList<Number>> growRegion6C(int[] x, int[] y, int[] z, int times) {
 
         //System.out.println("PROFILING:                       Starting object size: " + x.length + ".");

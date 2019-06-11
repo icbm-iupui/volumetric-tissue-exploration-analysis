@@ -93,7 +93,7 @@ public class GateLayer implements ActionListener, ItemListener {
     
        Color[] colorsRGB = {
             new Color(255,0,0), new Color(0,255,0), new Color(0,0,255), 
-            new Color(255, 255, 0), new Color(255,51,51), 
+            new Color(255, 255, 0), new Color(255, 153, 51), 
             new Color(153, 255, 51), new Color(51, 255, 153), 
             new Color(51, 255, 255), new Color(102, 178, 255),
             new Color(102, 102, 255), new Color(178, 102, 255),
@@ -467,6 +467,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
     public void makePolygonGate() throws Throwable {
         this.msPolygon = false;
+        points.remove(points.size()-1);
         notifyPolygonSelectionListeners(points);
         this.points.clear();
         this.finalize();

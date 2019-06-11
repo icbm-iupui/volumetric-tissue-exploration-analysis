@@ -436,7 +436,7 @@ class ExportObjImgOptions extends JPanel{
         }
         
         public File chooseSaveLocation(){
-            JFileChooser objectimagejfc = new JFileChooser(MicroExplorer.LASTDIRECTORY);
+            JFileChooser objectimagejfc = new JFileChooser(vtea._vtea.LASTDIRECTORY);
             objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
             int returnVal = objectimagejfc.showSaveDialog(this);

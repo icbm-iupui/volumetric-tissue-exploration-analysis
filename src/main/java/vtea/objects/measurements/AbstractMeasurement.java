@@ -33,6 +33,7 @@ public abstract class AbstractMeasurement implements Measurements {
     protected String COMMENT = "New functionality";
     protected String NAME = "ND";
     protected String KEY = "ND";
+    protected String TYPE = "Abstract";
     
     
     
@@ -71,6 +72,10 @@ public abstract class AbstractMeasurement implements Measurements {
    
     public String getComment() {
         return COMMENT;
+    }
+    
+    public String getType() {
+        return TYPE;
     }
     
     

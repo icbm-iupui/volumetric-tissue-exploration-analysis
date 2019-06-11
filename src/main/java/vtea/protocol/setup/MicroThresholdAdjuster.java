@@ -206,7 +206,7 @@ public class MicroThresholdAdjuster  implements Measurements,
         darkBackground.addItemListener(this);
         panel.add(darkBackground);
         stackHistogram = new JCheckBox("Stack histogram");
-        stackHistogram.setSelected(true);
+        stackHistogram.setSelected(false);
         stackHistogram.addItemListener(this);
         panel.add(stackHistogram);
         c.gridx = 0;
@@ -345,19 +345,20 @@ public class MicroThresholdAdjuster  implements Measurements,
             doAutoAdjust = true;
             doUpdate();
             notifyChangeThresholdListeners(minThreshold, maxThreshold);
-            notify();
+            //notify();
         } else if (source==modeChoice) {
             mode = modeChoice.getSelectedIndex();
             setLutColor(mode);
             doStateChange = true;
             doUpdate();
             notifyChangeThresholdListeners(minThreshold, maxThreshold);
-            notify();
+            //notify();
         } else
+            //doStateChange = true;
             doAutoAdjust = true;
             doUpdate();
             notifyChangeThresholdListeners(minThreshold, maxThreshold);
-            notify();
+            //notify();
         //notify();
     }
     
@@ -420,6 +421,7 @@ public class MicroThresholdAdjuster  implements Measurements,
             updatePlot(ip);
             updateScrollBars();
             imp.updateAndDraw();
+
             imageWasUpdated = false;
         }
         previousImageID = id;
@@ -590,8 +592,8 @@ public class MicroThresholdAdjuster  implements Measurements,
     }
 
     void updateScrollBars() {
-        //minSlider.setValue(255*(int)(minThreshold/this.impThreshold.getProcessor().getMax()));
-        //maxSlider.setValue(255*(int)(maxThreshold/this.impThreshold.getProcessor().getMax()));
+       // minSlider.setValue(255*(int)(minThreshold/this.impThreshold.getProcessor().getMin()));
+       // maxSlider.setValue(255*(int)(maxThreshold/this.impThreshold.getProcessor().getMax()));
         
     }
     
@@ -639,6 +641,7 @@ public class MicroThresholdAdjuster  implements Measurements,
         scaleUpAndSet(ip, minThreshold, maxThreshold);
         notifyChangeThresholdListeners(minThreshold, maxThreshold);
     }
+    
 
     void reset(ImagePlus imp, ImageProcessor ip) {
         ip.resetThreshold();
@@ -922,12 +925,12 @@ public class MicroThresholdAdjuster  implements Measurements,
         return this.gui;
     }
     
-    public int getMax(){
-        return maxSlider.getValue();
+    public double getMax(){
+        return maxThreshold;
     }
     
-    public int getMin(){
-        return minSlider.getValue();
+    public double getMin(){
+        return minThreshold;
     }
 
     @Override
@@ -937,12 +940,14 @@ public class MicroThresholdAdjuster  implements Measurements,
             minValue = minSlider.getValue();
             //System.out.println("PROFILING: minSlider, " + minValue); 
             doUpdate();
+            notifyChangeThresholdListeners(minThreshold, maxThreshold);
         } 
 
         else if(source==maxSlider){
             maxValue = maxSlider.getValue();
             //System.out.println("PROFILING: maxSlider, " + maxValue);
             doUpdate();
+            notifyChangeThresholdListeners(minThreshold, maxThreshold);
         }
 
         else if (source==methodChoice) {
@@ -950,6 +955,8 @@ public class MicroThresholdAdjuster  implements Measurements,
             //System.out.println("PROFILING: methodChoice, " + methodChoice.getSelectedIndex());
             doAutoAdjust = true;
             doUpdate();
+            updateScrollBars();
+            notifyChangeThresholdListeners(minThreshold, maxThreshold);
             
         } else if (source==modeChoice) {
             mode = modeChoice.getSelectedIndex();
@@ -957,11 +964,13 @@ public class MicroThresholdAdjuster  implements Measurements,
             setLutColor(mode);
             doStateChange = true;
             doUpdate();
+            notifyChangeThresholdListeners(minThreshold, maxThreshold);
         } else
             doAutoAdjust = true;
             doUpdate(); 
+            notifyChangeThresholdListeners(minThreshold, maxThreshold);
        
-      
+       
        
             
     

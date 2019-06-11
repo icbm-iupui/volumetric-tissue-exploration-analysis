@@ -77,6 +77,8 @@ public abstract class AbstractLUT implements LUT {
     @Override
     public Color getColor(int i) {
         switch(i){
+            case 0:
+                return ZEROPERCENT;
             case 10:
                 return TENPERCENT;
             case 20:

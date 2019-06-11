@@ -36,6 +36,7 @@ public class Maximum extends AbstractMeasurement {
     COMMENT = "Calculate maximum value";
     NAME = "Max";
     KEY = "Max";
+    TYPE = "Intensity";
     }
 
     @Override

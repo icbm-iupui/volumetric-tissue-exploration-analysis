@@ -34,6 +34,8 @@ public class Count extends AbstractMeasurement{
     COMMENT = "Calculate number of pixels";
     NAME = "Count";
     KEY = "Count";
+    TYPE = "Shape";
+    
     }
     
     @Override

@@ -58,10 +58,7 @@ public class FreeFormGate extends Path2D.Float implements Gate {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Path2D getPath2D() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 
     @Override
     public boolean getSelected() {
@@ -93,10 +90,7 @@ public class FreeFormGate extends Path2D.Float implements Gate {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public Path2D createPath2DInChartSpace() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+ 
 
     @Override
     public boolean getKeyStroke() {
@@ -150,6 +144,16 @@ public class FreeFormGate extends Path2D.Float implements Gate {
 
     @Override
     public ImageStack getColorizedGateOverlayStack() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Double createPath2DInChartSpace() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Double getPath2D() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
