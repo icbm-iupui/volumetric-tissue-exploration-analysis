@@ -44,7 +44,6 @@ public class SegmentationPreviewer implements Runnable, PropertyChangeListener{
    
     
 ArrayList protocol;
-ImagePlus Image;
 ImagePlus segmentationPreview;
 
 SegmentationProcessor sp;
@@ -53,39 +52,32 @@ boolean Preview = false; //or "Done"
 
     
 SegmentationPreviewer(ImagePlus imp, ArrayList al){   
-        Image = imp;     
-        protocol = al;    
+    
+   
+    
+         segmentationPreview = imp; 
+         protocol = al;
+    
+           
+            
 }
 
 public void SegmentationPreviewFactory(){
-        if(checkImage(Image)){   
-        Duplicator dup = new Duplicator();
-        segmentationPreview = dup.run(Image); 
+         
+
         sp = new SegmentationProcessor("Preview", segmentationPreview, protocol);
         sp.addPropertyChangeListener(this);
         sp.execute(); 
-    }
+   
 }
+
+
 
 public static void SegmentationFactory(ImagePlus imp, ArrayList<MicroObject> objects){
     makeImage(imp, objects);  
 }
 
-static private boolean checkImage(ImagePlus imp){
-    try{
-        Roi r = imp.getRoi();
-       ImagePlus test = r.getImage().duplicate();
-        }catch(NullPointerException e){
-            JFrame frame = new JFrame();
-            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
-            JOptionPane.showMessageDialog(frame,
-            "Please select a region of the threshold preview image \nto preview the segmentation.",
-            "Roi required.",
-            JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-    return true; 
-}
+
 
 static private void makeImage(ImagePlus imp, ArrayList<MicroObject> objects){
 

@@ -420,7 +420,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
         North.setMinimumSize(new java.awt.Dimension(638, 75));
         North.setPreferredSize(new java.awt.Dimension(638, 80));
-        North.setSize(new java.awt.Dimension(638, 80));
         North.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 NorthMouseClicked(evt);
@@ -1791,9 +1790,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                 jf.setDialogTitle("Export VTEA objects...");
 
                 returnVal = jf.showSaveDialog(Main);
-                file = jf.getSelectedFile(); 
-
-
 
                 file = jf.getSelectedFile();
                 if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
@@ -1824,7 +1820,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
                 } catch (NullPointerException ne) {
                     System.out.println("ERROR: NPE in object export");
                 }
-                _vtea.LASTDIRECTORY =  file.getPath();
+                _vtea.LASTDIRECTORY = file.getAbsolutePath();
             } else {
             }
         }

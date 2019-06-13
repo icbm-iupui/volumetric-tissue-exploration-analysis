@@ -53,6 +53,8 @@ public class OpenObxFormat {
         jf.setFileFilter(filter);
         int returnVal = jf.showOpenDialog(parent);
         File file = jf.getSelectedFile();
+        
+        _vtea.LASTDIRECTORY = file.getAbsolutePath();
 
         ArrayList result = new ArrayList();
 
@@ -66,6 +68,7 @@ public class OpenObxFormat {
                             = new ProgressMonitorInputStream(parent, "Reading" + file.getName(), fis);
                     
                     pm.getProgressMonitor().setMillisToPopup(10);
+                    
 
                     result = (ArrayList) ois.readObject();
                     ois.close();

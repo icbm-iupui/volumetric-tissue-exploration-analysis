@@ -21,9 +21,11 @@ package vtea.protocol.setup;
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
+import ij.WindowManager;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.plugin.ChannelSplitter;
+import ij.plugin.Duplicator;
 import java.awt.Component;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -190,17 +192,27 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         pack();
 
     }
+    
+
 
     @Override
     protected void getSegmentationPreview() {
+        
+       
         CurrentStepProtocol = CurrentProcessList;
         ThresholdOriginal.setRoi(ThresholdPreview.getRoi());
+        
+        
+       
 
         PreviewProgress.setText("Getting Preview...");
         PreviewButton.setEnabled(false);
-
-        SegmentationPreviewer p = new SegmentationPreviewer(ThresholdOriginal, getSettings());
         
+        if(checkImage(ThresholdOriginal)){ 
+        Duplicator dup = new Duplicator();
+
+        SegmentationPreviewer p = new SegmentationPreviewer(dup.run(ThresholdOriginal), getSettings());
+  
         new Thread(p).start();
         
         Thread preview = new Thread(p);
@@ -208,7 +220,24 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
         PreviewButton.setEnabled(true);
         PreviewProgress.setText("");
+        }
     }
+    
+    static private boolean checkImage(ImagePlus imp){
+    try{
+        Roi r = imp.getRoi();
+       ImagePlus test = r.getImage().duplicate();
+        }catch(NullPointerException e){
+            JFrame frame = new JFrame();
+            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+            JOptionPane.showMessageDialog(frame,
+            "Please select a region of the threshold preview image \nto preview the segmentation.",
+            "Roi required.",
+            JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+    return true; 
+}
 
     @Override
     public void setVisible(boolean b) {
