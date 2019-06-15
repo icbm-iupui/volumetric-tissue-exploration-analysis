@@ -46,6 +46,7 @@ import javax.swing.SwingUtilities;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI;
 import vtea.exploration.listeners.SaveGatedImagesListener;
+import vtea.exploration.listeners.SubGateListener;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.ImageHighlightSelectionListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
@@ -80,6 +81,10 @@ public class GateLayer implements ActionListener, ItemListener {
     private ArrayList<ImageHighlightSelectionListener> highlightlisteners = new ArrayList<ImageHighlightSelectionListener>();
     private ArrayList<QuadrantSelectionListener> quadrantlisteners = new ArrayList<QuadrantSelectionListener>();
     private ArrayList<AddGateListener> addgatelisteners = new ArrayList<AddGateListener>();
+    private ArrayList<SaveGatedImagesListener> saveImageListeners = new ArrayList<SaveGatedImagesListener>();
+    private ArrayList<SubGateListener> subGateListeners = new ArrayList<SubGateListener>();
+    
+    
     private ArrayList<Gate> gates = new ArrayList<Gate>();
 
     private JPopupMenu menu = new JPopupMenu();
@@ -103,7 +108,7 @@ public class GateLayer implements ActionListener, ItemListener {
     public static Gate clipboardGate;
     public static boolean gateInClipboard = false;
     
-    ArrayList<SaveGatedImagesListener> saveImageListeners = new ArrayList<SaveGatedImagesListener>();
+    
 
     public GateLayer() {
 
@@ -652,6 +657,12 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
+        menu.add(new JSeparator());
+        
+        menuItem = new JMenuItem("Export Gated Cells...");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+        
         
 
         //Add listener to the text area so the popup menu can come up.
@@ -694,7 +705,19 @@ public class GateLayer implements ActionListener, ItemListener {
             }
             if(path != null)
                 notifyImageListeners(path);
-        }    
+        }  else if(e.getActionCommand().equals("Export Gated Cells...")){
+            //Used to subgate to a new MicroExplorer
+            ListIterator<Gate> gt = gates.listIterator();
+            Path2D path = null;
+            while(gt.hasNext()){
+                Gate g = gt.next();
+                if(g.getSelected()){
+                    path = g.createPath2DInChartSpace();
+                }
+            }
+            if(path != null)
+                notifySubgateListeners();
+        }      
         for(int i = 0; i < colors.length; i++){
          if(e.getActionCommand().equals(colors[i])){
              selectedGate.setSelectedColor(colorsRGB[i]);
@@ -724,6 +747,24 @@ public class GateLayer implements ActionListener, ItemListener {
     private void notifyImageListeners(Path2D path){
         for (SaveGatedImagesListener listener : saveImageListeners) {
             listener.saveGated(path);
+        }
+    }
+    
+        /**
+     * Adds a SaveGatedImagesListener
+     * @param listener the listener to add to the ArrayList saveImageListeners
+     */
+    public void addSubGateListener(SubGateListener listener) {
+        subGateListeners.add(listener);
+    }
+    
+    /**
+     * Notify the SaveGatedImagesListeners to save the gated nuclei
+     * @param path 
+     */
+    private void notifySubgateListeners(){
+        for (SubGateListener listener : subGateListeners) {
+            listener.subGate();
         }
     }
 }

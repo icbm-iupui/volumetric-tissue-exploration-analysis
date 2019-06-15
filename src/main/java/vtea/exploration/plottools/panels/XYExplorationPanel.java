@@ -70,11 +70,13 @@ import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.LogAxis;
 import org.jfree.chart.plot.XYPlot;
+import vtea.ExportCSV;
 import vtea._vtea;
 import static vtea._vtea.LUTMAP;
 import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SaveGatedImagesListener;
+import vtea.exploration.listeners.SubGateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plotgatetools.gates.Gate;
 import vtea.exploration.plotgatetools.gates.GateImporter;
@@ -97,7 +99,7 @@ import vteaobjects.MicroObjectModel;
  *
  * @author vinfrais
  */
-public class XYExplorationPanel extends AbstractExplorationPanel implements WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener {
+public class XYExplorationPanel extends AbstractExplorationPanel implements WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener, SubGateListener {
     
     XYChartPanel cpd;
     private boolean useGlobal = false;
@@ -589,7 +591,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         gl.addImageHighLightSelectionListener(this);
         
         gl.addImagesListener(this);
-
+        
+        gl.addSubGateListener(this);
+       
         gl.msActive = false;
 
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates);
@@ -1220,6 +1224,96 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
         exportnuclei.saveImages(path, currentX, currentY);   
     }
+
+    @Override
+    public void subGate() {
+        
+         Gate gate;
+        ListIterator<Gate> gate_itr = gates.listIterator();
+
+        int total = 0;
+        int gated = 0;
+        int selected = 0;
+        int gatedSelected = 0;
+        int gatecount = gates.size();
+
+        while (gate_itr.hasNext()) {
+            gate = gate_itr.next();
+
+            if (gate.getSelected()) {
+
+                Path2D.Double path = gate.createPath2DInChartSpace();
+
+                ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
+                ArrayList<MicroObject> objectsFinal = new ArrayList<MicroObject>();
+                
+                ArrayList<ArrayList<Number>> measurements = new ArrayList<ArrayList<Number>>();
+                ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
+                
+                ArrayList<String> description = new ArrayList<String>();
+
+                ArrayList<MicroObject> volumes = (ArrayList) objects;
+                MicroObjectModel volume;
+
+                double xValue = 0;
+                double yValue = 0;
+                
+                description.add(this.descriptions.get(currentX));
+                description.add(this.descriptions.get(currentY));
+                description.add(this.descriptions.get(currentL));
+                
+                //this is where we need to add logic for polygons...  this is tripping up things
+
+                ArrayList<ArrayList> resultKey = 
+                        H2DatabaseEngine.getObjectsInRange2D(path, 
+                        vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
+                        this.descriptions.get(currentX), path.getBounds2D().getX(),
+                        path.getBounds2D().getX() + path.getBounds2D().getWidth(),
+                        this.descriptions.get(currentY), path.getBounds2D().getY(),
+                        path.getBounds2D().getY() + path.getBounds2D().getHeight(), 
+                        this.descriptions.get(currentL));
+
+                ListIterator<ArrayList> itr = resultKey.listIterator();
+
+                while (itr.hasNext()) { 
+                    ArrayList al = itr.next();
+                    int object = ((Number) (al.get(0))).intValue();
+                    objectsTemp.add(volumes.get(object));
+                    
+                
+                    
+                    //ArrayList<Number> measure = new ArrayList<Number>();
+                    //measure.add(((Number) (al.get(1))).doubleValue());
+                    //measure.add(((Number) (al.get(2))).doubleValue());
+                    //measure.add(((Number) (al.get(3))).doubleValue());
+                    measurements.add(this.measurements.get(object));
+                    
+                    
+                }
+
+                try {
+                    for (int i = 0; i < objectsTemp.size(); i++) {
+
+                        ArrayList<Number> measured = resultKey.get(i);
+
+                        xValue = measured.get(1).doubleValue();
+                        yValue = measured.get(2).doubleValue();
+
+                        if (path.contains(xValue, yValue)) {
+                            objectsFinal.add((MicroObject) objectsTemp.get(i));
+                            measurementsFinal.add(measurements.get(i));
+                        }
+                    }
+                } catch (NullPointerException e) {
+                }
+            ExportCSV ex = new ExportCSV(this.chart);
+            ex.export(objectsTemp, measurementsFinal, this.descriptions);
+            }
+            
+
+  
+    }
+    }
     
 
     class ExportGates {
@@ -1271,6 +1365,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         }
 
     }
+    
 
     class ImportGates {
 

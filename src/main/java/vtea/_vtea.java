@@ -26,10 +26,6 @@ import ij.plugin.PlugIn;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.sql.Connection;
-import static java.sql.DriverManager.println;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -60,7 +56,7 @@ import vtea.services.WorkflowService;
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
-     public static String VERSION = new String("1.0 alpha");
+    public static String VERSION = new String("1.0 alpha");
     
     public static Color BACKGROUND = new Color(204, 204, 204);
     public static Color BUTTONBACKGROUND = new Color(200, 200, 200);
@@ -72,16 +68,10 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
     
     public static String H2_DATABASE = new String("VTEADB");
-    
     public static String H2_MEASUREMENTS_TABLE = new String("MEASUREMENTS");
     public static String H2_OBJECT_TABLE = new String("OBJECTS");
     
     public static String LASTDIRECTORY = new String(System.getProperty("user.home") + "/Desktop");
-    
-    
-   
-
-    //public static String[] PROCESSOPTIONS = {"LayerCake 3D"};
     
     public static String[] FEATURETYPE = {"Cluster", "Reduction", "Other"};
     
@@ -107,7 +97,6 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static ConcurrentHashMap<String, String> MORPHOLOGICALMAP;
     public static ConcurrentHashMap<String, String> FEATUREMAP;
     public static ConcurrentHashMap<String, String> LUTMAP;
-  
     
     public ProtocolManagerMulti protocolWindow;
     
@@ -153,13 +142,10 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 
                 System.out.println("-------------------------------- ");
 
-
                 ImagePlus.addImageListener(this);
-                
 
-            System.out.println("-------------------------------- ");
+                System.out.println("-------------------------------- ");
                 
-
                 protocolWindow = new ProtocolManagerMulti();
                 protocolWindow.setVisible(true);
                 
@@ -191,7 +177,6 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 
                 LUTService lfs = new LUTService(context);
                 
-               
                 //ObjectAnalysisService oas = new ObjectAnalysisService();
                 //ObjectMeasurementService oms = new ObjectMeasurementService();                
                 //GroupAnalysisService gas = new GroupAnalysisService();

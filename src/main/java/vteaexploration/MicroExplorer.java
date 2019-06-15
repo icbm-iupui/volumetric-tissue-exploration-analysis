@@ -1760,7 +1760,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 }
     //this needs to be runnable
     
-    class ExportOBJ {
+    public class ExportOBJ {
 
         public ExportOBJ() {
         }

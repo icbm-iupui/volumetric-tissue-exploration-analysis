@@ -283,41 +283,40 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
      */
     @Override
     public void onChangeSetup(ArrayList al){
-        int len = al.size();
         
-        Feature.setText(al.get(2).toString());
+        //int len = al.size();
         
-        String text;
-        boolean validate;
-        try{
-            Class<?> c;
-            c = Class.forName(OBJECTMEASUREMENTMAP.get((al.get(2)).toString()));
-            Method getBlockComment = c.getMethod("getBlockComment", ArrayList.class);
-            text = getBlockComment.invoke(null, (Object)al).toString();
-            Field f = c.getField("validate");
-            validate = f.getBoolean(null);
-        }catch(Exception e){
-            e.printStackTrace();
-            text = "Text not available...";
-            validate = false;
-        }
+        Feature.setText(al.get(0).toString());
         
-        Comment.setText(text);
+//        String text;
+//        boolean validate;
+//        try{
+//            Class<?> c;
+//            c = Class.forName(OBJECTMEASUREMENTMAP.get((al.get(2)).toString()));
+//            Method getBlockComment = c.getMethod("getBlockComment", ArrayList.class);
+//            text = getBlockComment.invoke(null, (Object)al).toString();
+//            Field f = c.getField("validate");
+//            validate = f.getBoolean(null);
+//        }catch(Exception e){
+//            e.printStackTrace();
+//            text = "Text not available...";
+//            validate = false;
+//        }
+//        
+//        Comment.setText(text);
         
         notifyRebuildPanelListeners(4);
-        
-
         this.settings = al;
-        this.settings.set(3, false);
+       // this.settings.set(3, false);
         addToolTip();
         
-        if(validate){
-            ValidationSelector.setEnabled(true);
-        }else{
-            ValidationSelector.setEnabled(false);
-            ValidationSelector.setSelected(false);
-        }
-        setupForValidation(ValidationSelector.isSelected());
+//        if(validate){
+//            ValidationSelector.setEnabled(true);
+//        }else{
+//            ValidationSelector.setEnabled(false);
+//            ValidationSelector.setSelected(false);
+//        }
+//        setupForValidation(ValidationSelector.isSelected());
     }
     
     @Override
