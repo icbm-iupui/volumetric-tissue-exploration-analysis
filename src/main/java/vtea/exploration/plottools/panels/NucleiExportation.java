@@ -20,10 +20,15 @@ package vtea.exploration.plottools.panels;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.plugin.ChannelSplitter;
+import ij.plugin.Duplicator;
 import ij.plugin.ZProjector;
+import ij.process.ImageConverter;
+import ij.process.ImageProcessor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.geom.Path2D;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,6 +50,7 @@ import javax.swing.DefaultComboBoxModel;
 import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -133,15 +139,40 @@ public class NucleiExportation {
                 if(objImp == null)
                     continue;
                 
+                ImagePlus objImpOriginal = objImp;
+                // scale data and use the whole range effectively
+                ImageStack st = objImp.getImageStack();
+                ImageStack st_scaled = new ImageStack(size, size, depth);
+                for(int i = 0; i < depth; i++){
+                    ImageProcessor ip = st.getProcessor(i+1);
+                    double scale = Math.pow(2, image.getBitDepth()) / Math.pow(2, 12); //set min max goes to 8bit, original is 12bit
+                    ip.setMinAndMax(0, Math.pow(2, 12));
+                    //ip.multiply(scale);
+                    st_scaled.setProcessor(ip, i+1);
+                }
+                
+                
+                
+                ImagePlus objImpScaled = new ImagePlus("scaled", st_scaled);
+                objImp = objImpScaled;
+                
+                
+                
+                
+                        
                 //ZProjection as based on the choice made in options
                 if(!projChoice.equals("No Z projection"))
                     objImp = ZProjector.run(objImp,projChoice);
+                
+                ImageConverter ic = new ImageConverter(objImp);
+                ic.convertToGray8();
 
                 File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
-                
+                File objfile2 = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + "_16.tiff");
                 filenames.add("nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
                 
                 IJ.saveAsTiff(objImp,objfile.getPath());
+                //IJ.saveAsTiff(objImpOriginal,objfile2.getPath());
                 count++;
             }   
             System.out.println(String.format("%d/%d nuclei could not be exported", selectd-count, selectd));
@@ -226,7 +257,7 @@ public class NucleiExportation {
 //                if(yStart*xStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth() || zRange > 5)
 //                    continue;
 
-        if(xStart < 0 || yStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth())
+        if(xStart < 0 || yStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth() ||  zRange < 3)
             return null;
 
         //ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
@@ -254,20 +285,73 @@ public class NucleiExportation {
         int xStart = starts[0];
         int yStart = starts[1];
         int zStart = starts[2];
-        ImageStack stSource = image.getImageStack();
-        ImagePlus objImp = IJ.createImage("nuclei", image.getBitDepth()+" black", size, size, depth);
-        ImageStack st = objImp.getImageStack();
         
-        int[] xPixels = vol.getPixelsX();
-        int[] yPixels = vol.getPixelsY();
-        int[] zPixels = vol.getPixelsZ();
-        for(int i = 0; i < xPixels.length; i++){
-            st.setVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart, stSource.getVoxel(xPixels[i], yPixels[i], zPixels[i]));        
-        }
+        ImageStack cropMe = image.getImageStack();
         
-        objImp.setStack(st);
+        ChannelSplitter cs = new ChannelSplitter();
         
-        return objImp;
+       // Roi r = new Roi(xStart, yStart, size, size);
+       
+       image.setRoi(new Rectangle(xStart, yStart, size, size));
+        
+       Duplicator dup = new Duplicator();
+       
+       ImagePlus objImp = dup.run(image);
+       
+       ImageStack stNu = cs.getChannel(objImp, 8);
+       
+       int[] xPixels = vol.getPixelsX();
+       int[] yPixels = vol.getPixelsY();
+       int[] zPixels = vol.getPixelsZ(); 
+//       System.out.println("===== andre stuff ======");
+//       System.out.println(xPixels.length);
+//       
+//       for(int i = 0; i < 5; i++){
+//           System.out.println(xPixels[i]-xStart);
+//           System.out.println(yPixels[i]);
+//           System.out.println(zPixels[i]);
+//           System.out.println();
+//           //System.out.println(stNu.getVoxel(xPixels[i], yPixels[i], zPixels[i]));
+//       }
+       
+       ImagePlus temp= IJ.createImage("nuclei", size, size, depth, image.getBitDepth());
+       ImageStack tempStack = temp.getImageStack();
+       
+       for(int i = 0; i < xPixels.length; i++) {
+           tempStack.setVoxel(xPixels[i]-xStart, yPixels[i] - yStart, zPixels[i]-zStart, 
+                   stNu.getVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart));
+           
+           // add a pixel in a random direction
+//           double randx = Math.random();
+//           double randy = Math.random();
+//           int randJitterx = (int) Math.round(randx)*2 - 1;
+//           int randJittery = (int) Math.round(randy)*2 - 1;
+//           tempStack.setVoxel(xPixels[i]-xStart+randJitterx, yPixels[i] - yStart + randJittery, zPixels[i]-zStart,
+//                   stNu.getVoxel(xPixels[i]-xStart+randJitterx, yPixels[i]-yStart+ randJittery, zPixels[i]-zStart));
+       }
+       
+       ImagePlus objImpNu = new ImagePlus("nuclei", tempStack);
+       
+       
+        
+//        ImageStack stSource = image.getImageStack();
+        //ImagePlus objImp = IJ.createImage("nuclei", image.getBitDepth()+" black", size, size, depth);
+        //ImagePlus objImp = IJ.createImage("nuclei", size, size, depth, image.getBitDepth());
+//        ImageStack st = objImp.getImageStack();
+//        
+//        int[] xPixels = vol.getPixelsX();
+//        int[] yPixels = vol.getPixelsY();
+//        int[] zPixels = vol.getPixelsZ();
+//        for(int i = 0; i < xPixels.length; i++){
+//            st.setVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart, stSource.getVoxel(xPixels[i], yPixels[i], zPixels[i]));        
+//        }
+//        
+//        objImp.setStack(st);
+//        
+//        return objImp;
+
+
+          return objImpNu;
     }
     
     private ImagePlus getMorphStack(MicroObject vol, int[] starts){
@@ -307,12 +391,26 @@ public class NucleiExportation {
         int zStart = starts[2];
         
         ImageStack cropMe = image.getImageStack();
-        ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
-        ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
         
-        objImp.setStack(objImgStack);
+        ChannelSplitter cs = new ChannelSplitter();
         
-        return objImp;
+       // Roi r = new Roi(xStart, yStart, size, size);
+       
+       image.setRoi(new Rectangle(xStart, yStart, size, size));
+        
+       Duplicator dup = new Duplicator();
+       
+       ImagePlus objImp = dup.run(image);
+       
+       ImageStack stNu = cs.getChannel(objImp, 8); //TODO: nuclei channel is hardcoded 
+       ImagePlus objImpNu = new ImagePlus("nuclei", stNu);
+//        ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
+//        ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
+//        
+//        objImp.setStack(objImgStack);
+        
+        //return objImp;
+        return objImpNu;
     }
 }
 class ExportObjImgOptions extends JPanel{
