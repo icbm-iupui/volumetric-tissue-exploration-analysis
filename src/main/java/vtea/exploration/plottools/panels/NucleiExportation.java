@@ -139,33 +139,69 @@ public class NucleiExportation {
                 if(objImp == null)
                     continue;
                 
-                ImagePlus objImpOriginal = objImp;
-                // scale data and use the whole range effectively
-                ImageStack st = objImp.getImageStack();
-                ImageStack st_scaled = new ImageStack(size, size, depth);
-                for(int i = 0; i < depth; i++){
-                    ImageProcessor ip = st.getProcessor(i+1);
-                    double scale = Math.pow(2, image.getBitDepth()) / Math.pow(2, 12); //set min max goes to 8bit, original is 12bit
-                    ip.setMinAndMax(0, Math.pow(2, 12));
-                    //ip.multiply(scale);
-                    st_scaled.setProcessor(ip, i+1);
+                Duplicator dup = new Duplicator();
+                
+                ImagePlus objImpOriginal = dup.run(objImp);
+                
+                
+                
+//                objImp.show();
+//                objImp.hide();
+                //objImp.setDefault16bitRange(12);
+                //System.out.println(objImp.getDisplayRangeMax());
+                //System.out.println(objImp.);
+                
+//                ImagePlus objImpTo8 = objImp;
+//                // scale data and use the whole range effectively
+//                ImageStack st = objImp.getImageStack();
+//                ImageStack st_scaled = new ImageStack(size, size, depth);
+//                for(int i = 0; i < depth; i++){
+//                    ImageProcessor ip = st.getProcessor(i+1);
+//                    //double scale = Math.pow(2, image.getBitDepth()) / Math.pow(2, 12); //set min max goes to 8bit, original is 12bit
+//                    //ip.setMinAndMax(0, Math.pow(2, 12)); //only for display, doesn't change values
+//                    //ip.multiply(scale);
+//                    st_scaled.setProcessor(ip, i+1);
+//                }
+//                
+//                
+//                
+//                ImagePlus objImpScaled = new ImagePlus("scaled", st_scaled);
+//                objImp = objImpScaled;
+                //objImp = objImpTo8;
+                
+                
+                //Manually convert to 8 bit
+                int bitDepthOut = 8;
+                ImageStack stNu = objImp.getStack();
+                int height = stNu.getHeight();
+                int width = stNu.getWidth();
+                int slices = stNu.getSize();
+                System.out.println(height + " " + width + " " + slices); //32x32x7
+                ImagePlus temp= IJ.createImage("nuclei", size, size, slices, bitDepthOut);
+                ImageStack tempStack = temp.getImageStack();
+
+                for(int i = 1; i < size; i++) {
+                    for(int j = 1; j < size; j++) {
+                        for(int k = 1; k < depth; k++) {
+                            //System.out.println(i + " " + j + " " + k);
+                            tempStack.setVoxel(i,j,k, 
+                                    stNu.getVoxel(i,j,k) * Math.pow(2,8) / Math.pow(2, 12));
+                        }
+                    }  
+                }
+                
+                objImp = new ImagePlus("8bit", tempStack);
+                      
+                //ZProjection as based on the choice made in options
+                if(!projChoice.equals("No Z projection")){
+                    objImp = ZProjector.run(objImp,projChoice);
                 }
                 
                 
                 
-                ImagePlus objImpScaled = new ImagePlus("scaled", st_scaled);
-                objImp = objImpScaled;
                 
-                
-                
-                
-                        
-                //ZProjection as based on the choice made in options
-                if(!projChoice.equals("No Z projection"))
-                    objImp = ZProjector.run(objImp,projChoice);
-                
-                ImageConverter ic = new ImageConverter(objImp);
-                ic.convertToGray8();
+//                ImageConverter ic = new ImageConverter(objImp);
+//                ic.convertToGray8();
 
                 File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
                 File objfile2 = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + "_16.tiff");
@@ -286,7 +322,7 @@ public class NucleiExportation {
         int yStart = starts[1];
         int zStart = starts[2];
         
-        ImageStack cropMe = image.getImageStack();
+        //ImageStack cropMe = image.getImageStack();
         
         ChannelSplitter cs = new ChannelSplitter();
         
@@ -298,7 +334,8 @@ public class NucleiExportation {
        
        ImagePlus objImp = dup.run(image);
        
-       ImageStack stNu = cs.getChannel(objImp, 8);
+       
+       ImageStack stNu = cs.getChannel(objImp, 8); // 32x32x19
        
        int[] xPixels = vol.getPixelsX();
        int[] yPixels = vol.getPixelsY();
@@ -306,20 +343,27 @@ public class NucleiExportation {
 //       System.out.println("===== andre stuff ======");
 //       System.out.println(xPixels.length);
 //       
+//       System.out.println(stNu.getSize()); //should be 19
+//       System.out.println(stNu.getWidth());
+//       System.out.println(stNu.getHeight());
+//       
 //       for(int i = 0; i < 5; i++){
 //           System.out.println(xPixels[i]-xStart);
-//           System.out.println(yPixels[i]);
+//           System.out.println(yPixels[i]-yStart);
 //           System.out.println(zPixels[i]);
 //           System.out.println();
 //           //System.out.println(stNu.getVoxel(xPixels[i], yPixels[i], zPixels[i]));
 //       }
        
        ImagePlus temp= IJ.createImage("nuclei", size, size, depth, image.getBitDepth());
+//       temp.show();
+//       temp.hide();
        ImageStack tempStack = temp.getImageStack();
        
        for(int i = 0; i < xPixels.length; i++) {
+
            tempStack.setVoxel(xPixels[i]-xStart, yPixels[i] - yStart, zPixels[i]-zStart, 
-                   stNu.getVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart));
+                   stNu.getVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]));
            
            // add a pixel in a random direction
 //           double randx = Math.random();
@@ -332,6 +376,10 @@ public class NucleiExportation {
        
        ImagePlus objImpNu = new ImagePlus("nuclei", tempStack);
        
+       //objImpNu.setDefault16bitRange(12);
+//       System.out.println("===MASK BIT DEPTH====");
+//       System.out.println(objImpNu.getBitDepth());
+//       System.out.println(image.getBitDepth());
        
         
 //        ImageStack stSource = image.getImageStack();
@@ -404,13 +452,19 @@ public class NucleiExportation {
        
        ImageStack stNu = cs.getChannel(objImp, 8); //TODO: nuclei channel is hardcoded 
        ImagePlus objImpNu = new ImagePlus("nuclei", stNu);
+       ImagePlus objImpNu_crop = dup.run(objImpNu, zStart+1, zStart+depth);
+       
+//       System.out.println(objImpNu_crop.getDisplayRangeMax()); //4095
+//       System.out.println(objImpNu_crop.getDisplayRangeMin()); //0
+//       System.out.println(objImpNu_crop.getDefault16bitRange()); //0 (aka automatically set)
+//       System.out.println();
 //        ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
 //        ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
 //        
 //        objImp.setStack(objImgStack);
         
         //return objImp;
-        return objImpNu;
+        return objImpNu_crop;
     }
 }
 class ExportObjImgOptions extends JPanel{
