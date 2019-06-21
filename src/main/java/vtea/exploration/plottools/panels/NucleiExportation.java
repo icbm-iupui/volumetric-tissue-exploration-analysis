@@ -18,8 +18,11 @@
 package vtea.exploration.plottools.panels;
 
 import ij.IJ;
+import static ij.IJ.Roi;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.Roi;
+import ij.io.FileInfo;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Duplicator;
 import ij.plugin.ZProjector;
@@ -51,6 +54,7 @@ import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -129,7 +133,8 @@ public class NucleiExportation {
         File file = options.chooseSaveLocation();
         
         ArrayList<String> filenames = new ArrayList<>();
-
+        ArrayList<ArrayList<Integer>> all_images = new ArrayList<ArrayList<Integer>>();
+        
         if (file != null) {
             int count = 0;
             while(vitr.hasNext()){
@@ -176,13 +181,13 @@ public class NucleiExportation {
                 int height = stNu.getHeight();
                 int width = stNu.getWidth();
                 int slices = stNu.getSize();
-                System.out.println(height + " " + width + " " + slices); //32x32x7
+                //System.out.println(height + " " + width + " " + slices); //32x32x7
                 ImagePlus temp= IJ.createImage("nuclei", size, size, slices, bitDepthOut);
                 ImageStack tempStack = temp.getImageStack();
 
-                for(int i = 1; i < size; i++) {
-                    for(int j = 1; j < size; j++) {
-                        for(int k = 1; k < depth; k++) {
+                for(int i = 0; i < size; i++) {
+                    for(int j = 0; j < size; j++) {
+                        for(int k = 0; k < depth; k++) {
                             //System.out.println(i + " " + j + " " + k);
                             tempStack.setVoxel(i,j,k, 
                                     stNu.getVoxel(i,j,k) * Math.pow(2,8) / Math.pow(2, 12));
@@ -197,9 +202,22 @@ public class NucleiExportation {
                     objImp = ZProjector.run(objImp,projChoice);
                 }
                 
-                
-                
-                
+                // write the image as a 1d pixel array
+                ImageStack finalStack = objImp.getStack();
+                int heightf = finalStack.getHeight();
+                int widthf = finalStack.getWidth();
+                int slicesf = finalStack.getSize();
+                ArrayList<Integer> one_image = new ArrayList<>();
+                for(int k = 1; k < slicesf; k++) {
+                    for(int j = 0; j < heightf; j++) {
+                        for(int i = 0; i < widthf; i++) {
+                            //System.out.println(i + " " + j + " " + k);
+                            one_image.add( (int) finalStack.getVoxel(i,j,k));
+                        }
+                    }  
+                }
+                //System.out.println(one_image.size());
+                all_images.add(one_image);
 //                ImageConverter ic = new ImageConverter(objImp);
 //                ic.convertToGray8();
 
@@ -240,6 +258,42 @@ public class NucleiExportation {
 
                     pw.write(sb.toString());
                     pw.close();
+                    
+                    PrintWriter pw_image = new PrintWriter(file.getPath()+ File.separator + "Images_" + label + ".csv");
+                    StringBuilder sb_image = new StringBuilder();
+
+                    ListIterator itr_image = all_images.listIterator();
+                    
+
+                    sb_image.append("Label");
+                    sb_image.append(',');
+                    sb_image.append("Values");
+                    sb_image.append('\n');
+
+                    while (itr_image.hasNext()) {
+                        ArrayList<Integer> one = (ArrayList<Integer>) itr_image.next();
+                        ListIterator itr_one = (ListIterator) one.listIterator();
+                        sb_image.append(label);
+                        sb_image.append(",");
+                    
+                        while(itr_one.hasNext()){
+                            sb_image.append((int) itr_one.next());
+                            if (itr_one.hasNext()) {
+                                sb_image.append(",");
+                            
+                            }
+                            else
+                                sb_image.append("\n");
+                        }
+                        
+                    }
+
+
+
+                    pw_image.write(sb_image.toString());
+                    pw_image.close();
+                    
+                    
 
                 } catch (FileNotFoundException e) {
                 }
@@ -268,7 +322,15 @@ public class NucleiExportation {
                 yValue = measured.get(yAxis).floatValue();
 
                 if (path.contains(xValue, yValue)) {
-                    result.add((MicroObject) objects.get(i));
+                    if (image.getRoi() != null){
+                        Roi r = image.getRoi();
+                        MicroObject o = objects.get(i);
+                        if (r.containsPoint(o.getCentroidX(), o.getCentroidY()))
+                            result.add((MicroObject) objects.get(i));
+                    }
+                    else{
+                        result.add((MicroObject) objects.get(i));
+                    }                    
                 }
             }
 
