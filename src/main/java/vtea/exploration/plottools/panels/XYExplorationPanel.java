@@ -55,6 +55,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -1218,7 +1220,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     @Override
     public void saveGated(Path2D path){
         NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
-        exportnuclei.saveImages(path, currentX, currentY);   
+        try {   
+            exportnuclei.saveImages(path, currentX, currentY);
+        } catch (IOException ex) {
+            Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
 
