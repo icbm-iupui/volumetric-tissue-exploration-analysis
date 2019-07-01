@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <version>1.0alpha-SNAPSHOT</version>
 
 
-    <name>VTEA_truth</name>
+    <name>VTEA_segemtation</name>
     <description>Volumetric analysis</description>
     
     <properties>
@@ -168,6 +168,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>2.5</version>
             <type>jar</type>
         </dependency>
+ <!-- https://mvnrepository.com/artifact/sc.fiji/Auto_Local_Threshold -->
+<dependency>
+    <groupId>sc.fiji</groupId>
+    <artifactId>Auto_Local_Threshold</artifactId>
+    <version>1.10.0</version>
+</dependency>
+
     </dependencies>
 
     <build>

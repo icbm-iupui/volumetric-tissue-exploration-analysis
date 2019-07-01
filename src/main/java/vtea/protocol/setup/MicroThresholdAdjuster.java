@@ -66,7 +66,7 @@ public class MicroThresholdAdjuster  implements Measurements,
     static boolean useBW = true;
     static boolean backgroundToNaN = true;
     static MicroThresholdAdjuster instance;
-    static int mode = RED;  
+    static int mode = RED;
     static String[] methodNames = AutoThresholder.getMethods();
     static String method = methodNames[DEFAULT];
     static AutoThresholder thresholder = new AutoThresholder();
@@ -123,10 +123,12 @@ public class MicroThresholdAdjuster  implements Measurements,
         GridBagConstraints c = new GridBagConstraints();
         gui.setLayout(gridbag);
         gui.setPreferredSize(new Dimension(280,300));
+        //gui.setPreferredSize(new Dimension(260,300));
         gui.setBackground(vtea._vtea.BACKGROUND);
         
+        
         // plot
-        int y = 0;
+        int y = 1;
         c.gridx = 0;
         c.gridy = y++;
         c.gridwidth = 2;
@@ -146,7 +148,7 @@ public class MicroThresholdAdjuster  implements Measurements,
         gui.add(percentiles, c);
 
         // minThreshold slider
-        minSlider = new JSlider(JSlider.HORIZONTAL, 0, 256, 0);
+        minSlider = new JSlider(JSlider.HORIZONTAL, 0, 255, 0);
         //GUI.fix(minSlider);
         minSlider.setSize(new Dimension (15, 80));
         c.gridx = 0;
@@ -175,17 +177,18 @@ public class MicroThresholdAdjuster  implements Measurements,
         // maxThreshold slider
         maxSlider = new JSlider(Scrollbar.HORIZONTAL, 0, 255, 255);
         //GUI.fix(maxSlider);
+        maxSlider.setSize(new Dimension (15, 80));
         c.gridx = 0;
         c.gridy = y++;
         c.gridwidth = 1;
         c.weightx = 100;
         c.insets = new Insets(2, 10, 0, 0);
         gui.add(maxSlider, c);
-        maxSlider.addChangeListener(this);
+        maxSlider.addChangeListener(this);     
+        maxSlider.addChangeListener(plot);
         //maxSlider.addAdjustmentListener(this);
         maxSlider.addKeyListener(ij);
         //maxSlider.setUnitIncrement(1);
-        maxSlider.setSize(new Dimension (15, 80));
         maxSlider.setFocusable(false);
         
         // maxThreshold slider label
@@ -214,11 +217,12 @@ public class MicroThresholdAdjuster  implements Measurements,
         c.gridwidth = 2;
         c.insets = new Insets(5, 5, 0, 5);
         gui.add(panel, c);
+        
                 
         // choices
         panel = new JPanel();
-        panel.setBackground(vtea._vtea.BACKGROUND);
-        
+        panel.setBackground(vtea._vtea.BACKGROUND);        
+              
         methodChoice = new JComboBox();
         for (int i=0; i<methodNames.length; i++)
         methodChoice.addItem(methodNames[i]);
@@ -233,11 +237,11 @@ public class MicroThresholdAdjuster  implements Measurements,
         modeChoice.setSelectedItem(mode);
         modeChoice.addItemListener(this);
 
-        panel.add(modeChoice);
+        panel.add(modeChoice);        
         c.gridx = 0;
         c.gridy = y++;
         c.gridwidth = 2;
-        c.insets = new Insets(8, 5, 0, 5);
+        c.insets = new Insets(0, 0, 0, 20);
         c.anchor = GridBagConstraints.CENTER;
         c.fill = GridBagConstraints.NONE;
         gui.add(panel, c);

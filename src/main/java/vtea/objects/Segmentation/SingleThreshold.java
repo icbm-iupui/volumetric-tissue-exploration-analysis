@@ -23,6 +23,7 @@ import ij.ImageStack;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
@@ -32,6 +33,7 @@ import javax.swing.JPanel;
 
 import vtea.protocol.listeners.ChangeThresholdListener;
 import vtea.protocol.setup.MicroThresholdAdjuster;
+import vtea.protocol.setup.ThresholdApproach;
 
 
 /**
@@ -52,8 +54,8 @@ public class SingleThreshold extends AbstractSegmentation {
     
     JTextFieldLinked f1 = new JTextFieldLinked("0", 5);
 
-    
     MicroThresholdAdjuster mta;
+    ThresholdApproach ta;
     
 public SingleThreshold(){
     VERSION = "0.1";
@@ -69,22 +71,34 @@ public SingleThreshold(){
             f1.setPreferredSize(new Dimension(20, 30));
             f1.setMaximumSize(f1.getPreferredSize());
             f1.setMinimumSize(f1.getPreferredSize());
-            
 
             protocol.add(new JLabel("Low Threshold"));
+           
             protocol.add(f1);
+            
+            //ta = new ThresholdApproach(imagePreview);
+            //protocol.add(ta);
    
 }    
 
    @Override
     public void setImage(ImagePlus thresholdPreview) {
         imagePreview = thresholdPreview;
+        
+        // Create object for Threshold approach class so that it can be added
+        // to the 'protocol' ArrayList during MicroBlockOjectSetup->getOptions() function call.
+        // This is to address the sequence of calls in MicroBlockObjectSetup->makeProtocolPanel() function call.
+        // The sequence is as follows: 1) setImage(); 2) getOptions() and
+        // 3) getSegmentationTool();
+        ta = new ThresholdApproach(imagePreview);
+        //protocol.add(ta);
      }
     
        @Override
     public void updateImage(ImagePlus thresholdPreview) {
         imagePreview = thresholdPreview;
         mta = new MicroThresholdAdjuster(imagePreview);
+        ta = new ThresholdApproach(imagePreview);
      }
 
     @Override
@@ -99,16 +113,26 @@ public SingleThreshold(){
     
     @Override
     public JPanel getSegmentationTool(){
+        
         JPanel panel = new JPanel();
         panel.setBackground(vtea._vtea.BACKGROUND);
-        mta = new MicroThresholdAdjuster(imagePreview);
-        panel.add(mta.getPanel());
-        mta.addChangeThresholdListener(f1);
-        mta.notifyChangeThresholdListeners(mta.getMin(), mta.getMax()); 
+        
+        //ta = new ThresholdApproach(imagePreview);
+        //protocol.add(ta);
+        panel.add(ta.getPanel());
+        
+//        mta = new MicroThresholdAdjuster(imagePreview);
+//        panel.add(mta.getPanel());
+//        mta.addChangeThresholdListener(f1);
+//        mta.notifyChangeThresholdListeners(mta.getMin(), mta.getMax()); 
         return panel;
     }
     
-        
+    @Override
+    public ArrayList getOptions() {
+       return this.protocol;
+    }
+    
     @Override
     public void doUpdateOfTool() {
         f1.setText(String.valueOf(mta.getMin()));
@@ -145,15 +169,34 @@ public SingleThreshold(){
         
          /**segmentation and measurement protocol redefining.
          * 0: title text, 1: method (as String), 2: channel, 3: ArrayList of JComponents used 
-         * for analysis 3: ArrayList of Arraylist for morphology determination
+         * for analysis 4: ArrayList of Arraylist for morphology determination
          */
              
             // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
             
         ArrayList al = (ArrayList)protocol.get(3);
+       
 
         /**PLugin JComponents starts at 1*/
-  
+        
+        
+        /**Visualizer JComponent is at length*/
+        
+        
+        JPanel visualizer = (JPanel)al.get(al.size()-1);
+        
+        
+        //pass the visualizer back to ThresholdApproach with reference to channel
+        //to be segmented
+        ta.processEntireVolume(visualizer, stackResult);
+        
+        //ThresholdApproach parses the JPanel and passes the
+        //JPanel and image to the thresholding approach.  If the thresholding
+        //approach is "processing aware"  return true.  If the thrsholding approach is 
+        //not "processing aware" return false and proceed with the following
+        //code.
+        
+        
         int lowIntensity = Integer.parseInt(((JTextField)(al.get(1))).getText());
 
         
@@ -176,6 +219,8 @@ public SingleThreshold(){
                 }
             }
         }
+        
+        
         imageResult = new ImagePlus("Mask Result", stackResult);
          
         IJ.run(imageResult, "8-bit", "");

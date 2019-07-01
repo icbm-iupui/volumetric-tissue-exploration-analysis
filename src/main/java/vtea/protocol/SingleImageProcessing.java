@@ -712,6 +712,7 @@ addObjectBlock();
                     } catch (Exception e) {
                                 VTEAProgressBar.setIndeterminate(false);
         ProgressComment.setText("Processed image transferred...");
+                e.printStackTrace();
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();

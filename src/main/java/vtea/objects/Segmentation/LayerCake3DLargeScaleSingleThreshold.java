@@ -17,6 +17,8 @@
  */
 package vtea.objects.Segmentation;
 
+import fiji.threshold.Auto_Local_Threshold;
+//import fiji.threshold.Auto_Threshold;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.WindowManager;
@@ -42,6 +44,8 @@ import static vtea._vtea.getInterleavedStacks;
 
 import vtea.protocol.listeners.ChangeThresholdListener;
 import vtea.protocol.setup.MicroThresholdAdjuster;
+import vtea.protocol.setup.AutoLocalThresholdAdjuster;
+import vtea.protocol.setup.ThresholdApproach;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
 import vtea.processor.listeners.ProgressListener;
 
@@ -86,6 +90,8 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
     JTextField f6 = new JTextField(String.valueOf(settings[5]), 5);
 
     MicroThresholdAdjuster mta;
+    AutoLocalThresholdAdjuster alta;
+    ThresholdApproach ta;
 
     public LayerCake3DLargeScaleSingleThreshold() {
         VERSION = "0.1";
@@ -146,6 +152,7 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
     public void updateImage(ImagePlus thresholdPreview) {
         imagePreview = thresholdPreview;
         mta = new MicroThresholdAdjuster(imagePreview);
+        ta = new ThresholdApproach(imagePreview);
     }
 
     @Override
@@ -162,10 +169,18 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
     public JPanel getSegmentationTool() {
         JPanel panel = new JPanel();
         panel.setBackground(vtea._vtea.BACKGROUND);
-        mta = new MicroThresholdAdjuster(imagePreview);
-        panel.add(mta.getPanel());
-        mta.addChangeThresholdListener(f1);
-        mta.notifyChangeThresholdListeners(mta.getMin(), mta.getMax()); 
+        
+        Auto_Local_Threshold alt = new Auto_Local_Threshold();
+        //alt.exec(imagePreview, AUTHOR, 0, 0, 0, watershedImageJ);
+//        alta = new AutoLocalThresholdAdjuster(imagePreview);
+//        panel.add(alta.getPanel());
+        
+        ta = new ThresholdApproach(imagePreview);
+        panel.add(ta.getPanel());
+//        mta = new MicroThresholdAdjuster(imagePreview);
+//        panel.add(mta.getPanel());
+//        mta.addChangeThresholdListener(f1);
+//        mta.notifyChangeThresholdListeners(mta.getMin(), mta.getMax()); 
         return panel;
     }
     

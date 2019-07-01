@@ -304,6 +304,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
                     layoutConstraints.weighty = 1;
                     layoutConstraints.gridx = x;
                     layoutConstraints.gridy = y;
+                    //if(count < ProcessComponents.size()-1){
                     if(count < ProcessComponents.size()){
                     MethodDetails.add((Component) ProcessComponents.get(count), layoutConstraints);
                     count++;
@@ -420,6 +421,13 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
             }
         
         result.add(Measures);
+        
+        ArrayList<ArrayList> Helper = new ArrayList();
+        
+        
+        
+        
+        
         return result;
     }
     
