@@ -135,24 +135,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <groupId>org.scijava</groupId>
             <artifactId>scijava-common</artifactId>
         </dependency>
-        <dependency>
-            <groupId>net.imglib2</groupId>
-            <artifactId>imglib2-ij</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
+<!-- https://mvnrepository.com/artifact/net.imglib2/imglib2-ij -->
+<dependency>
+    <groupId>net.imglib2</groupId>
+    <artifactId>imglib2-ij</artifactId>
+    <version>2.0.0-beta-45</version>
+</dependency>
+        <!--dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij-ui-swing</artifactId>
-            <version>2.0.0-beta-8.2-SNAPSHOT</version>
+            <version>2</version>
             <type>jar</type>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.6.4</version>
         </dependency>
-        <!--dependency>
+        <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>imagej</artifactId>
             <version>2.0.0-rc-55</version>
@@ -161,7 +161,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <groupId>net.imagej</groupId>
             <artifactId>imagej-deprecated</artifactId>
             <version>0.1.1</version>
-        </dependency-->
+        </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -264,24 +264,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <!-- NB: for project parent -->
     <repositories>
         <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-clearcontrol-ClearControl</id>
-            <name>bintray</name>
-            <url>http://dl.bintray.com/clearcontrol/ClearControl</url>
+            <id>scijava.releases</id>
+            <url>https://maven.scijava.org/content/repositories/releases</url>
         </repository>
         <repository>
-            <id>imagej.releases</id>
-            <url>http://maven.imagej.net/content/repositories/releases</url>
+            <id>scijava.snapshots</id>
+            <url>https://maven.scijava.org/content/repositories/snapshots</url>
         </repository>
         <repository>
-            <id>imagej.snapshots</id>
-            <url>http://maven.imagej.net/content/repositories/snapshots</url>
-        </repository>
-        <repository>
-            <id>imagej.public</id>
-            <url>http://maven.imagej.net/content/groups/public</url>
+            <id>scijava.public</id>
+            <url>https://maven.scijava.org/content/groups/public</url>
         </repository>
         <repository>
             <id>bedatadriven</id>
@@ -293,11 +285,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
-
-    <scm>
-        <connection>scm:git:git://github.com/imagej/minimal-ij1-plugin</connection>
-        <developerConnection>scm:git:git@github.com:imagej/minimal-ij1-plugin</developerConnection>
-        <tag>HEAD</tag>
-        <url>https://github.com/imagej/minimal-ij1-plugin</url>
-    </scm>
 </project>
