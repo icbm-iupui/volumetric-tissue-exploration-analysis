@@ -18,16 +18,22 @@
 package vtea.exploration.plottools.panels;
 
 import ij.IJ;
+import ij.gui.Roi;
 import static ij.IJ.Roi;
 import ij.ImagePlus;
 import ij.ImageStack;
+import static ij.Undo.ROI;
 import ij.gui.Roi;
 import ij.io.FileInfo;
+import static ij.io.Opener.ROI;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Duplicator;
+import ij.plugin.HyperStackConverter;
+import ij.plugin.RGBStackMerge;
 import ij.plugin.ZProjector;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
+import io.scif.jj2000.j2k.roi.encoder.ROI;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -37,11 +43,14 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -61,7 +70,9 @@ import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
 import java.lang.reflect.Method;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -92,9 +103,35 @@ public class NucleiExportation {
      * @param xAxis current measurement on the x-axis of the explorer
      * @param yAxis current measurement on the x-axis of the explorer
      */
+    
+    
+    public void readCSV(Path2D path, int xAxis, int yAxis) throws IOException{
+        //CNN implmentation
+        info = image.getDimensions();
+        //ArrayList<MicroObject> result = getGatedObjects(path, xAxis, yAxis);
+        ArrayList<MicroObject> result = (ArrayList) objects;
+        int selectd = result.size();
+
+        Collections.sort(result, new ZComparator()); 
+
+        ListIterator<MicroObject> vitr = result.listIterator();
+        MicroObject checker = ((MicroObject) vitr.next());
+        boolean allowMorph = checker.getMorphologicalCount() != 0;
+        //Not sure if this line does as intended, bigger output images if higher quality images
+        int quality = checker.getRange(0) > 32? 64: 32;
+        vitr.previous();
+        
+        int maxSize = info[0] > info[1]?info[1]:info[0];
+        CNNObjImgOptions options = new CNNObjImgOptions();
+        options.showCNNDialog();
+        ArrayList chosenOptions = options.getInformation();
+        File csv = options.chooseCSVLocation();
+        NucleiLabelReader nlr = new NucleiLabelReader(image, result, measurements, csv, chosenOptions);
+        nlr.run();
+    }
     public void saveImages(Path2D path, int xAxis, int yAxis) throws IOException{
         info = image.getDimensions();
-
+        Roi originalROI = image.getRoi();
         ArrayList<MicroObject> result = getGatedObjects(path, xAxis, yAxis);
 
         int selectd = result.size();
@@ -131,7 +168,9 @@ public class NucleiExportation {
                 break;
             case "All Values in Box":
                 methodName = "getBoxStack";
-                break;
+//            case "Dapi+actin+apq1":
+//                methodName = "get2ChannelStack";
+//                break;
         }
         try{
             getProperVolume = thisclass.getDeclaredMethod(methodName, new Class[]{MicroObject.class, Class.forName("[I")});
@@ -146,7 +185,10 @@ public class NucleiExportation {
         final Method gpvL = getProperVolume;
         ArrayList<String> filenames = new ArrayList<>();
         //ArrayList<ArrayList<Integer>> all_images = new ArrayList<ArrayList<Integer>>();
-        ArrayList<byte[]> all_images_array = new ArrayList<byte[]>();
+        ArrayList<ArrayList<byte[]>> all_images_array = new ArrayList<ArrayList<byte[]>>();
+        ArrayList<Object[]> img_pix_array = new ArrayList<Object[]>();
+        ArrayList<Double> serialID_array = new ArrayList<Double>();
+        
         if (file != null) {
             int count = 0;
             int[] counter = new int[selectd];
@@ -166,13 +208,41 @@ public class NucleiExportation {
             IntStream.range(0, selectd).parallel().forEach((int i) -> {
                 //System.out.println(i);
                 MicroObject vol = result.get(i);
+                double serialID_export = vol.getSerialID();
+                serialID_array.add(serialID_export);
                 ImagePlus objImp = getObjectImage(vol, sizeL, depthL, gpvL);
                 if(objImp == null) {
                     counter[i] = 0;
                     return;
                 }
+                
+//                int n_channels = objImp.getNChannels();
+//                ArrayList<ImageStack> ims = new ArrayList<ImageStack>();
+//                for (int n =0; n < n_channels; n++){
+//                    objImp.setC(n);
+//                    int bitDepthOut = 8;
+//                    ImageStack stNu = objImp.getStack();
+//                
+//                    //int height = stNu.getHeight();
+//                    //int width = stNu.getWidth();
+//                    int slices = stNu.getSize();
+//                    //System.out.println(height + " " + width + " " + slices); //32x32x7
+//                    ImagePlus temp= IJ.createImage("nuclei", size, size, slices, bitDepthOut);
+//                    ImageStack tempStack = temp.getImageStack();
+//                
+//                    for (int z = 1; z <= depth; z++){
+//                        ImageProcessor ip_s = stNu.getProcessor(z);
+//                        //ip_s.multiply(Math.pow(2,16) / Math.pow(2, 12));
+//                        tempStack.setProcessor(ip_s.convertToByteProcessor(), z);
+//                    }
+//                    ims.add(tempStack);
+//                }
+                
                 int bitDepthOut = 8;
                 ImageStack stNu = objImp.getStack();
+//                System.out.println("Color model");
+//                System.out.println(stNu.getColorModel());
+                
                 //int height = stNu.getHeight();
                 //int width = stNu.getWidth();
                 int slices = stNu.getSize();
@@ -195,8 +265,13 @@ public class NucleiExportation {
 //                        }
 //                    }  
 //                }
-                
                 objImp = new ImagePlus("8bit", tempStack);
+
+//                RGBStackMerge sm = new  RGBStackMerge();
+//                System.out.println(ims.size());
+//                ImageStack multichannel = sm.mergeStacks(size, size, objImp.getNSlices(), ims.get(1), ims.get(2), ims.get(3), false);
+//                ImagePlus objImpNu = new ImagePlus("nuclei", multichannel);
+                
                       
                 //ZProjection as based on the choice made in options
                 if(!projChoice.equals("No Z projection")){
@@ -209,22 +284,35 @@ public class NucleiExportation {
 //                    ImageProcessor ipz = is.getProcessor(z);
 //                    int[][] itz = ipz.getIntArray();
 //                }
-                
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-                for (int s = 0; s < objImp.getNSlices(); s++){
-                    objImp.setSlice(s+1);
-                    BufferedImage bufImg = objImp.getBufferedImage();
-                    byte[] pixels = ((DataBufferByte) bufImg.getRaster().getDataBuffer()).getData();
-                    try {
-                        outputStream.write(pixels);
-                    } catch (IOException ex) {
-                        Logger.getLogger(NucleiExportation.class.getName()).log(Level.SEVERE, null, ex);
+                ImageStack ips = objImp.getStack();
+                Object[] pix = ips.getImageArray();
+                ArrayList<byte[]> oneimgbyte = new ArrayList<byte[]>();
+                for (int z = 0; z < pix.length; z++) {
+                    byte[] onelayer = (byte[]) pix[z];
+                    if (onelayer != null){
+                        oneimgbyte.add(onelayer);
+                        //System.out.println("=======");
+                        //System.out.println(Arrays.toString(onelayer));
                     }
                 }
-                byte [] pixels_whole = outputStream.toByteArray();
-                all_images_array.add(pixels_whole);
+                
+                all_images_array.add(oneimgbyte);
+
+//                ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+//                for (int s = 0; s < objImp.getNSlices(); s++){
+//                    objImp.setSlice(s+1);
+//                    BufferedImage bufImg = objImp.getBufferedImage();
+//                    byte[] pixels = ((DataBufferByte) bufImg.getRaster().getDataBuffer()).getData();
+//                    try {
+//                        outputStream.write(pixels);
+//                    } catch (IOException ex) {
+//                        Logger.getLogger(NucleiExportation.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                }
+//                byte [] pixels_whole = outputStream.toByteArray();
+//                all_images_array.add(pixels_whole);
                 //File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
-                //File objfile2 = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + "_16.tiff");
+                //File objfile2 = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + "_byte.tiff");
                 filenames.add("nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
                 
                 //ImageIO.write(bufImg, "gif", objfile);
@@ -347,62 +435,83 @@ public class NucleiExportation {
             System.out.println((end - start) / 1000f + " seconds");
             //System.out.println(String.format("%d/%d nuclei could not be exported", selectd-count, selectd));
             System.out.println(String.format("%d/%d nuclei could not be exported", selectd - IntStream.of(counter).sum(), selectd));
+            image.setRoi(originalROI);
         }
         
         //Create CSV Files
          try {
                 try {
-                    System.out.print("Writing  label csv ... ");
-                    long start = System.currentTimeMillis();
-                    PrintWriter pw = new PrintWriter(file.getPath()+ File.separator + "Label_" + label + ".csv");
-                    StringBuilder sb = new StringBuilder();
-
-                    ListIterator itr = filenames.listIterator();
-
-                    sb.append("Filename");
-                    sb.append(',');
-                    sb.append("Label");
-                    sb.append('\n');
-
-                    while (itr.hasNext()) {
-                        sb.append((String) itr.next());
-                        if (itr.hasNext()) {
-                            sb.append(",");
-                            sb.append(label);
-                            sb.append("\n");
-                        }
-                    }
-
-                    sb.append(",");
-                    sb.append(label);
-
-                    pw.write(sb.toString());
-                    pw.close();
-                    long end = System.currentTimeMillis();
-                    System.out.println((end - start) / 1000f + " seconds");
+//                    System.out.print("Writing  label csv ... ");
+//                    long start = System.currentTimeMillis();
+//                    PrintWriter pw = new PrintWriter(file.getPath()+ File.separator + "Label_" + label + ".csv");
+//                    StringBuilder sb = new StringBuilder();
+//
+//                    ListIterator itr = filenames.listIterator();
+//
+//                    sb.append("Filename");
+//                    sb.append(',');
+//                    sb.append("Label");
+//                    sb.append('\n');
+//
+//                    while (itr.hasNext()) {
+//                        sb.append((String) itr.next());
+//                        if (itr.hasNext()) {
+//                            sb.append(",");
+//                            sb.append(label);
+//                            sb.append("\n");
+//                        }
+//                    }
+//
+//                    sb.append(",");
+//                    sb.append(label);
+//
+//                    pw.write(sb.toString());
+//                    pw.close();
+//                    long end = System.currentTimeMillis();
+//                    System.out.println((end - start) / 1000f + " seconds");
                     
                     // faster thing hopefully
                     LocalTime time = java.time.LocalTime.now();
-                    File img_csv = new File(file.getPath()+ File.separator + "images"  + "_ " + label + " " + time.toString()+".csv");
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
+                    String timef = formatter.format(time);
+                    File img_csv = new File(file.getPath()+ File.separator + "images"  + "_ " + label + "_" + timef+".csv");
                     FileWriter writer = new FileWriter(img_csv);
                     int bufSize = (int) Math.pow(1024, 2);
                     BufferedWriter bufferedWriter = new BufferedWriter(writer, bufSize);
 
                     System.out.print("Writing buffered (buffer size: " + bufSize + ")... ");
-                    start = System.currentTimeMillis();
-                    for (byte[] img : all_images_array) {
+                    long start = System.currentTimeMillis();
+//                    for (byte[] img : all_images_array) {
+//                        bufferedWriter.write(String.valueOf(label));
+//                        bufferedWriter.write(",");
+//                        for (byte pix : img){
+//                            int pixInt = pix+128; // byte is [-128 128]
+//                            bufferedWriter.write(String.valueOf(pixInt));
+//                            bufferedWriter.write(",");
+//                        }
+//                        bufferedWriter.newLine();
+//                    }
+                    Iterator itID = serialID_array.iterator();
+                    //TODO: add serial ID to csv output file for integration of classification into VTEA
+                    for (ArrayList<byte[]> al : all_images_array){
                         bufferedWriter.write(String.valueOf(label));
                         bufferedWriter.write(",");
-                        for (byte pix : img){
-                            int pixInt = pix+128; // byte is [-128 128]
-                            bufferedWriter.write(String.valueOf(pixInt));
-                            bufferedWriter.write(",");
+                        bufferedWriter.write(String.valueOf(itID.next()));
+                        bufferedWriter.write(",");
+                        for (byte[] ba : al){
+                            for (byte b : ba){
+                                bufferedWriter.write(String.valueOf(b));
+                                bufferedWriter.write(",");
+                            }
                         }
                         bufferedWriter.newLine();
                     }
+                    
+                    
+                    
                     bufferedWriter.flush();
                     bufferedWriter.close();
-                    end = System.currentTimeMillis();
+                    long end = System.currentTimeMillis();
                     System.out.println((end - start) / 1000f + " seconds");
                     
                     
@@ -560,13 +669,14 @@ public class NucleiExportation {
 //       System.out.println(stNu.getWidth());
 //       System.out.println(stNu.getHeight());
 //       
-//       for(int i = 0; i < 5; i++){
+       for(int i = 0; i < 10; i++){
+//           System.out.println("==========");
 //           System.out.println(xPixels[i]-xStart);
 //           System.out.println(yPixels[i]-yStart);
-//           System.out.println(zPixels[i]);
-//           System.out.println();
-//           //System.out.println(stNu.getVoxel(xPixels[i], yPixels[i], zPixels[i]));
-//       }
+//           System.out.println(zPixels[i]+1-zStart);
+           //System.out.println();
+           //System.out.println(stNu.getVoxel(xPixels[i], yPixels[i], zPixels[i]));
+       }
        
        ImagePlus temp= IJ.createImage("nuclei", size, size, depth, image.getBitDepth());
 //       temp.show();
@@ -574,8 +684,12 @@ public class NucleiExportation {
        ImageStack tempStack = temp.getImageStack();
        
        for(int i = 0; i < xPixels.length; i++) {
-
-           tempStack.setVoxel(xPixels[i]-xStart, yPixels[i] - yStart, zPixels[i]-zStart, 
+//           System.out.println("==========");
+//           System.out.println(xPixels[i]-xStart);
+//           System.out.println(yPixels[i]-yStart);
+//           System.out.println(zPixels[i]);
+//           System.out.println(zPixels[i]-zStart-1);
+           tempStack.setVoxel(xPixels[i]-xStart, yPixels[i] - yStart, zPixels[i]-zStart-1, 
                    stNu.getVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]));
            
            // add a pixel in a random direction
@@ -646,6 +760,65 @@ public class NucleiExportation {
         return objImp;
     }
     
+    private ImagePlus get2ChannelStack(MicroObject vol, int[] starts){
+        int xStart = starts[0];
+        int yStart = starts[1];
+        int zStart = starts[2];
+        int finish = depth + zStart;
+        //System.out.println("zstart " + zStart);
+        //System.out.println("finish " + finish);
+        
+        ImageStack cropMe = image.getImageStack();
+        
+        ChannelSplitter cs = new ChannelSplitter();
+        RGBStackMerge sm = new  RGBStackMerge();
+        
+       // Roi r = new Roi(xStart, yStart, size, size);
+       
+       image.setRoi(new Rectangle(xStart, yStart, size, size));
+        
+       Duplicator dup = new Duplicator();
+       
+       ImagePlus objImp = dup.run(image);
+       
+       //ImageStack stNu = cs.getChannel(objImp, 8); //TODO: nuclei channel is hardcoded 
+       //ImageStack stActin = cs.getChannel(objImp, 1);
+       //ImageStack stapq1 = cs.getChannel(objImp, 3);
+       ImagePlus[] sts = cs.split(objImp);
+       ImagePlus[] sts_select = new ImagePlus[3];
+       sts_select[0] = sts[0];
+       sts_select[1] = sts[2];
+       sts_select[2] = sts[7];
+       //ImageStack multichannel = sm.mergeStacks(size, size, objImp.getNSlices(), stNu, stActin, stapq1, false);
+       ImagePlus objImpNu = new ImagePlus();
+       HyperStackConverter hsc = new HyperStackConverter();
+       //objImpNu = objImpNu.createHyperStack("multi", sts_select.length, objImp.getNSlices(), objImp.getNFrames(), objImp.getBitDepth()); 
+       objImpNu = IJ.createHyperStack("multi", size, size, sts_select.length, objImp.getNSlices(), objImp.getNFrames(), objImp.getBitDepth());
+//       for (int c = 1; c <= sts_select.length; c++){
+//           objImpNu.setC(c);
+//           objImpNu.setStack(sts_select[c-1].getStack());
+//       }
+       
+       
+       //ImagePlus objImpNu = new ImagePlus("nuclei", multichannel);
+       ImagePlus objImpNu_crop = dup.run(objImpNu, zStart, zStart+depth-1); //TODO validate this is correct
+       System.out.println("get2channelstack: number of channels");
+       System.out.println(objImp.getNChannels());
+       System.out.println(objImpNu.getNChannels());
+       System.out.println(objImpNu_crop.getNChannels());
+//       System.out.println(objImpNu_crop.getDisplayRangeMax()); //4095
+//       System.out.println(objImpNu_crop.getDisplayRangeMin()); //0
+//       System.out.println(objImpNu_crop.getDefault16bitRange()); //0 (aka automatically set)
+//       System.out.println();
+//        ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
+//        ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
+//        
+//        objImp.setStack(objImgStack);
+        
+        //return objImp;
+        return objImpNu_crop;
+    }
+    
     private ImagePlus getBoxStack(MicroObject vol, int[] starts){
         int xStart = starts[0];
         int yStart = starts[1];
@@ -683,6 +856,8 @@ public class NucleiExportation {
         return objImpNu_crop;
     }
 }
+
+
 class ExportObjImgOptions extends JPanel{
         JTextArea size;
         JTextArea label;
@@ -721,7 +896,7 @@ class ExportObjImgOptions extends JPanel{
             
             JLabel pixtypeLabel = new JLabel("Select volume to export: ");
             labels.add(pixtypeLabel);
-            String[] pixtypeList = {"Mask Volume", "Morphological Volume", "All Values in Box"};
+            String[] pixtypeList = {"Mask Volume", "Morphological Volume", "All Values in Box", "Dapi+actin+apq1"};
             DefaultComboBoxModel<String> pixtypecbm = new DefaultComboBoxModel(pixtypeList);
             if(!allowMorph)
                 pixtypecbm.removeElement("Morphological Volume");
@@ -731,6 +906,8 @@ class ExportObjImgOptions extends JPanel{
             labels.add(zprojLabel);
             String [] zprojList = {"No Z projection", "avg", "min", "max", "sum", "sd", "median"};
             zproject = new JComboBox(zprojList);
+            
+            
             
             ListIterator<JLabel> labiter = labels.listIterator();
             setupPanel(labiter); 
@@ -791,6 +968,11 @@ class ExportObjImgOptions extends JPanel{
             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
             null, null);
         }
+        public int showCNNDialog() {
+            return JOptionPane.showOptionDialog(null, this, "Setup CNN",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+            null, null);
+        }
         
         public ArrayList getInformation(){
             ArrayList info = new ArrayList(3);
@@ -815,6 +997,19 @@ class ExportObjImgOptions extends JPanel{
             else
                 return null;
         }
+        public File chooseCSVLocation(){
+            JFileChooser objectimagejfc = new JFileChooser(vtea._vtea.LASTDIRECTORY);
+            //objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal= objectimagejfc.showOpenDialog(this);
+            objectimagejfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            //int returnVal = objectimagejfc.showSaveDialog(this);
+            File file = objectimagejfc.getSelectedFile();
+            
+            if(returnVal == JFileChooser.APPROVE_OPTION)
+                return file;
+            else
+                return null;
+        }
         
         public class Timer {
             // A simple "stopwatch" class with millisecond accuracy
@@ -824,3 +1019,61 @@ class ExportObjImgOptions extends JPanel{
             public long getTime() {  return endTime - startTime;                   }
             }
     }
+
+class CNNObjImgOptions extends JPanel{
+        JTextArea threshold;
+
+        
+        public CNNObjImgOptions(){
+            ArrayList<JLabel> labels = new ArrayList();
+            
+            JLabel thresholdLabel = new JLabel("Select confidence threshold: ");
+            labels.add(thresholdLabel);
+            double recommended = 0.95;
+            threshold = new JTextArea(String.valueOf(recommended));
+  
+            ListIterator<JLabel> labiter = labels.listIterator();
+            setupPanel(labiter); 
+        }
+        
+        private void setupPanel(ListIterator<JLabel> labiter){
+            JLabel curlabel;
+            this.setLayout(new GridBagLayout());
+            
+            curlabel = labiter.next();
+            GridBagConstraints gbc = new GridBagConstraints(0,0,1,1,0.2,1.0,
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(curlabel, gbc);
+            gbc = new GridBagConstraints(1,0,1,1,1,1.0,GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(threshold, gbc);
+            
+        }
+        
+        public int showCNNDialog() {
+            return JOptionPane.showOptionDialog(null, this, "Setup CNN",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+            null, null);
+        }
+        
+        public ArrayList getInformation(){
+            ArrayList info = new ArrayList(1);
+            info.add(Double.parseDouble(threshold.getText()));
+            return info;
+        }
+        
+        public File chooseCSVLocation(){
+            JFileChooser objectimagejfc = new JFileChooser(vtea._vtea.LASTDIRECTORY);
+            //objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal= objectimagejfc.showOpenDialog(this);
+            objectimagejfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            //int returnVal = objectimagejfc.showSaveDialog(this);
+            File file = objectimagejfc.getSelectedFile();
+            
+            if(returnVal == JFileChooser.APPROVE_OPTION)
+                return file;
+            else
+                return null;
+        }
+        
+}

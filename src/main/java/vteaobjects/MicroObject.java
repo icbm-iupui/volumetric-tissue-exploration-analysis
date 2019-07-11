@@ -207,7 +207,7 @@ public class MicroObject implements Serializable, MicroObjectModel  {
         y = pixels.get(1);
         z = pixels.get(2);
     }
-    
+
     private int getMax(int[] vals){
         int max=0;
         for(int i = 0; i < vals.length; i++){
@@ -244,8 +244,6 @@ public class MicroObject implements Serializable, MicroObjectModel  {
         int max = getMax(vals);
         return max-min;
     }
-
-
     @Override
     public int[] getPixelsX() {
         return this.x;

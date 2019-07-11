@@ -652,6 +652,10 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
+        menuItem = new JMenuItem("Run CNN test");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+        
         
 
         //Add listener to the text area so the popup menu can come up.
@@ -695,6 +699,19 @@ public class GateLayer implements ActionListener, ItemListener {
             if(path != null)
                 notifyImageListeners(path);
         }    
+        else if(e.getActionCommand().equals("Run CNN test")){
+            //Used to read csv of labels and apply overlay
+            ListIterator<Gate> gt = gates.listIterator();
+            Path2D path = null;
+            while(gt.hasNext()){
+                Gate g = gt.next();
+                if(g.getSelected()){
+                    path = g.createPath2DInChartSpace();
+                }
+            }
+            if(path != null)
+                notifyImageListenersCNN(path);
+        }    
         for(int i = 0; i < colors.length; i++){
          if(e.getActionCommand().equals(colors[i])){
              selectedGate.setSelectedColor(colorsRGB[i]);
@@ -724,6 +741,11 @@ public class GateLayer implements ActionListener, ItemListener {
     private void notifyImageListeners(Path2D path){
         for (SaveGatedImagesListener listener : saveImageListeners) {
             listener.saveGated(path);
+        }
+    }
+    private void notifyImageListenersCNN(Path2D path){
+        for (SaveGatedImagesListener listener : saveImageListeners) {
+            listener.saveGatedCNN(path);
         }
     }
 }

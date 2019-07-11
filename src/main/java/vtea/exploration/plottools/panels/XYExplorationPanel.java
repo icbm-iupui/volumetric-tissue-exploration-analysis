@@ -1226,6 +1226,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    public void saveGatedCNN(Path2D path){
+        NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
+        try {   
+            exportnuclei.readCSV(path, currentX, currentY);
+        } catch (IOException ex) {
+            Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
 
     class ExportGates {
