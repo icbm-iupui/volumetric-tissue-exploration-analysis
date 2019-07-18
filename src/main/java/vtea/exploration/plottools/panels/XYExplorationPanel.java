@@ -291,8 +291,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     ListIterator<MicroObject> vitr = result.listIterator();
 
                     boolean inZ = true;
-
-                    while (vitr.hasNext() && inZ) {
+                    while (vitr.hasNext()) {
+                    //while (vitr.hasNext() && inZ) {
 
                         MicroObject vol = (MicroObject) vitr.next();
 

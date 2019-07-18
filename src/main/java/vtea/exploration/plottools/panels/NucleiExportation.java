@@ -578,6 +578,7 @@ public class NucleiExportation {
 
                 if (path.contains(xValue, yValue)) {
                     if (image.getRoi() != null){
+                        System.out.println("======ROI recognized======");
                         Roi r = image.getRoi();
                         MicroObject o = objects.get(i);
                         if (r.containsPoint(o.getCentroidX(), o.getCentroidY()))
