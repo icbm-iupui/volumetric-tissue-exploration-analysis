@@ -74,25 +74,43 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import javax.imageio.ImageIO;
+import vtea.processor.listeners.ProgressListener;
 
 /**
  * Facilitates exportation of segmented nuclei images
  * @author drewmcnutt
  */
-public class NucleiExportation {
+public class NucleiExportation_tile {
     ImagePlus image;
+    ImagePlus duplicate;
+    ImagePlus currentTile;
+    
+    private ArrayList xPositions = new ArrayList();
+    private ArrayList yPositions = new ArrayList();
+    private ArrayList xStart = new ArrayList();
+    private ArrayList yStart = new ArrayList();
+    private int xs;
+    private int ys;
+    private int BUFFER = 0; //buffer affects subvolumes, not objects that are gated, so shouldnt be any overlap
+    private boolean tiled;
+    private int countEdgeNuclei;
+    private int tileSIZE;
+    private int channelOfInterest;
+    
     protected ArrayList<MicroObject> objects = new ArrayList();
     protected ArrayList<ArrayList<Number>> measurements = new ArrayList();
     int size;
     int depth;
     int[] info;
     
-    NucleiExportation(ImagePlus image, ArrayList objects , ArrayList measurements){
-        this.image = image;
+    NucleiExportation_tile(ImagePlus image, ArrayList objects , ArrayList measurements) {
+        Duplicator dup = new Duplicator();
+        this.image = dup.run(image);
         this.objects = objects;
         this.measurements = measurements;
     }
@@ -131,33 +149,85 @@ public class NucleiExportation {
     }
     public void saveImages(Path2D path, int xAxis, int yAxis) throws IOException{
         
-//        ArrayList<ImagePlus> grid = splitImage();
-//        
-//        for (int vo = 0; vo < grid.size(); vo++){
-//            ImagePlus grid_subvolume = grid.get(vo);
-//        }
-        
+        countEdgeNuclei = 0;
+        tiled = false;
+        boolean allowMorph = false; //checker.getMorphologicalCount() != 0;
+        //Not sure if this line does as intended, bigger output images if higher quality images
+        int quality = 32;// checker.getRange(0) > 32? 64: 32;
         info = image.getDimensions();
+        int maxSize = info[0] > info[1]?info[1]:info[0];
+        ExportObjImgOptions1 options = new ExportObjImgOptions1(info[3],maxSize, quality, allowMorph);
+        options.showDialog();
+        ArrayList chosenOptions = options.getInformation();
+        this.tileSIZE = Integer.parseInt(chosenOptions.get(6).toString());
+        this.channelOfInterest = Integer.parseInt(chosenOptions.get(7).toString());
+        File file = options.chooseSaveLocation();
+        
+        if (file != null){
+        
+        xs = 0;
+        ys = 0;
+        int xyDim = tileSIZE;
+        int thresholdSize = 512;
+        
         Roi originalROI = image.getRoi();
+        if (originalROI != null) {
+            System.out.println("ROI DETECTED");
+            currentTile = image;
+        }
+        else if (info[0] < tileSIZE ) { //if the image isn't that big, don't tile
+            System.out.println("small image: " + info[0] );
+            currentTile = image;
+        }
+        else { 
+            System.out.println("Large Image, splitting into subvolumes");
+            ArrayList<ImagePlus> grid = splitImage(xyDim);
+            tiled = true;
+            for (int vo = 0; vo < grid.size(); vo++){
+                currentTile = grid.get(vo);
+                xs = (int) xStart.get(vo);
+                ys = (int) yStart.get(vo);
+                
+                long start0 = System.currentTimeMillis();
+                ArrayList<MicroObject> result = getGatedObjects(path, xAxis, yAxis, xyDim);
+                long end0 = System.currentTimeMillis();
+                System.out.println("Time to gather objects in subvolume: " +(end0 - start0) / 1000f + " seconds");
+                processVolume(path,  xAxis,  yAxis, result, options, file);
+            } 
+            
+            System.out.println("Lost " + countEdgeNuclei + " nuclei due to subvolume edges");
+        }
+        
+        if (!tiled) {
         long start0 = System.currentTimeMillis();
-        ArrayList<MicroObject> result = getGatedObjects(path, xAxis, yAxis);
+        ArrayList<MicroObject> result = getGatedObjects(path, xAxis, yAxis, xyDim);
         long end0 = System.currentTimeMillis();
         System.out.println("Time to gather objects: " +(end0 - start0) / 1000f + " seconds");
+        processVolume(path,  xAxis,  yAxis, result, options, file);
+        }
         
+        }
+        else {
+            System.out.println("No file Selected");
+        }
+        //image.show();
+//        ListIterator<MicroObject> vitr = result.listIterator();
+//        MicroObject checker = ((MicroObject) vitr.next());
+//        
+//        vitr.previous();
+        
+        
+        
+        
+        
+    }
+    
+    public void processVolume(Path2D path, int xAxis, int yAxis, ArrayList<MicroObject> result, ExportObjImgOptions1 options, File file) throws IOException{
+        System.out.println("");
+        Random rand = new Random();
+        int randval = rand.nextInt(10);
         int selectd = result.size();
-
         Collections.sort(result, new ZComparator()); 
-
-        ListIterator<MicroObject> vitr = result.listIterator();
-        MicroObject checker = ((MicroObject) vitr.next());
-        boolean allowMorph = checker.getMorphologicalCount() != 0;
-        //Not sure if this line does as intended, bigger output images if higher quality images
-        int quality = 32; //checker.getRange(0) > 32? 64: 32;
-        vitr.previous();
-        
-        int maxSize = info[0] > info[1]?info[1]:info[0];
-        ExportObjImgOptions options = new ExportObjImgOptions(info[3],maxSize, quality, allowMorph);
-        options.showDialog();
         ArrayList chosenOptions = options.getInformation();
         this.size = Integer.parseInt(chosenOptions.get(0).toString());
         this.depth = Integer.parseInt(chosenOptions.get(1).toString());
@@ -165,7 +235,7 @@ public class NucleiExportation {
         String label = chosenOptions.get(3).toString();
         String projChoice = chosenOptions.get(4).toString();
         String voltype = (chosenOptions.get(5).toString());
-        
+                
         Class thisclass = this.getClass();
         Method getProperVolume = null;
         String methodName = null;
@@ -186,10 +256,10 @@ public class NucleiExportation {
             getProperVolume = thisclass.getDeclaredMethod(methodName, new Class[]{MicroObject.class, Class.forName("[I")});
             getProperVolume.setAccessible(true);
         }catch(NoSuchMethodException | ClassNotFoundException e){
-            Logger.getLogger(NucleiExportation.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(NucleiExportation_tile.class.getName()).log(Level.SEVERE, null, e);
         }
         
-        File file = options.chooseSaveLocation();
+        
         final int sizeL = size;
         final int depthL = depth;
         final Method gpvL = getProperVolume;
@@ -198,111 +268,83 @@ public class NucleiExportation {
         if (file != null) {
             int count = 0;
             
-            System.out.print("Finding all MicroObjects ... ");
+            System.out.println("Finding all MicroObjects ... ");
             
             
             
             //set paralellism parameters
             String paralellism = System.getProperty("java.util.concurrent.ForkJoinPool.common.parallelism");
-            System.out.println(paralellism);
+            //System.out.println(paralellism);
             long processors = Runtime.getRuntime().availableProcessors();
             int num_processors_use = (int) (processors / 2);
-            System.out.println("");
+            
             System.out.println("Using : " + String.valueOf(num_processors_use) +" processors");
             System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", String.valueOf(num_processors_use));
-            
-            ArrayList<ArrayList<MicroObject>> res_split = new ArrayList<ArrayList<MicroObject>>();
-            int batch_size = 500;
-            if (selectd > 500) {
-                System.out.println("You are exporting many volumes, splitting jobs");
-                for (int b = 0; b < result.size(); b += batch_size){
-                    ArrayList<MicroObject> batch = new ArrayList<MicroObject>();
-                    for (int it = 0; it < batch_size; it++){
-                        MicroObject to_add = null;
-                        if (it+b < result.size()){to_add = result.get(it + b);}
-                        if (to_add != null) {batch.add(to_add);}
-                    }
-                    res_split.add(batch);
-                }
-                System.out.println("Made " + res_split.size() + " batches");
-            }
-            else {
-                res_split.add(result);
-            }
+            ArrayList<ArrayList<byte[]>> all_images_array = new ArrayList<ArrayList<byte[]>>();
+            ArrayList<Object[]> img_pix_array = new ArrayList<Object[]>();
+            ArrayList<Double> serialID_array = new ArrayList<Double>();
+            int counter[] = new int[selectd];
+            long start = System.currentTimeMillis();
             // start processing of image
-            for (int b = 0; b < res_split.size(); b++){
-                ArrayList<String> filenames = new ArrayList<>();
-                //ArrayList<ArrayList<Integer>> all_images = new ArrayList<ArrayList<Integer>>();
-                ArrayList<ArrayList<byte[]>> all_images_array = new ArrayList<ArrayList<byte[]>>();
-                ArrayList<Object[]> img_pix_array = new ArrayList<Object[]>();
-                ArrayList<Double> serialID_array = new ArrayList<Double>();
-                System.out.println(String.format("======== Batch: %d/%d ======", b+1, res_split.size()));
-                long start = System.currentTimeMillis();
-                ArrayList<MicroObject> result_batch = res_split.get(b);
-                int items_in_batch = result_batch.size();
-                System.out.println("Items in batch: " + items_in_batch);
-                int[] counter = new int[items_in_batch];
-                
-                IntStream.range(0, items_in_batch).parallel().forEach((int i) -> {
-                //IntStream.range(0, selectd).parallel().forEach((int i) -> {
-                    //System.out.println(i);
-                    MicroObject vol = result_batch.get(i);
-                    //MicroObject vol = result.get(i);
-                    double serialID_export = vol.getSerialID();
-                    
-                    ImagePlus objImp = getObjectImage(vol, sizeL, depthL, gpvL);
-                    if(objImp == null) {
-                        counter[i] = 0;
-                        return; //stop if unable to return
+               
+            IntStream.range(0, selectd).parallel().forEach((int i) -> {
+                //System.out.println(i);
+                MicroObject vol = result.get(i);
+                double serialID_export = vol.getSerialID();
+
+                ImagePlus objImp = getObjectImage(vol, sizeL, depthL, gpvL);
+                if(objImp == null) {
+                    counter[i] = 0;
+                    return; //stop if unable to return
+                }
+
+
+                int bitDepthOut = 8;
+                ImageStack stNu = objImp.getStack();
+                int slices = stNu.getSize();
+                //System.out.println(height + " " + width + " " + slices); //32x32x7
+                ImagePlus temp= IJ.createImage("nuclei", size, size, slices, bitDepthOut);
+                ImageStack tempStack = temp.getImageStack();
+
+                for (int z = 1; z <= depth; z++){
+                    ImageProcessor ip_s = stNu.getProcessor(z);
+                    //ip_s.multiply(Math.pow(2,16) / Math.pow(2, 12));
+                    tempStack.setProcessor(ip_s.convertToByteProcessor(), z);
+                }
+                objImp = new ImagePlus("8bit", tempStack);
+
+                //ZProjection as based on the choice made in options
+                if(!projChoice.equals("No Z projection")){
+                    objImp = ZProjector.run(objImp,projChoice);
+                }
+
+                ImageStack ips = objImp.getStack();
+                Object[] pix = ips.getImageArray();
+                ArrayList<byte[]> oneimgbyte = new ArrayList<byte[]>();
+                for (int z = 0; z < pix.length; z++) {
+                    byte[] onelayer = (byte[]) pix[z];
+                    if (onelayer != null){
+                        oneimgbyte.add(onelayer);
                     }
+                }
 
+                all_images_array.add(oneimgbyte);
+                serialID_array.add(serialID_export);
+                //File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
+                //File objfile2 = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + "_byte.tiff");
+                //filenames.add("nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
 
-                    int bitDepthOut = 8;
-                    ImageStack stNu = objImp.getStack();
-                    int slices = stNu.getSize();
-                    //System.out.println(height + " " + width + " " + slices); //32x32x7
-                    ImagePlus temp= IJ.createImage("nuclei", size, size, slices, bitDepthOut);
-                    ImageStack tempStack = temp.getImageStack();
-
-                    for (int z = 1; z <= depth; z++){
-                        ImageProcessor ip_s = stNu.getProcessor(z);
-                        //ip_s.multiply(Math.pow(2,16) / Math.pow(2, 12));
-                        tempStack.setProcessor(ip_s.convertToByteProcessor(), z);
-                    }
-                    objImp = new ImagePlus("8bit", tempStack);
-
-                    //ZProjection as based on the choice made in options
-                    if(!projChoice.equals("No Z projection")){
-                        objImp = ZProjector.run(objImp,projChoice);
-                    }
-
-                    ImageStack ips = objImp.getStack();
-                    Object[] pix = ips.getImageArray();
-                    ArrayList<byte[]> oneimgbyte = new ArrayList<byte[]>();
-                    for (int z = 0; z < pix.length; z++) {
-                        byte[] onelayer = (byte[]) pix[z];
-                        if (onelayer != null){
-                            oneimgbyte.add(onelayer);
-                        }
-                    }
-
-                    all_images_array.add(oneimgbyte);
-                    serialID_array.add(serialID_export);
-                    //File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
-                    //File objfile2 = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + "_byte.tiff");
-                    //filenames.add("nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
-
-                    //ImageIO.write(bufImg, "gif", objfile);
-                    //IJ.saveAsTiff(objImp,objfile.getPath());
-                    //IJ.saveAsTiff(objImpOriginal,objfile2.getPath());
-                    counter[i] = 1;
-                });
-                //System.out.println("Number of images in batch: " + all_images_array.size());
-                long end = System.currentTimeMillis();
-                System.out.println("Time to process nuclei: " +(end - start) / 1000f + " seconds");
-                //System.out.println(String.format("%d/%d nuclei could not be exported", selectd-count, selectd));
-                System.out.println(String.format("%d/%d nuclei could not be exported", items_in_batch - IntStream.of(counter).sum(), items_in_batch));
-                image.setRoi(originalROI);
+                //ImageIO.write(bufImg, "gif", objfile);
+                //IJ.saveAsTiff(objImp,objfile.getPath());
+                //IJ.saveAsTiff(objImpOriginal,objfile2.getPath());
+                counter[i] = 1;
+            });
+            //System.out.println("Number of images in batch: " + all_images_array.size());
+            long end = System.currentTimeMillis();
+            System.out.println("Time to process nuclei in subvolume: " +(end - start) / 1000f + " seconds");
+            //System.out.println(String.format("%d/%d nuclei could not be exported", selectd-count, selectd));
+            System.out.println(String.format("%d/%d nuclei could not be exported", selectd - IntStream.of(counter).sum(), selectd));
+            //image.setRoi(originalROI);
         
         
         //Create CSV Files
@@ -313,7 +355,7 @@ public class NucleiExportation {
                     LocalTime time = java.time.LocalTime.now();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
                     String timef = formatter.format(time);
-                    File img_csv = new File(file.getPath()+ File.separator + "images"  + "_ " + label + "_" + timef+"_"+ b +".csv");
+                    File img_csv = new File(file.getPath()+ File.separator + "images"  + "_ " + label + "_" + timef +"_"+randval+".csv");
                     FileWriter writer = new FileWriter(img_csv);
                     int bufSize = (int) Math.pow(1024, 2);
                     BufferedWriter bufferedWriter = new BufferedWriter(writer, bufSize);
@@ -330,7 +372,8 @@ public class NucleiExportation {
                         bufferedWriter.write(",");
                         for (byte[] ba : al){
                             for (byte by : ba){
-                                bufferedWriter.write(String.valueOf(by));
+                                int byi = by & 0xFF;
+                                bufferedWriter.write(String.valueOf(byi));
                                 bufferedWriter.write(",");
                             }
                         }
@@ -339,7 +382,7 @@ public class NucleiExportation {
                     bufferedWriter.flush();
                     bufferedWriter.close();
                     long end1 = System.currentTimeMillis();
-                    System.out.println((end1 - start1) / 1000f + " seconds");
+                    System.out.println("Time to write csv: " + (end1 - start1) / 1000f + " seconds");
                 } catch (FileNotFoundException e) {
                 }
 
@@ -347,22 +390,26 @@ public class NucleiExportation {
             }
         
         
-        }}
-    }
-    
-    public void processVolume(){
+        }
+        
         
     }
-    public ArrayList splitImage(){
+    
+        
+    public ArrayList splitImage(int xyDim){
                 // split for large images
-            int xyDim = 512;
+            image.hide();
+            int myYstart;
+            int myXstart;
+            int myXend;
+            int myYend;
             //ImagePlus stackResult = image.duplicate();
             int width = image.getWidth();
             int height = image.getHeight();
-            ArrayList xPositions = new ArrayList();
-            ArrayList yPositions = new ArrayList();
-            ArrayList xStart = new ArrayList();
-            ArrayList yStart = new ArrayList();
+//            xPositions = new ArrayList();
+//            yPositions = new ArrayList();
+//            xStart = new ArrayList();
+//            yStart = new ArrayList();
             for (int x = 0; x < width; x = x + xyDim) {
                 xPositions.add(x);
             }
@@ -372,7 +419,7 @@ public class NucleiExportation {
             
             ArrayList<ImagePlus> grid = new ArrayList<ImagePlus>();
             ListIterator itr = xPositions.listIterator();
-
+            
             while (itr.hasNext()) {
 
                 int x = (int) itr.next();
@@ -380,9 +427,19 @@ public class NucleiExportation {
                 for (int p = 0; p < yPositions.size(); p++) {
 
                     int y = (int) yPositions.get(p);
-
+                    
+                    if (y-BUFFER > 0) {myYstart = y-BUFFER;}
+                    else {myYstart = y;}
+                    if (x - BUFFER > 0) {myXstart = x-BUFFER;}
+                    else {myXstart = x;}
+                    if (x + BUFFER + xyDim > image.getWidth()) {myXend = x + BUFFER + xyDim;}
+                    else {myXend = xyDim;}
+                    if (y + BUFFER + xyDim > image.getHeight()) {myYend = y + BUFFER + xyDim;}
+                    else {myYend = xyDim;}
+                    
                     Duplicator dup1 = new Duplicator();
                     image.setRoi(new Rectangle(x, y, xyDim, xyDim));
+                    //image.setRoi(new Rectangle(myXstart, myYstart, myXend, myYend));
                     grid.add(dup1.run(image));
                     image.deleteRoi();
 
@@ -399,10 +456,22 @@ public class NucleiExportation {
                 yRemain = height - y;
 
                 for (int p = 0; p < yPositions.size(); p++) {
-
                     int x = (int) xPositions.get(p);
-                     Duplicator dup3 = new Duplicator();
+                    
+                    if (y-BUFFER > 0) {myYstart = y-BUFFER;}
+                    else {myYstart = y;}
+                    if (x - BUFFER > 0) {myXstart = x-BUFFER;}
+                    else {myXstart = x;}
+                    if (x + BUFFER + xyDim > image.getWidth()) {myXend = x + BUFFER + xyDim;}
+                    else {myXend = x + xyDim;}
+                    if (y + BUFFER + yRemain > image.getHeight()) {myYend = y + BUFFER + xyDim;}
+                    else {myYend = yRemain;}
+                    
+                    
+                    
+                    Duplicator dup3 = new Duplicator();
                     image.setRoi(new Rectangle(x, y, xyDim, yRemain));
+                    //image.setRoi(new Rectangle(myXstart, myYstart, myXend, myYend));
                     grid.add(dup3.run(image));
                     image.deleteRoi();
 
@@ -416,7 +485,8 @@ public class NucleiExportation {
 
                 int xLast = ((int) xPositions.get(xPositions.size() - 1) + xyDim);
                 int yLast = ((int) yPositions.get(yPositions.size() - 1) + xyDim);
-                 Duplicator dup4 = new Duplicator();
+                
+                Duplicator dup4 = new Duplicator();
                 image.setRoi(new Rectangle(xLast, yLast, xRemain, yRemain));
                 grid.add(dup4.run(image));
                 image.deleteRoi();
@@ -429,14 +499,20 @@ public class NucleiExportation {
             return grid;
     }
     
-    private ArrayList getGatedObjects(Path2D path, int xAxis, int yAxis){
+    private ArrayList getGatedObjects(Path2D path, int xAxis, int yAxis, int xydim){
         ArrayList<MicroObject> volumes = (ArrayList) objects;
-
+        boolean previousROI = image.getRoi() != null;
+        System.out.println("Begin getGatedObjects");
         ArrayList<MicroObject> result = new ArrayList<>();
         int total = volumes.size();
+        Roi rs = null;
         double xValue;
         double yValue;
-
+        System.out.println(xs + " " + ys + " " + xydim);
+        if (!previousROI){
+            rs = new Roi(xs, ys, xydim, xydim);
+            rs.setImage(image);
+        }
         try {
             //Outputs the nuclei that are in the given gate to result
             for (int i = 0; i < total; i++) {
@@ -446,7 +522,7 @@ public class NucleiExportation {
                 yValue = measured.get(yAxis).floatValue();
 
                 if (path.contains(xValue, yValue)) {
-                    if (image.getRoi() != null){
+                    if (previousROI){
                         //System.out.println("======ROI recognized======");
                         Roi r = image.getRoi();
                         MicroObject o = objects.get(i);
@@ -454,10 +530,19 @@ public class NucleiExportation {
                             result.add((MicroObject) objects.get(i));
                     }
                     else{
-                        result.add((MicroObject) objects.get(i));
+                       
+                        if (rs.getImage() == null) {System.out.println("image is null");}
+                        //image.setRoi(xs, ys, xydim, xydim);
+                        //Roi r = image.getRoi();
+                        MicroObject o = objects.get(i);
+                        if (rs.containsPoint(o.getCentroidX(), o.getCentroidY())) {
+                            result.add((MicroObject) objects.get(i));
+                        }
+                        
                     }                    
                 }
             }
+            if (!previousROI) {image.deleteRoi();}
 
         } catch (NullPointerException e) {
         }
@@ -487,6 +572,13 @@ public class NucleiExportation {
             //System.out.println(xStart + " " + yStart + " " + zStart + " " + zRange + " " + size);
             return null;
         }
+        
+         if(xStart - xs < 0 || yStart - ys < 0 || zStart < 0 || yStart+size - ys > currentTile.getHeight() || xStart+size - xs > currentTile.getWidth() ||  zRange < 3 ) //|| zRange + zStart > image.getNFrames(){
+        {
+            countEdgeNuclei +=1;
+            //System.out.println(xStart + " " + yStart + " " + zStart + " " + zRange + " " + size);
+            return null;
+        }
 
         //ImageStack objImgStack = cropMe.crop(xStart, yStart,zStart, size, size,(depth)*image.getNChannels());
         //ImagePlus objImp = IJ.createHyperStack("nuclei", size, size, info[2], info[3], info[4], image.getBitDepth());
@@ -501,7 +593,7 @@ public class NucleiExportation {
             if(objImp == null)
                 return null;
         }catch(IllegalAccessException | InvocationTargetException e){
-            Logger.getLogger(NucleiExportation.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(NucleiExportation_tile.class.getName()).log(Level.SEVERE, null, e);
         }
 
         
@@ -702,17 +794,41 @@ public class NucleiExportation {
         ChannelSplitter cs = new ChannelSplitter();
         
        // Roi r = new Roi(xStart, yStart, size, size);
-       
-       image.setRoi(new Rectangle(xStart, yStart, size, size));
-        
        Duplicator dup = new Duplicator();
+       ImagePlus objImp = null;
+       if (currentTile != null){
+           
+           if (tiled) {
+               // TODO: add buffer coordinates?
+               currentTile.setRoi(new Rectangle(xStart-xs, yStart-ys, size, size));
+               objImp = dup.run(currentTile);
+           }
+           else {
+            currentTile.setRoi(new Rectangle(xStart-xs, yStart-ys, size, size));
+            objImp = dup.run(currentTile);}
+       }
+       else {
+            image.setRoi(new Rectangle(xStart, yStart, size, size));
+            objImp = dup.run(image);
+       }
+
        
-       ImagePlus objImp = dup.run(image);
-       
-       ImageStack stNu = cs.getChannel(objImp, 8); //TODO: nuclei channel is hardcoded 
+       ImageStack stNu = cs.getChannel(objImp, channelOfInterest); //TODO: nuclei channel is hardcoded 
        ImagePlus objImpNu = new ImagePlus("nuclei", stNu);
-       ImagePlus objImpNu_crop = dup.run(objImpNu, zStart, zStart+depth-1); //TODO validate this is correct
-       
+       int zEnd = zStart+depth-1;
+       if (zStart == 0) {
+           zStart +=1;
+           zEnd+=1;
+       }
+       if (currentTile.getNSlices() < zEnd) {
+           System.out.println("Nslices: " + currentTile.getNSlices() + " zStart: " + zStart + " zEnd: " + zEnd);
+           int shift = zEnd - currentTile.getNSlices();
+           zEnd -= shift;
+           zStart -= shift;
+           //return null;
+       }
+       ImagePlus objImpNu_crop = dup.run(objImpNu, zStart, zEnd); //TODO validate this is correct
+       //System.out.println(objImpNu_crop.getNSlices());
 //       System.out.println(objImpNu_crop.getDisplayRangeMax()); //4095
 //       System.out.println(objImpNu_crop.getDisplayRangeMin()); //0
 //       System.out.println(objImpNu_crop.getDefault16bitRange()); //0 (aka automatically set)
@@ -728,15 +844,17 @@ public class NucleiExportation {
 }
 
 
-class ExportObjImgOptions extends JPanel{
+class ExportObjImgOptions1 extends JPanel{
         JTextArea size;
         JTextArea label;
+        JTextArea tileSize;
+        JTextArea channelchoice;
         JSpinner depth;
         JCheckBox dapi;
         JComboBox zproject;
         JComboBox pixeltype;
         
-        public ExportObjImgOptions(int maxDepth, int maxSize, int recSize, boolean allowMorph){
+        public ExportObjImgOptions1(int maxDepth, int maxSize, int recSize, boolean allowMorph){
             ArrayList<JLabel> labels = new ArrayList();
             
             JLabel labelLabel = new JLabel("Class label: ");
@@ -776,6 +894,14 @@ class ExportObjImgOptions extends JPanel{
             labels.add(zprojLabel);
             String [] zprojList = {"No Z projection", "avg", "min", "max", "sum", "sd", "median"};
             zproject = new JComboBox(zprojList);
+            
+            JLabel tileSize_label = new JLabel("Tile size for large image: ");
+            labels.add(tileSize_label);
+            tileSize = new JTextArea("512");
+            
+            JLabel channel_label = new JLabel("Select nuclei channel: ");
+            labels.add(channel_label);
+            channelchoice = new JTextArea("8");
             
             
             
@@ -828,8 +954,32 @@ class ExportObjImgOptions extends JPanel{
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
             this.add(zproject,gbc);
             
-            gbc = new GridBagConstraints(0,5,1,1,1,1.0,GridBagConstraints.EAST,
+//            curlabel = labiter.next();
+//            gbc = new GridBagConstraints(0,4,1,1,0.2,1.0,GridBagConstraints.WEST,
+//                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+//            this.add(curlabel,gbc);
+//            gbc = new GridBagConstraints(1,4,1,1,1,1.0,GridBagConstraints.EAST,
+//                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+//            this.add(zproject,gbc);
+//            
+            curlabel = labiter.next();
+            gbc = new GridBagConstraints(0,5,1,1,0.2,1.0,GridBagConstraints.WEST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(curlabel,gbc);
+            gbc = new GridBagConstraints(1,5,1,1,1,1.0,GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(tileSize,gbc);
+            
+            curlabel = labiter.next();
+            gbc = new GridBagConstraints(0,6,1,1,0.2,1.0,GridBagConstraints.WEST,
+                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(curlabel,gbc);
+            gbc = new GridBagConstraints(1,6,1,1,1,1.0,GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(channelchoice,gbc);
+            
+//            gbc = new GridBagConstraints(0,5,1,1,1,1.0,GridBagConstraints.EAST,
+//                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
 //            this.add(dapi,gbc);
         }
         
@@ -852,6 +1002,8 @@ class ExportObjImgOptions extends JPanel{
             info.add(label.getText());
             info.add(zproject.getSelectedItem().toString());
             info.add(pixeltype.getSelectedItem().toString());
+            info.add(Integer.parseInt(tileSize.getText()));
+            info.add(Integer.parseInt(channelchoice.getText()));
             return info;
         }
         
@@ -890,11 +1042,11 @@ class ExportObjImgOptions extends JPanel{
             }
     }
 
-class CNNObjImgOptions extends JPanel{
+class CNNObjImgOptions1 extends JPanel{
         JTextArea threshold;
 
         
-        public CNNObjImgOptions(){
+        public CNNObjImgOptions1(){
             ArrayList<JLabel> labels = new ArrayList();
             
             JLabel thresholdLabel = new JLabel("Select confidence threshold: ");

@@ -1219,20 +1219,39 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     
     @Override
     public void saveGated(Path2D path){
-        NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
-        try {   
-            exportnuclei.saveImages(path, currentX, currentY);
-        } catch (IOException ex) {
-            Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        //NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
+        
+        new Thread(() -> {
+            try {
+                NucleiExportation_tile exportnuclei = new NucleiExportation_tile(impoverlay, objects, measurements);
+                try {   
+                    exportnuclei.saveImages(path, currentX, currentY);
+                } catch (IOException ex) {
+                    Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+               
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();
+        
     }
     public void saveGatedCNN(Path2D path){
-        NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
-        try {   
-            exportnuclei.readCSV(path, currentX, currentY);
-        } catch (IOException ex) {
-            Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        new Thread(() -> {
+            try {
+                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
+                try {   
+                    exportnuclei.readCSV(path, currentX, currentY);
+                } catch (IOException ex) {
+                    Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+               
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();
+        
+        
     }
     
 
