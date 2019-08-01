@@ -125,6 +125,12 @@ public class NucleiExportation_tile {
     
     public void readCSV(Path2D path, int xAxis, int yAxis) throws IOException{
         //CNN implmentation
+        
+        /*
+        This reads a csv with class probabilities and applies it to an overlay on a test volume
+        Does NOT work correctly with more than one class 
+        e.g. if there are 2 classes in the csv, the overlay will incorrectly color some nuclei
+        */
         info = image.getDimensions();
         //ArrayList<MicroObject> result = getGatedObjects(path, xAxis, yAxis);
         ArrayList<MicroObject> result = (ArrayList) objects;
@@ -148,7 +154,11 @@ public class NucleiExportation_tile {
         nlr.run();
     }
     public void saveImages(Path2D path, int xAxis, int yAxis) throws IOException{
-        
+        /*
+        Read the path (gate) from the VTEA explorer, get the corresponding nuclei, 
+        then send to processVolume
+        NOT validated for ROIs on the image
+        */
         countEdgeNuclei = 0;
         tiled = false;
         boolean allowMorph = false; //checker.getMorphologicalCount() != 0;
@@ -223,6 +233,11 @@ public class NucleiExportation_tile {
     }
     
     public void processVolume(Path2D path, int xAxis, int yAxis, ArrayList<MicroObject> result, ExportObjImgOptions1 options, File file) throws IOException{
+        /*
+        Validated and working as expected
+        Converts to 8bit and saves to CSV
+        note that change from signed byte to integer in range [0,255]
+        */
         System.out.println("");
         Random rand = new Random();
         int randval = rand.nextInt(10);
@@ -397,7 +412,12 @@ public class NucleiExportation_tile {
     
         
     public ArrayList splitImage(int xyDim){
-                // split for large images
+            /*
+                split into tiles for large images
+                Adding a buffer is NOT supported
+        
+            */
+            
             image.hide();
             int myYstart;
             int myXstart;
@@ -575,7 +595,7 @@ public class NucleiExportation_tile {
         
          if(xStart - xs < 0 || yStart - ys < 0 || zStart < 0 || yStart+size - ys > currentTile.getHeight() || xStart+size - xs > currentTile.getWidth() ||  zRange < 3 ) //|| zRange + zStart > image.getNFrames(){
         {
-            countEdgeNuclei +=1;
+            countEdgeNuclei +=1; //nuclei that are excluded because they are on the edge of a subvolume
             //System.out.println(xStart + " " + yStart + " " + zStart + " " + zRange + " " + size);
             return null;
         }
@@ -602,6 +622,8 @@ public class NucleiExportation_tile {
     }
     
     private ImagePlus getMaskStack(MicroObject vol, int[] starts ){
+        //TODO: Fix for tiling function and validate 
+        
         int xStart = starts[0];
         int yStart = starts[1];
         int zStart = starts[2];
@@ -612,6 +634,7 @@ public class NucleiExportation_tile {
         
        // Roi r = new Roi(xStart, yStart, size, size);
        
+       
        image.setRoi(new Rectangle(xStart, yStart, size, size));
         
        Duplicator dup = new Duplicator();
@@ -619,7 +642,7 @@ public class NucleiExportation_tile {
        ImagePlus objImp = dup.run(image);
        
        
-       ImageStack stNu = cs.getChannel(objImp, 8); // 32x32x19
+       ImageStack stNu = cs.getChannel(objImp, channelOfInterest); // 32x32x19
        
        int[] xPixels = vol.getPixelsX();
        int[] yPixels = vol.getPixelsY();
@@ -631,14 +654,14 @@ public class NucleiExportation_tile {
 //       System.out.println(stNu.getWidth());
 //       System.out.println(stNu.getHeight());
 //       
-       for(int i = 0; i < 10; i++){
+//       for(int i = 0; i < 10; i++){
 //           System.out.println("==========");
 //           System.out.println(xPixels[i]-xStart);
 //           System.out.println(yPixels[i]-yStart);
 //           System.out.println(zPixels[i]+1-zStart);
            //System.out.println();
            //System.out.println(stNu.getVoxel(xPixels[i], yPixels[i], zPixels[i]));
-       }
+//       }
        
        ImagePlus temp= IJ.createImage("nuclei", size, size, depth, image.getBitDepth());
 //       temp.show();
@@ -692,6 +715,7 @@ public class NucleiExportation_tile {
     }
     
     private ImagePlus getMorphStack(MicroObject vol, int[] starts){
+        // not working, unsure of purpose
         int xStart = starts[0];
         int yStart = starts[1];
         int zStart = starts[2];
@@ -723,6 +747,8 @@ public class NucleiExportation_tile {
     }
     
     private ImagePlus get2ChannelStack(MicroObject vol, int[] starts){
+        // not working
+        //goal is to be able to grab to channels (e.g. DAPI and actin)
         int xStart = starts[0];
         int yStart = starts[1];
         int zStart = starts[2];
@@ -782,6 +808,7 @@ public class NucleiExportation_tile {
     }
     
     private ImagePlus getBoxStack(MicroObject vol, int[] starts){
+        // working, validated (except for ROIs)
         int xStart = starts[0];
         int yStart = starts[1];
         int zStart = starts[2];
