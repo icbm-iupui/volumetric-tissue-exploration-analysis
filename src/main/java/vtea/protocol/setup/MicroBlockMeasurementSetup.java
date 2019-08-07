@@ -40,7 +40,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import org.apache.commons.lang3.ArrayUtils;
 import static vtea._vtea.FEATUREMAP;
-import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.objects.measurements.AbstractMeasurement;
 import vteaobjects.MicroObject;
 /**
@@ -238,18 +237,18 @@ public class MicroBlockMeasurementSetup extends MicroBlockSetup implements Actio
      */
     @Override
     protected ArrayList makeMethodComponentsArray(String method, String[][] str){
-        Object iFeatp = new Object();
-        
-        try{
-            Class<?> c;
-            c = Class.forName(FEATUREMAP.get(method));
-            Constructor<?> con;
-            con = c.getDeclaredConstructor(int.class);
-            iFeatp = con.newInstance(new Object[]{this.nvol});
-            return ((AbstractFeatureProcessing)iFeatp).getOptions();        
-        }catch(Exception e){
-            System.out.println(e);
-        }
+//        Object iFeatp = new Object();
+//        
+//        try{
+//            Class<?> c;
+//            c = Class.forName(FEATUREMAP.get(method));
+//            Constructor<?> con;
+//            con = c.getDeclaredConstructor(int.class);
+//            iFeatp = con.newInstance(new Object[]{this.nvol});
+//            return ((AbstractFeatureProcessing)iFeatp).getOptions();        
+//        }catch(Exception e){
+//            System.out.println(e);
+//        }
         return new ArrayList();
     }
     

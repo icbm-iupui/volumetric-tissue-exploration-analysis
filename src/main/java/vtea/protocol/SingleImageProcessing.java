@@ -687,8 +687,8 @@ addObjectBlock();
     
     public void addObjectBlock() {
  
-        new Thread(() -> {
-            try {
+       // new Thread(() -> {
+       //     try {
                 ProgressComment.setText("Processed image transferring...");
                 VTEAProgressBar.setIndeterminate(true);
         
@@ -698,6 +698,8 @@ addObjectBlock();
         ObjectStepsPanel.setLayout(ObjectLayout);
         ObjectStepsPanel.add(block.getPanel());
         ObjectStepsPanel.repaint();
+        
+        
 
         ObjectStepsList.add(block);
         if (ObjectStepsList.size() <= 1) {
@@ -709,13 +711,14 @@ addObjectBlock();
         this.notifyRepaintTabListeners();
         VTEAProgressBar.setIndeterminate(false);
         ProgressComment.setText("Processed image transferred...");
-                    } catch (Exception e) {
-                                VTEAProgressBar.setIndeterminate(false);
-        ProgressComment.setText("Processed image transferred...");
-                System.out.println("ERROR: " + e.getLocalizedMessage());
-            }
-        }).start();
- 
+//                    } catch (Exception e) {
+//                                VTEAProgressBar.setIndeterminate(false);
+//        ProgressComment.setText("Processed image transferred...");
+//                System.out.println("ERROR: " + e.getLocalizedMessage());
+//       
+//            }
+//        }).start();
+        
     }
 
 

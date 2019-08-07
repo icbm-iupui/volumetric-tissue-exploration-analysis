@@ -36,7 +36,6 @@ import static vtea._vtea.MORPHOLOGICALMAP;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MicroBlockSetupListener;
 import vtea.protocol.listeners.RebuildPanelListener;
-import vtea.protocol.setup.MicroBlockFeatureSetup;
 import vtea.protocol.setup.MicroBlockMorphologySetup;
 import vtea.protocol.setup.MicroBlockSetup;
 
@@ -273,7 +272,7 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
      * Updates the protocol to be the parameters selected in the Setup class.
      */
     public void updateSetup(){
-        ((MicroBlockFeatureSetup)mbs).updateProtocol();
+        
     }
     
     /**

@@ -78,7 +78,6 @@ import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
-import vtea.feature.FeatureFrame;
 import vtea.measurement.MeasurementFrame;
 import vtea.protocol.setup.SegmentationPreviewer;
 
@@ -145,10 +144,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
     PlotAxesSetup AxesSetup = new PlotAxesSetup();
 
-    ArrayList<AddFeaturesListener> FeatureListeners = new ArrayList<AddFeaturesListener>();
 
-    FeatureFrame ff; 
-    boolean ffchecked = false;
     
     MeasurementFrame mf;
     boolean mfchecked = false;
@@ -338,8 +334,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
         makeDataTable();
 
-        ff = new FeatureFrame(descriptions, ObjectIDs, imp);
-        ff.addListener(this);
+
         
         mf = new MeasurementFrame(descriptions, ec.getObjects(), imp);
         mf.addListener(this);
@@ -386,10 +381,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         get3DProjection = new javax.swing.JButton();
         getSegmentation = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
-        jButtonMeas = new javax.swing.JButton();
-        jButtonDistance = new javax.swing.JButton();
-        jButtonFeature = new javax.swing.JButton();
-        jSeparator8 = new javax.swing.JToolBar.Separator();
         ExportGraph = new javax.swing.JButton();
         exportCSV = new javax.swing.JButton();
         jSeparator9 = new javax.swing.JToolBar.Separator();
@@ -677,57 +668,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         toolbarGate.add(getSegmentation);
         toolbarGate.add(jSeparator7);
 
-        jButtonMeas.setBackground(new java.awt.Color(102, 255, 102));
-        jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
-        jButtonMeas.setToolTipText("Add measurements");
-        jButtonMeas.setEnabled(false);
-        jButtonMeas.setFocusable(false);
-        jButtonMeas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonMeas.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonMeas.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonMeas.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonMeas.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonMeas.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonMeasActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(jButtonMeas);
-
-        jButtonDistance.setBackground(new java.awt.Color(102, 255, 102));
-        jButtonDistance.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
-        jButtonDistance.setToolTipText("Add distance measure");
-        jButtonDistance.setEnabled(false);
-        jButtonDistance.setFocusable(false);
-        jButtonDistance.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonDistance.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonDistance.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonDistance.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonDistance.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonDistance.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonDistanceActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(jButtonDistance);
-
-        jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
-        jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
-        jButtonFeature.setToolTipText("Add features");
-        jButtonFeature.setFocusable(false);
-        jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonFeatureActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(jButtonFeature);
-        toolbarGate.add(jSeparator8);
-
         ExportGraph.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/insert-image-2 copy.png"))); // NOI18N
         ExportGraph.setToolTipText("Export graph as PNG...");
         ExportGraph.setFocusable(false);
@@ -1012,21 +952,9 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         
     }//GEN-LAST:event_ExportGraphActionPerformed
 
-    private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
-        ff.setVisible(true);
-        if (!ffchecked) {
-            ffchecked = true;
-        }
-
-    }//GEN-LAST:event_jButtonFeatureActionPerformed
-
     private void getSegmentationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getSegmentationActionPerformed
         SegmentationPreviewer.SegmentationFactory(imp, ec.getObjects());
     }//GEN-LAST:event_getSegmentationActionPerformed
-
-    private void jButtonDistanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDistanceActionPerformed
-        
-    }//GEN-LAST:event_jButtonDistanceActionPerformed
 
     private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
         
@@ -1041,13 +969,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
         }).start();  
 
     }//GEN-LAST:event_exportCSVActionPerformed
-
-    private void jButtonMeasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMeasActionPerformed
-        mf.setVisible(true);
-        if (!mfchecked) {
-            mfchecked = true;
-        }
-    }//GEN-LAST:event_jButtonMeasActionPerformed
 
     private void NorthMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NorthMouseClicked
 
@@ -1110,9 +1031,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private javax.swing.JButton get3DProjection;
     private javax.swing.JButton getSegmentation;
     private javax.swing.JButton importOBJ;
-    private javax.swing.JButton jButtonDistance;
-    private javax.swing.JButton jButtonFeature;
-    private javax.swing.JButton jButtonMeas;
     private javax.swing.JComboBox jComboBox1;
     protected javax.swing.JComboBox jComboBoxLUTPlot;
     private javax.swing.JComboBox jComboBoxPointSize;
@@ -1130,7 +1048,6 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private javax.swing.JToolBar.Separator jSeparator4;
     private javax.swing.JToolBar.Separator jSeparator5;
     private javax.swing.JToolBar.Separator jSeparator7;
-    private javax.swing.JToolBar.Separator jSeparator8;
     private javax.swing.JToolBar.Separator jSeparator9;
     private javax.swing.JToolBar toolbarGate;
     private javax.swing.JToolBar toolbarPlot;

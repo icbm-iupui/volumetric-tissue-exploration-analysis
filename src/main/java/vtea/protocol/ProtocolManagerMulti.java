@@ -1007,13 +1007,18 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
                 for(int j = 0; j < sourceProtocol.size(); j++){
                     
-                     //System.out.println("PROFILING:  Found " + sourceProtocol.size() + " protocols to open.");
+                     System.out.println("PROFILING:  Found " + sourceProtocol.size() + " protocols to open.");
                     
                            ArrayList sourceStep = sourceProtocol.get(j);
 
                            DestinationSIP.addObjectBlock();
                            DestinationSIP.UpdatePositionObject(1);
                            DestinationSIP.RebuildPanelObject();
+                           
+                           
+                           System.out.println("PROFILING:  Destiantion has " +
+                                   DestinationSIP.getObjectStepsList().size() + " steps.");
+       
                            
                            ObjectStepBlockGUI destinationStep = 
                                    DestinationSIP.getObjectStepsList().get(j+startingCount);
@@ -1025,8 +1030,9 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
                            destinationStep.mbs.setTitle((String)sourceStep.get(0));
                            destinationStep.mbs.setMethod((String)sourceStep.get(1));
                            destinationStep.mbs.setChannel((int)sourceStep.get(2));
+                           
 
-                           //System.out.println("PROFILING:  Found " +  ((ArrayList)sourceStep.get(3)).size() + " steps.");
+                           System.out.println("PROFILING:  Found " +  ((ArrayList)sourceStep.get(3)).size() + " steps.");
                            
                            makeObjectMethodsArray("version",(String)sourceStep.get(1),
                             (ArrayList)sourceStep.get(3),
@@ -1106,9 +1112,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
                 stepResult.add(saveObjectMethodsArray("version",
                     ((MicroBlockObjectSetup)(stepSource.mbs)).getMethod(),
                     ((MicroBlockObjectSetup)(stepSource.mbs)).getProcessList()));
-                
-                
-                
+
                 destinationProtocol.add(stepResult);
             }
 

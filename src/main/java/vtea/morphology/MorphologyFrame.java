@@ -17,9 +17,8 @@
  */
 package vtea.morphology;
 
-import vtea.feature.listeners.RepaintFeatureListener;
+
 import vtea.protocol.listeners.RebuildPanelListener;
-import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
 import vtea.protocol.listeners.UpdateProgressListener;
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -33,7 +32,6 @@ import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import javax.swing.JOptionPane;
 import vtea.exploration.listeners.AddFeaturesListener;
-import vtea.processor.FeatureProcessor;
 import vtea.protocol.blockstepgui.MorphologyStepBlockGUI;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MorphologyFrameListener;
@@ -43,7 +41,7 @@ import vtea.protocol.listeners.MorphologyFrameListener;
  * and removed and submits the methods with parameters to get results. 
  * @author drewmcnutt
  */
-public class MorphologyFrame extends javax.swing.JFrame implements WindowStateListener, AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
+public class MorphologyFrame extends javax.swing.JFrame implements WindowStateListener, AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener{
     
     protected ArrayList<MorphologyStepBlockGUI> MorphologicalStepsList;
     ArrayList channels;
@@ -323,7 +321,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         if (!MorphologicalStepsList.isEmpty()){
             DeleteAllSteps.setEnabled(true);
         }
-        repaintFeature();
+        
         this.setVisible(true);
         
         FeatureGo.setEnabled(true);
@@ -416,13 +414,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         }
     }
 
-    /**
-     * Repaint the window.
-     */
-    @Override
-    public void repaintFeature(){
-        this.repaint();
-    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddStep;
     private javax.swing.JLabel AnalyzeDataText;

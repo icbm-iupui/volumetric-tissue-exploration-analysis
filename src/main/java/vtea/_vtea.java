@@ -43,7 +43,6 @@ import org.scijava.plugin.PluginService;
 import org.scijava.plugin.RichPlugin;
 import vtea.jdbc.H2DatabaseEngine;
 import vtea.protocol.ProtocolManagerMulti;
-import vtea.services.FeatureService;
 import vtea.services.FileTypeService;
 import vtea.services.ImageProcessingService;
 import vtea.services.LUTService;
@@ -56,8 +55,8 @@ import vtea.services.WorkflowService;
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
-    public static String VERSION = new String("1.0 alpha");
-    
+    public static String VERSION = new String("0.7 alpha");
+  
     public static Color BACKGROUND = new Color(204, 204, 204);
     public static Color BUTTONBACKGROUND = new Color(200, 200, 200);
     public static Color ACTIONPANELBACKGROUND = new Color(240, 240, 240);
@@ -125,8 +124,17 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         
                 context = new Context( LogService.class, PluginService.class );
                 priority = Priority.FIRST_PRIORITY;
+                
+                IJ.log("Starting up VTEA... ");
+                IJ.log("!!!CAUTION!!!");
+                IJ.log("This is a pre-release alpha version");
+                IJ.log("Use at your own risk");
+                IJ.log("-------------------------------- ");
 
                 System.out.println("Starting up VTEA... ");
+                System.out.println("!!!CAUTION!!!");
+                System.out.println("This is a pre-release alpha version");
+                System.out.println("Use at your own risk");
                 System.out.println("-------------------------------- ");
                 System.out.println("Available memory: " + getAvailableMemory()/(1000000000) + " GB");
                 System.out.println("Available processors: " + Runtime.getRuntime().availableProcessors());
@@ -161,7 +169,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 
                 FileTypeService fts = new FileTypeService(context); 
                 
-                FeatureService fs = new FeatureService(context); 
+               
                 
                 WorkflowService ws = new WorkflowService(context);  
                 
@@ -205,8 +213,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 List<String> mfs_names = mfs.getNames();
                 List<String> mfs_qualifiedNames = mfs.getQualifiedName();
                 
-                List<String> fs_names = fs.getNames();
-                List<String> fs_qualifiedNames = fs.getQualifiedName();
+          
+ 
                 
                 List<String> lfs_names = lfs.getNames();
                 List<String> lfs_qualifiedNames = lfs.getQualifiedName();
@@ -363,18 +371,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 System.out.println("Loading Feature Plugins: ");
                 //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
                 
-                FEATUREOPTIONS = fs_names.toArray(new String[fs_names.size()]);
                 
-                for(int i = 0; i < fs_names.size(); i++){
-                    try {
-                        Object o = Class.forName(fs_qualifiedNames.get(i)).newInstance();
-                        System.out.println("Loaded: " + o.getClass().getName()); 
-                        //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
-                        FEATUREMAP.put(FEATUREOPTIONS[i], o.getClass().getName());
-                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                        Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
                 
                 System.out.println("-------------------------------- ");
                     

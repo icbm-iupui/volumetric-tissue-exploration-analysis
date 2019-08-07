@@ -651,17 +651,7 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
-        menu.add(new JSeparator());
-        
-        menuItem = new JMenuItem("Make Ground Truth...");
-        menuItem.addActionListener(this);
-        menu.add(menuItem);
-        
-        menu.add(new JSeparator());
-        
-        menuItem = new JMenuItem("Export Gated Cells...");
-        menuItem.addActionListener(this);
-        menu.add(menuItem);
+
         
         
 

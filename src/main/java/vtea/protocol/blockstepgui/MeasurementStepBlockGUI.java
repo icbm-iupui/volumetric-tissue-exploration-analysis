@@ -36,7 +36,6 @@ import static vtea._vtea.OBJECTMEASUREMENTMAP;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MicroBlockSetupListener;
 import vtea.protocol.listeners.RebuildPanelListener;
-import vtea.protocol.setup.MicroBlockFeatureSetup;
 import vtea.protocol.setup.MicroBlockMeasurementSetup;
 import vtea.protocol.setup.MicroBlockSetup;
 
@@ -274,7 +273,7 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
      * Updates the protocol to be the parameters selected in the Setup class.
      */
     public void updateSetup(){
-        ((MicroBlockFeatureSetup)mbs).updateProtocol();
+        ((MicroBlockMeasurementSetup)mbs).updateProtocol();
     }
     
     /**

@@ -19,7 +19,7 @@ package vtea.measurement;
 
 
 import ij.ImagePlus;
-import vtea.feature.listeners.RepaintFeatureListener;
+
 import vtea.protocol.listeners.RebuildPanelListener;
 
 import vtea.protocol.listeners.UpdateProgressListener;
@@ -33,7 +33,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import javax.swing.JOptionPane;
 import vtea.exploration.listeners.AddFeaturesListener;
-import vtea.processor.FeatureProcessor;
+
 import vtea.protocol.blockstepgui.MeasurementStepBlockGUI;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vteaobjects.MicroObject;
@@ -43,7 +43,7 @@ import vteaobjects.MicroObject;
  * and removed and submits the methods with parameters to get results. 
  * @author drewmcnutt
  */
-public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
+public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener{
     
     protected ArrayList<MeasurementStepBlockGUI> FeatureStepsList;
     ArrayList descriptions;
@@ -333,7 +333,7 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         if (!FeatureStepsList.isEmpty()){
             DeleteAllSteps.setEnabled(true);
         }
-        repaintFeature();
+       
         this.setVisible(true);
         
         FeatureGo.setEnabled(true);
@@ -426,13 +426,7 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         }
     }
 
-    /**
-     * Repaint the window.
-     */
-    @Override
-    public void repaintFeature(){
-        this.repaint();
-    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddStep;
     private javax.swing.JLabel AnalyzeDataText;
