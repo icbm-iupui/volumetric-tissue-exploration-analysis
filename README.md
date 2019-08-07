@@ -1,5 +1,6 @@
 This is a 3D tissue cytometry tool-Volumetric Tissue Exploration and Analysis-developed in the Indiana Center for Biological Microscopy by Seth Winfree, Tarek Ashkar and Ken Dunn.
 
+This version, 0.7 alpha is a pre-release version that enables a number of functionalites to facilitates extensibility and sharing of datasets between users.  Further details are described in the release documents.
 
  Volumetric Tissue Exploration and Analysis (VTEA) relies on three freely available libraries.  These include JFreeChart, JCommons and JXLayers.
  
