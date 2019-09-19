@@ -659,7 +659,8 @@ public class GateLayer implements ActionListener, ItemListener {
         
         menu.add(new JSeparator());
         
-        menuItem = new JMenuItem("Export Gated Cells...");
+        menuItem = new JMenuItem("Subgate Selection...");
+       // menuItem.setEnabled(this.g);
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
@@ -705,7 +706,7 @@ public class GateLayer implements ActionListener, ItemListener {
             }
             if(path != null)
                 notifyImageListeners(path);
-        }  else if(e.getActionCommand().equals("Export Gated Cells...")){
+        }  else if(e.getActionCommand().equals("Subgate Selection...")){
             //Used to subgate to a new MicroExplorer
             ListIterator<Gate> gt = gates.listIterator();
             Path2D path = null;

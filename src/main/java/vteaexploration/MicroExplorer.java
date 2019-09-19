@@ -75,11 +75,13 @@ import vtea._vtea;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.AxesChangeListener;
 import vtea.exploration.listeners.PlotUpdateListener;
+import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
 import vtea.feature.FeatureFrame;
 import vtea.measurement.MeasurementFrame;
+import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
 
 /**
@@ -88,7 +90,7 @@ import vtea.protocol.setup.SegmentationPreviewer;
  *
  */
 
-public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesListener, RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
+public class MicroExplorer extends javax.swing.JFrame implements SubGateExplorerListener, AddFeaturesListener, RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
 
     private XYPanels DefaultXYPanels;
     private static final Dimension MAINPANELSIZE = new Dimension(630, 640);
@@ -106,6 +108,7 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     public static final int LUTSTART = 1;
 
     public static final int POINTSIZE = 4;
+
 
     int featureCount = 0;
 
@@ -146,6 +149,11 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     PlotAxesSetup AxesSetup = new PlotAxesSetup();
 
     ArrayList<AddFeaturesListener> FeatureListeners = new ArrayList<AddFeaturesListener>();
+    
+    ArrayList<SubGateExplorerListener> SubGateListeners = new ArrayList<SubGateExplorerListener>();
+    
+    
+   int subgateSerial = 0;
 
     FeatureFrame ff; 
     boolean ffchecked = false;
@@ -323,9 +331,11 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
 
         Main.setBackground(new Color(255, 255, 255, 255));
         ec.addResetSelectionListener(this);
+        ec.addSubgateListener(this);
         ec.getXYChartPanel().addUpdatePlotWindowListener(this);
         ec.setGatedOverlay(impoverlay);
         ExplorationPanels.add(ec);
+        
 
         //load default view
         setPanels(plotvalues, ExplorationPanels.get(0), pap);
@@ -1137,6 +1147,25 @@ public class MicroExplorer extends javax.swing.JFrame implements AddFeaturesList
     private javax.swing.JPanel yTextPanel;
     // End of variables declaration//GEN-END:variables
 
+    @Override
+    public void makeSubGateExplorer(ArrayList<MicroObject> objects, ArrayList<ArrayList<Number>> measurements){
+         new Thread(() -> {
+            try {
+        
+
+        ExplorerProcessor ep = new ExplorerProcessor("Subgate_" + subgateSerial + "_" + this.key , imp, objects, 
+                measurements, descriptions, descriptionsLabels);
+        ep.execute();
+        
+        subgateSerial++;
+        
+    } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();   
+  
+    }
+    
     
     private void setPanels(List plotvalues, ExplorationCenter ec, PlotAxesPanels pap) {
 

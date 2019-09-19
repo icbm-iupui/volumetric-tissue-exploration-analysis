@@ -28,6 +28,7 @@ import java.util.ListIterator;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
+import vtea.exploration.listeners.SubGateExplorerListener;
 import vteaobjects.MicroObject;
 
 /**
@@ -43,6 +44,7 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected ArrayList<String> descriptions = new ArrayList();
     protected ChartPanel chart;
     protected ArrayList<XYPanels> charts = new ArrayList<XYPanels>();
+    protected ArrayList<SubGateExplorerListener> SubGateListeners = new ArrayList<SubGateExplorerListener>();
     protected ArrayList<GateLayer> gatelayers = new ArrayList<GateLayer>();
     protected GateLayer gl = new GateLayer();
     //gates and XYPanels and key for different axes.  First element axes key; second XYPanels; third are the gates

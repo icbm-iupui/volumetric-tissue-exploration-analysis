@@ -76,6 +76,7 @@ import static vtea._vtea.LUTMAP;
 import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SaveGatedImagesListener;
+import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.SubGateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plotgatetools.gates.Gate;
@@ -99,7 +100,7 @@ import vteaobjects.MicroObjectModel;
  *
  * @author vinfrais
  */
-public class XYExplorationPanel extends AbstractExplorationPanel implements WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener, SubGateListener {
+public class XYExplorationPanel extends AbstractExplorationPanel implements  WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener, SubGateListener {
     
     XYChartPanel cpd;
     private boolean useGlobal = false;
@@ -110,6 +111,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
     String keySQLSafe = "";
 
     private Connection connection;
+    
+    
 
     public XYExplorationPanel(String key, Connection connection, ArrayList measurements, ArrayList<String> descriptions, HashMap<Integer, String> hm, ArrayList<MicroObject> objects) {
 
@@ -246,6 +249,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     ArrayList al = itr.next();
                     int object = ((Number) (al.get(0))).intValue();
                     result.add(volumes.get(object));
+                    
                 }
 
                 try {
@@ -833,6 +837,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
             listener.resetGateSelection();
         }
     }
+    
+    @Override
+    public void addSubgateListener(SubGateExplorerListener listener) {
+        SubGateListeners.add(listener);
+    }
+
+   @Override
+    public void notifySubgateListener(ArrayList<MicroObject> objects, ArrayList<ArrayList<Number>> measurements) {
+        for (SubGateExplorerListener listener : SubGateListeners) {
+            listener.makeSubGateExplorer(objects, measurements);
+        }
+    }
 
     @Override
     public void stopGateSelection() {
@@ -1279,13 +1295,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     ArrayList al = itr.next();
                     int object = ((Number) (al.get(0))).intValue();
                     objectsTemp.add(volumes.get(object));
-                    
-                
-                    
-                    //ArrayList<Number> measure = new ArrayList<Number>();
-                    //measure.add(((Number) (al.get(1))).doubleValue());
-                    //measure.add(((Number) (al.get(2))).doubleValue());
-                    //measure.add(((Number) (al.get(3))).doubleValue());
+
                     measurements.add(this.measurements.get(object));
                     
                     
@@ -1298,16 +1308,26 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
 
                         xValue = measured.get(1).doubleValue();
                         yValue = measured.get(2).doubleValue();
+                        
+                        
 
                         if (path.contains(xValue, yValue)) {
+                            ((MicroObject) objectsTemp.get(i)).setSerialID(i);
+                            
+                            measurements.get(i).set(0, i); 
+                            
                             objectsFinal.add((MicroObject) objectsTemp.get(i));
                             measurementsFinal.add(measurements.get(i));
                         }
                     }
                 } catch (NullPointerException e) {
                 }
-            ExportCSV ex = new ExportCSV(this.chart);
-            ex.export(objectsTemp, measurementsFinal, this.descriptions);
+//            ExportCSV ex = new ExportCSV(this.chart);
+//            ex.export(objectsTemp, measurementsFinal, this.descriptions);
+                System.out.println("Launching new explorer window...");
+                notifySubgateListener(objectsTemp, measurementsFinal);
+                  
+            
             }
             
 
