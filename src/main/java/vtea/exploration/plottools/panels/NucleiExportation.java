@@ -89,6 +89,7 @@ public class NucleiExportation {
     protected ArrayList<ArrayList<Number>> measurements = new ArrayList();
     int size;
     int depth;
+    int channelOfInterest;
     int[] info;
     
     NucleiExportation(ImagePlus image, ArrayList objects , ArrayList measurements){
@@ -155,10 +156,13 @@ public class NucleiExportation {
         int quality = 32; //checker.getRange(0) > 32? 64: 32;
         vitr.previous();
         
+        
+        
         int maxSize = info[0] > info[1]?info[1]:info[0];
-        ExportObjImgOptions options = new ExportObjImgOptions(info[3],maxSize, quality, allowMorph);
+        ExportObjImgOptions options = new ExportObjImgOptions(info[3],maxSize, quality, allowMorph, image.getNChannels());
         options.showDialog();
         ArrayList chosenOptions = options.getInformation();
+        this.channelOfInterest = Integer.parseInt(chosenOptions.get(6).toString());
         this.size = Integer.parseInt(chosenOptions.get(0).toString());
         this.depth = Integer.parseInt(chosenOptions.get(1).toString());
         boolean dapi = Boolean.getBoolean(chosenOptions.get(2).toString());
@@ -288,12 +292,12 @@ public class NucleiExportation {
 
                     all_images_array.add(oneimgbyte);
                     serialID_array.add(serialID_export);
-                    //File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
+                    File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
                     //File objfile2 = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + "_byte.tiff");
                     //filenames.add("nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
 
                     //ImageIO.write(bufImg, "gif", objfile);
-                    //IJ.saveAsTiff(objImp,objfile.getPath());
+                    IJ.saveAsTiff(objImp,objfile.getPath());
                     //IJ.saveAsTiff(objImpOriginal,objfile2.getPath());
                     counter[i] = 1;
                 });
@@ -527,76 +531,53 @@ public class NucleiExportation {
        ImagePlus objImp = dup.run(image);
        
        
-       ImageStack stNu = cs.getChannel(objImp, 8); // 32x32x19
+       ImageStack stNu = cs.getChannel(objImp, channelOfInterest); // 32x32x19
        
        int[] xPixels = vol.getPixelsX();
        int[] yPixels = vol.getPixelsY();
        int[] zPixels = vol.getPixelsZ(); 
-//       System.out.println("===== andre stuff ======");
-//       System.out.println(xPixels.length);
-//       
-//       System.out.println(stNu.getSize()); //should be 19
-//       System.out.println(stNu.getWidth());
-//       System.out.println(stNu.getHeight());
-//       
-       for(int i = 0; i < 10; i++){
-//           System.out.println("==========");
-//           System.out.println(xPixels[i]-xStart);
-//           System.out.println(yPixels[i]-yStart);
-//           System.out.println(zPixels[i]+1-zStart);
-           //System.out.println();
-           //System.out.println(stNu.getVoxel(xPixels[i], yPixels[i], zPixels[i]));
-       }
        
-       ImagePlus temp= IJ.createImage("nuclei", size, size, depth, image.getBitDepth());
-//       temp.show();
-//       temp.hide();
-       ImageStack tempStack = temp.getImageStack();
-       
-       for(int i = 0; i < xPixels.length; i++) {
-//           System.out.println("==========");
-//           System.out.println(xPixels[i]-xStart);
-//           System.out.println(yPixels[i]-yStart);
-//           System.out.println(zPixels[i]);
-//           System.out.println(zPixels[i]-zStart-1);
-           tempStack.setVoxel(xPixels[i]-xStart, yPixels[i] - yStart, zPixels[i]-zStart-1, 
-                   stNu.getVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]));
+       for(int x = 0; x < stNu.getWidth(); x++){
+           for(int y = 0; y < stNu.getHeight(); y++){
+               for(int z = 0; z < stNu.getSize(); z++){
+                   for(int i = 1; i < xPixels.length; i++){
+                   if(!(xPixels[i] == x) && (yPixels[i] == y) && (zPixels[i] == z )){
+                        stNu.setVoxel(x, y, z, 0);
+                   }
+                   }
+               }
+           }
            
-           // add a pixel in a random direction
-//           double randx = Math.random();
-//           double randy = Math.random();
-//           int randJitterx = (int) Math.round(randx)*2 - 1;
-//           int randJittery = (int) Math.round(randy)*2 - 1;
-//           tempStack.setVoxel(xPixels[i]-xStart+randJitterx, yPixels[i] - yStart + randJittery, zPixels[i]-zStart,
-//                   stNu.getVoxel(xPixels[i]-xStart+randJitterx, yPixels[i]-yStart+ randJittery, zPixels[i]-zStart));
        }
+
        
-       ImagePlus objImpNu = new ImagePlus("nuclei", tempStack);
+//      ImagePlus temp= IJ.createImage("nuclei", size, size, depth, objImp.getBitDepth());
+//
+//       
+//       ImageStack tempStack = temp.getImageStack();
+//       
+//       for(int i = 0; i < xPixels.length; i++) {
+//           
+//           
+//
+//           tempStack.setVoxel(xPixels[i]-xStart, yPixels[i] - yStart, zPixels[i]-zStart-1, 
+//                   stNu.getVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]));
+//           
+//
+//       }
+//       
+//              for(int j = 1; j <= tempStack.getSize(); j++){
+//       tempStack.getProcessor(j).setMinAndMax(0, Math.pow(2 ,objImp.getBitDepth()));
+//       }
+//       
+        ImagePlus objImpNu = new ImagePlus("nuclei", stNu);
        
-       //objImpNu.setDefault16bitRange(12);
-//       System.out.println("===MASK BIT DEPTH====");
-//       System.out.println(objImpNu.getBitDepth());
-//       System.out.println(image.getBitDepth());
-       
-        
-//        ImageStack stSource = image.getImageStack();
-        //ImagePlus objImp = IJ.createImage("nuclei", image.getBitDepth()+" black", size, size, depth);
-        //ImagePlus objImp = IJ.createImage("nuclei", size, size, depth, image.getBitDepth());
-//        ImageStack st = objImp.getImageStack();
-//        
-//        int[] xPixels = vol.getPixelsX();
-//        int[] yPixels = vol.getPixelsY();
-//        int[] zPixels = vol.getPixelsZ();
-//        for(int i = 0; i < xPixels.length; i++){
-//            st.setVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart, stSource.getVoxel(xPixels[i], yPixels[i], zPixels[i]));        
-//        }
-//        
-//        objImp.setStack(st);
-//        
-//        return objImp;
+
+               
+           // return objImp;
 
 
-          return objImpNu;
+         return objImpNu;
     }
     
     private ImagePlus getMorphStack(MicroObject vol, int[] starts){
@@ -709,7 +690,7 @@ public class NucleiExportation {
        
        ImagePlus objImp = dup.run(image);
        
-       ImageStack stNu = cs.getChannel(objImp, 8); //TODO: nuclei channel is hardcoded 
+       ImageStack stNu = cs.getChannel(objImp, this.channelOfInterest); //TODO: nuclei channel is hardcoded 
        ImagePlus objImpNu = new ImagePlus("nuclei", stNu);
        ImagePlus objImpNu_crop = dup.run(objImpNu, zStart, zStart+depth-1); //TODO validate this is correct
        
@@ -731,12 +712,13 @@ public class NucleiExportation {
 class ExportObjImgOptions extends JPanel{
         JTextArea size;
         JTextArea label;
+        JComboBox channelchoice;
         JSpinner depth;
         JCheckBox dapi;
         JComboBox zproject;
         JComboBox pixeltype;
         
-        public ExportObjImgOptions(int maxDepth, int maxSize, int recSize, boolean allowMorph){
+        public ExportObjImgOptions(int maxDepth, int maxSize, int recSize, boolean allowMorph, int nChannels){
             ArrayList<JLabel> labels = new ArrayList();
             
             JLabel labelLabel = new JLabel("Class label: ");
@@ -757,6 +739,16 @@ class ExportObjImgOptions extends JPanel{
                 }
             });
             
+            JLabel channel_label = new JLabel("Select nuclei channel: ");
+            labels.add(channel_label);
+            String[] channels = new String[nChannels];
+            
+            for(int i = 1; i <= nChannels; i++){
+                
+               channels[i-1] = "Channel " + i;
+            }
+              channelchoice = new JComboBox(channels);
+            
             JLabel depthLabel = new JLabel("Select Depth: ");
             labels.add(depthLabel);
             depth = new JSpinner(new SpinnerNumberModel(7,1,maxDepth,1));
@@ -766,7 +758,7 @@ class ExportObjImgOptions extends JPanel{
             
             JLabel pixtypeLabel = new JLabel("Select volume to export: ");
             labels.add(pixtypeLabel);
-            String[] pixtypeList = {"Mask Volume", "Morphological Volume", "All Values in Box", "Dapi+actin+apq1"};
+            String[] pixtypeList = {"Mask Volume", "Morphological Volume", "All Values in Box"};
             DefaultComboBoxModel<String> pixtypecbm = new DefaultComboBoxModel(pixtypeList);
             if(!allowMorph)
                 pixtypecbm.removeElement("Morphological Volume");
@@ -793,32 +785,32 @@ class ExportObjImgOptions extends JPanel{
             this.add(curlabel, gbc);
             gbc = new GridBagConstraints(1,0,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(label, gbc);
+            this.add(channelchoice, gbc);
             
             curlabel = labiter.next();
-            gbc = new GridBagConstraints(0,1,1,1,0.2,1.0,GridBagConstraints.WEST,
-                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(curlabel,gbc);
+            gbc = new GridBagConstraints(0,1,1,1,0.2,1.0,
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(curlabel, gbc);
             gbc = new GridBagConstraints(1,1,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(size,gbc);
+            this.add(label, gbc);
             
-            //Added label label
             curlabel = labiter.next();
             gbc = new GridBagConstraints(0,2,1,1,0.2,1.0,GridBagConstraints.WEST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
             this.add(curlabel,gbc);
             gbc = new GridBagConstraints(1,2,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(depth,gbc);
+            this.add(size,gbc);
             
+            //Added label label
             curlabel = labiter.next();
             gbc = new GridBagConstraints(0,3,1,1,0.2,1.0,GridBagConstraints.WEST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
             this.add(curlabel,gbc);
             gbc = new GridBagConstraints(1,3,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-            this.add(pixeltype,gbc);
+            this.add(depth,gbc);
             
             curlabel = labiter.next();
             gbc = new GridBagConstraints(0,4,1,1,0.2,1.0,GridBagConstraints.WEST,
@@ -826,9 +818,17 @@ class ExportObjImgOptions extends JPanel{
             this.add(curlabel,gbc);
             gbc = new GridBagConstraints(1,4,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(pixeltype,gbc);
+            
+            curlabel = labiter.next();
+            gbc = new GridBagConstraints(0,5,1,1,0.2,1.0,GridBagConstraints.WEST,
+                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            this.add(curlabel,gbc);
+            gbc = new GridBagConstraints(1,5,1,1,1,1.0,GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
             this.add(zproject,gbc);
             
-            gbc = new GridBagConstraints(0,5,1,1,1,1.0,GridBagConstraints.EAST,
+            gbc = new GridBagConstraints(0,6,1,1,1,1.0,GridBagConstraints.EAST,
                     GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
 //            this.add(dapi,gbc);
         }
@@ -852,6 +852,7 @@ class ExportObjImgOptions extends JPanel{
             info.add(label.getText());
             info.add(zproject.getSelectedItem().toString());
             info.add(pixeltype.getSelectedItem().toString());
+            info.add(channelchoice.getSelectedIndex()+1);
             return info;
         }
         

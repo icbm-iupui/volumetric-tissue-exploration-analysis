@@ -1223,7 +1223,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
         
         new Thread(() -> {
             try {
-                NucleiExportation_tile exportnuclei = new NucleiExportation_tile(impoverlay, objects, measurements);
+                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
                 try {   
                     exportnuclei.saveImages(path, currentX, currentY);
                 } catch (IOException ex) {
@@ -1231,7 +1231,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 }
                
             } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
+                System.out.println("ERROR: " + e.getMessage());
             }
         }).start();
         
