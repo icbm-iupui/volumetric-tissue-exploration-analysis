@@ -41,6 +41,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.LogAxis;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
@@ -368,15 +369,28 @@ public class XYChartPanel implements RoiListener {
 
         }
 
-        try {
+//        try {
+//            if (getRangeofData((ArrayList) measurements, x) > Math.pow(impoverlay.getBitDepth(), 2)) {
+//                LogAxis logAxisX = new LogAxis();
+//                logAxisX.setAutoRange(true);
+//                plot.setDomainAxis(logAxisX);
+//            }
+//
+//            if (getRangeofData((ArrayList) measurements, y) > Math.pow(impoverlay.getBitDepth(), 2)) {
+//                LogAxis logAxisY = new LogAxis();
+//                logAxisY.setAutoRange(true);
+//                plot.setRangeAxis(logAxisY);
+//            }
+            
+                    try {
             if (getRangeofData((ArrayList) measurements, x) > Math.pow(impoverlay.getBitDepth(), 2)) {
-                LogAxis logAxisX = new LogAxis();
+                LogarithmicAxis logAxisX = new LogarithmicAxis("X");
                 logAxisX.setAutoRange(true);
                 plot.setDomainAxis(logAxisX);
             }
 
             if (getRangeofData((ArrayList) measurements, y) > Math.pow(impoverlay.getBitDepth(), 2)) {
-                LogAxis logAxisY = new LogAxis();
+                LogarithmicAxis logAxisY = new LogarithmicAxis("Y");
                 logAxisY.setAutoRange(true);
                 plot.setRangeAxis(logAxisY);
             }

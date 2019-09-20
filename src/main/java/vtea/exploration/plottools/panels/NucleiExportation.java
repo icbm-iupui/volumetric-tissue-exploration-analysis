@@ -131,19 +131,14 @@ public class NucleiExportation {
         nlr.run();
     }
     public void saveImages(Path2D path, int xAxis, int yAxis) throws IOException{
-        
-//        ArrayList<ImagePlus> grid = splitImage();
-//        
-//        for (int vo = 0; vo < grid.size(); vo++){
-//            ImagePlus grid_subvolume = grid.get(vo);
-//        }
+
         
         info = image.getDimensions();
         Roi originalROI = image.getRoi();
         long start0 = System.currentTimeMillis();
         ArrayList<MicroObject> result = getGatedObjects(path, xAxis, yAxis);
         long end0 = System.currentTimeMillis();
-        System.out.println("Time to gather objects: " +(end0 - start0) / 1000f + " seconds");
+        //System.out.println("Time to gather objects: " +(end0 - start0) / 1000f + " seconds");
         
         int selectd = result.size();
 
@@ -169,6 +164,7 @@ public class NucleiExportation {
         String label = chosenOptions.get(3).toString();
         String projChoice = chosenOptions.get(4).toString();
         String voltype = (chosenOptions.get(5).toString());
+        //String bitdepth = (chosenOptions.get(7).toString());
         
         Class thisclass = this.getClass();
         Method getProperVolume = null;
@@ -216,23 +212,23 @@ public class NucleiExportation {
             System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", String.valueOf(num_processors_use));
             
             ArrayList<ArrayList<MicroObject>> res_split = new ArrayList<ArrayList<MicroObject>>();
-            int batch_size = 500;
-            if (selectd > 500) {
-                System.out.println("You are exporting many volumes, splitting jobs");
-                for (int b = 0; b < result.size(); b += batch_size){
-                    ArrayList<MicroObject> batch = new ArrayList<MicroObject>();
-                    for (int it = 0; it < batch_size; it++){
-                        MicroObject to_add = null;
-                        if (it+b < result.size()){to_add = result.get(it + b);}
-                        if (to_add != null) {batch.add(to_add);}
-                    }
-                    res_split.add(batch);
-                }
-                System.out.println("Made " + res_split.size() + " batches");
-            }
-            else {
+            //int batch_size = 500;
+//            if (selectd > 500) {
+//                System.out.println("You are exporting many volumes, splitting jobs");
+//                for (int b = 0; b < result.size(); b += batch_size){
+//                    ArrayList<MicroObject> batch = new ArrayList<MicroObject>();
+//                    for (int it = 0; it < batch_size; it++){
+//                        MicroObject to_add = null;
+//                        if (it+b < result.size()){to_add = result.get(it + b);}
+//                        if (to_add != null) {batch.add(to_add);}
+//                    }
+//                    res_split.add(batch);
+//                }
+//                System.out.println("Made " + res_split.size() + " batches");
+//            }
+//            else {
                 res_split.add(result);
-            }
+//            }
             // start processing of image
             for (int b = 0; b < res_split.size(); b++){
                 ArrayList<String> filenames = new ArrayList<>();
@@ -240,11 +236,11 @@ public class NucleiExportation {
                 ArrayList<ArrayList<byte[]>> all_images_array = new ArrayList<ArrayList<byte[]>>();
                 ArrayList<Object[]> img_pix_array = new ArrayList<Object[]>();
                 ArrayList<Double> serialID_array = new ArrayList<Double>();
-                System.out.println(String.format("======== Batch: %d/%d ======", b+1, res_split.size()));
+               // System.out.println(String.format("======== Batch: %d/%d ======", b+1, res_split.size()));
                 long start = System.currentTimeMillis();
                 ArrayList<MicroObject> result_batch = res_split.get(b);
                 int items_in_batch = result_batch.size();
-                System.out.println("Items in batch: " + items_in_batch);
+                //System.out.println("Items in batch: " + items_in_batch);
                 int[] counter = new int[items_in_batch];
                 
                 IntStream.range(0, items_in_batch).parallel().forEach((int i) -> {
@@ -261,24 +257,33 @@ public class NucleiExportation {
                     }
 
 
-                    int bitDepthOut = 8;
-                    ImageStack stNu = objImp.getStack();
-                    int slices = stNu.getSize();
-                    //System.out.println(height + " " + width + " " + slices); //32x32x7
-                    ImagePlus temp= IJ.createImage("nuclei", size, size, slices, bitDepthOut);
-                    ImageStack tempStack = temp.getImageStack();
+//                    int bitDepthOut = 8;
+//                    ImageStack stNu = objImp.getStack();
+//                    int slices = stNu.getSize();
+//                    //System.out.println(height + " " + width + " " + slices); //32x32x7
+//                    ImagePlus temp= IJ.createImage("nuclei", size, size, slices, bitDepthOut);
+//                    ImageStack tempStack = temp.getImageStack();
+                    
+                    objImp.setDisplayRange(0, 4095);
+                    IJ.run(objImp, "8-bit", "");
 
-                    for (int z = 1; z <= depth; z++){
-                        ImageProcessor ip_s = stNu.getProcessor(z);
-                        //ip_s.multiply(Math.pow(2,16) / Math.pow(2, 12));
-                        tempStack.setProcessor(ip_s.convertToByteProcessor(), z);
-                    }
-                    objImp = new ImagePlus("8bit", tempStack);
+//                    for (int z = 1; z <= depth; z++){
+//                        //ImageProcessor ip_s = stNu.getProcessor(z);
+//                        //ip_s.multiply(Math.pow(2,16) / Math.pow(2, 12));
+//                        //tempStack.setProcessor(ip_s.convertToByteProcessor(), z);
+//                        tempStack.getProcessor(z).setMinAndMax(0, 4095);
+//                        tempStack.getProcessor(z).convertToByteProcessor(true);
+//                    }
+                    //objImp = new ImagePlus("8bit", tempStack);
 
                     //ZProjection as based on the choice made in options
                     if(!projChoice.equals("No Z projection")){
                         objImp = ZProjector.run(objImp,projChoice);
                     }
+                    
+                    File objfile = new File(file.getPath()+ File.separator + "object" + "_" + vol.getSerialID() + "_" + Math.round(vol.getCentroidX()) + "_" + "_" + Math.round(vol.getCentroidY()) + "_" + "_" + Math.round(vol.getCentroidZ()) + "_" + label + ".tiff");
+                    IJ.saveAsTiff(objImp,objfile.getPath());
+
 
                     ImageStack ips = objImp.getStack();
                     Object[] pix = ips.getImageArray();
@@ -292,12 +297,12 @@ public class NucleiExportation {
 
                     all_images_array.add(oneimgbyte);
                     serialID_array.add(serialID_export);
-                    File objfile = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
+
                     //File objfile2 = new File(file.getPath()+ File.separator + "nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + "_byte.tiff");
                     //filenames.add("nuclei" + count + "_ " + label + "_" + Math.round(vol.getCentroidZ()) + ".tiff");
 
                     //ImageIO.write(bufImg, "gif", objfile);
-                    IJ.saveAsTiff(objImp,objfile.getPath());
+                    
                     //IJ.saveAsTiff(objImpOriginal,objfile2.getPath());
                     counter[i] = 1;
                 });
@@ -531,53 +536,38 @@ public class NucleiExportation {
        ImagePlus objImp = dup.run(image);
        
        
+       
+       
+       
+       
        ImageStack stNu = cs.getChannel(objImp, channelOfInterest); // 32x32x19
        
        int[] xPixels = vol.getPixelsX();
        int[] yPixels = vol.getPixelsY();
        int[] zPixels = vol.getPixelsZ(); 
        
-       for(int x = 0; x < stNu.getWidth(); x++){
-           for(int y = 0; y < stNu.getHeight(); y++){
-               for(int z = 0; z < stNu.getSize(); z++){
-                   for(int i = 1; i < xPixels.length; i++){
-                   if(!(xPixels[i] == x) && (yPixels[i] == y) && (zPixels[i] == z )){
-                        stNu.setVoxel(x, y, z, 0);
-                   }
-                   }
-               }
-           }
-           
+
+       
+      ImagePlus temp= IJ.createImage("nuclei", size, size, depth, objImp.getBitDepth());
+      
+      //temp.show();
+
+       
+       ImageStack tempStack = temp.getImageStack();
+       
+       for(int i = 0; i < xPixels.length; i++) {
+                    tempStack.setVoxel(xPixels[i]-xStart, yPixels[i] - yStart, zPixels[i]-zStart-1, 
+                    stNu.getVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]));
        }
 
        
-//      ImagePlus temp= IJ.createImage("nuclei", size, size, depth, objImp.getBitDepth());
-//
-//       
-//       ImageStack tempStack = temp.getImageStack();
-//       
-//       for(int i = 0; i < xPixels.length; i++) {
-//           
-//           
-//
-//           tempStack.setVoxel(xPixels[i]-xStart, yPixels[i] - yStart, zPixels[i]-zStart-1, 
-//                   stNu.getVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]));
-//           
-//
-//       }
-//       
-//              for(int j = 1; j <= tempStack.getSize(); j++){
-//       tempStack.getProcessor(j).setMinAndMax(0, Math.pow(2 ,objImp.getBitDepth()));
-//       }
-//       
-        ImagePlus objImpNu = new ImagePlus("nuclei", stNu);
+       for(int j = 1; j <= tempStack.size(); j++){
+           tempStack.getProcessor(j).convertToByte(false);
+       }
+       
        
 
-               
-           // return objImp;
-
-
-         return objImpNu;
+         return temp;
     }
     
     private ImagePlus getMorphStack(MicroObject vol, int[] starts){
@@ -675,8 +665,8 @@ public class NucleiExportation {
         int yStart = starts[1];
         int zStart = starts[2];
         int finish = depth + zStart;
-        //System.out.println("zstart " + zStart);
-        //System.out.println("finish " + finish);
+        System.out.println("zstart " + zStart);
+        System.out.println("finish " + finish);
         
         //ImageStack cropMe = image.getImageStack();
         
@@ -690,9 +680,25 @@ public class NucleiExportation {
        
        ImagePlus objImp = dup.run(image);
        
-       ImageStack stNu = cs.getChannel(objImp, this.channelOfInterest); //TODO: nuclei channel is hardcoded 
+       ///This is what I need TODO
+//       ImagePlus objImp = dup.run(ImagePlus imp,
+//                     channelOfInterest,
+//                     channelOfInterest,
+//                     zStart,
+//                     int lastZ,
+//                     1,
+//                     1)
+       
+       ImageStack stNu = cs.getChannel(objImp, channelOfInterest); 
+       
+       
+       
+       
        ImagePlus objImpNu = new ImagePlus("nuclei", stNu);
-       ImagePlus objImpNu_crop = dup.run(objImpNu, zStart, zStart+depth-1); //TODO validate this is correct
+       
+       
+       
+       //ImagePlus objImpNu_crop = dup.run(objImpNu, 1); //TODO validate this is correct
        
 //       System.out.println(objImpNu_crop.getDisplayRangeMax()); //4095
 //       System.out.println(objImpNu_crop.getDisplayRangeMin()); //0
@@ -704,7 +710,7 @@ public class NucleiExportation {
 //        objImp.setStack(objImgStack);
         
         //return objImp;
-        return objImpNu_crop;
+        return objImpNu  ;
     }
 }
 
@@ -766,7 +772,8 @@ class ExportObjImgOptions extends JPanel{
             
             JLabel zprojLabel = new JLabel("Select Z-projection: ");
             labels.add(zprojLabel);
-            String [] zprojList = {"No Z projection", "avg", "min", "max", "sum", "sd", "median"};
+            //String [] zprojList = {"No Z projection", "avg", "min", "max", "sum", "sd", "median"};
+            String [] zprojList = {"No Z projection", "avg", "max", "sum", "median"};
             zproject = new JComboBox(zprojList);
             
             
