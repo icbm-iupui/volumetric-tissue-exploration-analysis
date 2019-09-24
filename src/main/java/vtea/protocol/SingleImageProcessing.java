@@ -1290,7 +1290,7 @@ addObjectBlock();
 
     private void executeExploring(String key, ArrayList<MicroObject> vols, ArrayList measurements, ArrayList headers, ArrayList headerLabels) {
         
-        System.out.println("PROFILING: Exploring on dataset: " + key);  
+        
         //ij.ImageStack[] test = vols.get(0).exportObjImage(); for debugging
         ExplorerProcessor ep = new ExplorerProcessor(key, ProcessedImage, vols, measurements, headers, headerLabels);
         ep.addPropertyChangeListener(this);

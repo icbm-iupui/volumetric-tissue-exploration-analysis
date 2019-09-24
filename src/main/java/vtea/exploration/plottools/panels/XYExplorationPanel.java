@@ -37,6 +37,8 @@ import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -54,7 +56,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ListIterator;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -65,6 +71,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.ProgressMonitorInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
@@ -74,6 +81,9 @@ import vtea.ExportCSV;
 import vtea._vtea;
 import static vtea._vtea.LUTMAP;
 import static vtea._vtea.LUTOPTIONS;
+import vtea.exploration.listeners.AddFeaturesListener;
+import vtea.exploration.listeners.DistanceMapListener;
+import vtea.exploration.listeners.FeatureMapListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SaveGatedImagesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
@@ -92,6 +102,7 @@ import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vtea.jdbc.H2DatabaseEngine;
 import vtea.lut.AbstractLUT;
+import vtea.spatial.distanceMaps2d;
 import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
@@ -100,7 +111,7 @@ import vteaobjects.MicroObjectModel;
  *
  * @author vinfrais
  */
-public class XYExplorationPanel extends AbstractExplorationPanel implements  WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener, SubGateListener {
+public class XYExplorationPanel extends AbstractExplorationPanel implements  DistanceMapListener, WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener, SubGateListener {
     
     XYChartPanel cpd;
     private boolean useGlobal = false;
@@ -132,6 +143,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Win
         this.LUT = 0;
         this.hm = hm;
         this.pointsize = MicroExplorer.POINTSIZE;
+        
+        distanceMaps2D = new distanceMaps2d();
        
 
         //default plot 
@@ -248,6 +261,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Win
                 while (itr.hasNext()) {
                     ArrayList al = itr.next();
                     int object = ((Number) (al.get(0))).intValue();
+                    
+                    
                     result.add(volumes.get(object));
                     
                 }
@@ -592,11 +607,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Win
         //add overlay 
         this.gl = new GateLayer();
         gl.addPolygonSelectionListener(this);
+        
         gl.addImageHighLightSelectionListener(this);
         
         gl.addImagesListener(this);
         
         gl.addSubGateListener(this);
+        
+        gl.addDistanceMapListener(this);
        
         gl.msActive = false;
 
@@ -884,6 +902,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Win
         gl.addPolygonSelectionListener(this);
         gl.addPasteGateListener(this);
         gl.addImageHighLightSelectionListener(this);
+        gl.addDistanceMapListener(this);
         gl.msActive = false;
         //this.gates = new ArrayList();
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates);
@@ -1244,7 +1263,29 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Win
     @Override
     public void subGate() {
         
-         Gate gate;
+
+        ArrayList<ArrayList> al = cloneGatedObjectsMeasurements();
+        ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
+        ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
+        
+
+        
+        objectsTemp = al.get(0);    
+        measurementsFinal = al.get(1);
+//            ExportCSV ex = new ExportCSV(this.chart);
+//            ex.export(objectsTemp, measurementsFinal, this.descriptions);
+                System.out.println("Launching new explorer window... \n with " +
+                        objectsTemp.size() + " objects and " + measurementsFinal.size() + 
+                        " measurements.");
+                notifySubgateListener(objectsTemp, measurementsFinal);
+                  
+            
+    }
+            
+
+    private ArrayList<ArrayList> cloneGatedObjectsMeasurements(){
+        
+                 Gate gate;
         ListIterator<Gate> gate_itr = gates.listIterator();
 
         int total = 0;
@@ -1252,6 +1293,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Win
         int selected = 0;
         int gatedSelected = 0;
         int gatecount = gates.size();
+        
+        ArrayList<ArrayList> result = new ArrayList<ArrayList>();
 
         while (gate_itr.hasNext()) {
             gate = gate_itr.next();
@@ -1261,15 +1304,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Win
                 Path2D.Double path = gate.createPath2DInChartSpace();
 
                 ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
+                ArrayList<MicroObject> objectsGated = new ArrayList<MicroObject>();
                 ArrayList<MicroObject> objectsFinal = new ArrayList<MicroObject>();
                 
-                ArrayList<ArrayList<Number>> measurements = new ArrayList<ArrayList<Number>>();
+                ArrayList<ArrayList<Number>> sortTemp = new ArrayList<ArrayList<Number>>();
+                
+                ArrayList<ArrayList<Number>> measurementsTemp = new ArrayList<ArrayList<Number>>();
                 ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
+                ArrayList<ArrayList<Number>> measurementsGated = new ArrayList<ArrayList<Number>>();
+                
                 
                 ArrayList<String> description = new ArrayList<String>();
-
-                ArrayList<MicroObject> volumes = (ArrayList) objects;
-                MicroObjectModel volume;
+               
 
                 double xValue = 0;
                 double yValue = 0;
@@ -1277,6 +1323,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Win
                 description.add(this.descriptions.get(currentX));
                 description.add(this.descriptions.get(currentY));
                 description.add(this.descriptions.get(currentL));
+                
+                System.out.println("PROFILING: Measurements length, " + measurements.size());
                 
                 //this is where we need to add logic for polygons...  this is tripping up things
 
@@ -1294,45 +1342,233 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Win
                 while (itr.hasNext()) { 
                     ArrayList al = itr.next();
                     int object = ((Number) (al.get(0))).intValue();
-                    objectsTemp.add(volumes.get(object));
-
-                    measurements.add(this.measurements.get(object));
-                    
-                    
+                    objectsTemp.add(objects.get(object));
+                    measurementsTemp.add(this.measurements.get(object)); 
+                    sortTemp.add(al);
                 }
+//////////////////////////////////////
 
                 try {
-                    for (int i = 0; i < objectsTemp.size(); i++) {
+                        FileOutputStream fos = new FileOutputStream(ij.Prefs.getImageJDir() + vtea._vtea.MEASUREMENTS_TEMP);
+                        ObjectOutputStream oos = new ObjectOutputStream(fos);
 
-                        ArrayList<Number> measured = resultKey.get(i);
+                        oos.writeObject(objectsTemp);
+                        
+                        FileInputStream fis = new FileInputStream(ij.Prefs.getImageJDir() + vtea._vtea.MEASUREMENTS_TEMP);
+                        ObjectInputStream ois = new ObjectInputStream(fis);
 
-                        xValue = measured.get(1).doubleValue();
-                        yValue = measured.get(2).doubleValue();
+                  
+                    try {
+                        objectsGated = (ArrayList<MicroObject>) ois.readObject();
+                    } catch (ClassNotFoundException ex) {}
                         
                         
+                    oos.close();     
+                    ois.close();
+                    
+                } catch (IOException ex ) {
+                    
+                }
+////////////////////////////////////             
 
+                try {
+           FileOutputStream fos1 = new FileOutputStream(ij.Prefs.getImageJDir() + vtea._vtea.OBJECTS_TEMP);
+                        ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
+                
+                        oos1.writeObject(measurementsTemp);
+                        
+                        FileInputStream fis1 = new FileInputStream(ij.Prefs.getImageJDir() + vtea._vtea.OBJECTS_TEMP);
+                        ObjectInputStream ois1 = new ObjectInputStream(fis1);
+
+                  
+                    try {
+                        measurementsGated = (ArrayList<ArrayList<Number>>) ois1.readObject();
+                    } catch (ClassNotFoundException ex) {
+                        
+                    }
+                    oos1.close();
+                    ois1.close();
+                } catch (IOException ex ) {
+                    
+                }
+                               
+//////////////////////////////////////
+                try {
+                    int position = 0;
+                    for (int i = 0; i < objectsGated.size(); i++) {
+                        
+                        MicroObject object = ((MicroObject) objectsGated.get(i)); 
+                        object.setSerialID(i); 
+
+                        ArrayList<Number> sorted = (ArrayList<Number>)sortTemp.get(i);
+
+                        xValue = sorted.get(1).doubleValue();
+                        yValue = sorted.get(2).doubleValue();
+                        
+//                        System.out.println("PROFILING, path: "  + path.getBounds2D());
+//                        System.out.println("PROFILING, uid: " + object.getSerialID() + ", measurement position: " + i+ ", position: x, " + xValue + ", " + yValue + ".");
+//                       
+                        
+                        
                         if (path.contains(xValue, yValue)) {
-                            ((MicroObject) objectsTemp.get(i)).setSerialID(i);
                             
-                            measurements.get(i).set(0, i); 
                             
-                            objectsFinal.add((MicroObject) objectsTemp.get(i));
-                            measurementsFinal.add(measurements.get(i));
+                            objectsFinal.add(object);
+
+                            measurementsFinal.add(measurementsGated.get(i));
+
+                            //System.out.println("Added...");
+
+                            position++;
                         }
+                        
                     }
                 } catch (NullPointerException e) {
                 }
-//            ExportCSV ex = new ExportCSV(this.chart);
-//            ex.export(objectsTemp, measurementsFinal, this.descriptions);
-                System.out.println("Launching new explorer window...");
-                notifySubgateListener(objectsTemp, measurementsFinal);
-                  
-            
+              result.add(objectsFinal);
+                result.add(measurementsFinal);
+                 
             }
             
-
-  
+        }
+        return result; 
     }
+
+    private ArrayList<ArrayList> getGatedObjectsMeasurements(){
+        
+                 Gate gate;
+        ListIterator<Gate> gate_itr = gates.listIterator();
+
+        int total = 0;
+        int gated = 0;
+        int selected = 0;
+        int gatedSelected = 0;
+        int gatecount = gates.size();
+        
+        ArrayList<ArrayList> result = new ArrayList<ArrayList>();
+
+        while (gate_itr.hasNext()) {
+            gate = gate_itr.next();
+
+            if (gate.getSelected()) {
+
+                Path2D.Double path = gate.createPath2DInChartSpace();
+
+                ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
+
+                ArrayList<MicroObject> objectsFinal = new ArrayList<MicroObject>();
+                
+                ArrayList<ArrayList<Number>> sortTemp = new ArrayList<ArrayList<Number>>();
+                
+                ArrayList<ArrayList<Number>> measurementsTemp = new ArrayList<ArrayList<Number>>();
+
+                ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
+                
+                
+                ArrayList<String> description = new ArrayList<String>();
+               
+
+                double xValue = 0;
+                double yValue = 0;
+                
+                description.add(this.descriptions.get(currentX));
+                description.add(this.descriptions.get(currentY));
+                description.add(this.descriptions.get(currentL));
+                
+                //this is where we need to add logic for polygons...  this is tripping up things
+                
+                System.out.println("PROFILING: Menu selections, " + currentX + ", " + currentY + ", " + currentL);
+
+                ArrayList<ArrayList> resultKey = 
+                        H2DatabaseEngine.getObjectsInRange2D(path, 
+                        vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
+                        this.descriptions.get(currentX), path.getBounds2D().getX(),
+                        path.getBounds2D().getX() + path.getBounds2D().getWidth(),
+                        this.descriptions.get(currentY), path.getBounds2D().getY(),
+                        path.getBounds2D().getY() + path.getBounds2D().getHeight(), 
+                        this.descriptions.get(currentL));
+
+                ListIterator<ArrayList> itr = resultKey.listIterator();
+
+                while (itr.hasNext()) { 
+                    ArrayList al = itr.next();
+                    int object = ((Number) (al.get(0))).intValue();
+                    objectsTemp.add(objects.get(object));
+                    measurementsTemp.add(this.measurements.get(object)); 
+                    sortTemp.add(al);
+                }
+
+                try {
+                    int position = 0;
+                    for (int i = 0; i < objectsTemp.size(); i++) {
+                        
+                        MicroObject object = ((MicroObject) objectsTemp.get(i)); 
+                        
+                        ArrayList<Number> sorted = (ArrayList<Number>)sortTemp.get(i);
+
+                        xValue = sorted.get(1).doubleValue();
+                        yValue = sorted.get(2).doubleValue();
+                        
+//                        System.out.println("PROFILING, path: "  + path.getBounds2D());
+//                        System.out.println("PROFILING, uid: " + object.getSerialID() + ", measurement position: " + i+ ", position: x, " + xValue + ", " + yValue + ".");
+//                       
+                        
+                        
+                        if (path.contains(xValue, yValue)) {
+                            
+                            
+                            objectsFinal.add(object);
+
+                            measurementsFinal.add(measurementsTemp.get(i));
+
+                            System.out.println("Added...");
+
+                            position++;
+                        }
+                        
+                    }
+                } catch (NullPointerException e) {
+                }
+              result.add(objectsFinal);
+                result.add(measurementsFinal);
+                 
+            }
+            
+        }
+        return result; 
+    }
+    
+    @Override
+    public void addDistanceMapFromGate(String s) {
+        
+        ArrayList<ArrayList> al = cloneGatedObjectsMeasurements();
+        ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
+        ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
+        
+        objectsTemp = al.get(0);    
+        
+        ImagePlus map = distanceMaps2D.makeMap(impoverlay, objectsTemp);
+ 
+        distanceMaps2D.addMap(map, s);
+        
+        measurementsFinal = distanceMaps2D.getDistance(objects, map);
+        
+        System.out.println("PROFILING: number of features: " + measurementsFinal.size());
+        System.out.println("PROFILING: objects to add new features to: " + measurementsFinal.get(0).size());
+        
+        this.notifyAddFeatureListener(s, measurementsFinal);
+    }
+
+    @Override
+    public void addFeatureListener(AddFeaturesListener listener) {
+          addfeaturelisteners.add(listener);
+    }
+
+    @Override
+    public void notifyAddFeatureListener(String name, ArrayList<ArrayList<Number>> feature) {
+               for (AddFeaturesListener listener : addfeaturelisteners) {
+            listener.addFeatures(name, feature);
+        }
     }
     
 

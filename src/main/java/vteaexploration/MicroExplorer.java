@@ -74,9 +74,11 @@ import vtea.OpenObxFormat;
 import vtea._vtea;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.AxesChangeListener;
+import vtea.exploration.listeners.FeatureMapListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
+import vtea.exploration.plottools.panels.AbstractExplorationPanel;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
 import vtea.feature.FeatureFrame;
@@ -90,7 +92,7 @@ import vtea.protocol.setup.SegmentationPreviewer;
  *
  */
 
-public class MicroExplorer extends javax.swing.JFrame implements SubGateExplorerListener, AddFeaturesListener, RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
+public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListener, SubGateExplorerListener, AddFeaturesListener, RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
 
     private XYPanels DefaultXYPanels;
     private static final Dimension MAINPANELSIZE = new Dimension(630, 640);
@@ -178,7 +180,7 @@ public class MicroExplorer extends javax.swing.JFrame implements SubGateExplorer
 
     }
 
-    public void process(String key, ImagePlus imp, String title, ArrayList plotvalues, ExplorationCenter ec, PlotAxesPanels pap, ArrayList AvailableData, ArrayList descriptionLabel) {
+    public void process(String key, ImagePlus imp, String title, ArrayList plotvalues, AbstractExplorationPanel aep, PlotAxesPanels pap, ArrayList AvailableData, ArrayList descriptionLabel) {
         //Needs to be converted to a Factory metaphor.
 
         //Setup base dataseta
@@ -219,7 +221,7 @@ public class MicroExplorer extends javax.swing.JFrame implements SubGateExplorer
 
         get3DProjection.setEnabled(false);
 
-        makeOverlayImage(new ArrayList<Gate>(), ec.getSelectedObjects(), ec.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
+        makeOverlayImage(new ArrayList<Gate>(), aep.getSelectedObjects(), aep.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
 
         AvailableDataHM = makeAvailableDataHM(descriptions);
         
@@ -330,11 +332,12 @@ public class MicroExplorer extends javax.swing.JFrame implements SubGateExplorer
         this.getContentPane().setPreferredSize(new Dimension(600, 600));
 
         Main.setBackground(new Color(255, 255, 255, 255));
-        ec.addResetSelectionListener(this);
-        ec.addSubgateListener(this);
-        ec.getXYChartPanel().addUpdatePlotWindowListener(this);
-        ec.setGatedOverlay(impoverlay);
-        ExplorationPanels.add(ec);
+        aep.addResetSelectionListener(this);
+        aep.addSubgateListener(this);
+        aep.getXYChartPanel().addUpdatePlotWindowListener(this);
+        aep.addFeatureListener(this);
+        aep.setGatedOverlay(impoverlay);
+        ExplorationPanels.add(aep);
         
 
         //load default view
@@ -351,7 +354,7 @@ public class MicroExplorer extends javax.swing.JFrame implements SubGateExplorer
         ff = new FeatureFrame(descriptions, ObjectIDs, imp);
         ff.addListener(this);
         
-        mf = new MeasurementFrame(descriptions, ec.getObjects(), imp);
+        mf = new MeasurementFrame(descriptions, aep.getObjects(), imp);
         mf.addListener(this);
        
 
@@ -1124,10 +1127,10 @@ public class MicroExplorer extends javax.swing.JFrame implements SubGateExplorer
     private javax.swing.JButton jButtonFeature;
     private javax.swing.JButton jButtonMeas;
     private javax.swing.JComboBox jComboBox1;
-    protected javax.swing.JComboBox jComboBoxLUTPlot;
+    private javax.swing.JComboBox jComboBoxLUTPlot;
     private javax.swing.JComboBox jComboBoxPointSize;
-    protected javax.swing.JComboBox jComboBoxXaxis;
-    protected javax.swing.JComboBox jComboBoxYaxis;
+    private javax.swing.JComboBox jComboBoxXaxis;
+    private javax.swing.JComboBox jComboBoxYaxis;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -1151,10 +1154,27 @@ public class MicroExplorer extends javax.swing.JFrame implements SubGateExplorer
     public void makeSubGateExplorer(ArrayList<MicroObject> objects, ArrayList<ArrayList<Number>> measurements){
          new Thread(() -> {
             try {
+                
+                
+                
+                ArrayList<String> newDescriptions = new ArrayList<String>();
+                ArrayList<String> newDescriptionsLabels = new ArrayList<String>();
+                
+                ListIterator<String> itr = descriptions.listIterator();
+                while(itr.hasNext()){
+                    String str = itr.next().toString();
+                    newDescriptions.add(str);
+                }
+                
+                ListIterator<String> itr1 = descriptionsLabels.listIterator();
+                while(itr1.hasNext()){
+                    String str1 = itr1.next().toString();
+                    newDescriptionsLabels.add(str1);
+                }
         
 
-        ExplorerProcessor ep = new ExplorerProcessor("Subgate_" + subgateSerial + "_" + this.key , imp, objects, 
-                measurements, descriptions, descriptionsLabels);
+        ExplorerProcessor ep = new ExplorerProcessor("Subgate_" + subgateSerial + "_" + this.key , imp.duplicate(), objects, 
+                measurements, newDescriptions, newDescriptionsLabels);
         ep.execute();
         
         subgateSerial++;
@@ -1714,6 +1734,16 @@ public class MicroExplorer extends javax.swing.JFrame implements SubGateExplorer
              updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
         
         pack();
+        
+        //rebuild FeatureFrame columns
+        makeDataTable();
+        ff.updateColumns(ObjectIDs, descriptions);
+    }
+
+    @Override
+    public void addFeatureMap(String name, ArrayList<ArrayList<Number>> al) {
+        System.out.println("PROFILING: Adding distance map measurements");
+        addFeatures(name, al);
     }
 
     class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {

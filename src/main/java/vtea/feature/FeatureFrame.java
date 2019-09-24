@@ -601,6 +601,20 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
             deleteColumns(dupl);
     }
     
+    public void updateColumns(double[][] newFeatures, ArrayList<String> newDescriptions){
+        
+        this.descriptions = new ArrayList<String>();
+        
+        this.descriptions.add("PosX");
+        this.descriptions.add("PosY");
+        this.descriptions.add("PosZ");
+
+       
+        this.descriptions.addAll(newDescriptions);
+        
+        features = newFeatures;  
+    } 
+    
     private void deleteColumns(ArrayList<Integer> duplicates){
         double[][] newfeat = new double[features.length][features[0].length - duplicates.size()];
         

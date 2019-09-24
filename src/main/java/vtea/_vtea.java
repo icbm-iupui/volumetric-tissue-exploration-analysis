@@ -67,9 +67,16 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
     
+    public static String TEMP_DIRECTORY = new String(ij.Prefs.getImageJDir() + 
+            System.getProperty("path.separator") + "VTEATEMP" + 
+            System.getProperty("path.separator"));
+    
     public static String H2_DATABASE = new String("VTEADB");
     public static String H2_MEASUREMENTS_TABLE = new String("MEASUREMENTS");
     public static String H2_OBJECT_TABLE = new String("OBJECTS");
+    
+    public static String MEASUREMENTS_TEMP = new String("MEASUREMENTS_TEMP");
+    public static String OBJECTS_TEMP = new String("OBJECTS_TEMP");
     
     public static String LASTDIRECTORY = new String(System.getProperty("user.home") + "/Desktop");
     
