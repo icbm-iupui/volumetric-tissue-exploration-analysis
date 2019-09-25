@@ -722,11 +722,7 @@ public class GateLayer implements ActionListener, ItemListener {
             }
             if(path != null)
                 notifyImageListeners(path);
-//<<<<<<< NucleiImageOutput_v2
-//        }    
-//        else if(e.getActionCommand().equals("Run CNN test")){
-//            //Used to read csv of labels and apply overlay
-//=======
+
         }  else if(e.getActionCommand().equals("Subgate Selection...")){
             //Used to subgate to a new MicroExplorer
             
@@ -739,11 +735,9 @@ public class GateLayer implements ActionListener, ItemListener {
                     path = g.createPath2DInChartSpace();
                 }
             }
- //           if(path != null)
-// NucleiImageOutput_v2
-//                notifyImageListenersCNN(path);
-        }    
 
+            
+    
                 notifySubgateListeners();
         } else if(e.getActionCommand().equals("Add Distance Map...")){
             //Used to subgate to a new MicroExplorer
