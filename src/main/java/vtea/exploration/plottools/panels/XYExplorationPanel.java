@@ -1227,11 +1227,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                 try {   
                     exportnuclei.saveImages(path, currentX, currentY);
                 } catch (IOException ex) {
-                    Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
+
+                    System.out.println("ERROR: " + ex.getLocalizedMessage());
                 }
                
             } catch (Exception e) {
-                System.out.println("ERROR: " + e.getMessage());
+                System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
         
@@ -1244,6 +1245,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Wind
                     exportnuclei.readCSV(path, currentX, currentY);
                 } catch (IOException ex) {
                     Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println("ERROR: " + ex.getLocalizedMessage());
                 }
                
             } catch (Exception e) {
