@@ -64,10 +64,10 @@ public class OpenObxFormat {
                     FileInputStream fis = new FileInputStream(file);
                     ObjectInputStream ois = new ObjectInputStream(fis);
 
-                    ProgressMonitorInputStream pm
-                            = new ProgressMonitorInputStream(parent, "Reading" + file.getName(), fis);
-                    
-                    pm.getProgressMonitor().setMillisToPopup(10);
+//                    ProgressMonitorInputStream pm
+//                            = new ProgressMonitorInputStream(parent, "Reading" + file.getName(), fis);
+//                    
+//                    pm.getProgressMonitor().setMillisToPopup(10);
                     
 
                     result = (ArrayList) ois.readObject();

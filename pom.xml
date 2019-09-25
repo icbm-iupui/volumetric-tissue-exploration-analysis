@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <version>1.0alpha-SNAPSHOT</version>
 
 
-    <name>VTEA master</name>
+    <name>VTEA_nuclei_v2</name>
     <description>Volumetric analysis</description>
     
     <properties>

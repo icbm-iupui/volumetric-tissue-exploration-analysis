@@ -310,8 +310,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
                     ListIterator<MicroObject> vitr = result.listIterator();
 
                     boolean inZ = true;
-
-                    while (vitr.hasNext() && inZ) {
+                    while (vitr.hasNext()) {
+                    //while (vitr.hasNext() && inZ) {
 
                         MicroObject vol = (MicroObject) vitr.next();
 
@@ -1256,8 +1256,41 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
     
     @Override
     public void saveGated(Path2D path){
-        NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
-        exportnuclei.saveImages(path, currentX, currentY);   
+        //NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
+        
+        new Thread(() -> {
+            try {
+                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
+                try {   
+                    exportnuclei.saveImages(path, currentX, currentY);
+                } catch (IOException ex) {
+
+                    System.out.println("ERROR: " + ex.getLocalizedMessage());
+                }
+               
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();
+        
+    }
+    public void saveGatedCNN(Path2D path){
+        new Thread(() -> {
+            try {
+                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
+                try {   
+                    exportnuclei.readCSV(path, currentX, currentY);
+                } catch (IOException ex) {
+                    Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println("ERROR: " + ex.getLocalizedMessage());
+                }
+               
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();
+        
+        
     }
 
     @Override

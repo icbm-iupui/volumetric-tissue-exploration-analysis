@@ -471,7 +471,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             .addGroup(Object_PanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(Object_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
+                    .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE)
                     .addGroup(Object_PanelLayout.createSequentialGroup()
                         .addComponent(ObjectGo, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 316, Short.MAX_VALUE)))

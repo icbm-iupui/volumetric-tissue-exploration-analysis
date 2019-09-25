@@ -659,6 +659,12 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
+         //NucleiImageOutput_v2
+       // menuItem = new JMenuItem("Run CNN test");
+        //menuItem.addActionListener(this);
+        //menu.add(menuItem);
+        
+
         menu.add(new JSeparator());
         
         menuItem = new JMenuItem("Subgate Selection...");
@@ -672,9 +678,6 @@ public class GateLayer implements ActionListener, ItemListener {
        
         menuItem.addActionListener(this);
         menu.add(menuItem);
-        
-        
-        
         
 
         //Add listener to the text area so the popup menu can come up.
@@ -719,9 +722,15 @@ public class GateLayer implements ActionListener, ItemListener {
             }
             if(path != null)
                 notifyImageListeners(path);
+//<<<<<<< NucleiImageOutput_v2
+//        }    
+//        else if(e.getActionCommand().equals("Run CNN test")){
+//            //Used to read csv of labels and apply overlay
+//=======
         }  else if(e.getActionCommand().equals("Subgate Selection...")){
             //Used to subgate to a new MicroExplorer
             
+
             ListIterator<Gate> gt = gates.listIterator();
             Path2D path = null;
             while(gt.hasNext()){
@@ -730,7 +739,11 @@ public class GateLayer implements ActionListener, ItemListener {
                     path = g.createPath2DInChartSpace();
                 }
             }
-            if(path != null)
+ //           if(path != null)
+// NucleiImageOutput_v2
+//                notifyImageListenersCNN(path);
+        }    
+
                 notifySubgateListeners();
         } else if(e.getActionCommand().equals("Add Distance Map...")){
             //Used to subgate to a new MicroExplorer
@@ -769,6 +782,7 @@ public class GateLayer implements ActionListener, ItemListener {
             }
         }       
         
+
         for(int i = 0; i < colors.length; i++){
          if(e.getActionCommand().equals(colors[i])){
              selectedGate.setSelectedColor(colorsRGB[i]);
@@ -800,6 +814,11 @@ public class GateLayer implements ActionListener, ItemListener {
             listener.saveGated(path);
         }
     }
+//<<<<<<< NucleiImageOutput_v2
+//    private void notifyImageListenersCNN(Path2D path){
+//        for (SaveGatedImagesListener listener : saveImageListeners) {
+//            listener.saveGatedCNN(path);
+//=======
     
         /**
      * Adds a SaveGatedImagesListener
@@ -830,6 +849,7 @@ public class GateLayer implements ActionListener, ItemListener {
     private void notifyDistanceMapListeners(String name){
         for (DistanceMapListener listener : distanceMapListeners) {
             listener.addDistanceMapFromGate(name);
+
         }
     }
 }
