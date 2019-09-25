@@ -61,32 +61,25 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
      * @param table 
      */
     public MeasurementFrame(ArrayList descriptions, ArrayList<MicroObject> obj, ImagePlus imp) {
-        
-        //ArrayList pos = new ArrayList();
-        
+
         this.descriptions = new ArrayList<String>();
         
         this.descriptions.add("PosX");
         this.descriptions.add("PosY");
         this.descriptions.add("PosZ");
-        
-        
-        
-
        
         this.descriptions.addAll(descriptions);
         
-        this.features = obj;
-        this.nvol = obj.size();
+        features = obj;
+        nvol = obj.size();
                 
-        this.FeatureStepsList = new ArrayList<>();
+        FeatureStepsList = new ArrayList<>();
         
         initComponents();
-        this.exploreText.setVisible(false);
-        this.FeatureLabel.setText("Measure");
-        this.FeatureGo.setText("Calculate");
-        FeatureStepsPanel.setLayout(FeatureLayout);
         
+        exploreText.setVisible(false);
+        FeatureGo.setText("Calculate");
+        FeatureStepsPanel.setLayout(FeatureLayout);
     }
 
     /**
@@ -154,11 +147,11 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
 
         FeatureLabel.setBackground(new java.awt.Color(0, 0, 0));
         FeatureLabel.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        FeatureLabel.setText("Feature");
+        FeatureLabel.setText("Measure");
         FeatureLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        FeatureLabel.setMaximumSize(new java.awt.Dimension(150, 28));
-        FeatureLabel.setMinimumSize(new java.awt.Dimension(150, 28));
-        FeatureLabel.setPreferredSize(new java.awt.Dimension(90, 28));
+        FeatureLabel.setMaximumSize(new java.awt.Dimension(250, 28));
+        FeatureLabel.setMinimumSize(new java.awt.Dimension(120, 28));
+        FeatureLabel.setPreferredSize(new java.awt.Dimension(120, 28));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;

@@ -97,6 +97,7 @@ public class ExplorerProcessor extends AbstractProcessor {
             
             Connection connection = H2DatabaseEngine.getDBConnection();
 
+            System.out.println("PROFILING: Exploring on dataset: " + key);  
             
             XYExplorationPanel XY = new XYExplorationPanel(key, connection, measurements, descriptions, hm, objects);
             DefaultPlotPanels DPP = new DefaultPlotPanels();

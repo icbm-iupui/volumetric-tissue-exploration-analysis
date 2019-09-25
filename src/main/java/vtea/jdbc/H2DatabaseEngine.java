@@ -330,7 +330,61 @@ public class H2DatabaseEngine {
         return result;
     }
     
-    //H2 SQL for get cells in polygon 
+    
+//H2 SQL for get Range of values with third channel
+    
+     public static ArrayList<ArrayList> getObjectsInRange2D(Path2D.Double p, String table, String column1, double low1, 
+                        double high1, String column2, double low2, double high2, String column3) {
+            
+        Connection cn = getDBConnection();
+        PreparedStatement selectPreparedStatement = null;
+        ResultSet rs = null;
+
+        ArrayList<ArrayList> result = new ArrayList();
+
+
+        try {
+
+            
+        
+        String SelectQuery = "select Object," +  column1 +  
+                "," +  column2 + "," +  column3 +
+                " from " + table + " WHERE (" + 
+                column1 + " BETWEEN " + low1 + " AND " +
+                high1 + ") AND (" +
+                column2 + " BETWEEN " + low2 + " AND " +
+                high2 + ")";
+        
+        //System.out.println("SQL statement: " + SelectQuery);
+            
+        selectPreparedStatement = cn.prepareStatement(SelectQuery);
+        rs = selectPreparedStatement.executeQuery();
+        
+        while (rs.next()) {
+            
+            if(p.contains(rs.getDouble(column1), rs.getDouble(column2))){
+                    
+               
+            ArrayList al = new ArrayList();
+                al.add(rs.getDouble(1));
+                al.add(rs.getDouble(2));
+                al.add(rs.getDouble(3));
+                al.add(rs.getDouble(4));
+                result.add(al);
+            }
+        }
+        
+        } catch (SQLException e) {
+            System.out.println("Exception Message " + e.getLocalizedMessage());
+        }
+        return result;
+    }
+    
+       
+
+
+
+//H2 SQL for get cells in polygon 
     
     public static ArrayList getObjectsInPolygon(String table, Polygon p,  String column1, String column2) {
         

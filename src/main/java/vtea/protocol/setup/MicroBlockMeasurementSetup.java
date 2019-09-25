@@ -82,22 +82,37 @@ public class MicroBlockMeasurementSetup extends MicroBlockSetup implements Actio
         TitleText.setText("Measurement_" + step);
         TitleText.setEditable(true);
         
-        ChannelSelection.setText("Type of measurements");
-        channelsComboBox = new DefaultComboBoxModel(MEASUREMENTSGROUPS);
-        ChannelComboBox.setModel(channelsComboBox);
-        getContentPane().remove(comments);
-        getContentPane().remove(this.methodSelection);
+        //ChannelSelection.setText("Type of measurements");
+        //channelsComboBox = new DefaultComboBoxModel(MEASUREMENTSGROUPS);
+        //ChannelComboBox.setModel(channelsComboBox);
+        //getContentPane().remove(comments);
+        //getContentPane().remove(this.methodSelection);
+        
+        comments.remove(notesPane);
+        comments.remove(tablePane);
+        
         buttonPanel.remove(PreviewButton);
         
-        methodMorphology.setMaximumSize(new Dimension(359, 500));
-        methodMorphology.setPreferredSize(new Dimension(359,150));
-        this.MethodDetails.setPreferredSize(new Dimension(340,125));
+        ApproachPanel.setVisible(false);
+        channelSelection.setVisible(false);
+        methodMorphology.setVisible(false);
+        
+        //methodMorphology.setMaximumSize(new Dimension(359, 500));
+        //methodMorphology.setPreferredSize(new Dimension(359,150));
+        //this.MethodDetails.setPreferredSize(new Dimension(340,125));
         repaint();
         pack();
         
-        setupGroups();
+        //setupGroups();
         
         setupDataBox();
+        
+        JButton MorphologyButton = new JButton("Morphology Settings");
+        MorphologyButton.setActionCommand("morphology");
+        MorphologyButton.addActionListener(this);
+        MorphologyButton.setToolTipText("Morphology settings for measurements");
+        
+        comments.add(MorphologyButton); 
         
         setSpecificComboBox(ChannelComboBox.getSelectedIndex());
         
@@ -293,22 +308,9 @@ public class MicroBlockMeasurementSetup extends MicroBlockSetup implements Actio
      */
     private void setupDataBox(){
         
-        //int colsize = features.length / 2;
-        
-        MicroObject example = availabledata.get(0);
-        
-        int morphologyCount = example.getMorphologicalCount();
-        
-        Object[] features = new Object[morphologyCount+1];
-        
-        features[0] = "Original volume";
-        
-        for(int i = 1; i < features.length; i++)features[i] = "morphology_" + i;
-        
         dataPanel = new JPanel();
-        dataPanel.setPreferredSize(new Dimension(350,13 * features.length));
+        dataPanel.setPreferredSize(new Dimension(350,13 * vtea._vtea.OBJECTMEASUREMENTOPTIONS.length));
         dataPanel.setMinimumSize(new Dimension(350,700));
-        //System.out.printf("Vgap = %d and HGap = %d", gl.getVgap(), gl.getHgap());
         dataPanel.setLayout(new java.awt.GridLayout(0, 2, 0, 1));
         dataPanel.setAlignmentY(JComponent.LEFT_ALIGNMENT);
         dataScroll = new JScrollPane();
@@ -325,22 +327,22 @@ public class MicroBlockMeasurementSetup extends MicroBlockSetup implements Actio
         });
         all.setSelected(true);
         
-        normalize = new JCheckBox("Z-scale all data");
-        normalize.addActionListener(new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateProcessList();
-            }
-        });
+//        normalize = new JCheckBox("Z-scale all data");
+//        normalize.addActionListener(new java.awt.event.ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                updateProcessList();
+//            }
+//        });
         
         methodBuild.setLayout(new javax.swing.BoxLayout(methodBuild,BoxLayout.Y_AXIS));
         all.setAlignmentX(JComponent.CENTER_ALIGNMENT);
         methodBuild.add(all);
-        normalize.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-        methodBuild.add(normalize);
+        //normalize.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        //methodBuild.add(normalize);
 
-        for(int i = 0; i < features.length; i++){
-            JCheckBox cb = new JCheckBox(features[i].toString());
+        for(int i = 0; i < vtea._vtea.OBJECTMEASUREMENTOPTIONS.length; i++){
+            JCheckBox cb = new JCheckBox(vtea._vtea.OBJECTMEASUREMENTOPTIONS[i].toString());
             cb.setSelected(true);
             cb.addItemListener(new ItemListener(){
                 @Override
@@ -399,10 +401,11 @@ public class MicroBlockMeasurementSetup extends MicroBlockSetup implements Actio
      */
     private void updateProcessList(){
         CurrentProcessList.clear();
-        CurrentProcessList.add(normalize.isSelected());
+        //CurrentProcessList.add(normalize.isSelected());
+         CurrentProcessList.add("Measurements" + this.step);
         CurrentProcessList.add(getSelectedData());
-        CurrentProcessList.add(ProcessSelectComboBox.getSelectedItem());
-        CurrentProcessList.add(ChannelComboBox.getSelectedItem());
+        //CurrentProcessList.add(ProcessSelectComboBox.getSelectedItem());
+        //CurrentProcessList.add(ChannelComboBox.getSelectedItem());
         if(!FeatureComponents.isEmpty())
             CurrentProcessList.addAll(FeatureComponents);
     }

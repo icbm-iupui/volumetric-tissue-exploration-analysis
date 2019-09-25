@@ -28,6 +28,11 @@ import java.util.ListIterator;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
+import vtea.exploration.listeners.AddFeaturesListener;
+import vtea.exploration.listeners.SubGateExplorerListener;
+import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
+import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
+import vtea.spatial.distanceMaps2d;
 import vteaobjects.MicroObject;
 
 /**
@@ -36,6 +41,16 @@ import vteaobjects.MicroObject;
  */
 public abstract class AbstractExplorationPanel extends JFrame implements ExplorationCenter {
 
+    ArrayList<MakeImageOverlayListener> overlaylisteners = new ArrayList<MakeImageOverlayListener>();
+    
+    ArrayList<ResetSelectionListener> resetselectionlisteners = new ArrayList<ResetSelectionListener>();
+    
+    ArrayList<SubGateExplorerListener> subgatelisteners = new ArrayList<SubGateExplorerListener>();
+    
+    ArrayList<AddFeaturesListener> addfeaturelisteners = new ArrayList<AddFeaturesListener>();
+    
+    
+    
     protected JPanel CenterPanel = new JPanel();
     protected ArrayList<Gate> gates = new ArrayList<Gate>();
     protected ArrayList<ArrayList<Number>> measurements = new ArrayList();
@@ -43,7 +58,9 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected ArrayList<String> descriptions = new ArrayList();
     protected ChartPanel chart;
     protected ArrayList<XYPanels> charts = new ArrayList<XYPanels>();
+    protected ArrayList<SubGateExplorerListener> SubGateListeners = new ArrayList<SubGateExplorerListener>();
     protected ArrayList<GateLayer> gatelayers = new ArrayList<GateLayer>();
+    protected distanceMaps2d distanceMaps2D = new distanceMaps2d();
     protected GateLayer gl = new GateLayer();
     //gates and XYPanels and key for different axes.  First element axes key; second XYPanels; third are the gates
 

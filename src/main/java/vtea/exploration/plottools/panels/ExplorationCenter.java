@@ -29,7 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import vtea.exploration.listeners.AddFeaturesListener;
+import vtea.exploration.listeners.FeatureMapListener;
+import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.objects.layercake.microVolume;
+import vtea.spatial.distanceMaps2d;
 import vteaobjects.MicroObject;
 
 /**
@@ -44,9 +48,8 @@ public interface ExplorationCenter {
     
    
 
-    ArrayList<MakeImageOverlayListener> overlaylisteners = new ArrayList<MakeImageOverlayListener>();
+
     
-    ArrayList<ResetSelectionListener> resetselectionlisteners = new ArrayList<ResetSelectionListener>();
 
     //public JPanel createPanel(List li);
     public JPanel getPanel();
@@ -116,6 +119,14 @@ public interface ExplorationCenter {
     public void addResetSelectionListener(ResetSelectionListener listener);
 
     public void notifyResetSelectionListeners();
+    
+    public void addSubgateListener(SubGateExplorerListener listener);
+    
+    public void notifySubgateListener(ArrayList<MicroObject> objects, ArrayList<ArrayList<Number>> measurements);
+    
+    public void addFeatureListener(AddFeaturesListener listener);
+    
+    public void notifyAddFeatureListener(String name, ArrayList<ArrayList<Number>> feature);
     
     public BufferedImage getBufferedImage();
     

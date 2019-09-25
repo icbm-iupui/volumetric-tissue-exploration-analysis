@@ -17,24 +17,17 @@
  */
 package vtea.protocol.setup;
 
-
-import ij.ImagePlus;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.table.TableModel;
 import static vtea._vtea.MORPHOLOGICALMAP;
-import vtea.morphology.MorphologyFrame;
 import vtea.objects.morphology.AbstractMorphology;
 import vtea.processor.ImageProcessingProcessor;
 
@@ -56,10 +49,7 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
         super(step, Channels);
         
         ChannelSelection.setText("Morphology on: ");
-        
         ChannelComboBox.addItem("All");
-        
-        
 
         //setup the method
         
@@ -87,8 +77,6 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
         comments.remove(tablePane);
         
 
-        //PreviewButton.setVisible(true);
-        //PreviewButton.setEnabled(true);
 
         repaint();
         pack();
