@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
+import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vtea.spatial.distanceMaps2d;
@@ -49,7 +50,7 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     
     ArrayList<AddFeaturesListener> addfeaturelisteners = new ArrayList<AddFeaturesListener>();
     
-    
+    ArrayList<AxesSetupExplorerPlotUpdateListener> axesSetupExplorerUpdateListeners = new ArrayList<AxesSetupExplorerPlotUpdateListener>();
     
     protected JPanel CenterPanel = new JPanel();
     protected ArrayList<Gate> gates = new ArrayList<Gate>();

@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.ListIterator;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -78,6 +79,7 @@ import vtea.exploration.listeners.FeatureMapListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
+import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.plottools.panels.AbstractExplorationPanel;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
@@ -92,7 +94,12 @@ import vtea.protocol.setup.SegmentationPreviewer;
  *
  */
 
-public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListener, SubGateExplorerListener, AddFeaturesListener, RoiListener, PlotUpdateListener, MakeImageOverlayListener, ChangePlotAxesListener, ImageListener, ResetSelectionListener, PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, UpdatePlotWindowListener, AxesChangeListener, Runnable {
+public class MicroExplorer extends javax.swing.JFrame implements 
+        FeatureMapListener, SubGateExplorerListener, AddFeaturesListener, 
+        RoiListener, PlotUpdateListener, MakeImageOverlayListener, 
+        ChangePlotAxesListener, ImageListener, ResetSelectionListener, 
+        PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, 
+        UpdatePlotWindowListener, AxesChangeListener, AxesSetupExplorerPlotUpdateListener, Runnable {
 
     private XYPanels DefaultXYPanels;
     private static final Dimension MAINPANELSIZE = new Dimension(630, 640);
@@ -148,7 +155,7 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
 
     ArrayList<ExplorationCenter> ExplorationPanels = new ArrayList<ExplorationCenter>();
 
-    PlotAxesSetup AxesSetup = new PlotAxesSetup();
+    //PlotAxesSetup AxesSetup = new PlotAxesSetup();
 
     ArrayList<AddFeaturesListener> FeatureListeners = new ArrayList<AddFeaturesListener>();
     
@@ -217,7 +224,7 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
         
         this.title = title;
 
-        AxesSetup.setDescriptor(this.getTitle());
+        //AxesSetup.setDescriptor(this.getTitle());
 
         get3DProjection.setEnabled(false);
 
@@ -337,6 +344,7 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
         aep.getXYChartPanel().addUpdatePlotWindowListener(this);
         aep.addFeatureListener(this);
         aep.setGatedOverlay(impoverlay);
+        aep.addAxesSetpExplorerPlotUpdateListener(this);
         ExplorationPanels.add(aep);
         
 
@@ -865,13 +873,13 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
     }//GEN-LAST:event_formComponentAdded
 
     private void jComboBoxXaxisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxXaxisActionPerformed
-        //ec.setCustomRange(false);
+        ec.setCustomRange(false);
 
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxXaxisActionPerformed
 
     private void jComboBoxYaxisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxYaxisActionPerformed
-        //ec.setCustomRange(false);
+        ec.setCustomRange(false);
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxYaxisActionPerformed
 
@@ -913,7 +921,7 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
     }//GEN-LAST:event_FlipAxesActionPerformed
 
     private void jComboBoxLUTPlotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxLUTPlotActionPerformed
-        //ec.setCustomRange(false);
+        ec.setCustomRange(false);
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxLUTPlotActionPerformed
 
@@ -977,16 +985,20 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
     }//GEN-LAST:event_importOBJActionPerformed
 
     private void AxesSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AxesSettingsActionPerformed
-        AxesSetup.setVisible(true);
-        AxesSetup.setContent(ec.getSettingsContent());
-        
-        ArrayList<Component> al = new ArrayList<Component>();
-        
-        al.add(new JLabel("Graph LUT:"));
-        al.add(new JComboBox(vtea._vtea.LUTOPTIONS));
-
-        AxesSetup.setLUT(al);
-        AxesSetup.addAxesChangeListener(this);
+        ec.invokeAxesSettingsDialog();
+//        AxesSetup.setVisible(true);
+//        AxesSetup.setContent(ec.getSettingsContent());
+//        
+//        ArrayList<Component> al = new ArrayList<Component>();
+//        
+//        al.add(new JLabel("Graph LUT:"));
+//        JButton editCustomLut = new JButton();
+//        editCustomLut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4_small.png")));
+//        al.add(editCustomLut);
+//        al.add(new JComboBox(vtea._vtea.LUTOPTIONS));
+//
+//        AxesSetup.setLUT(al);
+//        AxesSetup.addAxesChangeListener(this);
     }//GEN-LAST:event_AxesSettingsActionPerformed
 
     private void AutoScaleAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutoScaleAxesActionPerformed
@@ -1281,9 +1293,7 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
     }
 
     public void onPlotChangeRequest(int x, int y, int z, int size, boolean imagegate) {
-//        if (BWLUT.isSelected()) {
-//            onRemoveLUTChangeRequest(x, y, z, size, imagegate);
-//        } else {
+
             Main.removeAll();
             ec.updatePlot(x, y, z, size);
             Main.add(ec.getPanel());
@@ -1291,6 +1301,17 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
             updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
             pack();
      //   }
+    }
+    
+    public void ExplorerSetupPlotChangerequest(int x, int y, int z, int size){
+        Main.removeAll();
+        //ec.updatePlot(x, y, z, size);
+        ec.updatePlot(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), 
+                this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
+        Main.add(ec.getPanel());
+        updateBorderPanels(DefaultXYPanels);
+        updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+        pack();
     }
 
     public void onRemoveLUTChangeRequest(int x, int y, int z, int size, boolean imagegate) {
@@ -1487,7 +1508,7 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
         
         JComboBox lutTable = (JComboBox)LUT.get(1);
 
-        ec.setAxesTo(limits, xLinear, yLinear,lutTable.getSelectedIndex());
+        //ec.setAxesTo(limits, xLinear, yLinear,lutTable.getSelectedIndex());
 
         updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
     }
@@ -1744,6 +1765,12 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
     public void addFeatureMap(String name, ArrayList<ArrayList<Number>> al) {
         System.out.println("PROFILING: Adding distance map measurements");
         addFeatures(name, al);
+    }
+
+    @Override
+    public void axesSetupExplorerPlotUpdate(int x, int y, int l, int pointsize) {
+        this.ExplorerSetupPlotChangerequest(x, y, l, pointsize);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {

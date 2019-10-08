@@ -23,17 +23,42 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
 import vtea.exploration.listeners.AxesChangeListener;
+import java.awt.Color;
+import java.awt.event.*;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.ListIterator;
+import javax.swing.JButton;
+import vtea.lut.*;
+import javax.swing.JComboBox;
+import org.jfree.chart.renderer.LookupPaintScale;
+import static vtea._vtea.LUTMAP;
+import static vtea._vtea.LUTOPTIONS;
+import vtea.exploration.plottools.panels.XYChartPanel;
+import vtea.jdbc.H2DatabaseEngine;
+import vtea.lut.AbstractLUT;
+import vteaexploration.LutCustomColorChooser;
+import vtea.exploration.listeners.CustomLutListener;
 
 /**
  *
  * @author sethwinfree
  */
-public class PlotAxesSetup extends javax.swing.JFrame {
+public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener, CustomLutListener {
     
     ArrayList<AxesChangeListener> AxesChangeListeners = new ArrayList();
     ArrayList<Component> ContentList = new ArrayList();
     ArrayList<Component> LUTList = new ArrayList();
-    
+    HashMap<Integer, String> availableDataHM = new HashMap<Integer, String>();
+    private Connection connection;
+    String keySQLSafe = "";
+    int explorerSelectedLutIndex = 0;
+    HashMap<String, Color> customLutColors = new HashMap<String, Color>();
+     LutCustomColorChooser customLutChooser;
 
     /**
      * Creates new form PlotAxesSetup
@@ -214,6 +239,77 @@ public class PlotAxesSetup extends javax.swing.JFrame {
         notifyAxesChangeListeners(ContentList, LUTList);
     }//GEN-LAST:event_PreviewButton1ActionPerformed
 
+    public LookupPaintScale getPaintScale(){
+
+        String lText = "";
+        if (explorerSelectedLutIndex < 0) {
+            lText = "";
+        } else {
+            lText = this.availableDataHM.get(explorerSelectedLutIndex);
+        }
+        
+        System.out.println("PROFILING:  LUT value: " + lText);
+        
+        double max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+        double min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+        double range = max - min;
+        if (max == 0) {
+            max = 1;
+        }
+        
+        LookupPaintScale ps = new LookupPaintScale(min, max+1, new Color(0x999999));
+        
+        //JComboBox lutTable = (JComboBox)LUTList.get(1);
+        
+        
+        JComboBox lutTable = (JComboBox)LUTList.get(2);
+        if("Custom LUT".equals((String)lutTable.getSelectedItem())){
+            
+            for (int i = 0; i < customLutColors.size(); i++){
+                ps.add(i, customLutColors.get("Cluster_" + i));
+            }
+            
+        }else{
+            try {
+                Class<?> c;
+                
+                //String str = (String)lutTable.getSelectedItem();
+                
+                //System.out.println("PROFILING: The loaded lut is: " + str);
+                c = Class.forName(LUTMAP.get(lutTable.getSelectedItem().toString()));
+                Constructor<?> con;
+                
+                Object iImp = new Object();
+                
+                try {
+                    
+                    con = c.getConstructor();
+                    iImp = con.newInstance();
+                    
+                    
+                    ps.add(min, ((AbstractLUT) iImp).getColor(0));
+                    ps.add(min + (1 * (range / 10)), ((AbstractLUT) iImp).getColor(10));
+                    ps.add(min + (2 * (range / 10)), ((AbstractLUT) iImp).getColor(20));
+                    ps.add(min + (3 * (range / 10)), ((AbstractLUT) iImp).getColor(30));
+                    ps.add(min + (4 * (range / 10)), ((AbstractLUT) iImp).getColor(40));
+                    ps.add(min + (5 * (range / 10)), ((AbstractLUT) iImp).getColor(50));
+                    ps.add(min + (6 * (range / 10)), ((AbstractLUT) iImp).getColor(60));
+                    ps.add(min + (7 * (range / 10)), ((AbstractLUT) iImp).getColor(70));
+                    ps.add(min + (8 * (range / 10)), ((AbstractLUT) iImp).getColor(80));
+                    ps.add(min + (9 * (range / 10)), ((AbstractLUT) iImp).getColor(90));
+                    ps.add(max, ((AbstractLUT) iImp).getColor(100));
+                    
+//
+                } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
+                }
+            } catch (NullPointerException | ClassNotFoundException ex) {
+                System.out.println("EXCEPTION: new class decleration error... Class not found.");
+            }
+        }
+        
+        return ps;
+    }
     
     public void setAdjustable(boolean state){
         Content.setEnabled(state);
@@ -346,85 +442,92 @@ public class PlotAxesSetup extends javax.swing.JFrame {
 
         //MethodDetail
         if (al.size() > 0) {
-            layoutConstraints.fill = GridBagConstraints.EAST;
+            //layoutConstraints.fill = GridBagConstraints.EAST;
+            layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 0;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
             LUT.add((Component) al.get(0), layoutConstraints);
         }
+        layoutConstraints.fill = GridBagConstraints.CENTER;
+        layoutConstraints.gridx = 1;
+        layoutConstraints.gridy = 0;
+        layoutConstraints.weightx = 1;
+        layoutConstraints.weighty = 1;
+        LUT.add((Component) al.get(1), layoutConstraints);
         if (al.size() > 1) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 1;
-            layoutConstraints.gridy = 0;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            LUT.add((Component) al.get(1), layoutConstraints);
-        }
-        if (al.size() > 2) {
-            layoutConstraints.fill = GridBagConstraints.EAST;
             layoutConstraints.gridx = 2;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
             LUT.add((Component) al.get(2), layoutConstraints);
         }
-        if (al.size() > 3) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 3;
-            layoutConstraints.gridy = 0;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            LUT.add((Component) al.get(3), layoutConstraints);
-        }
-        if (al.size() > 4) {
-            layoutConstraints.fill = GridBagConstraints.WEST;
-            layoutConstraints.gridx = 4;
-            layoutConstraints.gridy = 0;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            LUT.add((Component) al.get(4), layoutConstraints);
-        }
-        if (al.size() > 5) {
-            layoutConstraints.fill = GridBagConstraints.EAST;
-            layoutConstraints.gridx = 0;
-            layoutConstraints.gridy = 1;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            LUT.add((Component) al.get(5), layoutConstraints);
-        }
-        if (al.size() > 6) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 1;
-            layoutConstraints.gridy = 1;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            LUT.add((Component) al.get(6), layoutConstraints);
-        }
-        if (al.size() > 7) {
-            layoutConstraints.fill = GridBagConstraints.EAST;
-            layoutConstraints.gridx = 2;
-            layoutConstraints.gridy = 1;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            LUT.add((Component) al.get(7), layoutConstraints);
-        }
-        if (al.size() > 8) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 3;
-            layoutConstraints.gridy = 1;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            LUT.add((Component) al.get(8), layoutConstraints);
-        }
-        if (al.size() > 9) {
-            layoutConstraints.fill = GridBagConstraints.WEST;
-            layoutConstraints.gridx = 4;
-            layoutConstraints.gridy = 1;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            LUT.add((Component) al.get(9), layoutConstraints);
-        }
+//        if (al.size() > 2) {
+//            layoutConstraints.fill = GridBagConstraints.EAST;
+//            layoutConstraints.gridx = 2;
+//            layoutConstraints.gridy = 0;
+//            layoutConstraints.weightx = 1;
+//            layoutConstraints.weighty = 1;
+//            LUT.add((Component) al.get(2), layoutConstraints);
+//        }
+//        if (al.size() > 3) {
+//            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+//            layoutConstraints.gridx = 3;
+//            layoutConstraints.gridy = 0;
+//            layoutConstraints.weightx = 1;
+//            layoutConstraints.weighty = 1;
+//            LUT.add((Component) al.get(3), layoutConstraints);
+//        }
+//        if (al.size() > 4) {
+//            layoutConstraints.fill = GridBagConstraints.WEST;
+//            layoutConstraints.gridx = 4;
+//            layoutConstraints.gridy = 0;
+//            layoutConstraints.weightx = 1;
+//            layoutConstraints.weighty = 1;
+//            LUT.add((Component) al.get(4), layoutConstraints);
+//        }
+//        if (al.size() > 5) {
+//            layoutConstraints.fill = GridBagConstraints.EAST;
+//            layoutConstraints.gridx = 0;
+//            layoutConstraints.gridy = 1;
+//            layoutConstraints.weightx = 1;
+//            layoutConstraints.weighty = 1;
+//            LUT.add((Component) al.get(5), layoutConstraints);
+//        }
+//        if (al.size() > 6) {
+//            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+//            layoutConstraints.gridx = 1;
+//            layoutConstraints.gridy = 1;
+//            layoutConstraints.weightx = 1;
+//            layoutConstraints.weighty = 1;
+//            LUT.add((Component) al.get(6), layoutConstraints);
+//        }
+//        if (al.size() > 7) {
+//            layoutConstraints.fill = GridBagConstraints.EAST;
+//            layoutConstraints.gridx = 2;
+//            layoutConstraints.gridy = 1;
+//            layoutConstraints.weightx = 1;
+//            layoutConstraints.weighty = 1;
+//            LUT.add((Component) al.get(7), layoutConstraints);
+//        }
+//        if (al.size() > 8) {
+//            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+//            layoutConstraints.gridx = 3;
+//            layoutConstraints.gridy = 1;
+//            layoutConstraints.weightx = 1;
+//            layoutConstraints.weighty = 1;
+//            LUT.add((Component) al.get(8), layoutConstraints);
+//        }
+//        if (al.size() > 9) {
+//            layoutConstraints.fill = GridBagConstraints.WEST;
+//            layoutConstraints.gridx = 4;
+//            layoutConstraints.gridy = 1;
+//            layoutConstraints.weightx = 1;
+//            layoutConstraints.weighty = 1;
+//            LUT.add((Component) al.get(9), layoutConstraints);
+//        }
 //        if (al.size() > 10) {
 //            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
 //            layoutConstraints.gridx = 5;
@@ -433,9 +536,24 @@ public class PlotAxesSetup extends javax.swing.JFrame {
 //        }
         
         
+        ((JComboBox)LUT.getComponent(2)).setSelectedItem("Black");
         LUT.setVisible(true);
         
-        pack();   
+        pack();
+        
+        ((JButton)al.get(1)).addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCustomLutActionPerformed(evt);
+            }
+        });
+        
+        ((JComboBox)al.get(2)).addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxLutActionPerformed(evt);
+            }
+        });
+        
+        ((JButton)LUT.getComponent(1)).setEnabled(FALSE);
     }
     
     public void addAxesChangeListener(AxesChangeListener listener){
@@ -498,4 +616,121 @@ public class PlotAxesSetup extends javax.swing.JFrame {
     private javax.swing.Box.Filler filler1;
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
+
+    private void jComboBoxLutActionPerformed(java.awt.event.ActionEvent evt){
+        
+        JComboBox lutChoiceComboBox = (JComboBox)evt.getSource();
+        Object selectedItem = lutChoiceComboBox.getSelectedItem();
+        
+        if(selectedItem == "Custom LUT"){
+            ((JButton)LUT.getComponent(1)).setEnabled(TRUE);
+        }
+        else{
+            ((JButton)LUT.getComponent(1)).setEnabled(FALSE);
+        }
+    }
+    
+    private void jButtonCustomLutActionPerformed(java.awt.event.ActionEvent evt){
+        
+        ArrayList<String> clusterInfo = new ArrayList<String>();
+        
+        String lText = "";
+        if (explorerSelectedLutIndex < 0) {
+            lText = "";
+        } else {
+            lText = this.availableDataHM.get(explorerSelectedLutIndex);
+        }
+        double max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+        double min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+        double range = max - min;
+        if (max == 0) {
+            max = 1;
+        }
+        
+        for (int i=0; i <= range; i++){
+            String clusterLabel = "Cluster_";
+            String newClsuterLabel = clusterLabel.concat(String.valueOf(i));
+            clusterInfo.add(newClsuterLabel);
+        }
+        
+        customLutChooser = new LutCustomColorChooser(clusterInfo);
+        customLutChooser.registerAxesSetup(this);
+        customLutChooser.invokeCustomLUTWindow();
+
+        
+    }
+    
+    public void notifyAddFeatures(HashMap<Integer, String> availableDataHM){
+//        this.keySQLSafe = keySQLSafe;
+        this.availableDataHM = availableDataHM;
+//        String lText = this.availableDataHM.get(2);
+        
+//        double max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+//        double min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+//        double range = max - min;
+//        if (max == 0) {
+//            max = 1;
+//        }
+    }
+    
+    private double getMaximumOfData(ArrayList measurements, int l) {
+
+        ListIterator<ArrayList> litr = measurements.listIterator();
+
+
+        Number high = 0;
+
+        while (litr.hasNext()) {
+            try {
+                
+                ArrayList<Number> al = litr.next();
+              
+                if (al.get(l).floatValue() > high.floatValue()) {
+                    high = al.get(l).floatValue();
+                }
+            } catch (NullPointerException e) {
+            }
+        }
+        return high.longValue();
+
+    }
+
+    private double getMinimumOfData(ArrayList measurements, int l) {
+
+        ListIterator<ArrayList> litr = measurements.listIterator();
+
+        //ArrayList<Number> al = new ArrayList<Number>();
+        Number low = getMaximumOfData(measurements, l);
+
+        while (litr.hasNext()) {
+            try {
+                ArrayList<Number> al = litr.next();
+                if (al.get(l).floatValue() < low.floatValue()) {
+                    low = al.get(l).floatValue();
+                }
+            } catch (NullPointerException e) {
+            }
+        }
+        return low.longValue();
+    }
+    
+    public void shareConnection(Connection connection, String keySQLSafe, HashMap<Integer, String> hm){
+        this.connection = connection;
+        this.keySQLSafe = keySQLSafe;
+        this.availableDataHM = hm;
+    }
+    
+    public void shareExplorerLutSelectedIndex(int selectedIndex){
+        this.explorerSelectedLutIndex = selectedIndex;
+    }
+    
+    @Override
+    public void onCustomLutSelection(HashMap<String,Color> customLutColors){
+        this.customLutColors = customLutColors;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

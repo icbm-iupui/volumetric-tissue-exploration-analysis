@@ -77,6 +77,7 @@ import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.LogAxis;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.LookupPaintScale;
 import vtea.ExportCSV;
 import vtea._vtea;
 import static vtea._vtea.LUTMAP;
@@ -84,11 +85,13 @@ import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.DistanceMapListener;
 import vtea.exploration.listeners.FeatureMapListener;
+import vtea.exploration.listeners.PlotAxesPreviewButtonListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SaveGatedImagesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.SubGateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
+import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.plotgatetools.gates.Gate;
 import vtea.exploration.plotgatetools.gates.GateImporter;
 import vtea.exploration.plotgatetools.gates.GateLayer;
@@ -106,12 +109,19 @@ import vtea.spatial.distanceMaps2d;
 import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
+import vteaexploration.PlotAxesManager;
+import vtea.lut.Black;
 
 /**
  *
  * @author vinfrais
  */
-public class XYExplorationPanel extends AbstractExplorationPanel implements  DistanceMapListener, WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener, SubGateListener {
+public class XYExplorationPanel extends AbstractExplorationPanel implements  
+        DistanceMapListener, WindowListener, RoiListener, PlotUpdateListener, 
+        PolygonSelectionListener, QuadrantSelectionListener, 
+        ImageHighlightSelectionListener, ChangePlotAxesListener, 
+        UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener, 
+        SubGateListener, PlotAxesPreviewButtonListener {
     
     XYChartPanel cpd;
     private boolean useGlobal = false;
@@ -123,9 +133,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
 
     private Connection connection;
     
+    PlotAxesManager AxesManager;
+    int explorerXaxisIndex = 0;
+    int explorerYaxisIndex = 0;
+    int explorerLutIndex = 0;
+    int explorerPointSizeIndex = 0;
+    LookupPaintScale lps;
     
 
-    public XYExplorationPanel(String key, Connection connection, ArrayList measurements, ArrayList<String> descriptions, HashMap<Integer, String> hm, ArrayList<MicroObject> objects) {
+    public XYExplorationPanel(String key, Connection connection,
+            ArrayList measurements, ArrayList<String> descriptions,
+            HashMap<Integer, String> hm, ArrayList<MicroObject> objects,
+            String title) {
 
         super();
         Roi.addRoiListener(this);
@@ -145,10 +164,36 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
         this.pointsize = MicroExplorer.POINTSIZE;
         
         distanceMaps2D = new distanceMaps2d();
-       
+        
+       //set current LUT to LUTDefault.class
+       String lText = "";
+        if (MicroExplorer.LUTSTART < 0) {
+            lText = "";
+        } else {
+            lText = hm.get(MicroExplorer.LUTSTART);
+        }
+        
+        double max = 0;
+        double min = 0;
+       if(MicroExplorer.LUTSTART >= 0){
+            max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+            min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+            System.out.println("max: " + max);
+            System.out.println("min: " + min);
+            double range = max - min;
+        if (max == 0) {
+            max = 1;
+        }
+       }
+        
+        Black defaultLUT = new Black();
+        lps = defaultLUT.getPaintScale(min, max);
 
         //default plot 
         addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART, MicroExplorer.POINTSIZE, 0, hm.get(1), hm.get(4), hm.get(2));
+        
+        AxesManager = new PlotAxesManager(key, connection, title, hm);
+        this.invokeAxesSettingsDialog();
     }
 
     private XYChartPanel createChartPanel(int x, int y, int l, String xText, String yText, String lText, int size, ImagePlus ip, boolean imageGate, Color imageGateOutline) {
@@ -511,8 +556,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
         currentL = l;
         pointsize = size;
         CenterPanel.removeAll();
+        this.LUT = LUT;
+        
+        //update the plotaxesmanager
+        
+        //LookupPaintScale lps = AxesManager.getLookupPaintScale();
 
-        cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
+        cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor, lps);
 
         cpd.addUpdatePlotWindowListener(this);
 
@@ -561,43 +611,43 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
         }
 
         //setup LUTs
-        try {
-            Class<?> c;
-
-            String str = LUTMAP.get(LUTOPTIONS[this.LUT]);
-
-            //System.out.println("PROFILING: The loaded lut is: " + str);
-            c = Class.forName(str);
-            Constructor<?> con;
-
-            Object iImp = new Object();
-
-            try {
-
-                con = c.getConstructor();
-                iImp = con.newInstance();
-
-                HashMap lutTable = ((AbstractLUT) iImp).getLUTMAP();
-                
-                XYChartPanel.ZEROPERCENT = ((AbstractLUT) iImp).getColor(0);
-                XYChartPanel.TENPERCENT = ((AbstractLUT) iImp).getColor(10);
-                XYChartPanel.TWENTYPERCENT = ((AbstractLUT) iImp).getColor(20);
-                XYChartPanel.THIRTYPERCENT = ((AbstractLUT) iImp).getColor(30);
-                XYChartPanel.FORTYPERCENT = ((AbstractLUT) iImp).getColor(40);
-                XYChartPanel.FIFTYPERCENT = ((AbstractLUT) iImp).getColor(50);
-                XYChartPanel.SIXTYPERCENT = ((AbstractLUT) iImp).getColor(60);
-                XYChartPanel.SEVENTYPERCENT = ((AbstractLUT) iImp).getColor(70);
-                XYChartPanel.EIGHTYPERCENT = ((AbstractLUT) iImp).getColor(80);
-                XYChartPanel.NINETYPERCENT = ((AbstractLUT) iImp).getColor(90);
-                XYChartPanel.ALLPERCENT = ((AbstractLUT) iImp).getColor(100);
-
-//        
-            } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
-            }
-        } catch (NullPointerException | ClassNotFoundException ex) {
-            System.out.println("EXCEPTION: new class decleration error... Class not found.");
-        }
+//        try {
+//            Class<?> c;
+//
+//            String str = LUTMAP.get(LUTOPTIONS[this.LUT]);
+//
+//            //System.out.println("PROFILING: The loaded lut is: " + str);
+//            c = Class.forName(str);
+//            Constructor<?> con;
+//
+//            Object iImp = new Object();
+//
+//            try {
+//
+//                con = c.getConstructor();
+//                iImp = con.newInstance();
+//
+//                HashMap lutTable = ((AbstractLUT) iImp).getLUTMAP();
+//                
+//                XYChartPanel.ZEROPERCENT = ((AbstractLUT) iImp).getColor(0);
+//                XYChartPanel.TENPERCENT = ((AbstractLUT) iImp).getColor(10);
+//                XYChartPanel.TWENTYPERCENT = ((AbstractLUT) iImp).getColor(20);
+//                XYChartPanel.THIRTYPERCENT = ((AbstractLUT) iImp).getColor(30);
+//                XYChartPanel.FORTYPERCENT = ((AbstractLUT) iImp).getColor(40);
+//                XYChartPanel.FIFTYPERCENT = ((AbstractLUT) iImp).getColor(50);
+//                XYChartPanel.SIXTYPERCENT = ((AbstractLUT) iImp).getColor(60);
+//                XYChartPanel.SEVENTYPERCENT = ((AbstractLUT) iImp).getColor(70);
+//                XYChartPanel.EIGHTYPERCENT = ((AbstractLUT) iImp).getColor(80);
+//                XYChartPanel.NINETYPERCENT = ((AbstractLUT) iImp).getColor(90);
+//                XYChartPanel.ALLPERCENT = ((AbstractLUT) iImp).getColor(100);
+//
+////        
+//            } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+//                System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
+//            }
+//        } catch (NullPointerException | ClassNotFoundException ex) {
+//            System.out.println("EXCEPTION: new class decleration error... Class not found.");
+//        }
 
         //setup chart layer
         CenterPanel.setOpaque(false);
@@ -684,12 +734,29 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
 //            addExplorationGroup();
 //        }
 
+        this.explorerXaxisIndex = x;
+        this.explorerYaxisIndex = y;
+        this.explorerLutIndex = l;
+        this.explorerPointSizeIndex = size;
+        
+        // Inform PlotAxesSetup about change in xAxis and yAxis
+        HashMap<String, Integer> xAxisLimits = getLimits(x);
+        cpd.setChartPanelRanges(XYChartPanel.XAXIS, xAxisLimits.get("min"), xAxisLimits.get("max"));
+        HashMap<String, Integer> yAxisLimits = getLimits(y);
+        cpd.setChartPanelRanges(XYChartPanel.YAXIS, yAxisLimits.get("min"), yAxisLimits.get("max"));
+        
+        AxesManager.setAxesSetupAxisLimits(this.getSettingsContent());
+        AxesManager.shareExplorerLutSelectedIndex(explorerLutIndex);
+        
         String lText = "";
         if (l < 0) {
             lText = "";
         } else {
             lText = hm.get(l);
         }
+        
+        lps = AxesManager.getLookupPaintScale();
+        
 //        if (!(isMade(x, y, l, size))) {
         addPlot(x, y, l, size, LUT, hm.get(x), hm.get(y), lText);
 //        } else { 
@@ -1043,6 +1110,24 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
         yScaleLinear = y;
         LUT = lutTable;
         useCustom = true;
+        
+        // Imitate updatePlot() functionality as MicroExplorer is no more 
+        // communicating with PlotAxesSetup.
+        String lText = "";
+        if (this.explorerLutIndex < 0) {
+            lText = "";
+        } else {
+            lText = hm.get(this.explorerLutIndex);
+        }
+        
+        lps = AxesManager.getLookupPaintScale();
+        
+//        if (!(isMade(x, y, l, size))) {
+        addPlot(this.explorerXaxisIndex, this.explorerYaxisIndex, this.explorerLutIndex, this.explorerPointSizeIndex, LUT, 
+                hm.get(this.explorerXaxisIndex), hm.get(this.explorerYaxisIndex), lText);
+        
+        this.notifyAxesSetupExplorerPlotUpdateListener(this.explorerXaxisIndex, this.explorerYaxisIndex, 
+                this.explorerLutIndex, this.explorerPointSizeIndex);
     }
 
     @Override
@@ -1251,6 +1336,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
         H2DatabaseEngine.dropTable(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe);
         writeCSV(ij.Prefs.getImageJDir() + key);
         startH2Database(ij.Prefs.getImageJDir() + key + ".csv", vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe);
+        
+        AxesManager.updateFeatureSpace(hm);
 
     }
     
@@ -1602,6 +1689,52 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
                for (AddFeaturesListener listener : addfeaturelisteners) {
             listener.addFeatures(name, feature);
         }
+    }
+    
+    @Override
+    public void addAxesSetpExplorerPlotUpdateListener(AxesSetupExplorerPlotUpdateListener listener){
+        axesSetupExplorerUpdateListeners.add(listener);
+    }
+
+    @Override
+    public void notifyAxesSetupExplorerPlotUpdateListener(int x, int y, int l, int pointsize) {
+        for (AxesSetupExplorerPlotUpdateListener listener : axesSetupExplorerUpdateListeners){
+            listener.axesSetupExplorerPlotUpdate(LUT, LUT, LUT, pointsize);
+        }
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public void invokeAxesSettingsDialog(){
+        AxesManager.createAxesSettingsDialog(this.getSettingsContent());
+        AxesManager.addPlotAxesPreviewButtonListener(this);
+    }
+    
+    private HashMap<String, Integer> getLimits(int selectedIndex){
+        
+        HashMap<String, Integer> minAndMax = new HashMap<>();
+        
+        String selectedIndexText;
+        if (MicroExplorer.LUTSTART < 0) {
+            selectedIndexText = "";
+        } else {
+            selectedIndexText = hm.get(selectedIndex);
+        }
+        
+        double max = 0;
+        double min = 0;
+        if(MicroExplorer.LUTSTART >= 0){
+            max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, selectedIndexText), 0));
+            min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, selectedIndexText), 0));
+            
+        if (max == 0) {
+            max = 1;
+        }
+        }
+        
+        minAndMax.put("min", (int)Math.round(min));
+        minAndMax.put("max", (int)Math.round(max));
+        
+        return minAndMax;
     }
     
 

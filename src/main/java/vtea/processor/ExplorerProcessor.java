@@ -97,12 +97,14 @@ public class ExplorerProcessor extends AbstractProcessor {
             
             Connection connection = H2DatabaseEngine.getDBConnection();
 
-            System.out.println("PROFILING: Exploring on dataset: " + key);  
+            System.out.println("PROFILING: Exploring on dataset: " + key);
             
-            XYExplorationPanel XY = new XYExplorationPanel(key, connection, measurements, descriptions, hm, objects);
+            String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
+            
+            XYExplorationPanel XY = new XYExplorationPanel(key, connection, measurements, descriptions, hm, objects, title);
             DefaultPlotPanels DPP = new DefaultPlotPanels();
 
-            String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
+            //String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
 
              MicroExplorer explorer = new MicroExplorer();
 //            explorer.setTitle(impOriginal.getTitle().replace("DUP_", ""));

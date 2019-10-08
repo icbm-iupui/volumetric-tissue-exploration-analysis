@@ -35,6 +35,7 @@ import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.objects.layercake.microVolume;
 import vtea.spatial.distanceMaps2d;
 import vteaobjects.MicroObject;
+import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 
 /**
  *
@@ -100,7 +101,7 @@ public interface ExplorationCenter {
     
     public void setAxesToCurrent();
     
-    public void setAxesTo(ArrayList al, boolean x, boolean y, int lutTable);
+    //public void setAxesTo(ArrayList al, boolean x, boolean y, int lutTable);
     
     public void setCustomRange(boolean state);
     
@@ -133,4 +134,10 @@ public interface ExplorationCenter {
     public void exportGates();
     
     public void importGates();
+    
+    public void invokeAxesSettingsDialog();
+    
+    public void addAxesSetpExplorerPlotUpdateListener(AxesSetupExplorerPlotUpdateListener listener);
+    
+    public void notifyAxesSetupExplorerPlotUpdateListener(int x, int y, int l, int pointsize);
 }
