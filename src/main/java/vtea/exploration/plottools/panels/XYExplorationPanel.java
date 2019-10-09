@@ -1254,18 +1254,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public BufferedImage getBufferedImage() {
-        Color color = CenterPanel.getBackground();
+        //Color color = CenterPanel.getBackground();
 
-        BufferedImage image = new BufferedImage(CenterPanel.getWidth(), CenterPanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        CenterPanel.paint(image.getGraphics());
+        BufferedImage image = new BufferedImage(cpd.getChartPanel().getWidth(), cpd.getChartPanel().getHeight(), BufferedImage.TYPE_INT_ARGB);
+        cpd.getChartPanel().paint(image.getGraphics());
 
-        JFrame j = new JFrame();
+        //JFrame j = new JFrame();
         File file;
         int choice = JOptionPane.OK_OPTION;
         int returnVal=JFileChooser.CANCEL_OPTION;
         do{
             JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
-            returnVal = jf.showSaveDialog(CenterPanel);
+            returnVal = jf.showSaveDialog(cpd.getChartPanel());
             file = jf.getSelectedFile();
             
             try {
@@ -1280,7 +1280,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             
             if(file.exists()){
                 String message = String.format("%s already exists\nOverwrite it?", file.getName());
-                choice = JOptionPane.showConfirmDialog(CenterPanel, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                choice = JOptionPane.showConfirmDialog(cpd.getChartPanel(), message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
             }
         }while(choice != JOptionPane.OK_OPTION);
         
