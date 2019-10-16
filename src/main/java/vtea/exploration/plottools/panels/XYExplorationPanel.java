@@ -1347,7 +1347,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         
         new Thread(() -> {
             try {
-                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
+                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements,key);
                 try {   
                     exportnuclei.saveImages(path, currentX, currentY);
                 } catch (IOException ex) {
@@ -1364,7 +1364,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     public void saveGatedCNN(Path2D path){
         new Thread(() -> {
             try {
-                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
+                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements, key);
                 try {   
                     exportnuclei.readCSV(path, currentX, currentY);
                 } catch (IOException ex) {

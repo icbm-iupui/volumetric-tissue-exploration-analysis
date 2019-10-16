@@ -76,6 +76,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -97,11 +98,13 @@ public class NucleiExportation {
     int depth;
     int channelOfInterest;
     int[] info;
+    String key;
     
-    NucleiExportation(ImagePlus image, ArrayList objects , ArrayList measurements){
+    NucleiExportation(ImagePlus image, ArrayList objects , ArrayList measurements, String key){
         this.image = image;
         this.objects = objects;
         this.measurements = measurements;
+        this.key = key;
     }
     
     /**
@@ -275,6 +278,16 @@ public class NucleiExportation {
                                 objImp.setDisplayRange(0, Math.pow(2,bitdepth)-1);
                             }
                             
+                            objImp.setProperty("Info", key);
+                            
+                        
+//                            Properties prop = objImp.getProperties();
+//                            prop.put("VTEA_Object", serialID_export);
+//                            prop.put("VTEA_Key", key);
+                            
+                          
+                            //objImp.setProperty("VTEA_Object", serialID_export);
+                            
                             IJ.run(objImp, "8-bit", "");
                             
                             File objfile = new File(file.getPath()+ File.separator + "object" + "_" + (int)vol.getSerialID() + "_" + Math.round(vol.getCentroidX()) + "_" + "_" + Math.round(vol.getCentroidY()) + "_" + "_" + Math.round(vol.getCentroidZ()) + "_" + label + ".tif");
@@ -310,7 +323,7 @@ public class NucleiExportation {
                                         LocalTime time = java.time.LocalTime.now();
                                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
                                         String timef = formatter.format(time);
-                                        File img_csv = new File(file.getPath()+ File.separator + "images"  + "_ " + label + "_" + timef+".csv");
+                                        File img_csv = new File(file.getPath()+ File.separator + "images"  + "_ " + label + "_" + key +".csv");
                                         FileWriter writer = new FileWriter(img_csv);
                                         int bufSize = (int) Math.pow(1024, 2);
                                         BufferedWriter bufferedWriter = new BufferedWriter(writer, bufSize);

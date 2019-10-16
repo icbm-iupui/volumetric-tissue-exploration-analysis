@@ -83,8 +83,14 @@ public class LutCustomColorChooser extends JPanel implements ChangeListener {
         //Set up color chooser for setting text color
         tcc = new JColorChooser(banner.getForeground());
         tcc.getSelectionModel().addChangeListener(this);
-        tcc.setBorder(BorderFactory.createTitledBorder(
-                                             "Choose Text Color"));
+        //tcc.setBorder(BorderFactory.createTitledBorder(
+        //"Choose Text Color"));
+        
+ 
+        
+        tcc.removeChooserPanel(tcc.getChooserPanels()[1]);
+        tcc.removeChooserPanel(tcc.getChooserPanels()[1]);
+        tcc.removeChooserPanel(tcc.getChooserPanels()[2]);
         
         okButtonPanel = new JPanel(new BorderLayout());
         okButton = new JButton();
@@ -169,6 +175,7 @@ public class LutCustomColorChooser extends JPanel implements ChangeListener {
 
     private void OkButtonActionPerformed(ActionEvent evt) {
         this.onCustomLutSelection(MapCustomLut2Clusters);
+        this.setVisible(false);
     }
 
     public void onCustomLutSelection(HashMap<String, Color> customLutColors) {
