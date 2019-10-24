@@ -203,7 +203,7 @@ public class NucleiExportation {
         if (file != null) {
             int count = 0;
             
-            System.out.print("Finding all MicroObjects ... ");
+            System.out.println("Finding all MicroObjects ... ");
             System.out.println("PROFILING: projection type: " + projChoice + ", bit depth: " + bitdepth);
             
            
@@ -449,6 +449,100 @@ public class NucleiExportation {
         return result;
     }
     
+    private ImagePlus getBoxStack(MicroObject vol, int[] starts){
+
+        int xStart = starts[0];
+
+        int yStart = starts[1];
+
+        int zStart = starts[2];
+
+       
+
+        //ImageStack cropMe = image.getImageStack();
+
+       
+
+        ChannelSplitter cs = new ChannelSplitter();
+
+       
+
+       // Roi r = new Roi(xStart, yStart, size, size);
+
+      
+
+       image.setRoi(new Rectangle(xStart, yStart, size, size));
+
+       
+
+       Duplicator dup = new Duplicator();
+
+      
+
+       ImagePlus objImp = dup.run(image);
+
+ 
+
+       ImageStack stNu = cs.getChannel(objImp, channelOfInterest); // 32x32x19
+
+      
+
+       
+
+ 
+
+      
+
+      ImagePlus temp= IJ.createImage("nuclei", size, size, depth, objImp.getBitDepth());
+
+     
+
+      //temp.show();
+
+ 
+
+      
+
+       ImageStack tempStack = temp.getImageStack();
+
+          try{
+
+      
+
+       
+
+       for(int i = 0; i < size; i++) {
+
+           for(int j = 0; j < size; j++){
+
+               for (int k = 0;k<depth; k++){
+
+                   tempStack.setVoxel(i, j, k,
+
+                    stNu.getVoxel(i, j, k+zStart));
+
+               }
+
+           }
+
+                   
+
+       }
+
+       }catch(Exception ex){  
+
+           System.out.println("PROFILING: box2 stack, object, "+vol.getSerialID()+" dumped with start at: " + zStart);
+
+           return null;
+
+       }
+
+ 
+
+       return temp;
+
+    }
+    
     private ImagePlus getObjectImage(MicroObject vol, int size, int depth, Method getProperVolume){
         vol.setMaxZ();  //not already set for most MicroVolumes
         vol.setMinZ();  //same as above
@@ -623,10 +717,11 @@ public class NucleiExportation {
         return objImpNu_crop;
     }
     
-    private ImagePlus getBoxStack(MicroObject vol, int[] starts){
+    private ImagePlus getBoxStack_old(MicroObject vol, int[] starts){
         int xStart = starts[0];
         int yStart = starts[1];
         int zStart = starts[2];
+        
         int finish = depth + zStart;
         //System.out.println("zstart " + zStart);
         //System.out.println("finish " + finish);
