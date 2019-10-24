@@ -18,42 +18,26 @@
 package vtea.exploration.plottools.panels;
 
 import ij.IJ;
-import ij.gui.Roi;
-import static ij.IJ.Roi;
 import ij.ImagePlus;
 import ij.ImageStack;
-import static ij.Undo.ROI;
 import ij.gui.Roi;
-import ij.io.FileInfo;
 import ij.io.Opener;
-import static ij.io.Opener.ROI;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Duplicator;
 import ij.plugin.HyperStackConverter;
 import ij.plugin.RGBStackMerge;
 import ij.plugin.ZProjector;
-import ij.process.ImageConverter;
-import ij.process.ImageProcessor;
-import io.scif.jj2000.j2k.roi.encoder.ROI;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferInt;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,21 +52,13 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.DefaultComboBoxModel;
-import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
 import java.lang.reflect.Method;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.IntStream;
-import javax.imageio.ImageIO;
-import javax.swing.JComponent;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -97,11 +73,13 @@ public class NucleiExportation {
     int depth;
     int channelOfInterest;
     int[] info;
+    String key;
     
-    NucleiExportation(ImagePlus image, ArrayList objects , ArrayList measurements){
+    NucleiExportation(ImagePlus image, ArrayList objects , ArrayList measurements, String key){
         this.image = image;
         this.objects = objects;
         this.measurements = measurements;
+        this.key = key;
     }
     
     /**
@@ -275,6 +253,16 @@ public class NucleiExportation {
                                 objImp.setDisplayRange(0, Math.pow(2,bitdepth)-1);
                             }
                             
+                            objImp.setProperty("Info", key);
+                            
+                        
+//                            Properties prop = objImp.getProperties();
+//                            prop.put("VTEA_Object", serialID_export);
+//                            prop.put("VTEA_Key", key);
+                            
+                          
+                            //objImp.setProperty("VTEA_Object", serialID_export);
+                            
                             IJ.run(objImp, "8-bit", "");
                             
                             File objfile = new File(file.getPath()+ File.separator + "object" + "_" + (int)vol.getSerialID() + "_" + Math.round(vol.getCentroidX()) + "_" + "_" + Math.round(vol.getCentroidY()) + "_" + "_" + Math.round(vol.getCentroidZ()) + "_" + label + ".tif");
@@ -310,7 +298,7 @@ public class NucleiExportation {
                                         LocalTime time = java.time.LocalTime.now();
                                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
                                         String timef = formatter.format(time);
-                                        File img_csv = new File(file.getPath()+ File.separator + "images"  + "_ " + label + "_" + timef+".csv");
+                                        File img_csv = new File(file.getPath()+ File.separator + "images"  + "_ " + label + "_" + key +".csv");
                                         FileWriter writer = new FileWriter(img_csv);
                                         int bufSize = (int) Math.pow(1024, 2);
                                         BufferedWriter bufferedWriter = new BufferedWriter(writer, bufSize);
@@ -471,14 +459,14 @@ public class NucleiExportation {
         
 
         int zRange = vol.getMaxZ() - vol.getMinZ();
-        int zStart = (int)vol.getCentroidZ()-depth/2;
+        int zStart = (int)Math.ceil(vol.getCentroidZ()-depth/2);
         int[] starts = {xStart, yStart, zStart};
         
         //Throw out volumes that are on the edge or are improperly segmented(Zrange too big)
 //                if(yStart*xStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth() || zRange > 5)
 //                    continue;
 
-        if(xStart < 0 || yStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth() ||  zRange < 3 ) //|| zRange + zStart > image.getNFrames(){
+        if(xStart < 0 || yStart < 0 || zStart < 0 || yStart+size > image.getHeight() || xStart+size > image.getWidth() ||  zRange < 3 || depth + zStart > image.getNSlices())
         {
             //System.out.println(xStart + " " + yStart + " " + zStart + " " + zRange + " " + size);
             return null;
@@ -543,7 +531,8 @@ public class NucleiExportation {
                     tempStack.setVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]-zStart, 
                     stNu.getVoxel(xPixels[i]-xStart, yPixels[i]-yStart, zPixels[i]));
        }
-       }catch(Exception ex){     
+       }catch(Exception ex){   
+           System.out.println("PROFILING: mask stack, object, "+vol.getSerialID()+" dumped with start at: " + zStart);
            return null;
        }
        
@@ -656,6 +645,8 @@ public class NucleiExportation {
        try{
        objImpNu = dup.run(objImpNu, zStart+1, finish);
        }catch(IllegalArgumentException ex){     
+           System.out.println("PROFILING: box stack, object, "+vol.getSerialID()+" dumped with start at: " + zStart);
+ 
            return null;
        }
 
