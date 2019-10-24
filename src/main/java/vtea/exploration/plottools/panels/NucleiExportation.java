@@ -203,7 +203,7 @@ public class NucleiExportation {
         if (file != null) {
             int count = 0;
             
-            System.out.print("Finding all MicroObjects ... ");
+            System.out.println("Finding all MicroObjects ... ");
             System.out.println("PROFILING: projection type: " + projChoice + ", bit depth: " + bitdepth);
             
            
@@ -627,6 +627,7 @@ public class NucleiExportation {
         int xStart = starts[0];
         int yStart = starts[1];
         int zStart = starts[2];
+        
         int finish = depth + zStart;
         //System.out.println("zstart " + zStart);
         //System.out.println("finish " + finish);
