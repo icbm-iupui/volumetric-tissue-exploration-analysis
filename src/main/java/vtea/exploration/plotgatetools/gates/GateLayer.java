@@ -46,6 +46,7 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI;
+import vtea.exploration.listeners.DensityMapListener;
 import vtea.exploration.listeners.DistanceMapListener;
 import vtea.exploration.listeners.SaveGatedImagesListener;
 import vtea.exploration.listeners.SubGateListener;
@@ -86,6 +87,7 @@ public class GateLayer implements ActionListener, ItemListener {
     private ArrayList<SaveGatedImagesListener> saveImageListeners = new ArrayList<SaveGatedImagesListener>();
     private ArrayList<SubGateListener> subGateListeners = new ArrayList<SubGateListener>();
     private ArrayList<DistanceMapListener> distanceMapListeners = new ArrayList<DistanceMapListener>();
+    private ArrayList<DensityMapListener> densityMapListeners = new ArrayList<DensityMapListener>();
     
     
     private ArrayList<Gate> gates = new ArrayList<Gate>();
@@ -679,6 +681,11 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
+        menuItem = new JMenuItem("Add Density Map...");
+       
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+        
 
         //Add listener to the text area so the popup menu can come up.
 //        MouseListener popupListener = new PopupListener(menu);
@@ -774,7 +781,42 @@ public class GateLayer implements ActionListener, ItemListener {
         }).start();   
                 
             }
-        }       
+        } else if(e.getActionCommand().equals("Add Density Map...")){
+            //Used to subgate to a new MicroExplorer
+            
+            ListIterator<Gate> gt = gates.listIterator();
+            Path2D path = null;
+            while(gt.hasNext()){
+                Gate g = gt.next();
+                if(g.getSelected()){
+                    path = g.createPath2DInChartSpace();
+                }
+            }
+            if(path != null)
+            {
+                
+                String s = (String)JOptionPane.showInputDialog(
+                    null,
+                    "Please enter the group name",
+                    "Distance Map Group",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    "Density_");
+
+                new Thread(() -> {
+            try {
+        
+                notifyDensityMapListeners(s);
+        
+        
+    } catch (Exception ex) {
+                System.out.println("ERROR: " + ex.getLocalizedMessage());
+            }
+        }).start();   
+                
+            }
+        }   
         
 
         for(int i = 0; i < colors.length; i++){
@@ -843,6 +885,21 @@ public class GateLayer implements ActionListener, ItemListener {
     private void notifyDistanceMapListeners(String name){
         for (DistanceMapListener listener : distanceMapListeners) {
             listener.addDistanceMapFromGate(name);
+
+        }
+    }
+    
+    public void addDensityMapListener(DensityMapListener listener) {
+        densityMapListeners.add(listener);
+    }
+    
+    /**
+     * Notify the SaveGatedImagesListeners to save the gated nuclei
+     * @param path 
+     */
+    private void notifyDensityMapListeners(String name){
+        for (DensityMapListener listener : densityMapListeners) {
+            listener.addDensityMapFromGate(name);
 
         }
     }
