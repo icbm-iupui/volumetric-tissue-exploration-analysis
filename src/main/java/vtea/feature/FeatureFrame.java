@@ -465,11 +465,11 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
     }
     
     /**
-     * Extracts the Steps.
+     * Extracts the Steps.  This had been static, why?
      * @param sb_al
      * @return 
      */
-    static public ArrayList extractSteps(ArrayList sb_al) {
+    public ArrayList extractSteps(ArrayList sb_al) {
 
         ArrayList<ArrayList> Result = new ArrayList<>();
         
@@ -477,7 +477,18 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         ListIterator<Object> litr = sb_al.listIterator();
         while (litr.hasNext()) {
             fsb = (FeatureStepBlockGUI) litr.next();
-            Result.add(fsb.getVariables());
+            ArrayList stepProtocol = fsb.getVariables();
+            ArrayList useFeature = (ArrayList)stepProtocol.get(1);
+            
+            if(useFeature.size() < descriptions.size()){
+                for(int i = useFeature.size(); i < descriptions.size(); i++){
+                    useFeature.add(false);
+                }
+            }
+            
+            
+            Result.add(stepProtocol);
+            
         }
 
         return Result;
