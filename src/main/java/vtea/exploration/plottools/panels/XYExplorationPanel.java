@@ -82,6 +82,7 @@ import vtea._vtea;
 import static vtea._vtea.LUTMAP;
 import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.AddFeaturesListener;
+import vtea.exploration.listeners.DensityMapListener;
 import vtea.exploration.listeners.DistanceMapListener;
 import vtea.exploration.listeners.FeatureMapListener;
 import vtea.exploration.listeners.PlotUpdateListener;
@@ -102,6 +103,7 @@ import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vtea.jdbc.H2DatabaseEngine;
 import vtea.lut.AbstractLUT;
+import vtea.spatial.densityMap3d;
 import vtea.spatial.distanceMaps2d;
 import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
@@ -111,7 +113,7 @@ import vteaobjects.MicroObjectModel;
  *
  * @author vinfrais
  */
-public class XYExplorationPanel extends AbstractExplorationPanel implements  DistanceMapListener, WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener, SubGateListener {
+public class XYExplorationPanel extends AbstractExplorationPanel implements DensityMapListener, DistanceMapListener, WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener, SubGateListener {
     
     XYChartPanel cpd;
     private boolean useGlobal = false;
@@ -145,6 +147,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
         this.pointsize = MicroExplorer.POINTSIZE;
         
         distanceMaps2D = new distanceMaps2d();
+        densityMaps3D = new densityMap3d();
        
 
         //default plot 
@@ -615,6 +618,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
         gl.addSubGateListener(this);
         
         gl.addDistanceMapListener(this);
+        
+        gl.addDensityMapListener(this);
        
         gl.msActive = false;
 
@@ -903,6 +908,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
         gl.addPasteGateListener(this);
         gl.addImageHighLightSelectionListener(this);
         gl.addDistanceMapListener(this);
+        gl.addDensityMapListener(this);
         gl.msActive = false;
         //this.gates = new ArrayList();
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates);
@@ -1569,6 +1575,27 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements  Dis
             
         }
         return result; 
+    }
+    
+    @Override
+    public void addDensityMapFromGate(String s){
+        
+         ArrayList<ArrayList> al = cloneGatedObjectsMeasurements();
+        ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
+        ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
+        
+        objectsTemp = al.get(0);    
+        
+        ImagePlus map = densityMaps3D.makeMap(impoverlay, objectsTemp);
+ 
+        densityMaps3D.addMap(map, s);
+        
+        measurementsFinal = densityMaps3D.getDistance(objects, map);
+        
+        System.out.println("PROFILING: number of features from density map: " + measurementsFinal.size());
+        System.out.println("PROFILING: objects to add new features to: " + measurementsFinal.get(0).size());
+        
+        this.notifyAddFeatureListener(s, measurementsFinal);
     }
     
     @Override

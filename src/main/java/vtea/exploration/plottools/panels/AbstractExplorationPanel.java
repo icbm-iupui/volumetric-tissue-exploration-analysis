@@ -32,6 +32,7 @@ import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
+import vtea.spatial.densityMap3d;
 import vtea.spatial.distanceMaps2d;
 import vteaobjects.MicroObject;
 
@@ -61,6 +62,7 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected ArrayList<SubGateExplorerListener> SubGateListeners = new ArrayList<SubGateExplorerListener>();
     protected ArrayList<GateLayer> gatelayers = new ArrayList<GateLayer>();
     protected distanceMaps2d distanceMaps2D = new distanceMaps2d();
+    protected densityMap3d densityMaps3D = new densityMap3d();
     protected GateLayer gl = new GateLayer();
     //gates and XYPanels and key for different axes.  First element axes key; second XYPanels; third are the gates
 
