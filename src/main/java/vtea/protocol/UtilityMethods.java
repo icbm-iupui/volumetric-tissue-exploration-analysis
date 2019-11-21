@@ -32,14 +32,16 @@ public class UtilityMethods {
 
     static public ImagePlus makeThumbnail(ImagePlus imp){   
        
-        
+        if(imp.getNSlices()>1){
         imp.setPosition(imp.getStackSize()/2);
-        
+        }
         
         try{
         
         CompositeImage compImp = new CompositeImage(imp, IJ.COMPOSITE); 
+        if(compImp.getStackSize()>1){
         compImp.setPosition(imp.getStackSize()/2);
+        }
         return compImp;
         
         } catch(IllegalArgumentException i){
@@ -71,15 +73,16 @@ public class UtilityMethods {
         double max = 0;
         double min = Math.pow(2,imp.getBitDepth())-1;
         imp.setC(channel);
-        ImageStack is = imp.getImageStack();
         
         
-        if(is.getSize() == 1){
+        
+        if(imp.getNSlices() == 1){
             range[0] = imp.getProcessor().getMin();
             range[1] = imp.getProcessor().getMax();
             System.out.println("PROFILING: range determination for channel " + channel + ": " + range[0] + " to " + range[1]);
             return range;
         } else {
+            ImageStack is = imp.getImageStack();
             for(int i = 0; i < is.getSize(); i++){
                 for(int x = 0; x < is.getWidth(); x++){
                     for(int y = 0; y < is.getHeight(); y++){

@@ -17,6 +17,7 @@
  */
 package vtea.protocol;
 
+import ij.CompositeImage;
 import ij.ImagePlus;
 import java.awt.Color;
 import java.awt.Dimension;

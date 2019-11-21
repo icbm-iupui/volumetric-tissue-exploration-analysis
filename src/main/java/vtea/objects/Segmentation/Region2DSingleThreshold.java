@@ -55,7 +55,7 @@ import static java.util.concurrent.ForkJoinTask.invokeAll;
 
 @Plugin (type = Segmentation.class)
 
-public class LayerCake3DSingleThreshold extends AbstractSegmentation {
+public class Region2DSingleThreshold extends AbstractSegmentation {
     
     
     private int[] minConstants = new int[4]; // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
@@ -77,21 +77,19 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
     JTextFieldLinked f1 = new JTextFieldLinked(String.valueOf(settings[0]), 5);
     JTextField f2 = new JTextField(String.valueOf(settings[1]), 5);
     JTextField f3 = new JTextField(String.valueOf(settings[2]), 5);
-    JTextField f4 = new JTextField(String.valueOf(settings[3]), 5);
+    //JTextField f4 = new JTextField(String.valueOf(settings[3]), 5);
     
     MicroThresholdAdjuster mta;
     
-public LayerCake3DSingleThreshold(){
+public Region2DSingleThreshold(){
     VERSION = "0.2";
     AUTHOR = "Seth Winfree";
-    COMMENT = "Connected components object segmentation.";
-    NAME = "Connect 3D";
-    KEY = "Connect3DSingleThreshold";
+    COMMENT = "Single threshold regions.";
+    NAME = "Simple 2D";
+    KEY = "Region2DSingleThreshold";
     
     protocol = new ArrayList();
-    
 
-            
             f1.setPreferredSize(new Dimension(20, 30));
             f1.setMaximumSize(f1.getPreferredSize());
             f1.setMinimumSize(f1.getPreferredSize());
@@ -103,19 +101,13 @@ public LayerCake3DSingleThreshold(){
             f3.setPreferredSize(new Dimension(20, 30));
             f3.setMaximumSize(f3.getPreferredSize());
             f3.setMinimumSize(f3.getPreferredSize());
-            
-            f4.setPreferredSize(new Dimension(20, 30));
-            f4.setMaximumSize(f4.getPreferredSize());
-            f4.setMinimumSize(f4.getPreferredSize());
     
             protocol.add(new JLabel("Low Threshold"));
             protocol.add(f1);
-            protocol.add(new JLabel("Centroid Offset"));
-            protocol.add(f2);
             protocol.add(new JLabel("Min Vol (vox)"));
-            protocol.add(f3);
+            protocol.add(f2);
             protocol.add(new JLabel("Max Vol (vox)"));
-            protocol.add(f4);
+            protocol.add(f3);
             protocol.add(new JCheckBox("Watershed", true));
     
 }    
@@ -173,19 +165,17 @@ public LayerCake3DSingleThreshold(){
             JTextFieldLinked f1 = (JTextFieldLinked) sComponents.get(1);
             JTextField f2 = (JTextField) sComponents.get(3);
             JTextField f3 = (JTextField) sComponents.get(5);
-            JTextField f4 = (JTextField) sComponents.get(7);
-            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox)(sComponents.get(8))).isSelected());
+            //JTextField f4 = (JTextField) sComponents.get(7);
+            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox)(sComponents.get(6))).isSelected());
             
             
    
         dComponents.add(new JLabel("Low Threshold"));
         dComponents.add(f1);
-        dComponents.add(new JLabel("Centroid Offset"));
-        dComponents.add(f2);
         dComponents.add(new JLabel("Min Vol (vox)"));
-        dComponents.add(f3);
+        dComponents.add(f2);
         dComponents.add(new JLabel("Max Vol (vox)"));
-        dComponents.add(f4);
+        dComponents.add(f3);
         dComponents.add(watershed);
 
 
@@ -215,15 +205,15 @@ public LayerCake3DSingleThreshold(){
         JTextFieldLinked n1 = (JTextFieldLinked)dComponents.get(1);
         JTextField n2 = (JTextField)dComponents.get(3);
         JTextField n3 = (JTextField)dComponents.get(5);
-        JTextField n4 = (JTextField)dComponents.get(7);
-        JCheckBox n5 = (JCheckBox)dComponents.get(8);
+        //JTextField n4 = (JTextField)dComponents.get(7);
+        JCheckBox n5 = (JCheckBox)dComponents.get(6);
         
         
         n1.setText((String)fields.get(0));
         n2.setText((String)fields.get(1));
         n3.setText((String)fields.get(2));
-        n4.setText((String)fields.get(3));
-        n5.setSelected((boolean)fields.get(4));
+        //n4.setText((String)fields.get(3));
+        n5.setSelected((boolean)fields.get(3));
         
         
         return true;
@@ -249,15 +239,15 @@ public LayerCake3DSingleThreshold(){
             JTextFieldLinked f1 = (JTextFieldLinked) sComponents.get(1);
             JTextField f2 = (JTextField) sComponents.get(3);
             JTextField f3 = (JTextField) sComponents.get(5);
-            JTextField f4 = (JTextField) sComponents.get(7);
-            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox)(sComponents.get(8))).isSelected());
+            //JTextField f4 = (JTextField) sComponents.get(7);
+            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox)(sComponents.get(6))).isSelected());
             
 
             fields.add(f1.getText());
             fields.add(f2.getText());
             fields.add(f3.getText());
-            fields.add(f4.getText());
-            fields.add(((JCheckBox)(sComponents.get(8))).isSelected()); 
+            //fields.add(f4.getText());
+            fields.add(((JCheckBox)(sComponents.get(6))).isSelected()); 
 
 
             return true;
@@ -358,13 +348,13 @@ public LayerCake3DSingleThreshold(){
 
         //sort the regions
         
-        Collections.sort(alRegions, new ZComparator()); 
-        Collections.sort(alRegions, new XComparator());
-        Collections.sort(alRegions, new YComparator());
+//        Collections.sort(alRegions, new ZComparator()); 
+//        Collections.sort(alRegions, new XComparator());
+//        Collections.sort(alRegions, new YComparator());
         
         //build the volumes
 
-            int z;
+            int z = 0;
             int nVolumesLocal = 0;
             microVolume volume = new microVolume();
             double[] startRegion = new double[2];
@@ -383,151 +373,35 @@ public LayerCake3DSingleThreshold(){
                 
                 if (!test.isAMember()) {
                     nVolumesLocal++;
-                    startRegion[0] = test.getBoundCenterX();
-                    startRegion[1] = test.getBoundCenterY();
                     test.setMembership(nVolumesLocal);
                     test.setAMember(true);
-                    z = test.getZPosition();
+                    z = 0;
                     alRegionsProcessed.add(test);
-                    findConnectedRegions(nVolumesLocal, startRegion, z);
+                    microVolume mv = new microVolume();
+                    if ((volume.getPixelsX()).length >= minConstants[0] && (volume.getPixelsX()).length <= minConstants[1]) {
+                        mv.setPixelsX(test.getPixelsX());
+                        mv.setPixelsY(test.getPixelsY());
+                        int[] zPixels = new int[test.getPixelsX().length];
+                        for(int j = 0; i < test.getPixelsX().length; i++){
+                            zPixels[j] = 0;
+                        } 
+                        mv.setPixelsZ(zPixels);
+                        alVolumes.add(volume);
+                        //volume.makePixelArrays();
+                        volume.setCentroid();
+                        volume.setSerialID(alVolumes.size()-1);
+                }
+                   
                 }
                 
             }
 
-            for (int j = 1; j <= nVolumesLocal; j++) {
-                volume = new microVolume();
-                Iterator<microRegion> vol = alRegionsProcessed.listIterator();
-                microRegion region = new microRegion();
-                while (vol.hasNext()) {
-                    region = vol.next();
-                    if (j == region.getMembership()) {
-                        volume.addRegion(region);
-                    }
-                }
-                if (volume.getNRegions() > 0) {
-                    volume.makePixelArrays();
-                    volume.setCentroid();
-                    volume.setSerialID(alVolumes.size());
-                    if ((volume.getPixelsX()).length >= minConstants[0] && (volume.getPixelsX()).length <= minConstants[1]) {
-                        alVolumes.add(volume);
-                    }
-                }
-            }
+
+            
  
         System.out.println("PROFILING:  Found " + alVolumes.size() + " volumes.");
 
         return true;
-    }
-
-    private double lengthCart(double[] position, double[] reference_pt) {
-        double distance;
-        double part0 = position[0] - reference_pt[0];
-        double part1 = position[1] - reference_pt[1];
-        distance = Math.sqrt((part0 * part0) + (part1 * part1));
-        return distance;
-    }
-    
-    private void findConnectedRegions(int volumeNumber, double[] startRegion, int z) {
-
-            double[] testRegion = new double[2];
-            int i = 0;
-            
-            boolean tooFar = true;
-
-            while (i < alRegions.size()) {                                 
-                microRegion test = new microRegion();
-                test = alRegions.get(i);
-                testRegion[0] = test.getBoundCenterX();
-                testRegion[1] = test.getBoundCenterY();
-                double comparator = lengthCart(startRegion, testRegion);
-               
-                if (!test.isAMember()) {
-                    if (comparator <= minConstants[2] && ((test.getZPosition() - z) == 1)) {
-                        
-                        test.setMembership(volumeNumber);
-                        test.setAMember(true);
-                        //z = test.getZPosition();
-                        testRegion[0] = (testRegion[0] + startRegion[0]) / 2;
-                        testRegion[1] = (testRegion[1] + startRegion[1]) / 2;
-                        alRegionsProcessed.add(test);
-                        
-                        //speed it up
-                        alRegions.remove(i);
-                        findConnectedRegions(volumeNumber, testRegion, test.getZPosition());
-                    }
-                    
-                    
-                }
-                i++;
-            }
-        }
-     
-    
-    private class ZComparator implements Comparator<microRegion> {
-
-        @Override
-        public int compare(microRegion o1, microRegion o2) {
-            if (o1.getZPosition() == o2.getZPosition()) {
-                return 0;
-            } else if (o1.getZPosition() > o2.getZPosition()) {
-                return 1;
-            } else if (o1.getZPosition() < o2.getZPosition()) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-
-    }
-    
-    private class XComparator implements Comparator<microRegion> {
-
-        @Override
-        public int compare(microRegion o1, microRegion o2) {
-            if (o1.getCentroidX() == o2.getCentroidX()) {
-                return 0;
-            } else if (o1.getCentroidX()> o2.getCentroidX()) {
-                if(o1.getZPosition() != o2.getZPosition()){
-                return 1;
-                } else {
-                return 0;
-                }
-            } else if (o1.getCentroidX() < o2.getCentroidX()) {
-                if(o1.getZPosition() != o2.getZPosition()){
-                return -1;
-                } else {
-                return 0;
-                }
-            } else {
-                return 0;
-            }
-        }
-
-    }
-
-    private class YComparator implements Comparator<microRegion> {
-
-        @Override
-        public int compare(microRegion o1, microRegion o2) {
-            if (o1.getCentroidY() == o2.getCentroidY()) {
-                return 0;
-            } else if (o1.getCentroidY()> o2.getCentroidY()) {
-                if(o1.getZPosition() != o2.getZPosition()){
-                return 1;
-                } else {
-                return 0;
-                }
-            } else if (o1.getCentroidY() < o2.getCentroidY()) {
-                if(o1.getZPosition() != o2.getZPosition()){
-                return -1;
-                } else {
-                return 0;
-                }
-            } else {
-                return 0;
-            }
-
-    }
     }
     
     private class RegionForkPool extends RecursiveAction {

@@ -35,7 +35,7 @@ import static vtea._vtea.MORPHOLOGICALMAP;
 import static vtea._vtea.SEGMENTATIONMAP;
 import static vtea._vtea.getInterleavedStacks;
 import vtea.objects.Segmentation.AbstractSegmentation;
-import vtea.objects.Segmentation.LayerCake3DSingleThreshold;
+import vtea.objects.Segmentation.Region2DSingleThreshold;
 import vtea.objects.layercake.microRegion;
 import vtea.objects.layercake.microVolume;
 import vtea.objects.morphology.AbstractMorphology;

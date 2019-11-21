@@ -333,7 +333,8 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
            
         } else {
             ThumbnailImage = new Duplicator().run(OriginalImage);
-            ThumbnailImage.setZ(ThumbnailImage.getNSlices()/2);
+            if(ThumbnailImage.getStackSize()>1){
+            ThumbnailImage.setZ(ThumbnailImage.getNSlices()/2);}
             thumb.add(new PreviewImagePanel(ThumbnailImage.getImage()));
         }
         thumb.setLocation(x, y);

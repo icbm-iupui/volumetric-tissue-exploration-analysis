@@ -265,16 +265,16 @@ public class OpenImageWindow extends javax.swing.JFrame {
     }
 
     private void notifyImageSelectionListeners(int i, int tab) {
- if(WindowManager.getImage(i + 1).getNSlices() <= 1){
-                JFrame frame = new JFrame();
-                frame.setBackground(vtea._vtea.BUTTONBACKGROUND);  
-
-                    JOptionPane.showMessageDialog(frame,
-                    "Sorry, VTEA requires a 3D volume.",
-                        "File type warning",
-                    JOptionPane.WARNING_MESSAGE);
-        
-        }else{
+// if(WindowManager.getImage(i + 1).getNSlices() <= 1){
+//                JFrame frame = new JFrame();
+//                frame.setBackground(vtea._vtea.BUTTONBACKGROUND);  
+//
+//                    JOptionPane.showMessageDialog(frame,
+//                    "Sorry, VTEA requires a 3D volume.",
+//                        "File type warning",
+//                    JOptionPane.WARNING_MESSAGE);
+//        
+//        } else{
 
         for (ImageSelectionListener listener : listeners) {
             
@@ -285,7 +285,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
                }  
             listener.onSelect(imp, tab);
         }  
-        }
+        //}
     }
 
    public void getImageFile(int i){
