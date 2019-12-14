@@ -151,27 +151,30 @@ public class Grow_6C extends AbstractMorphology {
             }
              //reassign
 
-            noDups = removeDuplicates(xArr, yArr, zArr); 
-            
-            noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
-            
-            if (times > 1) {
-                
-                    xArr = noDups.get(0);
-                    yArr = noDups.get(1);
-                    zArr = noDups.get(2);
+            //noDups = removeDuplicates(xArr, yArr, zArr);    
+            //noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
 
-                    x = new int[xArr.size()];
-                    y = new int[xArr.size()];
-                    z = new int[xArr.size()];
-
-                    for (int k = 0; k < xArr.size(); k++) {
-                        x[k] = (Integer) xArr.get(k);
-                        y[k] = (Integer) yArr.get(k);
-                        z[k] = (Integer) zArr.get(k);
-                    }
-            }
+//            
+//            if (times > 1) {
+//                
+//                    xArr = noDups.get(0);
+//                    yArr = noDups.get(1);
+//                    zArr = noDups.get(2);
+//
+//                    x = new int[xArr.size()];
+//                    y = new int[xArr.size()];
+//                    z = new int[xArr.size()];
+//
+//                    for (int k = 0; k < xArr.size(); k++) {
+//                        x[k] = (Integer) xArr.get(k);
+//                        y[k] = (Integer) yArr.get(k);
+//                        z[k] = (Integer) zArr.get(k);
+//                    }
+//            }
         }
+        noDups = removeDuplicates(xArr, yArr, zArr);    
+        noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
+
         return noDups;
     }
 

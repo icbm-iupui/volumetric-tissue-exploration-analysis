@@ -83,6 +83,37 @@ public class H2DatabaseEngine {
         }
     }
     
+    //H2 method for creating dataset table
+    public static ArrayList<String> getListOfTables(Connection connection) throws SQLException {
+                ResultSet rs = null;
+        
+                ArrayList<String> al = new ArrayList<String>();
+                PreparedStatement selectPreparedStatement = null;
+
+        try {
+           
+            String SelectQuery = "SELECT * FROM INFORMATION_SCHEMA.TABLES where table_type IS NOT 'SYSTEM TABLE'";
+        
+            
+        selectPreparedStatement = connection.prepareStatement(SelectQuery);
+        rs = selectPreparedStatement.executeQuery();
+        
+        while (rs.next()) {
+                System.out.println("PROFILING: Adding: " + rs.getString(3));
+                al.add(rs.getString(3));
+        }
+        
+        } catch (SQLException e) {
+            System.out.println("ERROR: Exception Message " + e.getLocalizedMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            connection.close();
+        }
+        System.out.println("PROFILING: The number of tables are: " + al.size());
+        return al;
+    }
+    
     // SQL for converting column position to label
     
     public static String getColumnLabel(String path, int column) {

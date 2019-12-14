@@ -21,19 +21,13 @@ import ij.ImagePlus;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 import vtea.exploration.plotgatetools.gates.Gate;
-import vtea.exploration.plotgatetools.gates.MicroSelection;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import vtea.exploration.listeners.AddFeaturesListener;
-import vtea.exploration.listeners.FeatureMapListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
-import vtea.objects.layercake.microVolume;
-import vtea.spatial.distanceMaps2d;
 import vteaobjects.MicroObject;
 
 /**
@@ -133,4 +127,7 @@ public interface ExplorationCenter {
     public void exportGates();
     
     public void importGates();
+    
+     
+    public void addFromCSV(String s);
 }

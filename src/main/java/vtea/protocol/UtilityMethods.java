@@ -39,7 +39,7 @@ public class UtilityMethods {
         try{
         
         CompositeImage compImp = new CompositeImage(imp, IJ.COMPOSITE); 
-        if(compImp.getStackSize()>1){
+        if(compImp.getNSlices()>1){
         compImp.setPosition(imp.getStackSize()/2);
         }
         return compImp;

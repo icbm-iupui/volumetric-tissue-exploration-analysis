@@ -385,7 +385,7 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
                         new SegmentationForkPool(imps, start + ((stop - start) / 2) + 1, stop));
 
             } else {
-                Region2DSingleThreshold lc3dst1 = new Region2DSingleThreshold();
+                LayerCake3DSingleThreshold lc3dst1 = new LayerCake3DSingleThreshold();
                 
                 lc3dst1.addListener(this);
                 

@@ -134,6 +134,9 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
       public ArrayList<ArrayList<Number>> getMeasurments(){
           return measurements;
       }
+      
+      @Override
+       public void addFromCSV(String s){}
 
 
 }

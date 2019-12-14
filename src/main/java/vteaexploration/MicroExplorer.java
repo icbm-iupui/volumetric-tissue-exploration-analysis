@@ -399,8 +399,8 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
         get3DProjection = new javax.swing.JButton();
         getSegmentation = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
-        jButtonMeas = new javax.swing.JButton();
         jButtonDistance = new javax.swing.JButton();
+        jButtonMeas = new javax.swing.JButton();
         jButtonFeature = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
         ExportGraph = new javax.swing.JButton();
@@ -690,23 +690,6 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
         toolbarGate.add(getSegmentation);
         toolbarGate.add(jSeparator7);
 
-        jButtonMeas.setBackground(new java.awt.Color(102, 255, 102));
-        jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
-        jButtonMeas.setToolTipText("Add measurements");
-        jButtonMeas.setEnabled(false);
-        jButtonMeas.setFocusable(false);
-        jButtonMeas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonMeas.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonMeas.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonMeas.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonMeas.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonMeas.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonMeasActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(jButtonMeas);
-
         jButtonDistance.setBackground(new java.awt.Color(102, 255, 102));
         jButtonDistance.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
         jButtonDistance.setToolTipText("Add distance measure");
@@ -724,9 +707,25 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
         });
         toolbarGate.add(jButtonDistance);
 
+        jButtonMeas.setBackground(new java.awt.Color(102, 255, 102));
+        jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/FeaturesAdd_2.png"))); // NOI18N
+        jButtonMeas.setToolTipText("Import features from CSV...");
+        jButtonMeas.setFocusable(false);
+        jButtonMeas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonMeas.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonMeas.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonMeas.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonMeas.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonMeas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonMeasActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(jButtonMeas);
+
         jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
         jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
-        jButtonFeature.setToolTipText("Add features");
+        jButtonFeature.setToolTipText("Add features...");
         jButtonFeature.setFocusable(false);
         jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -1056,10 +1055,13 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
     }//GEN-LAST:event_exportCSVActionPerformed
 
     private void jButtonMeasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMeasActionPerformed
-        mf.setVisible(true);
-        if (!mfchecked) {
-            mfchecked = true;
-        }
+
+        ec.addFromCSV("new");
+
+//        mf.setVisible(true);
+//        if (!mfchecked) {
+//            mfchecked = true;
+//        }
     }//GEN-LAST:event_jButtonMeasActionPerformed
 
     private void NorthMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NorthMouseClicked

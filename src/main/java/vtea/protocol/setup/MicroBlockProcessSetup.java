@@ -90,8 +90,9 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         ProtocolAll = Protocols;
         OriginalImage = new Duplicator().run(imp);
         imp.deleteRoi();
-
-        currentSlice = OriginalImage.getNSlices() / 2;
+        
+        if(OriginalImage.getNSlices()>1)
+            currentSlice = OriginalImage.getNSlices() / 2;
         //subclass specific settings
         TitleText.setText("Processing, Step " + step);
         TitleText.setEditable(false);
@@ -144,10 +145,14 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         layoutConstraints.ipadx = 5;
         layoutConstraints.weightx = 1;
         layoutConstraints.weighty = 1;
-
-        sliceSlider = new JSlider(SwingConstants.VERTICAL, 1, OriginalImage.getNSlices(), currentSlice);
-
-        sliceSlider.addChangeListener(this);
+        
+        if(OriginalImage.getNSlices()>1){
+            sliceSlider = new JSlider(SwingConstants.VERTICAL, 1, OriginalImage.getNSlices(), currentSlice);
+            sliceSlider.addChangeListener(this);
+        } else {
+            sliceSlider = new JSlider(SwingConstants.VERTICAL, 1, 10, 1);
+            sliceSlider.setEnabled(false);
+        }
 
         methodBuild.add(sliceSlider);
 
@@ -214,10 +219,12 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
     private void doPreview(int slice) {
         ChannelSplitter cs = new ChannelSplitter();
         final ImagePlus imp = new ImagePlus("preview", cs.getChannel(new Duplicator().run(OriginalImage), ChannelComboBox.getSelectedIndex() + 1));
-
+        if(imp.getNSlices() > 1){
         ProcessPreview = new ImagePlus("ProcessPreview", imp.getStack().getProcessor(slice));
-
         ProcessPreview.resetStack();
+        } else {
+         ProcessPreview = new ImagePlus("ProcessPreview", imp.getProcessor());   
+        }
 
         if (this.previewControl.isSelected()) {
             String method = (String) ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex());

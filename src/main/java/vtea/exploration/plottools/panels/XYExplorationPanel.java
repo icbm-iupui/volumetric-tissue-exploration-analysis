@@ -37,12 +37,14 @@ import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -53,6 +55,8 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -1575,6 +1579,110 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
             
         }
         return result; 
+    }
+    
+    public void addFromCSV(String s){
+//        //this method does not assume that all objects get a value
+            int countObjects = this.objects.size();
+            int dataLength = 0; 
+        
+            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+            int returnVal = jf.showOpenDialog(CenterPanel);
+            File file = jf.getSelectedFile();
+
+            ArrayList<ArrayList<Number>> csvData = new ArrayList();
+            ArrayList<ArrayList<Number>> paddedData = new ArrayList();
+            
+            ArrayList<Number> blank = new ArrayList<Number>();
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                try {
+                        BufferedReader csvReader = new BufferedReader(new FileReader(file));
+                        String row;
+                        int objectID = 0;
+                        while ((row = csvReader.readLine()) != null) {
+                            String[] data = row.split(",");
+                            
+                            dataLength = data.length;
+                            
+                            ArrayList<Number> dataList = new ArrayList<Number>();
+                            
+                            for(int j = 0; j < data.length; j++){
+                                dataList.add(Float.parseFloat(data[j]));
+                            }
+                            csvData.add(dataList);
+
+                            }
+                        csvReader.close();
+       
+                    } catch (IOException e) {
+                        System.out.println("ERROR: Could not open the file.");
+                    }
+
+            for (int k = 0; k < dataLength; k++){
+                blank.add(0);
+            }
+                
+            for (int i = 0; i < objects.size(); i++) {
+            
+                ArrayList<Number> data = getData(i, csvData);
+                
+                if(data.size() > 0){
+                    paddedData.add(data);
+                } else {
+                    paddedData.add(blank);
+                }    
+            }  
+        
+//re-sort by class
+        
+        ArrayList<ArrayList<Number>> results = new ArrayList();
+//        for(int a = 0; a < dataLength; a++){   
+//            results.add(new ArrayList<Number>());    
+//         }
+        //cycle through the features data
+        for(int c = 0; c < (dataLength-1); c++){
+            ArrayList<Number> result = new ArrayList();
+            //iterator through objects
+            ListIterator<ArrayList<Number>> itr = paddedData.listIterator();
+            while(itr.hasNext()){
+                ArrayList<Number> padded = itr.next();
+                result.add(padded.get(c));
+        //cycle through the object ordered data
+            }
+            results.add(result);
+        }  
+//      String out = new String();
+//      ListIterator<ArrayList<Number>> itr = finalResult.listIterator();
+//          while(itr.hasNext()){
+//                Number num = itr.next();
+//                out = out + "," + num;
+//          }
+//      System.out.println("PROFILING: importing: " + out);   
+
+            String name = file.getName();
+
+            name = name.replace(".", "_");
+             
+            this.notifyAddFeatureListener(name, results);
+
+            } 
+
+    }
+    
+    private ArrayList<Number> getData(int objectID, ArrayList<ArrayList<Number>> data){
+        ArrayList<Number> result = new ArrayList<Number>();
+        
+        ListIterator<ArrayList<Number>> itr = data.listIterator();
+        
+        while(itr.hasNext()){
+            ArrayList<Number> test = itr.next();
+            if((Float)(test.get(0)) == objectID){
+                test.remove(0);
+                return test;
+            }
+        }
+        return result;
     }
     
     @Override
