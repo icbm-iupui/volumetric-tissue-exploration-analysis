@@ -38,8 +38,6 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -55,16 +53,10 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.ListIterator;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -75,20 +67,17 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.ProgressMonitorInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.LogAxis;
 import org.jfree.chart.plot.XYPlot;
-import vtea.ExportCSV;
 import vtea._vtea;
 import static vtea._vtea.LUTMAP;
 import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.DensityMapListener;
 import vtea.exploration.listeners.DistanceMapListener;
-import vtea.exploration.listeners.FeatureMapListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SaveGatedImagesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
@@ -117,8 +106,13 @@ import vteaobjects.MicroObjectModel;
  *
  * @author vinfrais
  */
-public class XYExplorationPanel extends AbstractExplorationPanel implements DensityMapListener, DistanceMapListener, WindowListener, RoiListener, PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener, ImageHighlightSelectionListener, ChangePlotAxesListener, UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener, SubGateListener {
-    
+public class XYExplorationPanel extends AbstractExplorationPanel implements
+        DensityMapListener, DistanceMapListener, WindowListener, RoiListener,
+        PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener,
+        ImageHighlightSelectionListener, ChangePlotAxesListener,
+        UpdatePlotWindowListener, AddGateListener, SaveGatedImagesListener,
+        SubGateListener {
+
     XYChartPanel cpd;
     private boolean useGlobal = false;
     private boolean useCustom = false;
@@ -126,12 +120,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
     int gated = 0;
     String key = "";
     String keySQLSafe = "";
+    
+    static String printResult = "";
 
     private Connection connection;
-    
-    
 
-    public XYExplorationPanel(String key, Connection connection, ArrayList measurements, ArrayList<String> descriptions, HashMap<Integer, String> hm, ArrayList<MicroObject> objects) {
+    public XYExplorationPanel(String key, Connection connection,
+            ArrayList measurements, ArrayList<String> descriptions,
+            HashMap<Integer, String> hm, ArrayList<MicroObject> objects) {
 
         super();
         Roi.addRoiListener(this);
@@ -144,22 +140,27 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         keySQLSafe = key.replace("-", "_");
 
         writeCSV(ij.Prefs.getImageJDir() + key);
-        startH2Database(ij.Prefs.getImageJDir() + key + ".csv", vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe);
+        startH2Database(ij.Prefs.getImageJDir() + key + ".csv",
+                vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe);
 
         this.LUT = 0;
         this.hm = hm;
         this.pointsize = MicroExplorer.POINTSIZE;
-        
+
         distanceMaps2D = new distanceMaps2d();
         densityMaps3D = new densityMap3d();
-       
 
         //default plot 
-        addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART, MicroExplorer.POINTSIZE, 0, hm.get(1), hm.get(4), hm.get(2));
+        addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART,
+                MicroExplorer.LUTSTART, MicroExplorer.POINTSIZE,
+                0, hm.get(1), hm.get(4), hm.get(2));
     }
 
-    private XYChartPanel createChartPanel(int x, int y, int l, String xText, String yText, String lText, int size, ImagePlus ip, boolean imageGate, Color imageGateOutline) {
-        return new XYChartPanel(objects, measurements, x, y, l, xText, yText, lText, size, ip, imageGate, new Color(0, 177, 76));
+    private XYChartPanel createChartPanel(int x, int y, int l, String xText,
+            String yText, String lText, int size, ImagePlus ip, boolean imageGate,
+            Color imageGateOutline) {
+        return new XYChartPanel(objects, measurements, x, y, l, xText, yText,
+                lText, size, ip, imageGate, new Color(0, 177, 76));
     }
 
     private void startH2Database(String file, String table) {
@@ -226,9 +227,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
     }
 
 //    
-    public void makeOverlayImage(ArrayList gates, int x, int y, int xAxis, int yAxis) {
-        //convert gate to chart x,y path
+    public void makeOverlayImage(ArrayList gates, int x, int y,
+            int xAxis, int yAxis) {
 
+        //System.out.println("PROFILING: Mapping cells...");
         Gate gate;
         ListIterator<Gate> gate_itr = gates.listIterator();
 
@@ -253,35 +255,27 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
 
                 double xValue = 0;
                 double yValue = 0;
-                
-                
-                //this is where we need to add logic for polygons...  this is tripping up things
 
-                ArrayList<ArrayList> resultKey = H2DatabaseEngine.getObjectsInRange2D(path, vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
-                        this.descriptions.get(xAxis), path.getBounds2D().getX(),
-                        path.getBounds2D().getX() + path.getBounds2D().getWidth(),
-                        this.descriptions.get(yAxis), path.getBounds2D().getY(),
-                        path.getBounds2D().getY() + path.getBounds2D().getHeight());
+                ArrayList<ArrayList> resultKey
+                        = H2DatabaseEngine.getObjectsInRange2D(path,
+                                vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
+                                this.descriptions.get(xAxis), path.getBounds2D().getX(),
+                                path.getBounds2D().getX() + path.getBounds2D().getWidth(),
+                                this.descriptions.get(yAxis), path.getBounds2D().getY(),
+                                path.getBounds2D().getY() + path.getBounds2D().getHeight());
 
                 ListIterator<ArrayList> itr = resultKey.listIterator();
 
                 while (itr.hasNext()) {
                     ArrayList al = itr.next();
                     int object = ((Number) (al.get(0))).intValue();
-                    
-                    
                     result.add(volumes.get(object));
-                    
                 }
-
                 try {
                     for (int i = 0; i < result.size(); i++) {
-
                         ArrayList<Number> measured = resultKey.get(i);
-
                         xValue = measured.get(1).doubleValue();
                         yValue = measured.get(2).doubleValue();
-
                         if (path.contains(xValue, yValue)) {
                             resultFinal.add((MicroObject) result.get(i));
                         }
@@ -293,9 +287,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
 
                 int count = 0;
 
-                BufferedImage placeholder = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
-                ImageStack gateOverlay = new ImageStack(impoverlay.getWidth(), impoverlay.getHeight());
+                BufferedImage placeholder = new BufferedImage(impoverlay.getWidth(),
+                        impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                ImageStack gateOverlay = new ImageStack(impoverlay.getWidth(),
+                        impoverlay.getHeight());
 
                 selected = result.size();
 
@@ -308,40 +303,28 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
 
                 for (int i = 0; i <= impoverlay.getNSlices(); i++) {
 
-                    BufferedImage selections = new BufferedImage(impoverlay.getWidth(), impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage selections = new BufferedImage(impoverlay.getWidth(),
+                            impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
                     Graphics2D g2 = selections.createGraphics();
-
                     ImageRoi ir = new ImageRoi(0, 0, placeholder);
-
                     ListIterator<MicroObject> vitr = result.listIterator();
-
                     boolean inZ = true;
                     while (vitr.hasNext()) {
-                    //while (vitr.hasNext() && inZ) {
-
                         MicroObject vol = (MicroObject) vitr.next();
-
                         inZ = true;
-
-                        //
                         if (i >= vol.getMinZ() && i <= vol.getMaxZ()) {
                             inZ = false;
                         }
-                        //
-
                         try {
                             int[] x_pixels = vol.getXPixelsInRegion(i);
                             int[] y_pixels = vol.getYPixelsInRegion(i);
-
                             for (int c = 0; c < x_pixels.length; c++) {
-
                                 g2.setColor(gate.getColor());
                                 g2.drawRect(x_pixels[c], y_pixels[c], 1, 1);
                             }
                             ir = new ImageRoi(0, 0, selections);
                             count++;
-
                         } catch (NullPointerException e) {
                         }
                     }
@@ -364,39 +347,59 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
 
                     BigDecimal percentageGated = new BigDecimal(gated);
                     BigDecimal totalGatedBD = new BigDecimal(total);
-                    percentageGated = percentageGated.divide(totalGatedBD, 4, BigDecimal.ROUND_UP);
+                    percentageGated = percentageGated.divide(totalGatedBD, 4,
+                            BigDecimal.ROUND_UP);
 
                     BigDecimal percentageGatedSelected = new BigDecimal(gatedSelected);
                     BigDecimal totalGatedSelectedBD = new BigDecimal(total);
-                    percentageGatedSelected = percentageGatedSelected.divide(totalGatedSelectedBD, 4, BigDecimal.ROUND_UP);
+                    percentageGatedSelected
+                            = percentageGatedSelected.divide(totalGatedSelectedBD,
+                                    4, BigDecimal.ROUND_UP);
 
                     if (impoverlay.getWidth() > 512) {
 
                         //f = new Font("Arial", Font.PLAIN, 100);
-                        TextRoi textTotal = new TextRoi(5, 10, selected + "/" + total + " gated (" + 100 * percentage.floatValue() + "%)");
-
+                        TextRoi textTotal = new TextRoi(5, 10, selected
+                                + "/" + total + " gated ("
+                                + 100 * percentage.floatValue() + "%)");
+                            printResult = textTotal.getText();   
                         if (gated > 0) {
-                            textTotal = new TextRoi(5, 10, selected + "/" + total + " total (" + 100 * percentage.floatValue() + "%)"
-                                    + "; " + gated + "/" + total + " roi (" + 100 * percentageGated.floatValue() + "%)"
-                                    + "; " + gatedSelected + "/" + total + " overlap (" + 100 * percentageGatedSelected.floatValue() + "%)", f);
+                            textTotal = new TextRoi(5, 10, selected + "/" + total
+                                    + " total (" + 100 * percentage.floatValue()
+                                    + "%)" + "; " + gated + "/" + total + " roi ("
+                                    + 100 * percentageGated.floatValue() + "%)"
+                                    + "; " + gatedSelected + "/" + total + " overlap ("
+                                    + 100 * percentageGatedSelected.floatValue() + "%)", f);
+                            printResult = textTotal.getText();
                         }
                         textTotal.setPosition(i);
                         overlay.add(textTotal);
+
                     } else {
                         f = new Font("Arial", Font.PLAIN, 10);
-                        TextRoi line1 = new TextRoi(5, 5, selected + "/" + total + " gated" + "(" + 100 * percentage.floatValue() + "%)", f);
+                        TextRoi line1 = new TextRoi(5, 5,
+                                selected + "/" + total + " gated"
+                                + "(" + 100 * percentage.floatValue()
+                                + "%)", f);
                         line1.setPosition(i);
                         overlay.add(line1);
+                        printResult = line1.getText();
                         if (gated > 0) {
                             f = new Font("Arial", Font.PLAIN, 10);
-                            TextRoi line2 = new TextRoi(5, 18, gated + "/" + total + " roi (" + 100 * percentageGated.floatValue() + "%)", f);
+                            TextRoi line2 = new TextRoi(5, 18, gated + "/"
+                                    + total + " roi ("
+                                    + 100 * percentageGated.floatValue() + "%)", f);
                             line2.setPosition(i);
                             overlay.add(line2);
-                            TextRoi line3 = new TextRoi(5, 31, gatedSelected + "/" + total + " overlap (" + 100 * percentageGatedSelected.floatValue() + "%)", f);
+                            TextRoi line3 = new TextRoi(5, 31, gatedSelected
+                                    + "/" + total + " overlap ("
+                                    + 100 * percentageGatedSelected.floatValue()
+                                    + "%)", f);
                             line3.setPosition(i);
                             overlay.add(line3);
+                            printResult = line1.getText() + ", " + line2.getText()
+                                    + ", " + line3.getText();
                         }
-
                     }
                 }
                 impoverlay.setOverlay(overlay);
@@ -417,6 +420,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 impoverlay.setSlice(impoverlay.getSlice());
             }
             impoverlay.show();
+            //IJ.log(printResult);
         }
     }
 
@@ -484,8 +488,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 }
             }
         }
-
-        //System.out.println("RESULT: total gates " + gates.size() + ": " + this.getTitle() + ", Gated: " + result.size() + ", Total: " + total + ", for: " + 100 * (new Double(selected).doubleValue() / (new Double(total)).doubleValue()) + "%");
         return result.size();
     }
 
@@ -512,14 +514,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
     }
 
     @Override
-    public JPanel addPlot(int x, int y, int l, int size, int LUT, String xText, String yText, String lText) {
+    public JPanel addPlot(int x, int y, int l, int size, int LUT, String xText,
+            String yText, String lText) {
         currentX = x;
         currentY = y;
         currentL = l;
         pointsize = size;
         CenterPanel.removeAll();
 
-        cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
+        cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText,
+                pointsize, impoverlay, imageGate, imageGateColor);
 
         cpd.addUpdatePlotWindowListener(this);
 
@@ -549,8 +553,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
 
         if (useCustom) {
 
-            cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0), AxesLimits.get(1));
-            cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2), AxesLimits.get(3));
+            cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0), 
+                    AxesLimits.get(1));
+            cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2), 
+                    AxesLimits.get(3));
 
             if (!xScaleLinear) {
                 LogAxis xcLog = new LogAxis();
@@ -585,7 +591,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 iImp = con.newInstance();
 
                 HashMap lutTable = ((AbstractLUT) iImp).getLUTMAP();
-                
+
                 XYChartPanel.ZEROPERCENT = ((AbstractLUT) iImp).getColor(0);
                 XYChartPanel.TENPERCENT = ((AbstractLUT) iImp).getColor(10);
                 XYChartPanel.TWENTYPERCENT = ((AbstractLUT) iImp).getColor(20);
@@ -599,7 +605,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 XYChartPanel.ALLPERCENT = ((AbstractLUT) iImp).getColor(100);
 
 //        
-            } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            } catch (NullPointerException | NoSuchMethodException
+                    | SecurityException | InstantiationException
+                    | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException ex) {
                 System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
             }
         } catch (NullPointerException | ClassNotFoundException ex) {
@@ -614,17 +623,17 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         //add overlay 
         this.gl = new GateLayer();
         gl.addPolygonSelectionListener(this);
-        
+
         gl.addImageHighLightSelectionListener(this);
-        
+
         gl.addImagesListener(this);
-        
+
         gl.addSubGateListener(this);
-        
+
         gl.addDistanceMapListener(this);
-        
+
         gl.addDensityMapListener(this);
-       
+
         gl.msActive = false;
 
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates);
@@ -689,22 +698,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
 
     @Override
     public void updatePlot(int x, int y, int l, int size) {
-//        if (!(isMade(currentX, currentY, currentL, size))) {
-//            addExplorationGroup();
-//        }
-
         String lText = "";
         if (l < 0) {
             lText = "";
         } else {
             lText = hm.get(l);
         }
-//        if (!(isMade(x, y, l, size))) {
         addPlot(x, y, l, size, LUT, hm.get(x), hm.get(y), lText);
-//        } else { 
-//            showPlot(x, y, l, size, hm.get(x), hm.get(y), lText); 
-//            System.out.println("Showing not adding!");
-//        }
     }
 
     @Override
@@ -722,7 +722,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
     }
 
     @Override
-    public XYChartPanel getPanel(int x, int y, int l, int size, String xText, String yText, String lText) {
+    public XYChartPanel getPanel(int x, int y, int l, int size, String xText, 
+            String yText, String lText) {
         String key = x + "_" + y + "_" + l;
         if (isMade(x, y, l, size)) {
             ListIterator<ArrayList> itr = ExplorationItems.listIterator();
@@ -734,7 +735,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 }
             }
         }
-        return createChartPanel(x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor);
+        return createChartPanel(x, y, l, xText, yText, lText, pointsize,
+                impoverlay, imageGate, imageGateColor);
     }
 
     @Override
@@ -754,7 +756,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
     }
 
     @Override
-    public void showPlot(int x, int y, int l, int size, String xText, String yText, String lText) {
+    public void showPlot(int x, int y, int l, int size, String xText,
+            String yText, String lText) {
 
         currentX = x;
         currentY = y;
@@ -772,8 +775,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         }
 
         if (this.useCustom) {
-            cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0), AxesLimits.get(1));
-            cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2), AxesLimits.get(3));
+            cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0),
+                    AxesLimits.get(1));
+            cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2),
+                    AxesLimits.get(3));
         }
 
         CenterPanel.setOpaque(false);
@@ -820,11 +825,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         PolygonGate pg = new PolygonGate(points);
         pg.createInChartSpace(chart);
         if (pg.getGateAsPoints().size() == 0) {
-            //System.out.println("PROFILING: What happened to my points?");
+
         }
         gates.add(pg);
-        //System.out.println("PROFILING: in gate arraylist: " + gates.get(gates.lastIndexOf(pg)).getGateAsPoints());
-
         this.notifyResetSelectionListeners();
     }
 
@@ -841,16 +844,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
 
     @Override
     public void onChangeAxes(int x, int y, int l, int size, boolean imagegate) {
-//        if (!(isMade(currentX, currentY, currentL, size))) {
-//            addExplorationGroup();
-//        }
-//        if (!(isMade(x, y, l, size))) {
         addPlot(x, y, l, size, LUT, hm.get(x), hm.get(y), hm.get(l));
-        //System.out.println("Change Axes, new plot: " + x + ", " + y + ", " + l);
-//        } else {
-//            showPlot(x, y, l, size,  hm.get(x), hm.get(y), hm.get(l));
-//            //System.out.println("Change Axes: " + x + ", " + y + ", " + l);
-//        }
     }
 
     @Override
@@ -864,14 +858,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
             listener.resetGateSelection();
         }
     }
-    
+
     @Override
     public void addSubgateListener(SubGateExplorerListener listener) {
         SubGateListeners.add(listener);
     }
 
-   @Override
-    public void notifySubgateListener(ArrayList<MicroObject> objects, ArrayList<ArrayList<Number>> measurements) {
+    @Override
+    public void notifySubgateListener(ArrayList<MicroObject> objects,
+            ArrayList<ArrayList<Number>> measurements) {
         for (SubGateExplorerListener listener : SubGateListeners) {
             listener.makeSubGateExplorer(objects, measurements);
         }
@@ -914,7 +909,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         gl.addDistanceMapListener(this);
         gl.addDensityMapListener(this);
         gl.msActive = false;
-        //this.gates = new ArrayList();
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates);
         gjlayer.setLocation(0, 0);
         CenterPanel.add(gjlayer);
@@ -933,7 +927,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
     public void onPlotUpdateListener() {
         this.getParent().validate();
         this.getParent().repaint();
-        //System.out.println("PROFILING: Plot updated...");
     }
 
     @Override
@@ -945,20 +938,22 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 switch (i) {
                     case RoiListener.COMPLETED:
                         imageGate = true;
-                        //System.out.println("PROFILING: XYChartPanel, Roi modified... Completed. Imagegate: " + imageGate);    
-                        addPlot(currentX, currentY, currentL, pointsize, LUT, hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                        addPlot(currentX, currentY, currentL, pointsize, LUT,
+                                hm.get(currentX), hm.get(currentY),
+                                hm.get(currentL));
                         makeOverlayImage(this.gates, 0, 0, currentX, currentY);
                         break;
                     case RoiListener.MOVED:
                         imageGate = true;
-                        //System.out.println("PROFILING: XYChartPanel, roiListener, Roi modified... Moved. Imagegate: " + imageGate);                   
-                        addPlot(currentX, currentY, currentL, pointsize, LUT, hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                        addPlot(currentX, currentY, currentL, pointsize, LUT,
+                                hm.get(currentX), hm.get(currentY),
+                                hm.get(currentL));
                         makeOverlayImage(this.gates, 0, 0, currentX, currentY);
                         break;
                     case RoiListener.DELETED:
                         imageGate = false;
-                        //System.out.println("PROFILING: XYChartPanel, roiListener, Roi modified... Deleted. Imagegate: " + imageGate);  
-                        addPlot(currentX, currentY, currentL, pointsize, LUT, hm.get(currentX), hm.get(currentY), hm.get(currentL));
+                        addPlot(currentX, currentY, currentL, pointsize, LUT,
+                                hm.get(currentX), hm.get(currentY), hm.get(currentL));
                         makeOverlayImage(this.gates, 0, 0, currentX, currentY);
                         break;
                     default:
@@ -985,10 +980,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
             Gate gate = (Gate) itr.next();
             gate.setSelected(false);
         }
-
-        //System.out.println("PROFILING: Number of gates: " + gates.size());
-        //public void updatePlot(int x, int y, int l, int size) 
-        //updatePlot(currentX, currentY, currentL, pointsize);
         ImageStack[] isAll = new ImageStack[impoverlay.getNChannels() + gates.size()];
 
         for (int i = 1; i <= impoverlay.getNChannels(); i++) {
@@ -997,7 +988,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
 
         if (gates.size() > 0) {
             for (int i = 0; i < gates.size(); i++) {
-                isAll[i + impoverlay.getNChannels()] = gates.get(i).getGateOverlayStack();
+                isAll[i + impoverlay.getNChannels()]
+                        = gates.get(i).getGateOverlayStack();
             }
         }
 
@@ -1036,7 +1028,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         XYChartPanel.xMax = plot.getDomainAxis().getUpperBound();
         XYChartPanel.yMin = plot.getRangeAxis().getLowerBound();
         XYChartPanel.yMax = plot.getRangeAxis().getUpperBound();
-
         XYChartPanel.xLinear = xScaleLinear;
         XYChartPanel.yLinear = yScaleLinear;
     }
@@ -1068,14 +1059,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
 
     @Override
     public int getGatedSelected(ImagePlus ip) {
-        ArrayList<ArrayList<Number>> ImageGatedObjects = new ArrayList<ArrayList<Number>>();
+        ArrayList<ArrayList<Number>> ImageGatedObjects
+                = new ArrayList<ArrayList<Number>>();
         int index = 0;
         ListIterator<MicroObject> itr = objects.listIterator();
         while (itr.hasNext()) {
             MicroObject m = itr.next();
             try {
 
-                if (ip.getRoi().contains((int) m.getCentroidX(), (int) m.getCentroidY())) {
+                if (ip.getRoi().contains((int) m.getCentroidX(),
+                        (int) m.getCentroidY())) {
                     ImageGatedObjects.add(measurements.get(index));
                 }
                 index++;
@@ -1096,7 +1089,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 double xValue = 0;
                 double yValue = 0;
 
-                ListIterator<ArrayList<Number>> it = ImageGatedObjects.listIterator();
+                ListIterator<ArrayList<Number>> it
+                        = ImageGatedObjects.listIterator();
                 ArrayList<Number> measured;
 
                 try {
@@ -1181,18 +1175,19 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
     public BufferedImage getBufferedImage() {
         Color color = CenterPanel.getBackground();
 
-        BufferedImage image = new BufferedImage(CenterPanel.getWidth(), CenterPanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage(CenterPanel.getWidth(),
+                CenterPanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
         CenterPanel.paint(image.getGraphics());
 
         JFrame j = new JFrame();
         File file;
         int choice = JOptionPane.OK_OPTION;
-        int returnVal=JFileChooser.CANCEL_OPTION;
-        do{
+        int returnVal = JFileChooser.CANCEL_OPTION;
+        do {
             JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
             returnVal = jf.showSaveDialog(CenterPanel);
             file = jf.getSelectedFile();
-            
+
             try {
 
                 if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("png")) {
@@ -1202,13 +1197,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 }
             } catch (Exception e) {
             }
-            
-            if(file.exists()){
-                String message = String.format("%s already exists\nOverwrite it?", file.getName());
-                choice = JOptionPane.showConfirmDialog(CenterPanel, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+            if (file.exists()) {
+                String message = String.format("%s already exists\nOverwrite it?",
+                        file.getName());
+                choice = JOptionPane.showConfirmDialog(CenterPanel, message,
+                        "Overwrite File", JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
             }
-        }while(choice != JOptionPane.OK_OPTION);
-        
+        } while (choice != JOptionPane.OK_OPTION);
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
 
@@ -1263,72 +1260,48 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         startH2Database(ij.Prefs.getImageJDir() + key + ".csv", vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe);
 
     }
-    
+
     @Override
-    public void saveGated(Path2D path){
+    public void saveGated(Path2D path) {
         //NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements);
-        
+
         new Thread(() -> {
             try {
-                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements,key);
-                try {   
+                NucleiExportation exportnuclei = new NucleiExportation(impoverlay,
+                        objects, measurements, key);
+                try {
                     exportnuclei.saveImages(path, currentX, currentY);
                 } catch (IOException ex) {
 
                     System.out.println("ERROR: " + ex.getLocalizedMessage());
                 }
-               
+
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
-        
-    }
-    public void saveGatedCNN(Path2D path){
-        new Thread(() -> {
-            try {
-                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements, key);
-                try {   
-                    exportnuclei.readCSV(path, currentX, currentY);
-                } catch (IOException ex) {
-                    Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                    System.out.println("ERROR: " + ex.getLocalizedMessage());
-                }
-               
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
-            }
-        }).start();
-        
-        
+
     }
 
     @Override
     public void subGate() {
-        
 
         ArrayList<ArrayList> al = cloneGatedObjectsMeasurements();
         ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
         ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
-        
 
-        
-        objectsTemp = al.get(0);    
+        objectsTemp = al.get(0);
         measurementsFinal = al.get(1);
-//            ExportCSV ex = new ExportCSV(this.chart);
-//            ex.export(objectsTemp, measurementsFinal, this.descriptions);
-                System.out.println("Launching new explorer window... \n with " +
-                        objectsTemp.size() + " objects and " + measurementsFinal.size() + 
-                        " measurements.");
-                notifySubgateListener(objectsTemp, measurementsFinal);
-                  
-            
-    }
-            
+        System.out.println("Launching new explorer window... \n with "
+                + objectsTemp.size() + " objects and " + measurementsFinal.size()
+                + " measurements.");
+        notifySubgateListener(objectsTemp, measurementsFinal);
 
-    private ArrayList<ArrayList> cloneGatedObjectsMeasurements(){
-        
-                 Gate gate;
+    }
+
+    private ArrayList<ArrayList> cloneGatedObjectsMeasurements() {
+
+        Gate gate;
         ListIterator<Gate> gate_itr = gates.listIterator();
 
         int total = 0;
@@ -1336,7 +1309,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         int selected = 0;
         int gatedSelected = 0;
         int gatecount = gates.size();
-        
+
         ArrayList<ArrayList> result = new ArrayList<ArrayList>();
 
         while (gate_itr.hasNext()) {
@@ -1349,137 +1322,131 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
                 ArrayList<MicroObject> objectsGated = new ArrayList<MicroObject>();
                 ArrayList<MicroObject> objectsFinal = new ArrayList<MicroObject>();
-                
-                ArrayList<ArrayList<Number>> sortTemp = new ArrayList<ArrayList<Number>>();
-                
-                ArrayList<ArrayList<Number>> measurementsTemp = new ArrayList<ArrayList<Number>>();
-                ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
-                ArrayList<ArrayList<Number>> measurementsGated = new ArrayList<ArrayList<Number>>();
-                
-                
+
+                ArrayList<ArrayList<Number>> sortTemp
+                        = new ArrayList<ArrayList<Number>>();
+
+                ArrayList<ArrayList<Number>> measurementsTemp
+                        = new ArrayList<ArrayList<Number>>();
+                ArrayList<ArrayList<Number>> measurementsFinal
+                        = new ArrayList<ArrayList<Number>>();
+                ArrayList<ArrayList<Number>> measurementsGated
+                        = new ArrayList<ArrayList<Number>>();
+
                 ArrayList<String> description = new ArrayList<String>();
-               
 
                 double xValue = 0;
                 double yValue = 0;
-                
+
                 description.add(this.descriptions.get(currentX));
                 description.add(this.descriptions.get(currentY));
                 description.add(this.descriptions.get(currentL));
-                
-                System.out.println("PROFILING: Measurements length, " + measurements.size());
-                
-                //this is where we need to add logic for polygons...  this is tripping up things
 
-                ArrayList<ArrayList> resultKey = 
-                        H2DatabaseEngine.getObjectsInRange2D(path, 
-                        vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
-                        this.descriptions.get(currentX), path.getBounds2D().getX(),
-                        path.getBounds2D().getX() + path.getBounds2D().getWidth(),
-                        this.descriptions.get(currentY), path.getBounds2D().getY(),
-                        path.getBounds2D().getY() + path.getBounds2D().getHeight(), 
-                        this.descriptions.get(currentL));
+                System.out.println("PROFILING: Measurements length, " + measurements.size());
+
+                //this is where we need to add logic for polygons...  this is tripping up things
+                ArrayList<ArrayList> resultKey
+                        = H2DatabaseEngine.getObjectsInRange2D(path,
+                                vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
+                                this.descriptions.get(currentX), path.getBounds2D().getX(),
+                                path.getBounds2D().getX() + path.getBounds2D().getWidth(),
+                                this.descriptions.get(currentY), path.getBounds2D().getY(),
+                                path.getBounds2D().getY() + path.getBounds2D().getHeight(),
+                                this.descriptions.get(currentL));
 
                 ListIterator<ArrayList> itr = resultKey.listIterator();
 
-                while (itr.hasNext()) { 
+                while (itr.hasNext()) {
                     ArrayList al = itr.next();
                     int object = ((Number) (al.get(0))).intValue();
                     objectsTemp.add(objects.get(object));
-                    measurementsTemp.add(this.measurements.get(object)); 
+                    measurementsTemp.add(this.measurements.get(object));
                     sortTemp.add(al);
                 }
-//////////////////////////////////////
 
                 try {
-                        FileOutputStream fos = new FileOutputStream(ij.Prefs.getImageJDir() + vtea._vtea.MEASUREMENTS_TEMP);
-                        ObjectOutputStream oos = new ObjectOutputStream(fos);
+                    FileOutputStream fos = new FileOutputStream(ij.Prefs.getImageJDir()
+                            + vtea._vtea.MEASUREMENTS_TEMP);
+                    ObjectOutputStream oos = new ObjectOutputStream(fos);
 
-                        oos.writeObject(objectsTemp);
-                        
-                        FileInputStream fis = new FileInputStream(ij.Prefs.getImageJDir() + vtea._vtea.MEASUREMENTS_TEMP);
-                        ObjectInputStream ois = new ObjectInputStream(fis);
+                    oos.writeObject(objectsTemp);
 
-                  
+                    FileInputStream fis = new FileInputStream(ij.Prefs.getImageJDir()
+                            + vtea._vtea.MEASUREMENTS_TEMP);
+                    ObjectInputStream ois = new ObjectInputStream(fis);
+
                     try {
                         objectsGated = (ArrayList<MicroObject>) ois.readObject();
-                    } catch (ClassNotFoundException ex) {}
-                        
-                        
-                    oos.close();     
+                    } catch (ClassNotFoundException ex) {
+                    }
+
+                    oos.close();
                     ois.close();
-                    
-                } catch (IOException ex ) {
-                    
+
+                } catch (IOException ex) {
+
                 }
-////////////////////////////////////             
 
                 try {
-           FileOutputStream fos1 = new FileOutputStream(ij.Prefs.getImageJDir() + vtea._vtea.OBJECTS_TEMP);
-                        ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
-                
-                        oos1.writeObject(measurementsTemp);
-                        
-                        FileInputStream fis1 = new FileInputStream(ij.Prefs.getImageJDir() + vtea._vtea.OBJECTS_TEMP);
-                        ObjectInputStream ois1 = new ObjectInputStream(fis1);
+                    FileOutputStream fos1 = new FileOutputStream(ij.Prefs.getImageJDir()
+                            + vtea._vtea.OBJECTS_TEMP);
+                    ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
 
-                  
+                    oos1.writeObject(measurementsTemp);
+
+                    FileInputStream fis1 = new FileInputStream(ij.Prefs.getImageJDir()
+                            + vtea._vtea.OBJECTS_TEMP);
+                    ObjectInputStream ois1 = new ObjectInputStream(fis1);
+
                     try {
                         measurementsGated = (ArrayList<ArrayList<Number>>) ois1.readObject();
                     } catch (ClassNotFoundException ex) {
-                        
+
                     }
                     oos1.close();
                     ois1.close();
-                } catch (IOException ex ) {
-                    
+                } catch (IOException ex) {
+
                 }
-                               
+
 //////////////////////////////////////
                 try {
                     int position = 0;
                     for (int i = 0; i < objectsGated.size(); i++) {
-                        
-                        MicroObject object = ((MicroObject) objectsGated.get(i)); 
-                        object.setSerialID(i); 
 
-                        ArrayList<Number> sorted = (ArrayList<Number>)sortTemp.get(i);
+                        MicroObject object = ((MicroObject) objectsGated.get(i));
+                        object.setSerialID(i);
+
+                        ArrayList<Number> sorted = (ArrayList<Number>) sortTemp.get(i);
 
                         xValue = sorted.get(1).doubleValue();
                         yValue = sorted.get(2).doubleValue();
-                        
-//                        System.out.println("PROFILING, path: "  + path.getBounds2D());
-//                        System.out.println("PROFILING, uid: " + object.getSerialID() + ", measurement position: " + i+ ", position: x, " + xValue + ", " + yValue + ".");
-//                       
-                        
-                        
+
                         if (path.contains(xValue, yValue)) {
-                            
-                            
+
                             objectsFinal.add(object);
 
                             measurementsFinal.add(measurementsGated.get(i));
 
                             //System.out.println("Added...");
-
                             position++;
                         }
-                        
+
                     }
                 } catch (NullPointerException e) {
                 }
-              result.add(objectsFinal);
+                result.add(objectsFinal);
                 result.add(measurementsFinal);
-                 
+
             }
-            
+
         }
-        return result; 
+        return result;
     }
 
-    private ArrayList<ArrayList> getGatedObjectsMeasurements(){
-        
-                 Gate gate;
+    private ArrayList<ArrayList> getGatedObjectsMeasurements() {
+
+        Gate gate;
         ListIterator<Gate> gate_itr = gates.listIterator();
 
         int total = 0;
@@ -1487,7 +1454,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         int selected = 0;
         int gatedSelected = 0;
         int gatecount = gates.size();
-        
+
         ArrayList<ArrayList> result = new ArrayList<ArrayList>();
 
         while (gate_itr.hasNext()) {
@@ -1500,66 +1467,58 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
 
                 ArrayList<MicroObject> objectsFinal = new ArrayList<MicroObject>();
-                
-                ArrayList<ArrayList<Number>> sortTemp = new ArrayList<ArrayList<Number>>();
-                
-                ArrayList<ArrayList<Number>> measurementsTemp = new ArrayList<ArrayList<Number>>();
 
-                ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
-                
-                
+                ArrayList<ArrayList<Number>> sortTemp
+                        = new ArrayList<ArrayList<Number>>();
+
+                ArrayList<ArrayList<Number>> measurementsTemp
+                        = new ArrayList<ArrayList<Number>>();
+
+                ArrayList<ArrayList<Number>> measurementsFinal
+                        = new ArrayList<ArrayList<Number>>();
+
                 ArrayList<String> description = new ArrayList<String>();
-               
 
                 double xValue = 0;
                 double yValue = 0;
-                
+
                 description.add(this.descriptions.get(currentX));
                 description.add(this.descriptions.get(currentY));
                 description.add(this.descriptions.get(currentL));
-                
-                //this is where we need to add logic for polygons...  this is tripping up things
-                
-                System.out.println("PROFILING: Menu selections, " + currentX + ", " + currentY + ", " + currentL);
 
-                ArrayList<ArrayList> resultKey = 
-                        H2DatabaseEngine.getObjectsInRange2D(path, 
-                        vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
-                        this.descriptions.get(currentX), path.getBounds2D().getX(),
-                        path.getBounds2D().getX() + path.getBounds2D().getWidth(),
-                        this.descriptions.get(currentY), path.getBounds2D().getY(),
-                        path.getBounds2D().getY() + path.getBounds2D().getHeight(), 
-                        this.descriptions.get(currentL));
+                //this is where we need to add logic for polygons...  this is tripping up things
+                //System.out.println("PROFILING: Menu selections, " + currentX + ", " + currentY + ", " + currentL);
+                ArrayList<ArrayList> resultKey
+                        = H2DatabaseEngine.getObjectsInRange2D(path,
+                                vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
+                                this.descriptions.get(currentX), path.getBounds2D().getX(),
+                                path.getBounds2D().getX() + path.getBounds2D().getWidth(),
+                                this.descriptions.get(currentY), path.getBounds2D().getY(),
+                                path.getBounds2D().getY() + path.getBounds2D().getHeight(),
+                                this.descriptions.get(currentL));
 
                 ListIterator<ArrayList> itr = resultKey.listIterator();
 
-                while (itr.hasNext()) { 
+                while (itr.hasNext()) {
                     ArrayList al = itr.next();
                     int object = ((Number) (al.get(0))).intValue();
                     objectsTemp.add(objects.get(object));
-                    measurementsTemp.add(this.measurements.get(object)); 
+                    measurementsTemp.add(this.measurements.get(object));
                     sortTemp.add(al);
                 }
 
                 try {
                     int position = 0;
                     for (int i = 0; i < objectsTemp.size(); i++) {
-                        
-                        MicroObject object = ((MicroObject) objectsTemp.get(i)); 
-                        
-                        ArrayList<Number> sorted = (ArrayList<Number>)sortTemp.get(i);
+
+                        MicroObject object = ((MicroObject) objectsTemp.get(i));
+
+                        ArrayList<Number> sorted = (ArrayList<Number>) sortTemp.get(i);
 
                         xValue = sorted.get(1).doubleValue();
                         yValue = sorted.get(2).doubleValue();
-                        
-//                        System.out.println("PROFILING, path: "  + path.getBounds2D());
-//                        System.out.println("PROFILING, uid: " + object.getSerialID() + ", measurement position: " + i+ ", position: x, " + xValue + ", " + yValue + ".");
-//                       
-                        
-                        
                         if (path.contains(xValue, yValue)) {
-                            
-                            
+
                             objectsFinal.add(object);
 
                             measurementsFinal.add(measurementsTemp.get(i));
@@ -1568,177 +1527,164 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
 
                             position++;
                         }
-                        
+
                     }
                 } catch (NullPointerException e) {
                 }
-              result.add(objectsFinal);
+                result.add(objectsFinal);
                 result.add(measurementsFinal);
-                 
+
             }
-            
+
         }
-        return result; 
+        return result;
     }
-    
-    public void addFromCSV(String s){
+
+    public void addFromCSV(String s) {
 //        //this method does not assume that all objects get a value
-            int countObjects = this.objects.size();
-            int dataLength = 0; 
-        
-            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
-            int returnVal = jf.showOpenDialog(CenterPanel);
-            File file = jf.getSelectedFile();
+        int countObjects = this.objects.size();
+        int dataLength = 0;
 
-            ArrayList<ArrayList<Number>> csvData = new ArrayList();
-            ArrayList<ArrayList<Number>> paddedData = new ArrayList();
-            
-            ArrayList<Number> blank = new ArrayList<Number>();
+        JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+        int returnVal = jf.showOpenDialog(CenterPanel);
+        File file = jf.getSelectedFile();
 
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                try {
-                        BufferedReader csvReader = new BufferedReader(new FileReader(file));
-                        String row;
-                        int objectID = 0;
-                        while ((row = csvReader.readLine()) != null) {
-                            String[] data = row.split(",");
-                            
-                            dataLength = data.length;
-                            
-                            ArrayList<Number> dataList = new ArrayList<Number>();
-                            
-                            for(int j = 0; j < data.length; j++){
-                                dataList.add(Float.parseFloat(data[j]));
-                            }
-                            csvData.add(dataList);
+        ArrayList<ArrayList<Number>> csvData = new ArrayList();
+        ArrayList<ArrayList<Number>> paddedData = new ArrayList();
 
-                            }
-                        csvReader.close();
-       
-                    } catch (IOException e) {
-                        System.out.println("ERROR: Could not open the file.");
+        ArrayList<Number> blank = new ArrayList<Number>();
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                BufferedReader csvReader = new BufferedReader(new FileReader(file));
+                String row;
+                int objectID = 0;
+                while ((row = csvReader.readLine()) != null) {
+                    String[] data = row.split(",");
+
+                    dataLength = data.length;
+
+                    ArrayList<Number> dataList = new ArrayList<Number>();
+
+                    for (int j = 0; j < data.length; j++) {
+                        dataList.add(Float.parseFloat(data[j]));
                     }
+                    csvData.add(dataList);
 
-            for (int k = 0; k < dataLength; k++){
+                }
+                csvReader.close();
+
+            } catch (IOException e) {
+                System.out.println("ERROR: Could not open the file.");
+            }
+
+            for (int k = 0; k < dataLength; k++) {
                 blank.add(0);
             }
-                
+
             for (int i = 0; i < objects.size(); i++) {
-            
+
                 ArrayList<Number> data = getData(i, csvData);
-                
-                if(data.size() > 0){
+
+                if (data.size() > 0) {
                     paddedData.add(data);
                 } else {
                     paddedData.add(blank);
-                }    
-            }  
-        
-//re-sort by class
-        
-        ArrayList<ArrayList<Number>> results = new ArrayList();
-//        for(int a = 0; a < dataLength; a++){   
-//            results.add(new ArrayList<Number>());    
-//         }
-        //cycle through the features data
-        for(int c = 0; c < (dataLength-1); c++){
-            ArrayList<Number> result = new ArrayList();
-            //iterator through objects
-            ListIterator<ArrayList<Number>> itr = paddedData.listIterator();
-            while(itr.hasNext()){
-                ArrayList<Number> padded = itr.next();
-                result.add(padded.get(c));
-        //cycle through the object ordered data
+                }
             }
-            results.add(result);
-        }  
-//      String out = new String();
-//      ListIterator<ArrayList<Number>> itr = finalResult.listIterator();
-//          while(itr.hasNext()){
-//                Number num = itr.next();
-//                out = out + "," + num;
-//          }
-//      System.out.println("PROFILING: importing: " + out);   
 
+//re-sort by class
+            ArrayList<ArrayList<Number>> results = new ArrayList();
+            for (int c = 0; c < (dataLength - 1); c++) {
+                ArrayList<Number> result = new ArrayList();
+                ListIterator<ArrayList<Number>> itr = paddedData.listIterator();
+                while (itr.hasNext()) {
+                    ArrayList<Number> padded = itr.next();
+                    result.add(padded.get(c));
+                }
+                results.add(result);
+            }
             String name = file.getName();
-
             name = name.replace(".", "_");
-             
             this.notifyAddFeatureListener(name, results);
-
-            } 
-
+        }
     }
-    
-    private ArrayList<Number> getData(int objectID, ArrayList<ArrayList<Number>> data){
+
+    private ArrayList<Number> getData(int objectID,
+            ArrayList<ArrayList<Number>> data) {
         ArrayList<Number> result = new ArrayList<Number>();
-        
+
         ListIterator<ArrayList<Number>> itr = data.listIterator();
-        
-        while(itr.hasNext()){
+
+        while (itr.hasNext()) {
             ArrayList<Number> test = itr.next();
-            if((Float)(test.get(0)) == objectID){
+            if ((Float) (test.get(0)) == objectID) {
                 test.remove(0);
                 return test;
             }
         }
         return result;
     }
-    
+
     @Override
-    public void addDensityMapFromGate(String s){
-        
-         ArrayList<ArrayList> al = cloneGatedObjectsMeasurements();
-        ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
-        ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
-        
-        objectsTemp = al.get(0);    
-        
-        ImagePlus map = densityMaps3D.makeMap(impoverlay, objectsTemp);
- 
-        densityMaps3D.addMap(map, s);
-        
-        measurementsFinal = densityMaps3D.getDistance(objects, map);
-        
-        System.out.println("PROFILING: number of features from density map: " + measurementsFinal.size());
-        System.out.println("PROFILING: objects to add new features to: " + measurementsFinal.get(0).size());
-        
-        this.notifyAddFeatureListener(s, measurementsFinal);
-    }
-    
-    @Override
-    public void addDistanceMapFromGate(String s) {
-        
+    public void addDensityMapFromGate(String s) {
+
         ArrayList<ArrayList> al = cloneGatedObjectsMeasurements();
         ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
         ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
-        
-        objectsTemp = al.get(0);    
-        
+
+        objectsTemp = al.get(0);
+
+        ImagePlus map = densityMaps3D.makeMap(impoverlay, objectsTemp);
+
+        densityMaps3D.addMap(map, s);
+
+        measurementsFinal = densityMaps3D.getDistance(objects, map);
+
+        System.out.println("PROFILING: number of features from density map: "
+                + measurementsFinal.size());
+        System.out.println("PROFILING: objects to add new features to: "
+                + measurementsFinal.get(0).size());
+
+        this.notifyAddFeatureListener(s, measurementsFinal);
+    }
+
+    @Override
+    public void addDistanceMapFromGate(String s) {
+
+        ArrayList<ArrayList> al = cloneGatedObjectsMeasurements();
+        ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
+        ArrayList<ArrayList<Number>> measurementsFinal
+                = new ArrayList<ArrayList<Number>>();
+
+        objectsTemp = al.get(0);
+
         ImagePlus map = distanceMaps2D.makeMap(impoverlay, objectsTemp);
- 
+
         distanceMaps2D.addMap(map, s);
-        
+
         measurementsFinal = distanceMaps2D.getDistance(objects, map);
-        
-        System.out.println("PROFILING: number of features: " + measurementsFinal.size());
-        System.out.println("PROFILING: objects to add new features to: " + measurementsFinal.get(0).size());
-        
+
+        System.out.println("PROFILING: number of features: "
+                + measurementsFinal.size());
+        System.out.println("PROFILING: objects to add new features to: "
+                + measurementsFinal.get(0).size());
+
         this.notifyAddFeatureListener(s, measurementsFinal);
     }
 
     @Override
     public void addFeatureListener(AddFeaturesListener listener) {
-          addfeaturelisteners.add(listener);
+        addfeaturelisteners.add(listener);
     }
 
     @Override
-    public void notifyAddFeatureListener(String name, ArrayList<ArrayList<Number>> feature) {
-               for (AddFeaturesListener listener : addfeaturelisteners) {
+    public void notifyAddFeatureListener(String name,
+            ArrayList<ArrayList<Number>> feature) {
+        for (AddFeaturesListener listener : addfeaturelisteners) {
             listener.addFeatures(name, feature);
         }
     }
-    
 
     class ExportGates {
 
@@ -1749,7 +1695,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
             File file;
             int returnVal = JFileChooser.CANCEL_OPTION;
             int choice = JOptionPane.OK_OPTION;
-            do{
+            do {
                 JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
                 returnVal = jf.showSaveDialog(CenterPanel);
                 file = jf.getSelectedFile();
@@ -1757,19 +1703,21 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
                 _vtea.LASTDIRECTORY = file.getPath();
 
                 file = jf.getSelectedFile();
-                
+
                 if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("vtg")) {
 
                 } else {
                     file = new File(file.toString() + ".vtg");
                 }
-                
-                if(file.exists()){
-                    String message = String.format("%s already exists\nOverwrite it?", file.getName());
-                    choice = JOptionPane.showConfirmDialog(CenterPanel, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                if (file.exists()) {
+                    String message = String.format("%s already exists\nOverwrite it?",
+                            file.getName());
+                    choice = JOptionPane.showConfirmDialog(CenterPanel, message,
+                            "Overwrite File", JOptionPane.OK_CANCEL_OPTION,
+                            JOptionPane.WARNING_MESSAGE);
                 }
-            }while(choice != JOptionPane.OK_OPTION);
-            
+            } while (choice != JOptionPane.OK_OPTION);
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
@@ -1789,7 +1737,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         }
 
     }
-    
 
     class ImportGates {
 
@@ -1840,5 +1787,4 @@ class ZComparator implements Comparator<MicroObject> {
             return 0;
         }
     }
-
 }

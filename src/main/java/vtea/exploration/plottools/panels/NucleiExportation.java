@@ -27,7 +27,6 @@ import ij.plugin.Duplicator;
 import ij.plugin.HyperStackConverter;
 import ij.plugin.RGBStackMerge;
 import ij.plugin.ZProjector;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -53,27 +52,19 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.DefaultComboBoxModel;
 import vteaobjects.MicroObject;
 import java.lang.reflect.Method;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JList;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.ListCellRenderer;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
-import javax.swing.text.TableView.TableRow;
 import vtea.gui.CustomTableModel;
 
 /**
@@ -91,6 +82,7 @@ public class NucleiExportation {
     int channelOfInterest;
     int[] info;
     String key;
+    
 
     NucleiExportation(ImagePlus image, ArrayList objects, ArrayList measurements, String key) {
         this.image = image;
@@ -106,30 +98,7 @@ public class NucleiExportation {
      * @param xAxis current measurement on the x-axis of the explorer
      * @param yAxis current measurement on the x-axis of the explorer
      */
-    public void readCSV(Path2D path, int xAxis, int yAxis) throws IOException {
-        //CNN implmentation
-        info = image.getDimensions();
-        //ArrayList<MicroObject> result = getGatedObjects(path, xAxis, yAxis);
-        ArrayList<MicroObject> result = (ArrayList) objects;
-        int selectd = result.size();
 
-        Collections.sort(result, new ZComparator());
-
-        ListIterator<MicroObject> vitr = result.listIterator();
-        MicroObject checker = ((MicroObject) vitr.next());
-        boolean allowMorph = checker.getMorphologicalCount() != 0;
-        //Not sure if this line does as intended, bigger output images if higher quality images
-        int quality = checker.getRange(0) > 32 ? 64 : 32;
-        vitr.previous();
-
-        int maxSize = info[0] > info[1] ? info[1] : info[0];
-        CNNObjImgOptions options = new CNNObjImgOptions();
-        options.showCNNDialog();
-        ArrayList chosenOptions = options.getInformation();
-        File csv = options.chooseCSVLocation();
-        NucleiLabelReader nlr = new NucleiLabelReader(image, result, measurements, csv, chosenOptions);
-        nlr.run();
-    }
 
     public void saveImages(Path2D path, int xAxis, int yAxis) throws IOException {
         info = image.getDimensions();
@@ -152,7 +121,13 @@ public class NucleiExportation {
         int maxSize = info[0] > info[1] ? info[1] : info[0];
         ExportObjImgOptions options = new ExportObjImgOptions(info[3], maxSize,
                 quality, allowMorph, image.getNChannels(), image);
-        options.showDialog();
+        int choice = options.showDialog();
+        
+        if(choice == JOptionPane.OK_OPTION){
+            
+        
+        
+        
         ArrayList chosenOptions = options.getInformation();
 
         this.channelOfInterest = Integer.parseInt(chosenOptions.get(5).toString());
@@ -355,6 +330,7 @@ public class NucleiExportation {
                 }
                 counter++;
             }
+        }
         }
 
     }
@@ -723,6 +699,7 @@ class ExportObjImgOptions extends JPanel implements ChangeTextListener {
     JTable pixeltype;
     JComboBox bitdepth;
 
+
     ArrayList<JLabel> labels = new ArrayList<JLabel>();
 
     ImagePlus redirectImage;
@@ -779,17 +756,7 @@ class ExportObjImgOptions extends JPanel implements ChangeTextListener {
 
         JLabel pixtypeLabel = new JLabel("Image(s) to export: ");
         labels.add(pixtypeLabel);
-        //String[] pixtypeList = {"Mask Volume", "Morphological Volume", "All Values"};
 
-//            Vector pixtypeList = new Vector();
-//            
-//            pixtypeList.add(new JComboBoxOptionSelection("Mask Volume", true));
-//            //pixtypeList.add("Morphological Volume");
-//            pixtypeList.add(new JComboBoxOptionSelection("All Values",false));
-        //DefaultComboBoxModel<String> pixtypecbm = new DefaultComboBoxModel(pixtypeList);
-//            if(!allowMorph)
-//                pixtypecbm.removeElement("Morphological Volume");
-        // String[] pixtypeList = {"Mask Volume", "All Values"};
         Object[][] pixelData = {
             {"3D", "all", new Boolean(true)},
             {"3D", "mask", new Boolean(true)},
@@ -876,21 +843,12 @@ class ExportObjImgOptions extends JPanel implements ChangeTextListener {
         gbc = new GridBagConstraints(1, 5, 1, 1, 0.2, 1.0, GridBagConstraints.WEST,
                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
         this.add(curlabel, gbc);
-//            curlabel = labiter.next();
-//            gbc = new GridBagConstraints(1,5,1,1,1,1.0,GridBagConstraints.EAST,
-//                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-//            this.add(new JLabel(),gbc);
 
         gbc = new GridBagConstraints(1, 6, 1, 1, 0.2, 1.0, GridBagConstraints.WEST,
                 GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
         JScrollPane jsp = new JScrollPane(pixeltype);
         jsp.setPreferredSize(new Dimension(150, 180));
         this.add(jsp, gbc);
-//            gbc = new GridBagConstraints(1,6,1,1,1,1.0,GridBagConstraints.EAST,
-//                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-//            jsp = new JScrollPane();
-//            jsp.setPreferredSize(new Dimension(150, 150));
-//            this.add(jsp,gbc);
 
         curlabel = labiter.next();
         gbc = new GridBagConstraints(0, 7, 1, 1, 0.2, 1.0, GridBagConstraints.WEST,
@@ -899,16 +857,11 @@ class ExportObjImgOptions extends JPanel implements ChangeTextListener {
         gbc = new GridBagConstraints(1, 7, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                 GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
         this.add(bitdepth, gbc);
+        
     }
 
     public int showDialog() {
-        return JOptionPane.showOptionDialog(null, this, "Setup Output Images",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-                null, null);
-    }
-
-    public int showCNNDialog() {
-        return JOptionPane.showOptionDialog(null, this, "Setup CNN",
+       return JOptionPane.showOptionDialog(null, this, "Setup Output Images",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
                 null, null);
     }
@@ -980,7 +933,6 @@ class ExportObjImgOptions extends JPanel implements ChangeTextListener {
         if (source.getText().equals("Current data")) {
             info.add(image);
         } else {
-
             info.add(source.getRedirectImage());
         }
         
@@ -1018,12 +970,24 @@ class ExportObjImgOptions extends JPanel implements ChangeTextListener {
 
     @Override
     public void textChanged(String[] channels) {
-        channelchoice = new JComboBox(channels);
-        ListIterator<JLabel> labiter = labels.listIterator();
-        this.setupPanel(labiter);
+        channelchoice.setModel(new DefaultComboBoxModel(channels)); 
+       //ListIterator<JLabel> labiter = labels.listIterator();
+       // this.setupPanel(labiter);
+        
     }
 
-    public class Timer {
+
+
+   
+}
+
+interface ChangeTextListener {
+
+    public void textChanged(String[] channels);
+
+}
+
+  class Timer {
         // A simple "stopwatch" class with millisecond accuracy
 
         private long startTime, endTime;
@@ -1040,72 +1004,6 @@ class ExportObjImgOptions extends JPanel implements ChangeTextListener {
             return endTime - startTime;
         }
     }
-}
-
-class CNNObjImgOptions extends JPanel {
-
-    JTextArea threshold;
-
-    public CNNObjImgOptions() {
-        ArrayList<JLabel> labels = new ArrayList();
-
-        JLabel thresholdLabel = new JLabel("Select confidence threshold: ");
-        labels.add(thresholdLabel);
-        double recommended = 0.95;
-        threshold = new JTextArea(String.valueOf(recommended));
-
-        ListIterator<JLabel> labiter = labels.listIterator();
-        setupPanel(labiter);
-    }
-
-    private void setupPanel(ListIterator<JLabel> labiter) {
-        JLabel curlabel;
-        this.setLayout(new GridBagLayout());
-
-        curlabel = labiter.next();
-        GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
-                GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-        this.add(curlabel, gbc);
-        gbc = new GridBagConstraints(1, 0, 1, 1, 1, 1.0, GridBagConstraints.EAST,
-                GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-        this.add(threshold, gbc);
-
-    }
-
-    public int showCNNDialog() {
-        return JOptionPane.showOptionDialog(null, this, "Setup CNN",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-                null, null);
-    }
-
-    public ArrayList getInformation() {
-        ArrayList info = new ArrayList(1);
-        info.add(Double.parseDouble(threshold.getText()));
-        return info;
-    }
-
-    public File chooseCSVLocation() {
-        JFileChooser objectimagejfc = new JFileChooser(vtea._vtea.LASTDIRECTORY);
-        //objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int returnVal = objectimagejfc.showOpenDialog(this);
-        objectimagejfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        //int returnVal = objectimagejfc.showSaveDialog(this);
-        File file = objectimagejfc.getSelectedFile();
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            return file;
-        } else {
-            return null;
-        }
-    }
-
-}
-
-interface ChangeTextListener {
-
-    public void textChanged(String[] channels);
-
-}
 
 
 
@@ -1113,12 +1011,25 @@ class JTextAreaFile extends JTextArea {
 
     private File location;
     ImagePlus image;
+    
+    @Override
+    public void setSize(Dimension d) {
+        setSize(d.width, d.height); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setSize(int width, int height) {
+        super.setSize(100, 30); //To change body of generated methods, choose Tools | Templates.
+    }
 
     ArrayList<ChangeTextListener> ChangeTextListeners = new ArrayList<ChangeTextListener>();
+    
 
     public JTextAreaFile(String s) {
         super(s);
     }
+    
+    
 
     public ImagePlus getRedirectImage() {
         return image;
@@ -1142,11 +1053,11 @@ class JTextAreaFile extends JTextArea {
     protected void processMouseEvent(MouseEvent e) {
         if (e.getClickCount() == 2) {
             JFileChooser objectimagejfc = new JFileChooser(vtea._vtea.LASTDIRECTORY);
-            //objectimagejfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             FileNameExtensionFilter filter2
                     = new FileNameExtensionFilter("TIFF image file.", ".tif", "tif");
             objectimagejfc.addChoosableFileFilter(filter2);
             objectimagejfc.setFileFilter(filter2);
+            
 
             int returnVal = objectimagejfc.showOpenDialog(this);
             location = objectimagejfc.getSelectedFile();
@@ -1165,10 +1076,18 @@ class JTextAreaFile extends JTextArea {
                     }
                 }).start();
                 this.setFocusable(true);
-                setText(location.getName());
+                int size = 15;
+                if(location.getName().length() < 15)
+                {
+                    size = location.getName().length();
+                }
+                
+                setText(location.getName().substring(0, size) + "...");
             } else {
-                this.setText("Current data");
+                
+                setText("Current data");
             }
         }
     }
+
 };

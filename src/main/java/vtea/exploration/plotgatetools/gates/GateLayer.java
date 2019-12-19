@@ -309,6 +309,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
                     }
                 }
+           
             }
 
             @Override
@@ -323,7 +324,8 @@ public class GateLayer implements ActionListener, ItemListener {
                                     makePolygonGate();
                                    
                                 } catch (Throwable ex) {
-                                    Logger.getLogger(GateLayer.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(GateLayer.class.getName()).
+                                            log(Level.SEVERE, null, ex);
                                 }
                                 
                             }
@@ -343,13 +345,11 @@ public class GateLayer implements ActionListener, ItemListener {
                                     makeRectangleGate();
                                     //add reset explorer interface here.
                                 } catch (Throwable ex) {
-                                    Logger.getLogger(GateLayer.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(GateLayer.class.getName()).
+                                            log(Level.SEVERE, null, ex);
                                 }
-                                //System.out.println("...making gate for display.");
-
                             }
                             e.consume();
-                            //close polygon add to arraylist
                         }
                     }
                     if (msQuadrant) {
@@ -365,29 +365,14 @@ public class GateLayer implements ActionListener, ItemListener {
                                 } catch (Throwable ex) {
                                     Logger.getLogger(GateLayer.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                                //System.out.println("...making gate for display.");
-
                             }
                             e.consume();
-                            //close polygon add to arraylist
+                            
                         }
                     }
 
                 } else {
 
-                    //after processing gates, if no gates then 
-                    
-                    //0: Line
-                    //1: Color
-                    //2: Seperator
-                    //3: Copy
-                    //4: Paste
-                    //5:
-                    //6:
-                   
-          
-                 
-                    
                     if(gateInClipboard){
                         ((JMenuItem)menu.getComponent(4)).setEnabled(true);
                     } else if (!gateInClipboard){
@@ -411,17 +396,16 @@ public class GateLayer implements ActionListener, ItemListener {
                                 e.getX(), e.getY());
                         e.consume();
                     } else if (e.getClickCount() == 1) {
-
-                        
                         checkForGates(e, gates);
                         e.consume();
                     } else {
                         e.consume();
                     };
+                    e.consume();
                 }
-               
+             e.consume();  
             }
-
+            
         };
         
         layer.setUI(layerUI);
@@ -535,13 +519,15 @@ public class GateLayer implements ActionListener, ItemListener {
             gate = itr.next();
             if(!(e.getModifiersEx() == MouseEvent.SHIFT_DOWN_MASK)){
                gate.setSelected(false); 
+               e.consume();
             }          
             if (gate.getPath2D().contains(p)) {
                 gate.setSelected(true);
                 this.notifyImageHighLightSelectionListeners(gates);
+                e.consume();
             }
         }
-        e.consume();
+        
     }
 
     public boolean checkForGate(MouseEvent e, ArrayList<Gate> gates) {
