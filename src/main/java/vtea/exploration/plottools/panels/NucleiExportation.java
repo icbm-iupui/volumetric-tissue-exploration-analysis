@@ -1048,6 +1048,9 @@ class JTextAreaFile extends JTextArea {
             listener.textChanged(channels);
         }
     }
+    
+    
+    
 
     @Override
     protected void processMouseEvent(MouseEvent e) {
