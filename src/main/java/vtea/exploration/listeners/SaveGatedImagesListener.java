@@ -25,5 +25,5 @@ import java.awt.geom.Path2D;
  */
 public interface SaveGatedImagesListener {
     public void saveGated(Path2D path);
-    public void saveGatedCNN(Path2D path);
+    //public void saveGatedCNN(Path2D path);
 }

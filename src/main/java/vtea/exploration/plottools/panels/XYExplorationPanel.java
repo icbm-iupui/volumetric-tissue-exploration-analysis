@@ -1284,24 +1284,25 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements Dens
         }).start();
         
     }
-    public void saveGatedCNN(Path2D path){
-        new Thread(() -> {
-            try {
-                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements, key);
-                try {   
-                    exportnuclei.readCSV(path, currentX, currentY);
-                } catch (IOException ex) {
-                    Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
-                    System.out.println("ERROR: " + ex.getLocalizedMessage());
-                }
-               
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
-            }
-        }).start();
-        
-        
-    }
+//    @Override
+//    public void saveGatedCNN(Path2D path){
+//        new Thread(() -> {
+//            try {
+//                NucleiExportation exportnuclei = new NucleiExportation(impoverlay, objects, measurements, key);
+//                try {   
+//                    exportnuclei.readCSV(path, currentX, currentY);
+//                } catch (IOException ex) {
+//                    Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
+//                    System.out.println("ERROR: " + ex.getLocalizedMessage());
+//                }
+//               
+//            } catch (Exception e) {
+//                System.out.println("ERROR: " + e.getLocalizedMessage());
+//            }
+//        }).start();
+//        
+//        
+//    }
 
     @Override
     public void subGate() {
