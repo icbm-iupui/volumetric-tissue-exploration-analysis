@@ -62,6 +62,28 @@ public class H2DatabaseEngine {
         }
     }
     
+    public static void createIndex(String table, String field, String idxName) throws SQLException{
+        
+         PreparedStatement createPreparedStatement = null;
+         
+         Connection connection = getDBConnection();
+         
+        
+        try {
+            connection.setAutoCommit(false);
+            String ImportQuery = "CREATE INDEX " + idxName + " ON " + table + "(" + field + ")";
+            createPreparedStatement = connection.prepareStatement(ImportQuery);
+            createPreparedStatement.executeUpdate();
+            createPreparedStatement.close(); 
+        } catch (SQLException e) {
+            System.out.println("ERROR: Exception Message " + e.getLocalizedMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            connection.close();
+        }
+    }
+    
 
     //H2 method for importing CSV file
     public static void insertFromCSV(File csvFile, Connection connection, String table) throws SQLException {

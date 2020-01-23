@@ -78,6 +78,7 @@ import vtea.exploration.listeners.FeatureMapListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
+import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vtea.exploration.plottools.panels.AbstractExplorationPanel;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vteaobjects.MicroObject;
@@ -221,7 +222,7 @@ public class MicroExplorer extends javax.swing.JFrame implements FeatureMapListe
 
         get3DProjection.setEnabled(false);
 
-        makeOverlayImage(new ArrayList<Gate>(), aep.getSelectedObjects(), aep.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
+        makeOverlayImage(new ArrayList<PolygonGate>(), aep.getSelectedObjects(), aep.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
 
         AvailableDataHM = makeAvailableDataHM(descriptions);
         

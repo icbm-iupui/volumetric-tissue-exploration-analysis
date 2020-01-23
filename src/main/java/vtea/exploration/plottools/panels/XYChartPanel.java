@@ -137,7 +137,7 @@ public class XYChartPanel implements RoiListener {
         impoverlay = ip;
         this.imageGate = imageGate;
         imageGateOutline = imageGateColor;
-        this.measurements = measurements;
+        //this.measurements = measurements;
         this.objects = objects;
         this.size = size;
         this.keySQLSafe = key;

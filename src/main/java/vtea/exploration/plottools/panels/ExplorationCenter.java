@@ -20,7 +20,6 @@ package vtea.exploration.plottools.panels;
 import ij.ImagePlus;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
-import vtea.exploration.plotgatetools.gates.Gate;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import java.util.HashMap;
 import javax.swing.JPanel;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
+import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vteaobjects.MicroObject;
 
 /**
@@ -76,7 +76,7 @@ public interface ExplorationCenter {
 
     public XYChartPanel getPanel(int x, int y, int l, int size, String xText, String yText, String lText);
 
-    public Gate getGates(int x, int y, int l, int size);
+    public PolygonGate getGates(int x, int y, int l, int size);
     
     public int getSelectedObjects();
     
@@ -108,7 +108,7 @@ public interface ExplorationCenter {
 
     public void addMakeImageOverlayListener(MakeImageOverlayListener listener);
 
-    public void notifyMakeImageOverlayListeners(ArrayList gates);
+    public void notifyMakeImageOverlayListeners(ArrayList<PolygonGate> gates);
     
     public void addResetSelectionListener(ResetSelectionListener listener);
 
