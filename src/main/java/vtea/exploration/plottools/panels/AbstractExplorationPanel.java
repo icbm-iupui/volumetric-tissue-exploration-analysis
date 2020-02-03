@@ -20,8 +20,6 @@ package vtea.exploration.plottools.panels;
 import ij.ImagePlus;
 import java.awt.Color;
 import java.awt.Component;
-import vtea.exploration.plotgatetools.gates.Gate;
-import vtea.exploration.plotgatetools.gates.GateLayer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
@@ -30,6 +28,8 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
+import vtea.exploration.plotgatetools.gates.GateLayer;
+import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vtea.spatial.densityMap3d;
@@ -50,26 +50,25 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     
     ArrayList<AddFeaturesListener> addfeaturelisteners = new ArrayList<AddFeaturesListener>();
     
-    
+    //ArrayList<ArrayList<ArrayList<Number>>> measurementList = new ArrayList<ArrayList<ArrayList<Number>>>();
     
     protected JPanel CenterPanel = new JPanel();
-    protected ArrayList<Gate> gates = new ArrayList<Gate>();
+    protected ArrayList<PolygonGate> gates = new ArrayList<>();
     protected ArrayList<ArrayList<Number>> measurements = new ArrayList();
     protected ArrayList<MicroObject> objects = new ArrayList();
     protected ArrayList<String> descriptions = new ArrayList();
     protected ChartPanel chart;
-    protected ArrayList<XYPanels> charts = new ArrayList<XYPanels>();
-    protected ArrayList<SubGateExplorerListener> SubGateListeners = new ArrayList<SubGateExplorerListener>();
-    protected ArrayList<GateLayer> gatelayers = new ArrayList<GateLayer>();
+    protected ArrayList<XYPanels> charts = new ArrayList<>();
+    protected ArrayList<SubGateExplorerListener> SubGateListeners = new ArrayList<>();
+    protected ArrayList<GateLayer> gatelayers = new ArrayList<>();
     protected distanceMaps2d distanceMaps2D = new distanceMaps2d();
     protected densityMap3d densityMaps3D = new densityMap3d();
     protected GateLayer gl = new GateLayer();
     //gates and XYPanels and key for different axes.  First element axes key; second XYPanels; third are the gates
 
-    protected ArrayList<ArrayList> ExplorationItems = new ArrayList<ArrayList>();
-    protected HashMap<Integer, String> hm = new HashMap<Integer, String>();
+    protected ArrayList<ArrayList> ExplorationItems = new ArrayList<>();
+    protected HashMap<Integer, String> hm = new HashMap<>();
     protected ImagePlus impoverlay;
-    //protected ImagePlus impoverlayCopy;
     protected boolean imageGate = false;
     
     protected ArrayList<Double> AxesLimits;

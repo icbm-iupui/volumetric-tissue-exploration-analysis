@@ -17,7 +17,7 @@
  */
 package vtea.exploration.plotgatetools.listeners;
 
-import vtea.exploration.plotgatetools.gates.Gate;
+
 import java.util.ArrayList;
 
 /**

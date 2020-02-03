@@ -1,5 +1,5 @@
-/* 
- * Copyright (C) 2016-2018 Indiana University
+/*
+ * Copyright (C) 2020 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,15 +15,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.exploration.plotgatetools.listeners;
+package vtea.exploration.listeners;
 
-import java.util.ArrayList;
+import java.awt.Color;
 
 /**
  *
- * @author vinfrais
+ * @author sethwinfree
  */
-public interface MakeImageOverlayListener {
-
-    void makeOverlayImage(ArrayList gates, int selected, int gated, int xAxis, int yAxis);
+public interface colorUpdateListener {
+    public void onColorUpdate(Color color, int row);
 }

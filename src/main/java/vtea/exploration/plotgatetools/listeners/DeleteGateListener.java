@@ -1,5 +1,5 @@
-/* 
- * Copyright (C) 2016-2018 Indiana University
+/*
+ * Copyright (C) 2020 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,12 +18,14 @@
 package vtea.exploration.plotgatetools.listeners;
 
 import java.util.ArrayList;
+import vtea.exploration.plotgatetools.gates.PolygonGate;
 
 /**
  *
- * @author vinfrais
+ * @author sethwinfree
  */
-public interface MakeImageOverlayListener {
+public interface DeleteGateListener {
 
-    void makeOverlayImage(ArrayList gates, int selected, int gated, int xAxis, int yAxis);
+    public void onDeleteGate(ArrayList<PolygonGate> gt);
+
 }

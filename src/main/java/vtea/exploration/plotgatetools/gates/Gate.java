@@ -21,6 +21,7 @@ import ij.ImageStack;
 import java.awt.Color;
 import java.awt.Shape;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import org.jfree.chart.ChartPanel;
 
@@ -32,9 +33,9 @@ public interface Gate {
 
     public Shape getGateAsShape();
 
-    public ArrayList getGateAsPoints();
+    public ArrayList<Point2D.Double> getGateAsPoints();
 
-    public ArrayList getGateAsPointsInChart();
+    public ArrayList<Point2D.Double> getGateAsPointsInChart();
 
     public void createInChartSpace(ChartPanel chart);
 
@@ -53,6 +54,20 @@ public interface Gate {
     public void setSelected(boolean b);
 
     public boolean getHovering();
+    
+    public String getName();
+
+    public void setName(String s);
+    
+    public void setXAxis(String s);
+    
+    public void setYAxis(String s);
+    
+    public void setObjectsInGate(int count);
+    
+    public void setTotalObjects(int count);
+    
+    public int getTotalObjects();
 
     public void setHovering(boolean b);
 
