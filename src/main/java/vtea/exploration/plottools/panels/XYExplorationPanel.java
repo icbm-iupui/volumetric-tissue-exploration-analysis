@@ -1543,14 +1543,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     public void addFromCSV(String s) {
 //        //this method does not assume that all objects get a value
         int countObjects = this.objects.size();
-        int dataLength = 0;
+        int dataColumns = 0;
 
         JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
         int returnVal = jf.showOpenDialog(CenterPanel);
         File file = jf.getSelectedFile();
 
         ArrayList<ArrayList<Number>> csvData = new ArrayList();
-        ArrayList<ArrayList<Number>> paddedData = new ArrayList();
+        ArrayList<ArrayList<Number>> paddedTable = new ArrayList();
 
         ArrayList<Number> blank = new ArrayList<Number>();
 
@@ -1562,13 +1562,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 while ((row = csvReader.readLine()) != null) {
                     String[] data = row.split(",");
 
-                    dataLength = data.length;
+                    dataColumns = data.length;
 
                     ArrayList<Number> dataList = new ArrayList<Number>();
 
                     for (int j = 0; j < data.length; j++) {
                         dataList.add(Float.parseFloat(data[j]));
                     }
+                    System.out.println(dataList);
                     csvData.add(dataList);
 
                 }
@@ -1578,49 +1579,47 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 System.out.println("ERROR: Could not open the file.");
             }
 
-            for (int k = 0; k < dataLength; k++) {
-                blank.add(0);
+            for (int k = 0; k < dataColumns; k++) {
+                blank.add(-1);
             }
-
-            for (int i = 0; i < objects.size(); i++) {
-
+            
+            for(int i = 1; i < dataColumns; i++){
                 ArrayList<Number> data = getData(i, csvData);
+                
+                System.out.println(objects.size());
+                System.out.println(data);
+                System.out.println(data.size());
 
                 if (data.size() > 0) {
-                    paddedData.add(data);
+                    paddedTable.add(data);
                 } else {
-                    paddedData.add(blank);
+                    paddedTable.add(blank);
                 }
             }
 
-//re-sort by class
-            ArrayList<ArrayList<Number>> results = new ArrayList();
-            for (int c = 0; c < (dataLength - 1); c++) {
-                ArrayList<Number> result = new ArrayList();
-                ListIterator<ArrayList<Number>> itr = paddedData.listIterator();
-                while (itr.hasNext()) {
-                    ArrayList<Number> padded = itr.next();
-                    result.add(padded.get(c));
-                }
-                results.add(result);
-            }
             String name = file.getName();
             name = name.replace(".", "_");
-            this.notifyAddFeatureListener(name, results);
+            this.notifyAddFeatureListener(name, paddedTable);
         }
     }
 
-    private ArrayList<Number> getData(int objectID,
+    private ArrayList<Number> getData(int columnIndex,
             ArrayList<ArrayList<Number>> data) {
         ArrayList<Number> result = new ArrayList<Number>();
-
-        ListIterator<ArrayList<Number>> itr = data.listIterator();
-
-        while (itr.hasNext()) {
-            ArrayList<Number> test = itr.next();
-            if ((Float) (test.get(0)) == objectID) {
-                test.remove(0);
-                return test;
+        
+        for (int objectID = 0; objectID < objects.size(); objectID++){
+            ListIterator<ArrayList<Number>> itr = data.listIterator();
+            boolean elementFound = false;
+            while(itr.hasNext()){
+                ArrayList<Number> test = itr.next();
+                if((Float)(test.get(0)) == (float)objectID){
+                    result.add(test.get(columnIndex));
+                    elementFound = true;
+                    break;
+                }
+            }
+            if(elementFound == false){
+                result.add(-1);
             }
         }
         return result;
