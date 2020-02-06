@@ -108,10 +108,11 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
         this.z = z;
         this.calculatePerimeter();
         this.calculateCenter();
-        this.calculateMeasurements(stack);
+        //this.calculateMeasurements(stack);
         this.name = "r_" + z + x + y; 
         //this.makeImageArray(new ImagePlus(this.name,stack));
     }
+
 
     /**
      * Methods

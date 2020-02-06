@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 SciJava
+ * Copyright (C) 2020 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,15 +15,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.exploration.listeners;
+package vtea.exploration.plotgatetools.listeners;
 
-import java.awt.geom.Path2D;
+import java.util.ArrayList;
+import vtea.exploration.plotgatetools.gates.PolygonGate;
 
 /**
- * Listener to output nuclei images via the given path in the exploration chart
- * @author drewmcnutt
+ *
+ * @author sethwinfree
  */
-public interface SaveGatedImagesListener {
-    public void saveGated(Path2D path);
-    //public void saveGatedCNN(Path2D path);
+public interface DeleteGateListener {
+
+    public void onDeleteGate(ArrayList<PolygonGate> gt);
+
 }

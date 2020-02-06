@@ -35,7 +35,7 @@ import static vtea._vtea.MORPHOLOGICALMAP;
 import static vtea._vtea.SEGMENTATIONMAP;
 import static vtea._vtea.getInterleavedStacks;
 import vtea.objects.Segmentation.AbstractSegmentation;
-import vtea.objects.Segmentation.LayerCake3DSingleThreshold;
+import vtea.objects.Segmentation.Region2DSingleThreshold;
 import vtea.objects.layercake.microRegion;
 import vtea.objects.layercake.microVolume;
 import vtea.objects.morphology.AbstractMorphology;
@@ -132,7 +132,12 @@ public class SegmentationProcessor extends AbstractProcessor {
         ((AbstractSegmentation) iImp).addListener(this);
 
         try {
+            if(impOriginal.getNSlices() > 1){
             ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false);
+            }
+            else {
+            ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false); 
+            }
 
             volumes = ((AbstractSegmentation) iImp).getObjects();
 
@@ -203,7 +208,7 @@ public class SegmentationProcessor extends AbstractProcessor {
             
             long processors = Runtime.getRuntime().availableProcessors();
             
-             //System.out.println("PROFILING: Morphology on " + volumes.size() + " objects.");
+            
           
             long length = volumes.size() / processors;
 

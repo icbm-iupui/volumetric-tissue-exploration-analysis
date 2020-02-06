@@ -90,7 +90,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
 
         setTitle("Plot settings");
         setResizable(false);
-        setType(java.awt.Window.Type.POPUP);
+        setType(java.awt.Window.Type.UTILITY);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         TItleBar.setBackground(vtea._vtea.BACKGROUND);

@@ -40,7 +40,6 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
-import org.jfree.chart.axis.LogAxis;
 import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
@@ -56,23 +55,23 @@ import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.jdbc.H2DatabaseEngine;
 import vteaobjects.MicroObject;
 
-
 /**
  *
  * @author vinfrais
  */
 public class XYChartPanel implements RoiListener {
+
     private static final String title = "XY Chart";
     private static boolean ImageGate = false;
-    
+
     public static double xMin = -1;
     public static double xMax = -1;
     public static double yMin = -1;
     public static double yMax = -1;
-    
+
     public static boolean xLinear = true;
     public static boolean yLinear = true;
-    
+
     public static boolean globalAxes = false;
 
     public static int XAXIS = 1;
@@ -106,13 +105,14 @@ public class XYChartPanel implements RoiListener {
     private String lValuesText;
     private boolean imageGate;
     private Color imageGateOutline;
-    
+
     private Connection connection;
-    
+
     private String keySQLSafe;
-    
+
     LookupPaintScale PS;
-    
+
+
     public XYChartPanel() {
 
     }
@@ -132,17 +132,19 @@ public class XYChartPanel implements RoiListener {
         yValuesText = yText;
         lValuesText = lText;
 
-       // process(xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
+        // process(xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
     }
+
     
     public XYChartPanel(String key, ArrayList objects, int x, int y, int l, 
             String xText, String yText, String lText, int size, ImagePlus ip, 
             boolean imageGate, Color imageGateColor, LookupPaintScale lps) {
 
+
         impoverlay = ip;
         this.imageGate = imageGate;
         imageGateOutline = imageGateColor;
-        this.measurements = measurements;
+        //this.measurements = measurements;
         this.objects = objects;
         this.size = size;
         this.keySQLSafe = key;
@@ -155,10 +157,9 @@ public class XYChartPanel implements RoiListener {
         PS = lps;
 
         //process(xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
-        
         process(connection, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
     }
-    
+
     public void process(Connection cn, int x, int y, int l, String xText, String yText, String lText) {
 
         chartPanel = createChart(connection, x, y, l, xText, yText, lText, imageGateOutline);
@@ -234,17 +235,16 @@ public class XYChartPanel implements RoiListener {
 
 //    
 //    //test class for H2 database with canned data
-    
     public static void insertFromCSV(Connection connection) throws SQLException {
-    
-          PreparedStatement createPreparedStatement = null;
+
+        PreparedStatement createPreparedStatement = null;
 
         try {
             connection.setAutoCommit(false);
             String ImportQuery = "CREATE TABLE VTEA AS SELECT * FROM CSVREAD('AQtest_LSConnect3D_vtea_022519.csv')";
             createPreparedStatement = connection.prepareStatement(ImportQuery);
             createPreparedStatement.executeUpdate();
-            createPreparedStatement.close(); 
+            createPreparedStatement.close();
         } catch (SQLException e) {
             System.out.println("Exception Message " + e.getLocalizedMessage());
         } catch (Exception e) {
@@ -260,6 +260,7 @@ public class XYChartPanel implements RoiListener {
         XYShapeRenderer rendererGate = new XYShapeRenderer();
 
         PaintScaleLegend psl = new PaintScaleLegend(new LookupPaintScale(0, 100, new Color(0, 0, 0)), new NumberAxis(""));
+
         
         
         
@@ -272,6 +273,72 @@ public class XYChartPanel implements RoiListener {
 //        }
          
         //LookupPaintScale ps = new LookupPaintScale(min, max+1, new Color(0x999999));
+
+
+//        if (l >= 0) {
+//            double max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+//            double min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
+//            double range = max - min;
+//            if (max == 0) {
+//                max = 1;
+//            }
+//
+//            LookupPaintScale ps = new LookupPaintScale(min, max + 1, new Color(0x999999));
+//
+//            renderer.setPaintScale(ps);
+//
+//            if (range <= 21) {
+//
+//                ps.add(0, new Color(255, 51, 51));
+//                ps.add(1, new Color(255, 153, 51));
+//                ps.add(2, new Color(153, 255, 51));
+//                ps.add(3, new Color(51, 255, 153));
+//                ps.add(4, new Color(51, 255, 255));
+//                ps.add(5, new Color(102, 178, 255));
+//                ps.add(6, new Color(102, 102, 255));
+//                ps.add(7, new Color(178, 102, 255));
+//                ps.add(8, new Color(255, 102, 255));
+//                ps.add(9, new Color(255, 102, 178));
+//
+//                ps.add(10, new Color(255, 51, 153));
+//                ps.add(11, new Color(255, 153, 153));
+//                ps.add(12, new Color(153, 255, 153));
+//                ps.add(13, new Color(51, 255, 51));
+//                ps.add(14, new Color(51, 255, 178));
+//                ps.add(15, new Color(102, 178, 178));
+//                ps.add(16, new Color(178, 102, 178));
+//                ps.add(17, new Color(255, 102, 153));
+//                ps.add(18, new Color(255, 102, 51));
+//                ps.add(19, new Color(178, 153, 51));
+//                ps.add(20, new Color(153, 178, 51));
+//
+//            } else {
+//                ps.add(min, XYChartPanel.ZEROPERCENT);
+//                ps.add(min + (1 * (range / 10)), XYChartPanel.TENPERCENT);
+//                ps.add(min + (2 * (range / 10)), XYChartPanel.TWENTYPERCENT);
+//                ps.add(min + (3 * (range / 10)), XYChartPanel.THIRTYPERCENT);
+//                ps.add(min + (4 * (range / 10)), XYChartPanel.FORTYPERCENT);
+//                ps.add(min + (5 * (range / 10)), XYChartPanel.FIFTYPERCENT);
+//                ps.add(min + (6 * (range / 10)), XYChartPanel.SIXTYPERCENT);
+//                ps.add(min + (7 * (range / 10)), XYChartPanel.SEVENTYPERCENT);
+//                ps.add(min + (8 * (range / 10)), XYChartPanel.EIGHTYPERCENT);
+//                ps.add(min + (9 * (range / 10)), XYChartPanel.NINETYPERCENT);
+//                ps.add(max, XYChartPanel.ALLPERCENT);
+//            }
+//
+//            NumberAxis lAxis = new NumberAxis();
+//
+//            lAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+//
+//            psl = new PaintScaleLegend(ps, lAxis);
+//
+//            psl.setBackgroundPaint(new Color(255, 255, 255, 255));
+//
+//            psl.setPosition(RectangleEdge.RIGHT);
+//            psl.setMargin(4, 4, 40, 4);
+//            psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+//
+//        }
 
         renderer.setPaintScale(PS);
         
@@ -327,13 +394,12 @@ public class XYChartPanel implements RoiListener {
         psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         
        //}
-        
+
         Ellipse2D shape = new Ellipse2D.Double(0, 0, size, size);
         Ellipse2D shapeGate = new Ellipse2D.Double(-2, -2, size + 4, size + 4);
-      
+
         renderer.setDefaultShape(shape);
         rendererGate.setDefaultShape(shapeGate);
-        
 
         NumberAxis xAxis = new NumberAxis("");
         NumberAxis yAxis = new NumberAxis("");
@@ -341,53 +407,37 @@ public class XYChartPanel implements RoiListener {
         xAxis.setAutoRangeIncludesZero(false);
         yAxis.setAutoRangeIncludesZero(false);
 
-        XYPlot plot = new XYPlot(createXYZDataset(H2DatabaseEngine.getColumns3D(vtea._vtea.H2_MEASUREMENTS_TABLE+ "_" + keySQLSafe, xText, yText, lText), 
+        XYPlot plot = new XYPlot(createXYZDataset(H2DatabaseEngine.getColumns3D(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, xText, yText, lText),
                 xText, yText, lText, l), xAxis, yAxis, renderer);
-        
+
         plot.getDomainAxis();
         plot.getRangeAxis();
-        
+
         plot.setDomainPannable(false);
         plot.setRangePannable(false);
 
         plot.setRenderer(0, renderer);
         plot.setRenderer(1, rendererGate);
-        
-        
+
         //if image gated plot a ring at every object as a second dataset
-        
-                if (imageGate) {
+        if (imageGate) {
             roiCreated(impoverlay);
             XYZDataset set = createXYZDataset(ImageGateOverlay, xText, yText, lText, l);
             plot.setDataset(1, set);
-           plot.setRenderer(1, new XYShapeRenderer() {
-               @Override
-               protected java.awt.Paint getPaint(XYDataset dataset, int series, int item){
-                   return imageGateOutline;
-               }
+            plot.setRenderer(1, new XYShapeRenderer() {
+                @Override
+                protected java.awt.Paint getPaint(XYDataset dataset, int series, int item) {
+                    return imageGateOutline;
+                }
 
-        @Override
-        public Shape getItemShape(int row, int col) {
-               return new Ellipse2D.Double(-2, -2, size + 4, size + 4);     
+                @Override
+                public Shape getItemShape(int row, int col) {
+                    return new Ellipse2D.Double(-2, -2, size + 4, size + 4);
+                }
+            });
+
         }
-    });
-
-        }
-
-//        try {
-//            if (getRangeofData((ArrayList) measurements, x) > Math.pow(impoverlay.getBitDepth(), 2)) {
-//                LogAxis logAxisX = new LogAxis();
-//                logAxisX.setAutoRange(true);
-//                plot.setDomainAxis(logAxisX);
-//            }
-//
-//            if (getRangeofData((ArrayList) measurements, y) > Math.pow(impoverlay.getBitDepth(), 2)) {
-//                LogAxis logAxisY = new LogAxis();
-//                logAxisY.setAutoRange(true);
-//                plot.setRangeAxis(logAxisY);
-//            }
-            
-                    try {
+        try {
             if (getRangeofData((ArrayList) measurements, x) > Math.pow(impoverlay.getBitDepth(), 2)) {
                 LogarithmicAxis logAxisX = new LogarithmicAxis("X");
                 logAxisX.setAutoRange(true);
@@ -408,10 +458,10 @@ public class XYChartPanel implements RoiListener {
         chart.removeLegend();
 
         chart.setBackgroundPaint(new Color(255, 255, 255, 255));
-        
+
         //LUT 
-        if(l >= 0){
-        chart.addSubtitle(psl);
+        if (l >= 0) {
+            chart.addSubtitle(psl);
         }
 
         //notifiyUpdatePlotWindowListeners();
@@ -423,7 +473,6 @@ public class XYChartPanel implements RoiListener {
         ListIterator<ArrayList<Number>> litr = measurements.listIterator();
 
         //ArrayList<Number> al = new ArrayList<Number>();
-
         Number low = Math.pow(impoverlay.getBitDepth(), 2);
         Number high = 0;
         Number test;
@@ -431,9 +480,9 @@ public class XYChartPanel implements RoiListener {
         while (litr.hasNext()) {
             try {
                 ArrayList<Number> al = litr.next();
-                
+
                 Number value = al.get(x);
-                
+
                 if (value.floatValue() < low.floatValue()) {
                     low = value;
                 }
@@ -451,14 +500,13 @@ public class XYChartPanel implements RoiListener {
 
         ListIterator<ArrayList> litr = measurements.listIterator();
 
-
         Number high = 0;
 
         while (litr.hasNext()) {
             try {
-                
+
                 ArrayList<Number> al = litr.next();
-              
+
                 if (al.get(l).floatValue() > high.floatValue()) {
                     high = al.get(l).floatValue();
                 }
@@ -487,18 +535,12 @@ public class XYChartPanel implements RoiListener {
         }
         return low.longValue();
     }
-    
-    
-    private DefaultXYZDataset createXYZDataset(ArrayList results, 
+
+    private DefaultXYZDataset createXYZDataset(ArrayList results,
             String x, String y, String l, int lflag) {
-        
+
         DefaultXYZDataset result = new DefaultXYZDataset();
         int counter = 0;
-        
-//        ArrayList results = H2DatabaseEngine.getColumns3D( 
-//                vtea._vtea.H2_MEASUREMENTS_TABLE, x, y, l);
-//        
-        //System.out.println("PROFILING: SQL records found: " + results.size());
 
         double[] xCorrected = new double[results.size()];
         double[] yCorrected = new double[results.size()];
@@ -507,16 +549,10 @@ public class XYChartPanel implements RoiListener {
         ListIterator<ArrayList<Number>> litr = results.listIterator();
 
         while (litr.hasNext()) {
-            
             ArrayList<Number> values = litr.next();
-            
-            //System.out.println("PROFILING: values: " + values.get(0).doubleValue()
-            //+", " + values.get(1).doubleValue() + ", " + values.get(2).doubleValue());
-            
-            //MicroObjectModel volume = (MicroObjectModel) litr.next();
             xCorrected[counter] = values.get(0).doubleValue();
-            yCorrected[counter] = values.get(1).doubleValue(); 
-            if(lflag >= 0){
+            yCorrected[counter] = values.get(1).doubleValue();
+            if (lflag >= 0) {
                 lCorrected[counter] = values.get(2).doubleValue();
             }
             counter++;
@@ -527,8 +563,6 @@ public class XYChartPanel implements RoiListener {
 
         return result;
     }
-
-
 
     public void setPointSize(int size) {
         this.size = size;
@@ -543,7 +577,7 @@ public class XYChartPanel implements RoiListener {
     }
 
     public ChartPanel getUpdatedChartPanel() {
-       process(connection, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
+        process(connection, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
         return chartPanel;
     }
 
@@ -563,66 +597,58 @@ public class XYChartPanel implements RoiListener {
     public void roiModified(ImagePlus ip, int i) {
         roiCreated(ip);
     }
-    
-   
+
     public void roiMoved() {
-        
+
     }
-    
-    
+
     public void roiCreated(ImagePlus ip) {
         ImageGateOverlay.clear();
-        
         ArrayList result = new ArrayList();
-//        ArrayList<MicroObject> resultFinal = new ArrayList<MicroObject>();
-//        ArrayList<MicroObject> volumes = (ArrayList) objects;
-//        MicroObjectModel volume;
-        
         Roi path = ip.getRoi();
-        
         int c = 0;
-        
-                int xValue = 0;
-                int yValue = 0;
-                
-                ArrayList<ArrayList> resultKey = 
-                H2DatabaseEngine.getObjectsInRange2DSubSelect(vtea._vtea.H2_MEASUREMENTS_TABLE+ "_" + keySQLSafe, 
-                xValuesText,
-                yValuesText,
-                lValuesText,
-                "PosX", path.getBounds().getX(), 
-                path.getBounds().getX()+path.getBounds().getWidth(), 
-                "PosY", path.getBounds().getY(), 
-                path.getBounds().getY()+path.getBounds().getHeight());
-          
-                ListIterator<ArrayList> itr = resultKey.listIterator();
-                try {
-                   
-                    while(itr.hasNext()){
 
-                        ArrayList inside = itr.next();
+        int xValue = 0;
+        int yValue = 0;
 
-                        xValue = ((Number)inside.get(3)).intValue();
-                        yValue = ((Number)inside.get(4)).intValue();
-                        
-                        if (path.contains(xValue, yValue)) {
-                            result.add(inside);
-                          
-                        }
-                    }
-                } catch (NullPointerException e) {
+        ArrayList<ArrayList> resultKey
+                = H2DatabaseEngine.getObjectsInRange2DSubSelect(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
+                        xValuesText,
+                        yValuesText,
+                        lValuesText,
+                        "PosX", path.getBounds().getX(),
+                        path.getBounds().getX() + path.getBounds().getWidth(),
+                        "PosY", path.getBounds().getY(),
+                        path.getBounds().getY() + path.getBounds().getHeight());
+
+        ListIterator<ArrayList> itr = resultKey.listIterator();
+        try {
+
+            while (itr.hasNext()) {
+
+                ArrayList inside = itr.next();
+
+                xValue = ((Number) inside.get(3)).intValue();
+                yValue = ((Number) inside.get(4)).intValue();
+
+                if (path.contains(xValue, yValue)) {
+                    result.add(inside);
+
                 }
-                
-                ImageGateOverlay.addAll(result);
-      
-       notifiyUpdatePlotWindowListeners();
+            }
+        } catch (NullPointerException e) {
+        }
+
+        ImageGateOverlay.addAll(result);
+
+        notifiyUpdatePlotWindowListeners();
     }
 
     public void roiDeleted() {
         ImageGateOverlay.clear();
-       this.imageGate = false;
-       process(connection, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
-        
+        this.imageGate = false;
+        process(connection, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
+
     }
 
     public void setOverlayImage(ImagePlus ip) {

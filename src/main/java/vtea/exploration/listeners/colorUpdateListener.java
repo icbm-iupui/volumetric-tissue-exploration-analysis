@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 SciJava
+ * Copyright (C) 2020 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,13 +17,12 @@
  */
 package vtea.exploration.listeners;
 
-import java.awt.geom.Path2D;
+import java.awt.Color;
 
 /**
- * Listener to output nuclei images via the given path in the exploration chart
- * @author drewmcnutt
+ *
+ * @author sethwinfree
  */
-public interface SaveGatedImagesListener {
-    public void saveGated(Path2D path);
-    //public void saveGatedCNN(Path2D path);
+public interface colorUpdateListener {
+    public void onColorUpdate(Color color, int row);
 }

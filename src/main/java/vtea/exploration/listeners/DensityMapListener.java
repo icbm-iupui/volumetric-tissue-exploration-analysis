@@ -17,13 +17,10 @@
  */
 package vtea.exploration.listeners;
 
-import java.awt.geom.Path2D;
-
 /**
- * Listener to output nuclei images via the given path in the exploration chart
- * @author drewmcnutt
+ *
+ * @author sethwinfree
  */
-public interface SaveGatedImagesListener {
-    public void saveGated(Path2D path);
-    //public void saveGatedCNN(Path2D path);
+public interface DensityMapListener {
+    public void addDensityMapFromGate(String name);
 }

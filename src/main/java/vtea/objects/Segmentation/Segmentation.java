@@ -40,6 +40,8 @@ public interface Segmentation<T extends Component, A extends RealType> extends V
     
     public boolean process(ImageStack[] is, List details, boolean calculate);
     
+    public boolean process(ImagePlus imp, List details, boolean calculate);
+    
     public JPanel getOptionsPanel();
     
     public String runImageJMacroCommand(String str);
@@ -49,6 +51,8 @@ public interface Segmentation<T extends Component, A extends RealType> extends V
     public String getAuthor();
     
     public String getComment();
+    
+    public String getDimensionalityCompatibility();
    
     public void sendProgressComment();
     

@@ -17,39 +17,84 @@
  */
 package vteaexploration;
 
+import ij.IJ;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.ListIterator;
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.border.Border;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import vtea.exploration.listeners.NameUpdateListener;
+import vtea.exploration.listeners.colorUpdateListener;
+import vtea.exploration.listeners.remapOverlayListener;
+import vtea.exploration.plotgatetools.gates.PolygonGate;
+
 /**
  *
  * @author vinfrais
  */
-public class GatePercentages extends javax.swing.JFrame {
+public class GatePercentages extends javax.swing.JFrame implements TableModelListener {
 
     private Object[][] DataTableArray = new Object[4][15];
     
-    //int current
-            
-//  Object [] = new Object [][] {
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null},
-//                {null, null, null, null}
-//            }
+    private ArrayList<NameUpdateListener> nameUpdateListeners = new ArrayList<>();
+    private ArrayList<remapOverlayListener> remapOverlayListeners = new ArrayList<>();
+    private ArrayList<colorUpdateListener> UpdateColorListeners = new ArrayList<>();
+
     /**
      * Creates new form gatePercentages
      */
     public GatePercentages() {
         initComponents();
+        GateDataTable.getModel().addTableModelListener(this);
+        
     }
+    
+    private void notifyUpdateNameListeners(String name, int row){
+        for (NameUpdateListener listener : nameUpdateListeners) {
+            listener.onUpdateName(name, row);
+        }
+    }
+    
+    public void addUpdateNameListener(NameUpdateListener listener) {
+        nameUpdateListeners.add(listener);
+    }
+    
+    private void notifyRemapOverlayListeners(boolean b, int row) {
+         for (remapOverlayListener listener : remapOverlayListeners) {
+            listener.onRemapOverlay(b, row);
+        }
+    }
+    
+    public void addRemapOverlayListener(remapOverlayListener listener) {
+        remapOverlayListeners.add(listener);
+    }
+
+    private void notifyUpdateColorListeners(Color color, int row) {
+         for (colorUpdateListener listener : UpdateColorListeners) {
+            listener.onColorUpdate(color, row);
+        }
+    }
+    
+    public void addUpdateColorListener(colorUpdateListener listener) {
+        UpdateColorListeners.add(listener);
+    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -59,44 +104,148 @@ public class GatePercentages extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
+        jRadioButton1 = new javax.swing.JRadioButton();
+        jPanel1 = new javax.swing.JPanel();
+        currentMeasure = new javax.swing.JLabel();
+        jToolBar1 = new javax.swing.JToolBar();
+        exportGates = new javax.swing.JButton();
+        LoadGates = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JToolBar.Separator();
+        addMeasurement = new javax.swing.JButton();
+        jSeparator2 = new javax.swing.JToolBar.Separator();
+        jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        DataTable = new javax.swing.JTable();
+        GateDataTable = new javax.swing.JTable();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Gated Cells");
+        jRadioButton1.setText("jRadioButton1");
+
+        setTitle("Gate Management");
+        setMinimumSize(new java.awt.Dimension(700, 148));
+        setPreferredSize(new java.awt.Dimension(700, 250));
+        setResizable(false);
+        setSize(new java.awt.Dimension(700, 148));
+        setType(java.awt.Window.Type.UTILITY);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        jScrollPane1.setMinimumSize(new java.awt.Dimension(100, 300));
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(200, 300));
+        jPanel1.setMaximumSize(new java.awt.Dimension(700, 60));
+        jPanel1.setMinimumSize(new java.awt.Dimension(700, 50));
+        jPanel1.setPreferredSize(new java.awt.Dimension(700, 40));
+        jPanel1.setRequestFocusEnabled(false);
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
-        DataTable.setModel(new javax.swing.table.DefaultTableModel(
+        currentMeasure.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        currentMeasure.setText("currentMeasure");
+        currentMeasure.setToolTipText(currentMeasure.getText());
+        currentMeasure.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        currentMeasure.setMaximumSize(new java.awt.Dimension(670, 20));
+        currentMeasure.setMinimumSize(new java.awt.Dimension(520, 20));
+        currentMeasure.setPreferredSize(new java.awt.Dimension(580, 20));
+        jPanel1.add(currentMeasure, new java.awt.GridBagConstraints());
+
+        jToolBar1.setFloatable(false);
+        jToolBar1.setRollover(true);
+        jToolBar1.setBorderPainted(false);
+        jToolBar1.setPreferredSize(new java.awt.Dimension(156, 35));
+
+        exportGates.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save-2_24.png"))); // NOI18N
+        exportGates.setToolTipText("Save gates...");
+        exportGates.setEnabled(false);
+        exportGates.setFocusable(false);
+        exportGates.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        exportGates.setMaximumSize(new java.awt.Dimension(35, 40));
+        exportGates.setMinimumSize(new java.awt.Dimension(35, 40));
+        exportGates.setName(""); // NOI18N
+        exportGates.setPreferredSize(new java.awt.Dimension(35, 40));
+        exportGates.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        exportGates.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportGatesActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(exportGates);
+
+        LoadGates.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-open-folder_24.png"))); // NOI18N
+        LoadGates.setToolTipText("Load gates...");
+        LoadGates.setEnabled(false);
+        LoadGates.setFocusable(false);
+        LoadGates.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        LoadGates.setMaximumSize(new java.awt.Dimension(35, 40));
+        LoadGates.setMinimumSize(new java.awt.Dimension(35, 40));
+        LoadGates.setName(""); // NOI18N
+        LoadGates.setPreferredSize(new java.awt.Dimension(35, 40));
+        LoadGates.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        LoadGates.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LoadGatesActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(LoadGates);
+        jToolBar1.add(jSeparator1);
+
+        addMeasurement.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
+        addMeasurement.setToolTipText("Add measurement to ImageJ log.");
+        addMeasurement.setFocusable(false);
+        addMeasurement.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        addMeasurement.setMaximumSize(new java.awt.Dimension(35, 40));
+        addMeasurement.setMinimumSize(new java.awt.Dimension(35, 40));
+        addMeasurement.setPreferredSize(new java.awt.Dimension(35, 40));
+        addMeasurement.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        addMeasurement.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addMeasurementActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(addMeasurement);
+        jToolBar1.add(jSeparator2);
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Heatmap.png"))); // NOI18N
+        jButton1.setToolTipText("Make a heatmap for a given feature.");
+        jButton1.setEnabled(false);
+        jButton1.setFocusable(false);
+        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton1.setMargin(new java.awt.Insets(0, 1, 0, 1));
+        jButton1.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButton1.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButton1.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(jButton1);
+
+        jPanel1.add(jToolBar1, new java.awt.GridBagConstraints());
+
+        getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
+
+        jScrollPane1.setMinimumSize(new java.awt.Dimension(700, 200));
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(700, 225));
+
+        GateDataTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Gate", "Gated", "Total", "%"
+                "Gate", "Name", "X axis", "Y Axis", "Gated", "Total", "%", "", ""
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, true, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -107,29 +256,366 @@ public class GatePercentages extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(DataTable);
+        GateDataTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        GateDataTable.setMaximumSize(new java.awt.Dimension(630, 200));
+        GateDataTable.setMinimumSize(new java.awt.Dimension(630, 200));
+        GateDataTable.setPreferredSize(new java.awt.Dimension(640, 200));
+        jScrollPane1.setViewportView(GateDataTable);
 
-        getContentPane().add(jScrollPane1, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        getContentPane().add(jScrollPane1, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void addMeasurementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMeasurementActionPerformed
+       IJ.log(this.currentMeasure.getText());
+       System.out.println(this.currentMeasure.getText());
+    }//GEN-LAST:event_addMeasurementActionPerformed
+
+    private void exportGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGatesActionPerformed
+//        new Thread(() -> {
+//            try {
+//                ec.exportGates();
+//
+//            } catch (Exception e) {
+//
+//            }
+//        }).start();
+
+    }//GEN-LAST:event_exportGatesActionPerformed
+
+    private void LoadGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadGatesActionPerformed
+//        ec.importGates();
+    }//GEN-LAST:event_LoadGatesActionPerformed
 
   
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private transient javax.swing.JTable DataTable;
+    private javax.swing.JTable GateDataTable;
+    private javax.swing.JButton LoadGates;
+    private javax.swing.JButton addMeasurement;
+    public javax.swing.JLabel currentMeasure;
+    private javax.swing.JButton exportGates;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator2;
+    private javax.swing.JToolBar jToolBar1;
     // End of variables declaration//GEN-END:variables
 
 
-    private void remakeTable() {
+    
+    public void setMeasurementsText(String st){
+        if(st.length()>60){
+            this.currentMeasure.setFont(new java.awt.Font("Lucida Grande", 0, 14));
+        } else if(st.length()<60 && st.length()>30) {
+            this.currentMeasure.setFont(new java.awt.Font("Lucida Grande", 0, 16));
+        } else {
+            this.currentMeasure.setFont(new java.awt.Font("Lucida Grande", 0, 18));
+        }
+        this.currentMeasure.setToolTipText(st);
+        this.currentMeasure.setText(st);
+    }
+
+    public void updateTable(ArrayList<PolygonGate> gates) {
         
-        this.DataTable.setModel(new javax.swing.table.DefaultTableModel(DataTableArray, new String [] {"Gate", "Gated", "Total", "%"}));
+       // System.out.println("PROFILING:  Rebuilding GM with gates: " + gates.size());
         
+        if(gates.size() > 0){
+        
+        ListIterator<PolygonGate> itr = gates.listIterator();
+        
+        Object[][] gatesData = new Object[gates.size()][9];
+        int i = 0;
+        while(itr.hasNext()){
+            Object[] gateData = new Object[9];
+            
+            PolygonGate pg = (PolygonGate)itr.next();
+            
+
+            
+            gateData[0] = pg.getSelected();
+            gateData[1] = pg.getColor();
+            gateData[2] = pg.getName();
+            gateData[3] = pg.getXAxis();
+            gateData[4] = pg.getYAxis();
+            gateData[5] = pg.getObjectsInGate();
+            gateData[6] = pg.getTotalObjects();
+            if(pg.getTotalObjects() > 0)
+            {gateData[7] = (float)100*((int)pg.getObjectsInGate()/(int)pg.getTotalObjects());}
+            
+            gatesData[i] = gateData;
+            
+            i++;
+        }
+        
+        String[] columnNames = {"View",
+                        "Color",
+                        "Name",
+                        "XAxis",
+                        "YAxis",
+                        "Gated",
+                        "Total",
+                        "%"
+        };
+        
+    this.GateDataTable = new JTable(gatesData, columnNames){
+    @Override
+    public TableCellRenderer getCellRenderer(int row, int column) {
+        for(int i = 0; i < gatesData.length; i++)
+        if ((row == i) && (column == 1)) {
+            return new ColorRenderer(true, (Color)gatesData[i][1]);
+        }
+        
+        return super.getCellRenderer(row, column);
+    }
+};
+       
+        
+        GateDataTable.setModel(new javax.swing.table.DefaultTableModel(
+           gatesData,
+            columnNames
+        ) {
+            
+            public Class getColumnClass(int c) {
+            return getValueAt(0, c).getClass();
+        }
+
+        public boolean isCellEditable(int row, int col) {
+
+            if (col == 2 || col == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        });
+        
+        GateDataTable.setDefaultRenderer(Color.class,
+                                 new ColorRenderer(true, new Color(255,0,0)));
+        GateDataTable.setDefaultEditor(Color.class,
+                               new ColorEditor());
+        
+        GateDataTable.getModel().addTableModelListener(this);
+        
+        GateDataTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        GateDataTable.setMaximumSize(new java.awt.Dimension(680, 200));
+        GateDataTable.setMinimumSize(new java.awt.Dimension(630, 200));
+        GateDataTable.setPreferredSize(new java.awt.Dimension(680, 200));
+        GateDataTable.setShowGrid(true);
+        
+        
+
+        TableColumn column = null;
+        column = GateDataTable.getColumnModel().getColumn(0);
+        column.setPreferredWidth(40);
+        column = GateDataTable.getColumnModel().getColumn(1);
+        column.setPreferredWidth(40);
+        column = GateDataTable.getColumnModel().getColumn(2);
+        column.setPreferredWidth(140);
+        column = GateDataTable.getColumnModel().getColumn(3);
+        column.setPreferredWidth(115);
+        column = GateDataTable.getColumnModel().getColumn(4);
+        column.setPreferredWidth(115);
+        column = GateDataTable.getColumnModel().getColumn(5);
+        column.setPreferredWidth(90);
+        column = GateDataTable.getColumnModel().getColumn(6);
+        column.setPreferredWidth(90);
+        column = GateDataTable.getColumnModel().getColumn(7);
+        column.setPreferredWidth(55);
+        GateDataTable.doLayout();
+        GateDataTable.repaint();
+        
+        jScrollPane1.setViewportView(GateDataTable);
+        }else{
+           GateDataTable = new JTable();
+           GateDataTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "View",
+                        "Color",
+                        "Name",
+                        "XAxis",
+                        "YAxis",
+                        "Gated",
+                        "Total",
+                        "%"
+        
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, true, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        }); 
+            
+            
+          jScrollPane1.setViewportView(GateDataTable);  
+        }
         
     }
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        int row = e.getFirstRow();
+        int column = e.getColumn();
+        TableModel model = (TableModel)e.getSource();
+        String columnName = model.getColumnName(column);
+        Object data = model.getValueAt(row, column);
+        if(column == 2) notifyUpdateNameListeners((String)data, row);
+        if(column == 0) notifyRemapOverlayListeners((Boolean)data, row);
+        if(column == 1) notifyUpdateColorListeners((Color)data, row);
+       // System.out.println("DEBUGGING: Gate Percentages, tableChanged" + e.toString());
+    }
+
+   
     
-    public void clearTable() {DataTableArray = new Object[4][15];}
-    public void addGate(String[] row) {}
+}
+
+ class ColorRenderer extends JLabel
+                           implements TableCellRenderer {
+    Border unselectedBorder = null;
+    Border selectedBorder = null;
+    boolean isBordered = true;
+    Color color = new Color(255,0,0,0);
+ 
+    public ColorRenderer(boolean isBordered, Color color) {
+        this.isBordered = isBordered;
+        this.color = color;
+        setOpaque(true); //MUST do this for background to show up.
+    }
+ 
+    public Component getTableCellRendererComponent(
+                            JTable table, Object color,
+                            boolean isSelected, boolean hasFocus,
+                            int row, int column) {
+        Color newColor = (Color)color;
+        setBackground(newColor);
+        if (isBordered) {
+            if (isSelected) {
+                if (selectedBorder == null) {
+                    selectedBorder = BorderFactory.createMatteBorder(2,5,2,5,
+                                              table.getSelectionBackground());
+                }
+                setBorder(selectedBorder);
+            } else {
+                if (unselectedBorder == null) {
+                    unselectedBorder = BorderFactory.createMatteBorder(2,5,2,5,
+                                              table.getBackground());
+                }
+                setBorder(unselectedBorder);
+            }
+        }
+         
+        setToolTipText("RGB value: " + newColor.getRed() + ", "
+                                     + newColor.getGreen() + ", "
+                                     + newColor.getBlue());
+        return this;
+    }
+}
+
+ class ColorEditor extends AbstractCellEditor
+                         implements TableCellEditor,
+                        ActionListener {
+    Color currentColor;
+    JButton button;
+    JColorChooser colorChooser;
+    JDialog dialog;
+    protected static final String EDIT = "edit";
+ 
+    public ColorEditor() {
+        //Set up the editor (from the table's point of view),
+        //which is a button.
+        //This button brings up the color chooser dialog,
+        //which is the editor from the user's point of view.
+        button = new JButton();
+        button.setActionCommand(EDIT);
+        button.addActionListener(this);
+        button.setBorderPainted(false);
+ 
+        //Set up the dialog that the button brings up.
+        colorChooser = new JColorChooser();
+        dialog = JColorChooser.createDialog(button,
+                                        "Pick a Color",
+                                        true,  //modal
+                                        colorChooser,
+                                        this,  //OK button handler
+                                        null); //no CANCEL button handler
+    }
+ 
+    /**
+     * Handles events from the editor button and from
+     * the dialog's OK button.
+     */
+    public void actionPerformed(ActionEvent e) {
+        if (EDIT.equals(e.getActionCommand())) {
+            //The user has clicked the cell, so
+            //bring up the dialog.
+            button.setBackground(currentColor);
+            colorChooser.setColor(currentColor);
+            dialog.setVisible(true);
+ 
+            //Make the renderer reappear.
+            fireEditingStopped();
+ 
+        } else { //User pressed dialog's "OK" button.
+            currentColor = colorChooser.getColor();
+        }
+    }
+ 
+    //Implement the one CellEditor method that AbstractCellEditor doesn't.
+    public Object getCellEditorValue() {
+        return currentColor;
+    }
+ 
+    //Implement the one method defined by TableCellEditor.
+    public Component getTableCellEditorComponent(JTable table,
+                                                 Object value,
+                                                 boolean isSelected,
+                                                 int row,
+                                                 int column) {
+        currentColor = (Color)value;
+        return button;
+    }
 }

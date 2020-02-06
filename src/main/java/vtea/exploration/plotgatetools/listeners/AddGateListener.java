@@ -17,12 +17,15 @@
  */
 package vtea.exploration.plotgatetools.listeners;
 
+import java.util.ArrayList;
+import vtea.exploration.plotgatetools.gates.PolygonGate;
+
 /**
  *
  * @author winfrees
  */
 public interface AddGateListener {
-    
-    public void onPasteGate();
-    
+
+    public void onPasteGate(ArrayList<PolygonGate> gt);
+
 }

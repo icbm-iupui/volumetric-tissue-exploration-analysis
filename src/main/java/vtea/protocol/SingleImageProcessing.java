@@ -17,6 +17,7 @@
  */
 package vtea.protocol;
 
+import ij.CompositeImage;
 import ij.ImagePlus;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -1485,7 +1486,7 @@ addObjectBlock();
             ThumbnailImage = imp.duplicate();
             
             
-            
+            //System.out.println("PROFILING: made it to SIP line 1489");
 
             ThumbnailImage = UtilityMethods.makeThumbnail(ThumbnailImage);
 
@@ -1496,6 +1497,8 @@ addObjectBlock();
 
             AddStep_Preprocessing.setEnabled(true);
             imageLoaded = true;
+            
+            //System.out.println("PROFILING: made it to SIP line 1501");
 
             ProcessStepBlockGUI block = new ProcessStepBlockGUI(imp.getTitle(), "New Image", ImageBlockBackground, this.batch, this.ThumbnailImage, this.OriginalImage, this.Channels, ProtocolManagerMulti.PROCESS, ProcessingStepsList, getBlockPosition());
             block.addRebuildPanelListener(this);
@@ -1505,6 +1508,8 @@ addObjectBlock();
             //pack();
 
             ProcessingStepsList.add(block);
+            
+            //System.out.println("PROFILING: made it to SIP line 1512");
 
             if (ProcessingStepsList.size() <= 4) {
 
@@ -1522,6 +1527,7 @@ addObjectBlock();
         PreProcessingGo.setEnabled(true);
         VTEAProgressBar.setIndeterminate(false);
         ProgressComment.setText("Image loaded...");
+         //System.out.println("PROFILING: made it to SIP line 1526");
     }
 
 };

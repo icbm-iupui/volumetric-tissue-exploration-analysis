@@ -49,18 +49,16 @@ public class LutCustomColorChooser extends JPanel implements ChangeListener {
     public LutCustomColorChooser(ArrayList populateCustomLutComboBox) {
         
         super(new BorderLayout());
+        
         this.clusterInfo = populateCustomLutComboBox;
         this.currentCluster = 0;
         selectedCluster = (String)populateCustomLutComboBox.get(0);
         selectedColor = new Color(0x000000);
  
         //Set up the banner at the top of the window
-        banner = new JLabel("Welcome to the Tutorial Zone!",
+        banner = new JLabel("",
                             JLabel.CENTER);
-        banner.setForeground(Color.yellow);
-        banner.setBackground(Color.blue);
-        banner.setOpaque(true);
-        banner.setFont(new Font("SansSerif", Font.BOLD, 24));
+        
         banner.setPreferredSize(new Dimension(100, 65));
  
 //        JPanel bannerPanel = new JPanel(new BorderLayout());
@@ -88,7 +86,7 @@ public class LutCustomColorChooser extends JPanel implements ChangeListener {
         
  
         
-        tcc.removeChooserPanel(tcc.getChooserPanels()[1]);
+        tcc.removeChooserPanel(tcc.getChooserPanels()[0]);
         tcc.removeChooserPanel(tcc.getChooserPanels()[1]);
         tcc.removeChooserPanel(tcc.getChooserPanels()[2]);
         
@@ -132,7 +130,7 @@ public class LutCustomColorChooser extends JPanel implements ChangeListener {
         //Create and set up the window.
         JFrame frame = new JFrame("CustomLUTSelection");
         //frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
- 
+        frame.setResizable(false);
         //Create and set up the content pane.
         JComponent newContentPane = this;
         newContentPane.setOpaque(true); //content panes must be opaque
@@ -175,7 +173,7 @@ public class LutCustomColorChooser extends JPanel implements ChangeListener {
 
     private void OkButtonActionPerformed(ActionEvent evt) {
         this.onCustomLutSelection(MapCustomLut2Clusters);
-        this.setVisible(false);
+        this.getParent().setVisible(false);
     }
 
     public void onCustomLutSelection(HashMap<String, Color> customLutColors) {

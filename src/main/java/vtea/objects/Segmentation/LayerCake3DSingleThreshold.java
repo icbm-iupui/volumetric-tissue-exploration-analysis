@@ -391,9 +391,7 @@ public LayerCake3DSingleThreshold(){
                     alRegionsProcessed.add(test);
                     findConnectedRegions(nVolumesLocal, startRegion, z);
                 }
-                
             }
-
             for (int j = 1; j <= nVolumesLocal; j++) {
                 volume = new microVolume();
                 Iterator<microRegion> vol = alRegionsProcessed.listIterator();
@@ -413,9 +411,7 @@ public LayerCake3DSingleThreshold(){
                     }
                 }
             }
- 
         System.out.println("PROFILING:  Found " + alVolumes.size() + " volumes.");
-
         return true;
     }
 

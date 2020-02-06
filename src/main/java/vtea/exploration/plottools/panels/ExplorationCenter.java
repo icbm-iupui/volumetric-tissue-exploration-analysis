@@ -20,20 +20,14 @@ package vtea.exploration.plottools.panels;
 import ij.ImagePlus;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
-import vtea.exploration.plotgatetools.gates.Gate;
-import vtea.exploration.plotgatetools.gates.MicroSelection;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import vtea.exploration.listeners.AddFeaturesListener;
-import vtea.exploration.listeners.FeatureMapListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
-import vtea.objects.layercake.microVolume;
-import vtea.spatial.distanceMaps2d;
+import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vteaobjects.MicroObject;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 
@@ -83,7 +77,7 @@ public interface ExplorationCenter {
 
     public XYChartPanel getPanel(int x, int y, int l, int size, String xText, String yText, String lText);
 
-    public Gate getGates(int x, int y, int l, int size);
+    public PolygonGate getGates(int x, int y, int l, int size);
     
     public int getSelectedObjects();
     
@@ -115,7 +109,7 @@ public interface ExplorationCenter {
 
     public void addMakeImageOverlayListener(MakeImageOverlayListener listener);
 
-    public void notifyMakeImageOverlayListeners(ArrayList gates);
+    public void notifyMakeImageOverlayListeners(ArrayList<PolygonGate> gates);
     
     public void addResetSelectionListener(ResetSelectionListener listener);
 
@@ -135,9 +129,14 @@ public interface ExplorationCenter {
     
     public void importGates();
     
+
     public void invokeAxesSettingsDialog();
     
     public void addAxesSetpExplorerPlotUpdateListener(AxesSetupExplorerPlotUpdateListener listener);
     
     public void notifyAxesSetupExplorerPlotUpdateListener(int x, int y, int l, int pointsize);
+
+     
+    public void addFromCSV(String s);
+
 }

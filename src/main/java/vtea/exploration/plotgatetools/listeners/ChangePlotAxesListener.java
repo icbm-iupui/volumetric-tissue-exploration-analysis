@@ -24,7 +24,7 @@ package vtea.exploration.plotgatetools.listeners;
 public interface ChangePlotAxesListener {
 
     public void onChangeAxes(int x, int y, int z, int size, boolean imagegate);
-    
+
     public void onChangePointSize(int size, boolean imagegate);
 
 }

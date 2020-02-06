@@ -220,6 +220,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
         PreviewButton.setEnabled(true);
         PreviewProgress.setText("");
+        } else {
+            this.PreviewButton.setEnabled(true);
+             PreviewProgress.setText("");
+    
         }
     }
     
@@ -269,8 +273,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
                 p = ThresholdPreview.getWindow().getLocation();
                 ThresholdPreview.hide();
             } catch (NullPointerException e) {
-                GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-                p = new Point(gd.getDisplayMode().getWidth() / 2, gd.getDisplayMode().getHeight() / 2);
+                GraphicsDevice gd = GraphicsEnvironment.
+                        getLocalGraphicsEnvironment().getDefaultScreenDevice();
+                p = new Point(gd.getDisplayMode().getWidth() / 2, 
+                        gd.getDisplayMode().getHeight() / 2);
             }
             
             ThresholdPreview.hide();

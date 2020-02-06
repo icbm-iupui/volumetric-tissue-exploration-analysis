@@ -44,6 +44,7 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     protected String COMMENT = "New functionality";
     protected String NAME = "ND";
     protected String KEY = "ND";
+    protected String COMPATIBILITY = "3D";
     
     ArrayList<SegmentationListener> segmentationlisteners = new ArrayList();
     
@@ -120,6 +121,11 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
 
     @Override
     public boolean process(ImageStack[] is, List details, boolean calculate) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public boolean process(ImagePlus imp, List details, boolean calculate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -236,6 +242,11 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     @Override
     public void doUpdateOfTool() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getDimensionalityCompatibility() {
+        return COMPATIBILITY;
     }
     
     

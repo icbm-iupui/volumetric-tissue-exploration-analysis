@@ -62,6 +62,28 @@ public class H2DatabaseEngine {
         }
     }
     
+    public static void createIndex(String table, String field, String idxName) throws SQLException{
+        
+         PreparedStatement createPreparedStatement = null;
+         
+         Connection connection = getDBConnection();
+         
+        
+        try {
+            connection.setAutoCommit(false);
+            String ImportQuery = "CREATE INDEX " + idxName + " ON " + table + "(" + field + ")";
+            createPreparedStatement = connection.prepareStatement(ImportQuery);
+            createPreparedStatement.executeUpdate();
+            createPreparedStatement.close(); 
+        } catch (SQLException e) {
+            System.out.println("ERROR: Exception Message " + e.getLocalizedMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            connection.close();
+        }
+    }
+    
 
     //H2 method for importing CSV file
     public static void insertFromCSV(File csvFile, Connection connection, String table) throws SQLException {
@@ -81,6 +103,37 @@ public class H2DatabaseEngine {
         } finally {
             connection.close();
         }
+    }
+    
+    //H2 method for creating dataset table
+    public static ArrayList<String> getListOfTables(Connection connection) throws SQLException {
+                ResultSet rs = null;
+        
+                ArrayList<String> al = new ArrayList<String>();
+                PreparedStatement selectPreparedStatement = null;
+
+        try {
+           
+            String SelectQuery = "SELECT * FROM INFORMATION_SCHEMA.TABLES where table_type IS NOT 'SYSTEM TABLE'";
+        
+            
+        selectPreparedStatement = connection.prepareStatement(SelectQuery);
+        rs = selectPreparedStatement.executeQuery();
+        
+        while (rs.next()) {
+                System.out.println("PROFILING: Adding: " + rs.getString(3));
+                al.add(rs.getString(3));
+        }
+        
+        } catch (SQLException e) {
+            System.out.println("ERROR: Exception Message " + e.getLocalizedMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            connection.close();
+        }
+        System.out.println("PROFILING: The number of tables are: " + al.size());
+        return al;
     }
     
     // SQL for converting column position to label
