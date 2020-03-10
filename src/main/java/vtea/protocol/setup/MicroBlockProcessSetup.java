@@ -88,7 +88,8 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         super(step, Channels);
 
         ProtocolAll = Protocols;
-        OriginalImage = new Duplicator().run(imp);
+        //OriginalImage = new Duplicator().run(imp);
+        OriginalImage = imp;
         imp.deleteRoi();
         
         if(OriginalImage.getNSlices()>1)

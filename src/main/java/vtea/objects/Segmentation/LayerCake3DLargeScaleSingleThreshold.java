@@ -56,8 +56,8 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
     private int[] minConstants = new int[6]; // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     private ImagePlus imageOriginal;
     private ImagePlus imageResult;
-    private ImageStack stackOriginal;
-    protected ImageStack stackResult;
+    //private ImageStack stackOriginal;
+    //protected ImageStack stackResult;
 
     private double[][] distance;
 
@@ -242,9 +242,9 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
          int segmentationChannel = (int)protocol.get(2);
          
                   
-        stackOriginal = is[segmentationChannel];
-        imageOriginal = new ImagePlus("Mask", stackOriginal);
-        stackResult = stackOriginal.duplicate();
+        //stackOriginal = is[segmentationChannel];
+        imageOriginal = new ImagePlus("Mask", is[segmentationChannel]);
+        //stackResult = stackOriginal.duplicate();
 
         ArrayList<ImagePlus> volumes = new ArrayList<ImagePlus>();
 

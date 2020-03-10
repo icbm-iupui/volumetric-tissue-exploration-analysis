@@ -21,7 +21,6 @@ package vtea.protocol.setup;
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
-import ij.WindowManager;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.plugin.ChannelSplitter;
@@ -98,8 +97,13 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         
         //setup the image
         
-        ThresholdOriginal = imp.duplicate();
+        //ThresholdOriginal = imp.duplicate();
+        
+        ThresholdOriginal = imp;
         ThresholdPreview = getThresholdPreview();
+        
+        System.gc();
+        
         ThresholdPreview.addImageListener(this);
 
         IJ.run(ThresholdPreview, "Grays", "");
@@ -282,11 +286,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
             ThresholdPreview.hide();
             ThresholdPreview = getThresholdPreview();
             IJ.run(ThresholdPreview, "Grays", "");
-
             ThresholdPreview.updateImage();
             ThresholdPreview.show();
             ThresholdPreview.getWindow().setLocation(p);
-            
+            System.gc();         
         }
 
         tablePane.setVisible(true);

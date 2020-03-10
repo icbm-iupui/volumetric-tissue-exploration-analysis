@@ -74,6 +74,7 @@ public class OpenObxFormat {
                     ois.close();
                 } catch (IOException e) {
                     System.out.println("ERROR: Could not open the object file.");
+                    
                 }
 
                 File image = new File(file.getParent(), ((String) result.get(0)) + ".tif");

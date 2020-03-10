@@ -534,6 +534,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         PreProcessingGo.setEnabled(false);
         this.OpenImage.setEnabled(true);
         PreProcessingStepsPanel.repaint();
+        this.OriginalImage = new ImagePlus();
+        System.gc();
+        
     }//GEN-LAST:event_DeleteAllSteps_PreProcessingActionPerformed
 
     private void PreProcessingGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreProcessingGoActionPerformed
@@ -1381,7 +1384,7 @@ addObjectBlock();
             OriginalImage = imp.duplicate();
             OriginalImage.setOpenAsHyperStack(true);
 
-            this.ThumbnailImage = UtilityMethods.makeThumbnail(imp.duplicate());
+            this.ThumbnailImage = UtilityMethods.makeThumbnail(imp);
 
             Channels = new ArrayList<String>();
             for (int i = 0; i <= OriginalImage.getNChannels() - 1; i++) {
@@ -1483,12 +1486,12 @@ addObjectBlock();
             
             ProgressComment.setText("Image loading...");
             VTEAProgressBar.setIndeterminate(true);
-            ThumbnailImage = imp.duplicate();
-            
+            //ThumbnailImage = imp.duplicate();
+            ThumbnailImage = new ImagePlus();
             
             //System.out.println("PROFILING: made it to SIP line 1489");
 
-            ThumbnailImage = UtilityMethods.makeThumbnail(ThumbnailImage);
+            ThumbnailImage = UtilityMethods.makeThumbnail(imp);
 
             Channels = new ArrayList<String>();
             for (int i = 0; i <= OriginalImage.getNChannels() - 1; i++) {

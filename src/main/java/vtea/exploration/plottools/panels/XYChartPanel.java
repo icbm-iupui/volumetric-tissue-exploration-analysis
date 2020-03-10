@@ -576,6 +576,7 @@ public class XYChartPanel implements RoiListener {
 
     public void setOverlayImage(ImagePlus ip) {
         impoverlay = ip;
+        System.gc();
     }
 
     public void addUpdatePlotWindowListener(UpdatePlotWindowListener listener) {
