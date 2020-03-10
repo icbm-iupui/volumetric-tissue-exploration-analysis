@@ -260,8 +260,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
     
     public void makeGateOverlayImage(){
-                //System.out.println("PROFILING: Mapping cells...");
-        //if(!gm.isVisible())gm.setVisible(true);
+
+        
+        
+        if(gates.size() > 0){
         
         PolygonGate gate;
         ListIterator<PolygonGate> gate_itr = gates.listIterator();
@@ -274,8 +276,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         
         BufferedImage placeholder = new BufferedImage(impoverlay.getWidth(),
                 impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
-//        ImageStack gateOverlay = new ImageStack(impoverlay.getWidth(),
-//                impoverlay.getHeight());
 
         BufferedImage selections = new BufferedImage(impoverlay.getWidth(),
                 impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -286,15 +286,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         
         int i = impoverlay.getZ()-1;
         
-        if(gates.size() == 0){
-            impoverlay.getOverlay().clear();
-        }
+
 
         while (gate_itr.hasNext()) {
             gate = gate_itr.next();
-            
-//if (gate.getSelected() && (gate.getXAxis().equals(hm.get(xAxis)) &&
-//                     gate.getYAxis().equals(hm.get(yAxis))))
 
             if (gate.getSelected()) {
 
@@ -316,16 +311,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                 path.getBounds2D().getX() + path.getBounds2D().getWidth(),
                                 gate.getYAxis(), path.getBounds2D().getY(),
                                 path.getBounds2D().getY() + path.getBounds2D().getHeight());
-                //Index H2 database for subsequent queries on these axes
-//                try {
-//                    H2DatabaseEngine.createIndex(vtea._vtea.H2_MEASUREMENTS_TABLE +
-//                            "_" + keySQLSafe, gate.getXAxis(), gate.getXAxis());
-//                    H2DatabaseEngine.createIndex(vtea._vtea.H2_MEASUREMENTS_TABLE +
-//                            "_" + keySQLSafe, gate.getYAxis(), gate.getYAxis());
-//                } catch (SQLException ex) {
-//                    Logger.getLogger(XYExplorationPanel.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-               
+
                 ListIterator<ArrayList> itr = resultKey.listIterator();
 
                 while (itr.hasNext()) {
@@ -345,11 +331,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 } catch (NullPointerException e) {
                 }
 
-                
-
                 int count = 0;
-
-
 
                 selected = result.size();
 
@@ -359,11 +341,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 gatedSelected = getGatedSelected(impoverlay);
 
                 Collections.sort(result, new ZComparator());
-
-                //for (int i = 0; i <= impoverlay.getNSlices(); i++) {
-                    
-
-                    
 
                     Graphics2D g2 = selections.createGraphics();
                     
@@ -388,11 +365,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                         }
                     }
 
-                    
-
-                    //gateOverlay.addSlice(ir.getProcessor());
-
-                    //text for overlay
                     java.awt.Font f = new Font("Arial", Font.BOLD, 12);
 
                     BigDecimal percentage = new BigDecimal(selected);
@@ -410,9 +382,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                             = percentageGatedSelected.divide(totalGatedSelectedBD,
                                     3, BigDecimal.ROUND_CEILING);
 
-//                    if (impoverlay.getWidth() > 512) {
-                       // i = impoverlay.getZ()-1;
-                        //f = new Font("Arial", Font.PLAIN, 100);
                         TextRoi textTotal = new TextRoi(5, 10, selected
                                 + "/" + total + " gated ("
                                 + 100 * percentage.floatValue() + "%)");
@@ -426,45 +395,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                     + 100 * percentageGatedSelected.floatValue() + "%)", f);
                             printResult = textTotal.getText();
                         }
-                        //textTotal.setPosition(i+1);
-                        //overlay.add(textTotal);
-
-//                    } else {
-//                        //i = impoverlay.getZ()-1;
-//                        f = new Font("Arial", Font.PLAIN, 10);
-//                        TextRoi line1 = new TextRoi(5, 5,
-//                                selected + "/" + total + " gated"
-//                                + "(" + 100 * percentage.floatValue()
-//                                + "%)", f);
-//                        line1.setPosition(i+1);
-//                        overlay.add(line1);
-//                        printResult = line1.getText();
-//                        if (gated > 0) {
-//                            f = new Font("Arial", Font.PLAIN, 10);
-//                            TextRoi line2 = new TextRoi(5, 18, gated + "/"
-//                                    + total + " roi ("
-//                                    + 100 * percentageGated.floatValue() + "%)", f);
-//                            line2.setPosition(i+1);
-//                            overlay.add(line2);
-//                            TextRoi line3 = new TextRoi(5, 31, gatedSelected
-//                                    + "/" + total + " overlap ("
-//                                    + 100 * percentageGatedSelected.floatValue()
-//                                    + "%)", f);
-//                            line3.setPosition(i+1);
-//                            overlay.add(line3);
-//                            printResult = line1.getText() + ", " + line2.getText()
-//                                    + ", " + line3.getText();
-//                        }
-//                    }
-                //COmmented out to restrict overlay draw to current z}
-                
+               
                 gate.setObjectsInGate(selected);
                 gate.setTotalObjects(total);
-                //gate.setGateOverlayStack(gateOverlay);
+         
             }    
                 ir.setPosition(0, i + 1, 0);
-
-                    //old setPosition not functional as of imageJ 1.5m
                     ir.setOpacity(0.4);
                     overlay.selectable(false);
                     overlay.add(ir);
@@ -476,15 +412,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             if (impoverlay.getDisplayMode() != IJ.COMPOSITE) {
                 impoverlay.setDisplayMode(IJ.COMPOSITE);
             }
-
-//            if (impoverlay.getSlice() == 1) {
-//                impoverlay.setZ(Math.round(impoverlay.getNSlices() / 2));
-//            } else {
-//                impoverlay.setSlice(impoverlay.getSlice());
-//            }
             impoverlay.show();
-           // gm.setMeasurementsText(printResult);
-         //   gm.updateTable(gates);
+            System.gc();
+
+        }
+    } else {
+            impoverlay.getOverlay().clear();
+            System.gc();
         }
     }
     
@@ -495,6 +429,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         //System.out.println("PROFILING: Mapping cells...");
         if(!gm.isVisible())gm.setVisible(true);
+        
+        if(gates.size() > 0){
         
         PolygonGate gate;
         ListIterator<PolygonGate> gate_itr = gates.listIterator();
@@ -519,10 +455,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         
         int i = impoverlay.getZ()-1;
         
-        if(gates.size() == 0){
-            impoverlay.getOverlay().clear();
-            gm.setMeasurementsText("No gate selected...");
-        }
+        
+
 
         while (gate_itr.hasNext()) {
             gate = gate_itr.next();
@@ -719,6 +653,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             impoverlay.show();
             gm.setMeasurementsText(printResult);
             gm.updateTable(gates);
+            System.gc();
+        }
+    }  else {          
+            impoverlay.getOverlay().clear();
+            gm.setMeasurementsText("No gate selected...");
         }
     }
 
@@ -2070,6 +2009,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         return result;
     }
 
+    @Override
     public void addFromCSV(String s) {
 //        //this method does not assume that all objects get a value
         int countObjects = this.objects.size();
