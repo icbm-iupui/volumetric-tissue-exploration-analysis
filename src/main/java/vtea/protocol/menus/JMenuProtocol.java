@@ -41,11 +41,11 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
 
     JMenuItem LoadObjectSteps;
     JMenuItem SaveObjectSteps;
-    
+
     JMenuItem SaveAllSteps;
-    
+
     JMenuItem LoadExplorer;
-    
+
     JMenu CopySteps;
     //JMenuItem Item3;
     boolean batch;
@@ -104,7 +104,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
         ListIterator<String> itr = tabs.listIterator();
 
         JMenuItem OpenTab = new JMenuItem();
- 
+
         while (itr.hasNext()) {
             OpenTab = new JMenuItem(itr.next());
             OpenTab.setActionCommand(this.getName());
@@ -116,7 +116,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
             });
             CopySteps.add(OpenTab);
         }
-        
+
         SaveAllSteps = new JMenuItem("Save All...");
         SaveAllSteps.setActionCommand("SaveAll");
         SaveAllSteps.addActionListener(new ActionListener() {
@@ -125,7 +125,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                 notifyFileOperationListener(ae);
             }
         });
-        
+
         LoadExplorer = new JMenuItem("Load Dataset...");
         LoadExplorer.setActionCommand("LoadDataset");
         LoadExplorer.addActionListener(new ActionListener() {
@@ -134,8 +134,7 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                 notifyFileOperationListener(ae);
             }
         });
-        
-        
+
         add(LoadProcessSteps);
         add(SaveProcessSteps);
         add(CopySteps);
@@ -189,11 +188,11 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                     }
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(this.getParent(),
-                            "File could not be opened...\n" +
-                                e.getMessage(),
+                            "File could not be opened...\n"
+                            + e.getMessage(),
                             vtea._vtea.VERSION,
                             JOptionPane.WARNING_MESSAGE);
-                    System.out.println("ERROR: "+ e.getLocalizedMessage());
+                    System.out.println("ERROR: " + e.getLocalizedMessage());
                 }
 
             } else if (temp.getText().equals("Save Processing...")) {
@@ -232,26 +231,26 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                 }
             } else if (temp.getText().equals("Load Dataset...")) {
                 try {
-                    listener.onLoadDatasets();                  
+                    listener.onLoadDatasets();
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(this.getParent(),
-                            "Could not load data set...\n" +
-                                e.getMessage(),
+                            "Could not load data set...\n"
+                            + e.getMessage(),
                             vtea._vtea.VERSION,
                             JOptionPane.WARNING_MESSAGE);
-                    System.out.println("ERROR: "+ e.getLocalizedMessage());
-                }    
-             
+                    System.out.println("ERROR: " + e.getLocalizedMessage());
+                }
+
             } else if (temp.getText().equals("Load Segmentation...")) {
                 try {
                     listener.onSegmentationFileOpen();
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(this.getParent(),
-                            "File could not be opened...\n" +
-                                e.getMessage(),
+                            "File could not be opened...\n"
+                            + e.getMessage(),
                             vtea._vtea.VERSION,
                             JOptionPane.WARNING_MESSAGE);
-                    System.out.println("ERROR: "+ e.getLocalizedMessage());
+                    System.out.println("ERROR: " + e.getLocalizedMessage());
                 }
             } else if (temp.getText().equals("Export")) {
                 try {

@@ -22,7 +22,7 @@ package vtea.exploration.listeners;
  * @author sethwinfree
  */
 public interface NameUpdateListener {
-    
+
     public void onUpdateName(String st, int row);
-    
+
 }

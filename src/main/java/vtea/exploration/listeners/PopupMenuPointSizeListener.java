@@ -22,7 +22,7 @@ package vtea.exploration.listeners;
  * @author vinfrais
  */
 public interface PopupMenuPointSizeListener {
-    
+
     void onPointSizeChange(int size);
-    
+
 }

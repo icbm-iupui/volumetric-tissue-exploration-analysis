@@ -31,28 +31,31 @@ import vteaobjects.MicroObject;
  *
  * @author sethwinfree
  */
+public class SegmentationPreviewer implements Runnable, PropertyChangeListener {
 
-public class SegmentationPreviewer implements Runnable, PropertyChangeListener{
-    public static void SegmentationFactory(ImagePlus imp, ArrayList<MicroObject> objects){
+    public static void SegmentationFactory(ImagePlus imp, ArrayList<MicroObject> objects) {
         makeImage(imp, objects);
     }
-    static private void makeImage(ImagePlus imp, ArrayList<MicroObject> objects){
-        
+
+    static private void makeImage(ImagePlus imp, ArrayList<MicroObject> objects) {
+
         ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
         ImageStack resultStack = resultImage.getStack();
         int value = 1;
         ListIterator<MicroObject> citr = objects.listIterator();
-        
-        while(citr.hasNext()){
+
+        while (citr.hasNext()) {
             MicroObject vol = (MicroObject) citr.next();
             vol.setColor(value);
             value++;
-            if(value > 255){value = 1;}
+            if (value > 255) {
+                value = 1;
+            }
         }
-        
+
         for (int i = 0; i <= imp.getNSlices(); i++) {
             ListIterator<MicroObject> itr = objects.listIterator();
-            while(itr.hasNext()){
+            while (itr.hasNext()) {
                 try {
                     MicroObject vol = (MicroObject) itr.next();
                     int[] x_pixels = vol.getXPixelsInRegion(i);
@@ -60,47 +63,37 @@ public class SegmentationPreviewer implements Runnable, PropertyChangeListener{
                     for (int c = 0; c < x_pixels.length; c++) {
                         resultStack.setVoxel(x_pixels[c], y_pixels[c], i, vol.getColor());
                     }
-                    
+
                 } catch (NullPointerException e) {
                 }
             }
         }
         IJ.run(resultImage, "3-3-2 RGB", "");
         resultImage.show();
-        
+
     }
-   
-    
-ArrayList protocol;
-ImagePlus segmentationPreview;
 
-SegmentationProcessor sp;
+    ArrayList protocol;
+    ImagePlus segmentationPreview;
 
-boolean Preview = false; //or "Done"
+    SegmentationProcessor sp;
 
-    
-SegmentationPreviewer(ImagePlus imp, ArrayList al){   
-    
-   
-    
-         segmentationPreview = imp; 
-         protocol = al;
-    
-           
-            
-}
+    boolean Preview = false; //or "Done"
 
-public void SegmentationPreviewFactory(){
-         
+    SegmentationPreviewer(ImagePlus imp, ArrayList al) {
+
+        segmentationPreview = imp;
+        protocol = al;
+
+    }
+
+    public void SegmentationPreviewFactory() {
 
         sp = new SegmentationProcessor("Preview", segmentationPreview, protocol);
         sp.addPropertyChangeListener(this);
-        sp.execute(); 
-   
-}
+        sp.execute();
 
-
-
+    }
 
     @Override
     public void run() {
@@ -108,13 +101,11 @@ public void SegmentationPreviewFactory(){
         SegmentationPreviewFactory();
     }
 
-
     @Override
-    public void propertyChange(PropertyChangeEvent evt) { 
-       if (evt.getPropertyName().equals("segmentationDone")) {
-           makeImage(segmentationPreview, sp.getObjects());
-        } 
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals("segmentationDone")) {
+            makeImage(segmentationPreview, sp.getObjects());
+        }
     }
-    
+
 }
-    

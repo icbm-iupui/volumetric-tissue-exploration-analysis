@@ -22,7 +22,7 @@ package vtea.protocol.listeners;
  * @author sethwinfree
  */
 public interface UpdateProgressListener {
-    
-     public void changeProgress(String text, int min, int max, int position);
-    
+
+    public void changeProgress(String text, int min, int max, int position);
+
 }

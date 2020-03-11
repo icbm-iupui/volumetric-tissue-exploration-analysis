@@ -23,4 +23,7 @@ import java.util.ArrayList;
  *
  * @author vinfrais
  */
- public interface BatchStateListener{ public void batchStateAdd(String selected, ArrayList tabs); }
+public interface BatchStateListener {
+
+    public void batchStateAdd(String selected, ArrayList tabs);
+}

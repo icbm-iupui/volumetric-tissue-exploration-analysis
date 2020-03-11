@@ -24,7 +24,5 @@ import org.jfree.chart.renderer.xy.XYShapeRenderer;
  * @author vinfrais
  */
 public class XYShapeSizeRenderer extends XYShapeRenderer {
-    
-    
-    
+
 }

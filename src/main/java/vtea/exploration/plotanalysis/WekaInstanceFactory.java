@@ -22,9 +22,10 @@ package vtea.exploration.plotanalysis;
  * @author winfrees
  */
 public abstract class WekaInstanceFactory extends Object {
-    
-WekaInstanceFactory(){};
+
+    WekaInstanceFactory() {
+    }
+;
 
 //public getInstance(ArrayList<
-
 }

@@ -17,7 +17,6 @@
  */
 package vtea.exploration.plottools.panels;
 
-
 import javax.swing.JPanel;
 
 /**
@@ -37,7 +36,6 @@ public class DefaultPlotPanels implements PlotAxesPanels {
         LeftPanel.setBackground(vtea._vtea.BACKGROUND);
         RightPanel.setBackground(vtea._vtea.BACKGROUND);
     }
-    
 
     @Override
     public JPanel getBorderPanelHeader() {

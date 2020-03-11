@@ -26,22 +26,22 @@ import javax.swing.JPanel;
  *
  * @author vinfrais
  */
-  public class PreviewImagePanel extends JPanel {
+public class PreviewImagePanel extends JPanel {
 
-  private Image img;
+    private Image img;
 
-  public PreviewImagePanel(Image img) {
-    this.img = img;
-    Dimension size = new Dimension(img.getWidth(this), img.getHeight(this));
-    setPreferredSize(size);
-    setMinimumSize(size);
-    //setMaximumSize(size);
-    setSize(size);
-    setLayout(null);
-  }
+    public PreviewImagePanel(Image img) {
+        this.img = img;
+        Dimension size = new Dimension(img.getWidth(this), img.getHeight(this));
+        setPreferredSize(size);
+        setMinimumSize(size);
+        //setMaximumSize(size);
+        setSize(size);
+        setLayout(null);
+    }
 
-  public void paintComponent(Graphics g) {
-    g.drawImage(img, 0, 0, this);
-  }
+    public void paintComponent(Graphics g) {
+        g.drawImage(img, 0, 0, this);
+    }
 
 }

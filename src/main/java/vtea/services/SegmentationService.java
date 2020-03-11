@@ -27,10 +27,10 @@ import vtea.objects.Segmentation.Segmentation;
  * @author sethwinfree
  */
 @Plugin(type = Service.class)
-public class SegmentationService extends AbstractService< Segmentation > {
-    
+public class SegmentationService extends AbstractService< Segmentation> {
+
     public SegmentationService(Context context) {
         super(Segmentation.class, context);
     }
-    
+
 }

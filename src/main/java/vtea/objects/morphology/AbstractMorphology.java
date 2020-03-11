@@ -29,43 +29,41 @@ import javax.swing.JPanel;
  * @author sethwinfree
  */
 public class AbstractMorphology implements Morphology {
-    
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New morphology filter";
     protected String NAME = "ABSTRACT MORPHOLOGY";
     protected String KEY = "ABSTRACT MORPHOLOGY";
-    
+
     protected List protocol;
-    
+
     protected String UID;
-    
+
     /**
      *
      * @param al
      * @param values
      * @return
      */
-    
     @Override
     public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, List<JComponent> protocol, String operation, String arg) {
-       
+
         ArrayList<ArrayList<Number>> result = new ArrayList();
-       
+
         ArrayList<Number> xList = new ArrayList();
         ArrayList<Number> yList = new ArrayList();
         ArrayList<Number> zList = new ArrayList();
-       
-       for(int k = 0; k < x.length; k++){
+
+        for (int k = 0; k < x.length; k++) {
             xList.add(x[k]);
             yList.add(y[k]);
             zList.add(z[k]);
         }
-    
+
         return result;
     }
- 
-    
+
     @Override
     public String getName() {
         return NAME;
@@ -76,21 +74,18 @@ public class AbstractMorphology implements Morphology {
         return KEY;
     }
 
-    
     public String getVersion() {
         return VERSION;
     }
 
-    
     public String getAuthor() {
         return AUTHOR;
     }
 
-   
     public String getComment() {
         return COMMENT;
     }
-    
+
     public ImagePlus getExample() {
         return new ImagePlus();
     }
@@ -108,7 +103,7 @@ public class AbstractMorphology implements Morphology {
     @Override
     public ArrayList getOptions() {
         return new ArrayList();
-     }
+    }
 
     @Override
     public ArrayList getSettings() {
@@ -119,7 +114,5 @@ public class AbstractMorphology implements Morphology {
     public String getUID(ArrayList<JComponent> al) {
         return new String();
     }
-
-
 
 }

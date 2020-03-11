@@ -23,12 +23,13 @@ import org.scijava.plugin.Plugin;
  *
  * @author sethwinfree
  */
-@Plugin (type = FileType.class)
+@Plugin(type = FileType.class)
 public class WorkflowFileType extends AbstractFileType implements FileType {
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "Seth Winfree";
     protected String COMMENT = "Workflow binary file";
     protected String NAME = "Workflow File";
     protected String KEY = "WORKFLOWFILETYPE";
-    
+
 }

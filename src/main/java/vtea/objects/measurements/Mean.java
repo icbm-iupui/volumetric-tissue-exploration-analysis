@@ -27,35 +27,36 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Measurements.class)
 public class Mean extends AbstractMeasurement {
+
     static public Number getMean(ArrayList values) {
-        
+
         double n = 0;
         ListIterator<Number> itr = values.listIterator();
-        while(itr.hasNext()){
-            try{
+        while (itr.hasNext()) {
+            try {
                 Number value = itr.next();
                 n = n + value.doubleValue();
-            } catch(Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-        return n/values.size();
-        
+        return n / values.size();
+
     }
-    
-    public Mean(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate mean";
-    NAME = "Mean";
-    KEY = "Mean";
-    TYPE = "Intensity";
+
+    public Mean() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate mean";
+        NAME = "Mean";
+        KEY = "Mean";
+        TYPE = "Intensity";
     }
 
     @Override
     public Number process(ArrayList al, ArrayList values) {
-          
-    return getMean(values);
-    }  
-    
+
+        return getMean(values);
+    }
+
 }

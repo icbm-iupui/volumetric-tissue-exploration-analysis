@@ -23,12 +23,13 @@ import org.scijava.plugin.Plugin;
  *
  * @author sethwinfree
  */
-@Plugin (type = FileType.class)
+@Plugin(type = FileType.class)
 public class ObjectCSVFileType extends AbstractFileType implements FileType {
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "Seth Winfree";
     protected String COMMENT = "CSV file of object parameters";
     protected String NAME = "Object CSV File";
-    protected String KEY = "OBJECTCSVFILETYPE";   
+    protected String KEY = "OBJECTCSVFILETYPE";
 
 }

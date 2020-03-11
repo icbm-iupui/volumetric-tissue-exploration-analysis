@@ -17,22 +17,19 @@
  */
 package vtea.services;
 
-
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
 import vtea.lut.LUT;
-
 
 /**
  *
  * @author Drew
  */
 @Plugin(type = Service.class)
-public class LUTService extends AbstractService<LUT>{
-    
+public class LUTService extends AbstractService<LUT> {
+
     public LUTService(Context context) {
         super(LUT.class, context);
-    } 
+    }
 }
-

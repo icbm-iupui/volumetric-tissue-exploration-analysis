@@ -27,43 +27,40 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Measurements.class)
 public class StandardDeviation extends AbstractMeasurement {
-    static public Number getStandardDeviation(ArrayList values){
-        
-        Double mean = (Double)Mean.getMean(values);
+
+    static public Number getStandardDeviation(ArrayList values) {
+
+        Double mean = (Double) Mean.getMean(values);
         Double stdev = 0.0;
-        
+
         ListIterator<Number> itr = values.listIterator();
-        while(itr.hasNext()){
-            try{
+        while (itr.hasNext()) {
+            try {
                 Number value = itr.next();
-                stdev = stdev + Math.pow((mean - value.doubleValue()),2);
-            } catch(Exception ex){
+                stdev = stdev + Math.pow((mean - value.doubleValue()), 2);
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-        return Math.sqrt((stdev)/(values.size()-1));
-        
+        return Math.sqrt((stdev) / (values.size() - 1));
+
     }
-    
-    public StandardDeviation(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate standard deviation";
-    NAME = "StDev";
-    KEY = "SD";
-    TYPE = "Intensity";
+
+    public StandardDeviation() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate standard deviation";
+        NAME = "StDev";
+        KEY = "SD";
+        TYPE = "Intensity";
     }
 
     @Override
     public Number process(ArrayList al, ArrayList values) {
-        
-        
-        
+
         double n = 0;
-        
-    return getStandardDeviation(values);
-    }  
-    
-    
-   
+
+        return getStandardDeviation(values);
+    }
+
 }

@@ -38,18 +38,17 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
      */
     private int[] x;		//x coordinates
     private int[] y;		//y coordinates
-    
+
     private int[] xPerimeter;
     private int[] yPerimeter;
     private int nPerimeter;
 
     private int n = 0;			//number of pixels
     private int z;
-    
-    private boolean volumeMember = false;
-    
-//stack position, (0 to a)
 
+    private boolean volumeMember = false;
+
+//stack position, (0 to a)
     private String name;		//based on Roi name
     private int volume;		//volume membership if defined
     private int include = INCLUDED;		//flag for including region in analysis
@@ -66,13 +65,13 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
     private double[] deviation;
     private double[] FeretValues = new double[5];  //1, maximum caliper width; 1 , FeretAngle; 3, minimum caliper width; 4, FeretX; 5, FeretY. 
     private Rectangle boundingRectangle;
-    
+
     private float centroid_x = 0;
     private float centroid_y = 0;
 
     private int centerBoundX = 0;
     private int centerBoundY = 0;
-    
+
     private int[][] imageArray;
     private int[][] maskArray;
 
@@ -89,7 +88,7 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
     //empty microRegion
     public microRegion() {
     }
-    
+
     public microRegion(int[] x, int[] y, int n, int z) {
         this.x = x;
         this.y = y;
@@ -109,10 +108,9 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
         this.calculatePerimeter();
         this.calculateCenter();
         //this.calculateMeasurements(stack);
-        this.name = "r_" + z + x + y; 
+        this.name = "r_" + z + x + y;
         //this.makeImageArray(new ImagePlus(this.name,stack));
     }
-
 
     /**
      * Methods
@@ -131,12 +129,12 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
         this.volume = volume;
         this.volumeMember = true;
     }
-    
-    public void setAMember(boolean value){
+
+    public void setAMember(boolean value) {
         this.volumeMember = value;
     }
-    
-    public boolean isAMember(){
+
+    public boolean isAMember() {
         return this.volumeMember;
     }
 
@@ -151,18 +149,19 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
     public void setExclude() {
         this.include = EXCLUDED;
     }
-    
-    private void makeImageArray(ImagePlus imp){
 
-        PolygonRoi polygon = new PolygonRoi(x, y, n-1, Roi.FREEROI);
+    private void makeImageArray(ImagePlus imp) {
+
+        PolygonRoi polygon = new PolygonRoi(x, y, n - 1, Roi.FREEROI);
         Rectangle bounds = polygon.getBounds();
-        ImagePlus result;  
+        ImagePlus result;
         result = new ImagePlus(this.name, imp.getStack().getProcessor(z));
         result.setRoi(bounds);
         result.getProcessor().crop();
         result.show();
     }
 //calculation methods
+
     public void calculateMeasurements(ImageStack stack) {
         int[] x = this.x;
         int[] y = this.y;
@@ -173,7 +172,7 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
         double min = 0;
         double max = 0;
         double[] deviation = new double[n];
-        
+
         for (int i = 0; i <= n - 1; i++) {
             total = total + (long) stack.getVoxel(x[i], y[i], z);
             if (stack.getVoxel(x[i], y[i], z) < min) {
@@ -190,19 +189,19 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
         this.min = min;
         this.mean = total / n;
         this.integrated_density = total;
-        
+
         total = 0;
         int thresholdcount = 0;
-        
-        for(int j = 0; j <= n - 1; j++) {
-            if (stack.getVoxel(x[j], y[j], z) > max*this.thresholdformean){
+
+        for (int j = 0; j <= n - 1; j++) {
+            if (stack.getVoxel(x[j], y[j], z) > max * this.thresholdformean) {
                 total = total + (long) stack.getVoxel(x[j], y[j], z);
                 thresholdcount++;
-            }  
-        }    
+            }
+        }
         this.thresholdedid = total;
         this.nThreshold = thresholdcount;
-        this.thresholdedmean = total/thresholdcount;
+        this.thresholdedmean = total / thresholdcount;
 
     }
 
@@ -229,7 +228,7 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
         this.boundingRectangle = bounds;
 
     }
-    
+
     private void calculatePerimeter() {
 
         //no neighbor as criteria with 8-connected
@@ -403,15 +402,14 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
     }
 
 //field retrival methods
-    public void setName(String str){
+    public void setName(String str) {
         name = str;
     }
-    
-    public String setName(){
+
+    public String setName() {
         return name;
     }
-    
-    
+
     public int isRegionIncluded() {
         return this.include;
     }
@@ -419,7 +417,7 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
     public int getPixelCount() {
         return this.n;
     }
-    
+
     public int getThresholdPixelCount() {
         return this.nThreshold;
     }
@@ -471,23 +469,25 @@ public class microRegion extends Object implements Cloneable, java.io.Serializab
     public double getMeanIntensity() {
         return this.mean;
     }
-    
+
     public double[] getDeviations() {
         return this.deviation;
     }
-    
+
     public double getThresholdedIntegratedIntensity() {
         return this.thresholdedid;
     }
-    
+
     public double getThresholdedMeanIntensity() {
         return this.thresholdedmean;
     }
+
     public void setThreshold(double threshold) {
         this.thresholdformean = threshold;
     }
-  
-    public Rectangle getBoundingRectangle() {return this.boundingRectangle;}
-    
-}
 
+    public Rectangle getBoundingRectangle() {
+        return this.boundingRectangle;
+    }
+
+}

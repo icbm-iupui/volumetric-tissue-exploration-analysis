@@ -38,6 +38,7 @@ import org.jfree.chart.plot.XYPlot;
  * @author vinfrais
  */
 public class PolygonGate extends Component implements Gate, Serializable {
+
     private static String makeUID() {
         UUID id = UUID.randomUUID();
         String st = id.toString();
@@ -80,7 +81,6 @@ public class PolygonGate extends Component implements Gate, Serializable {
         name = "Untitled";
         uidGate = makeUID();
     }
-
 
     public Point getBoundingAnchor() {
 
@@ -126,7 +126,7 @@ public class PolygonGate extends Component implements Gate, Serializable {
             y1Points[i] = (double) ((Point2D) vertices.get(i)).getY();
         }
         //System.out.println("PROFILING: Adding gate with vertices 5: " + vertices.size());
-        
+
         Rectangle2D plotArea = chart.getScreenDataArea();
         XYPlot plot = (XYPlot) chart.getChart().getPlot();
 
@@ -140,9 +140,9 @@ public class PolygonGate extends Component implements Gate, Serializable {
         }
 
     }
-    
-    public void updatePanelPositions(ChartPanel chart){
-        
+
+    public void updatePanelPositions(ChartPanel chart) {
+
         ArrayList<Point2D.Double> result = createInPanelSpace(chart);
         vertices.clear();
         vertices.addAll(result);
@@ -154,35 +154,34 @@ public class PolygonGate extends Component implements Gate, Serializable {
 
         double[] x1Points = new double[verticesInChartSpace.size()];
         double[] y1Points = new double[verticesInChartSpace.size()];
-        
+
         double xPanelPoint;
         double yPanelPoint;
 
         Rectangle2D plotArea = chart.getScreenDataArea();
         XYPlot plot = (XYPlot) chart.getChart().getPlot();
-        
+
         for (int i = 0; i <= verticesInChartSpace.size() - 1; i++) {
             x1Points[i] = (double) ((Point2D) verticesInChartSpace.get(i)).getX();
             y1Points[i] = (double) ((Point2D) verticesInChartSpace.get(i)).getY();
         }
 
         ArrayList<Point2D.Double> result = new ArrayList<>();
-        
-        //System.out.println("PROFILING: Adding gate with verticesinchartspace 8: " + verticesInChartSpace.size());
 
+        //System.out.println("PROFILING: Adding gate with verticesinchartspace 8: " + verticesInChartSpace.size());
         for (int index = 0; index < x1Points.length; index++) {
-             xPanelPoint = plot.getDomainAxis().valueToJava2D(x1Points[index],
+            xPanelPoint = plot.getDomainAxis().valueToJava2D(x1Points[index],
                     plotArea, plot.getDomainAxisEdge());
-            
+
             yPanelPoint = plot.getRangeAxis().valueToJava2D(y1Points[index],
                     plotArea, plot.getRangeAxisEdge());
 
-           //System.out.println("PROFILING: Input chart position: " + x1Points[index] +"," + y1Points[index]);
-           //System.out.println("PROFILING: Input panel position: " + vertices.get(index));
-           //System.out.println("PROFILING: Output panel position: " + xPanelPoint +"," + yPanelPoint);
+            //System.out.println("PROFILING: Input chart position: " + x1Points[index] +"," + y1Points[index]);
+            //System.out.println("PROFILING: Input panel position: " + vertices.get(index));
+            //System.out.println("PROFILING: Output panel position: " + xPanelPoint +"," + yPanelPoint);
             result.add(new Point2D.Double(xPanelPoint, yPanelPoint));
         }
-        
+
         //System.out.println("PROFILING: Adding gate with verticesinchartspace 9: " + verticesInChartSpace.size());
         return result;
     }

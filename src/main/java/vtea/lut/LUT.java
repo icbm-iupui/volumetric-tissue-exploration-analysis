@@ -25,10 +25,10 @@ import vtea.VTEAModule;
  *
  * @author sethwinfree
  */
-public interface LUT extends VTEAModule{
-    
+public interface LUT extends VTEAModule {
+
     public HashMap getLUTMAP();
-    
+
     public Color getColor(int i);
-    
+
 }

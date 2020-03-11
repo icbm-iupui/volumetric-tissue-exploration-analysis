@@ -78,6 +78,7 @@ public class ShapesDemo2D extends JApplet {
             BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER,
             10.0f, dash1, 0.0f);
+
     public static void Setup() {
         JFrame f = new JFrame("ShapesDemo2D");
         f.addWindowListener(new WindowAdapter() {
@@ -269,6 +270,5 @@ public class ShapesDemo2D extends JApplet {
         g2.draw(filledPolygon);
         g2.drawString("Filled and Stroked GeneralPath", x, stringY);
     }
-
 
 }

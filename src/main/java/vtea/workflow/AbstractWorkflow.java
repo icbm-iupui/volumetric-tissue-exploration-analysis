@@ -27,7 +27,7 @@ import vtea.protocol.datastructure.AbstractProtocol;
  * @param <S>
  */
 public abstract class AbstractWorkflow<T extends Object, S extends ArrayList> implements Workflow {
- 
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
@@ -35,12 +35,11 @@ public abstract class AbstractWorkflow<T extends Object, S extends ArrayList> im
     protected String KEY = "ABSTRACTWORKFLOWPROCESSING";
 
     AbstractProtocol protocol;
-    
+
     Object original;
     Object preview;
     Object result;
 
-    
     @Override
     public T getResult() {
         return (T) new Object();
@@ -50,13 +49,13 @@ public abstract class AbstractWorkflow<T extends Object, S extends ArrayList> im
     public T getPreview() {
         return (T) preview;
     }
-    
+
     @Override
     public AbstractProtocol getSteps() {
         return protocol;
     }
-    
-   @Override
+
+    @Override
     public String getName() {
         return NAME;
     }

@@ -19,12 +19,11 @@ package vtea;
 
 import ij.ImagePlus;
 
-
-
 /**
  *
  * @author vinfrais
  */
 public interface ImageSelectionListener {
-     public void onSelect(ImagePlus imp, int tab);
+
+    public void onSelect(ImagePlus imp, int tab);
 }

@@ -22,5 +22,6 @@ package vtea.exploration.listeners;
  * @author sethwinfree
  */
 public interface SubGateListener {
+
     public void subGate();
 }

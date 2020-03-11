@@ -22,7 +22,7 @@ package vtea.protocol.listeners;
  * @author vinfrais
  */
 public interface DeleteBlockListener {
-    
+
     public void deleteBlock(int type, int position);
-    
+
 }

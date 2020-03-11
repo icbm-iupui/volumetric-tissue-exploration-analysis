@@ -22,16 +22,15 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
 import vtea.imageprocessing.ImageProcessing;
 
-
 /**
  *
  * @author sethwinfree
  */
 @Plugin(type = Service.class)
-public class ImageProcessingService extends AbstractService< ImageProcessing >{
-    
+public class ImageProcessingService extends AbstractService< ImageProcessing> {
+
     public ImageProcessingService(Context context) {
         super(ImageProcessing.class, context);
     }
-    
+
 }

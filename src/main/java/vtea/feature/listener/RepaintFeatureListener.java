@@ -22,6 +22,6 @@ package vtea.feature.listeners;
  * @author drewmcnutt
  */
 public interface RepaintFeatureListener {
-    
+
     public void repaintFeature();
 }

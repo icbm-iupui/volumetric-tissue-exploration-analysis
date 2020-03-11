@@ -24,5 +24,6 @@ import ij.ImagePlus;
  * @author sethwinfree
  */
 public interface UpdatedImageListener {
+
     public void onUpdateImage(ImagePlus imp);
 }

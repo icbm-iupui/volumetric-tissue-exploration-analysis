@@ -25,9 +25,8 @@ import vtea.VTEAModule;
  * @author sethwinfree
  * @param <T>
  */
-public interface Measurements <T extends Number> extends VTEAModule {
-    
-   public abstract Number process(ArrayList al, ArrayList<T> values);
-   
-    
+public interface Measurements<T extends Number> extends VTEAModule {
+
+    public abstract Number process(ArrayList al, ArrayList<T> values);
+
 }

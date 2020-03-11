@@ -24,11 +24,11 @@ import ij.gui.Roi;
  * @author vinfrais
  */
 public interface IJ1RoiModifiedListener {
-    
+
     public void roiCreated(Roi r);
-    
+
     public void roiMoved(Roi r);
-    
+
     public void roiDeleted(Roi r);
-    
+
 }

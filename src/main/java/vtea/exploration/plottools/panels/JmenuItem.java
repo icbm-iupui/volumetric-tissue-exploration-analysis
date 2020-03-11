@@ -22,5 +22,5 @@ package vtea.exploration.plottools.panels;
  * @author sethwinfree
  */
 public class JmenuItem {
-    
+
 }

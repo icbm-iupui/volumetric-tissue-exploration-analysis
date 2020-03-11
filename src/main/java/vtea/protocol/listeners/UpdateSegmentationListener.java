@@ -22,5 +22,6 @@ package vtea.protocol.listeners;
  * @author sethwinfree
  */
 public interface UpdateSegmentationListener {
+
     public void onUpdateSegmentation(int i);
 }

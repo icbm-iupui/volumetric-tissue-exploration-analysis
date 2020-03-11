@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * @author sethwinfree
  */
 public interface AddFeaturesListener {
-    
+
     public void addFeatures(String name, ArrayList<ArrayList<Number>> al);
-    
+
 }

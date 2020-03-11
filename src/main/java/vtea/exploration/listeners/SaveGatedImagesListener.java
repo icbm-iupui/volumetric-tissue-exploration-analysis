@@ -21,9 +21,11 @@ import java.awt.geom.Path2D;
 
 /**
  * Listener to output nuclei images via the given path in the exploration chart
+ *
  * @author drewmcnutt
  */
 public interface SaveGatedImagesListener {
+
     public void saveGated(Path2D path);
     //public void saveGatedCNN(Path2D path);
 }

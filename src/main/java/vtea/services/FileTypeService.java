@@ -22,17 +22,15 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
 import vtea.filetype.FileType;
 
-
-
 /**
  *
  * @author sethwinfree
  */
 @Plugin(type = Service.class)
-public class FileTypeService extends AbstractService< FileType >{
-    
+public class FileTypeService extends AbstractService< FileType> {
+
     public FileTypeService(Context context) {
         super(FileType.class, context);
     }
-    
+
 }

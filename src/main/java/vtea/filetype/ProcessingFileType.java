@@ -23,13 +23,13 @@ import org.scijava.plugin.Plugin;
  *
  * @author sethwinfree
  */
-@Plugin (type = FileType.class)
+@Plugin(type = FileType.class)
 public class ProcessingFileType extends AbstractFileType implements FileType {
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "Seth Winfree";
     protected String COMMENT = "Image Processing binary file";
     protected String NAME = "Image Processing File";
     protected String KEY = "PROCESSINGFILETYPE";
 
-    
 }

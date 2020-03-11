@@ -32,40 +32,38 @@ import vtea.protocol.listeners.RenameTabListener;
  * @author vinfrais
  */
 public class ParallelFileMenu extends JPopupMenu implements ActionListener, ItemListener {
-                JRadioButtonMenuItem SingleFile;
-                JMenuItem Rename;
-                JMenuItem Item2;
-                JMenuItem Item3;
-                boolean batch;
-                private ArrayList<RenameTabListener> listeners = new ArrayList<RenameTabListener>();
-                
-                public ParallelFileMenu(){
-                    //batch = multiple;
-                     Rename = new JMenuItem("Rename...");
-                     //MultipleFiles.setSelected(multiple);
-                     Rename.setActionCommand("Multiple");
-                     Rename.addItemListener(this);
-                     Rename.addActionListener(this);
-                     //Item2 = new JMenuItem("Item2");
-                     //Item3 = new JMenuItem("Item3");
 
-                    add(Rename);
-                    //addSeparator();
-                    //add(Item2);
-                    //add(Item3);
-                } 
+    JRadioButtonMenuItem SingleFile;
+    JMenuItem Rename;
+    JMenuItem Item2;
+    JMenuItem Item3;
+    boolean batch;
+    private ArrayList<RenameTabListener> listeners = new ArrayList<RenameTabListener>();
+
+    public ParallelFileMenu() {
+        //batch = multiple;
+        Rename = new JMenuItem("Rename...");
+        //MultipleFiles.setSelected(multiple);
+        Rename.setActionCommand("Multiple");
+        Rename.addItemListener(this);
+        Rename.addActionListener(this);
+        //Item2 = new JMenuItem("Item2");
+        //Item3 = new JMenuItem("Item3");
+
+        add(Rename);
+        //addSeparator();
+        //add(Item2);
+        //add(Item3);
+    }
 
     @Override
     public void itemStateChanged(ItemEvent ie) {
-        
+
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
- 
-        }
-    
-    
 
-                }
+    }
 
+}

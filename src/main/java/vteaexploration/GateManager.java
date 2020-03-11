@@ -22,9 +22,7 @@ package vteaexploration;
  * @author winfrees
  */
 public class GateManager extends javax.swing.JFrame {
-    
-    
-    
+
     /**
      * Creates new form GateManager
      */
@@ -123,8 +121,6 @@ public class GateManager extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane gateTree;
     private javax.swing.JPanel jPanel1;
@@ -133,9 +129,5 @@ public class GateManager extends javax.swing.JFrame {
     private javax.swing.JTable jTable1;
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
-
-    
-
-
 
 }

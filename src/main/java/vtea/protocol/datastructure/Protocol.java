@@ -24,7 +24,7 @@ import vtea.VTEAModule;
  * @author sethwinfree
  */
 public interface Protocol extends VTEAModule {
-    
+
     String getDescription();
-    
+
 }

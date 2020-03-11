@@ -27,26 +27,26 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Measurements.class)
 public class Sum extends AbstractMeasurement {
-    
-    public Sum(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate sum or integrated density";
-    NAME = "Sum";
-    KEY = "Sum";
-    TYPE = "Intensity";
-}
-    
-    @Override
-    public Number process(ArrayList al, ArrayList values)  {
-    double n = 0;
-    ListIterator<Number> itr = values.listIterator();   
-    while(itr.hasNext()){          
-        Number value = itr.next();  
-        n = n + value.doubleValue();
-    }   
-    return n;
-};
-    
-}
 
+    public Sum() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate sum or integrated density";
+        NAME = "Sum";
+        KEY = "Sum";
+        TYPE = "Intensity";
+    }
+
+    @Override
+    public Number process(ArrayList al, ArrayList values) {
+        double n = 0;
+        ListIterator<Number> itr = values.listIterator();
+        while (itr.hasNext()) {
+            Number value = itr.next();
+            n = n + value.doubleValue();
+        }
+        return n;
+    }
+;
+
+}

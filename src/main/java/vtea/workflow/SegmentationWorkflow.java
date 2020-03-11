@@ -23,16 +23,16 @@ import org.scijava.plugin.Plugin;
  *
  * @author sethwinfree
  */
-@Plugin (type = Workflow.class)
+@Plugin(type = Workflow.class)
 public class SegmentationWorkflow extends AbstractWorkflow {
-    
-    public SegmentationWorkflow(){
-        
-    VERSION = "0.1";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Converting to SciJava plugin architecture";
-    NAME = "Segmentation Workflow";
-    KEY = "SegmentationWorkflow";
+
+    public SegmentationWorkflow() {
+
+        VERSION = "0.1";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Converting to SciJava plugin architecture";
+        NAME = "Segmentation Workflow";
+        KEY = "SegmentationWorkflow";
     }
 
     @Override
@@ -49,5 +49,5 @@ public class SegmentationWorkflow extends AbstractWorkflow {
     public Object getResult() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

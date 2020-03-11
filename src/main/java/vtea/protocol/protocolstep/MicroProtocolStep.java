@@ -22,8 +22,5 @@ package vtea.protocol.protocolstep;
  * @author vinfrais
  */
 public class MicroProtocolStep {
-    
-    
-    
-    
+
 }

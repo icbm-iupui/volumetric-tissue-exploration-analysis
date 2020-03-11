@@ -22,7 +22,7 @@ package vtea.processor.listeners;
  * @author sethwinfree
  */
 public interface SegmentationListener {
-    
+
     public void updateGui(String str, Double dbl);
-    
+
 }

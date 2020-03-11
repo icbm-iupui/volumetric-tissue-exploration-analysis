@@ -19,6 +19,4 @@ package vtea.exploration.imagegatetools;
 
 public class FreehandGate {
 
-
-
 }

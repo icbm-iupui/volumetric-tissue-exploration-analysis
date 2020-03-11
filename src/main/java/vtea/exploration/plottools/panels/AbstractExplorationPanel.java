@@ -41,18 +41,18 @@ import vteaobjects.MicroObject;
  * @author vinfrais
  */
 public abstract class AbstractExplorationPanel extends JFrame implements ExplorationCenter {
-    protected static Color imageGateColor = new Color(0,177,76);
+
+    protected static Color imageGateColor = new Color(0, 177, 76);
 
     ArrayList<MakeImageOverlayListener> overlaylisteners = new ArrayList<MakeImageOverlayListener>();
-    
+
     ArrayList<ResetSelectionListener> resetselectionlisteners = new ArrayList<ResetSelectionListener>();
-    
+
     ArrayList<SubGateExplorerListener> subgatelisteners = new ArrayList<SubGateExplorerListener>();
-    
+
     ArrayList<AddFeaturesListener> addfeaturelisteners = new ArrayList<AddFeaturesListener>();
-    
+
     //ArrayList<ArrayList<ArrayList<Number>>> measurementList = new ArrayList<ArrayList<ArrayList<Number>>>();
-    
     protected JPanel CenterPanel = new JPanel();
     protected ArrayList<PolygonGate> gates = new ArrayList<>();
     protected ArrayList<ArrayList<Number>> measurements = new ArrayList();
@@ -71,24 +71,23 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected HashMap<Integer, String> hm = new HashMap<>();
     protected ImagePlus impoverlay;
     protected boolean imageGate = false;
-    
+
     protected ArrayList<Double> AxesLimits;
-    
+
     protected boolean xScaleLinear = true;
     protected boolean yScaleLinear = true;
-    
+
     protected int LUT = 0;
 
     protected int currentX;
     protected int currentY;
-    protected int currentL; 
+    protected int currentL;
     protected int pointsize;
 
     public AbstractExplorationPanel() {
         CenterPanel.setOpaque(false);
         CenterPanel.setBackground(new Color(255, 255, 255, 255));
-        
-        
+
     }
 
     protected int keyLookUp(int x, int y, int l) {
@@ -105,11 +104,11 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
         }
         return 0;
     }
-    
+
     @Override
-    public ArrayList<Component>  getSettingsContent() {
+    public ArrayList<Component> getSettingsContent() {
         ArrayList<Component> al = new ArrayList();
-        
+
 //        al.add(new JLabel("X axis minimum: "));
 //        al.add(new JTextField());
 //        al.add(new JLabel("X axis maximum: "));
@@ -119,23 +118,21 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
 //        al.add(new JTextField());
 //        al.add(new JLabel("Y axis maximum: "));
 //        al.add(new JTextField());
-        
-        
         return al;
     }
-    
-    @Override 
-      public ArrayList<MicroObject> getObjects(){
-          return objects;
-      }
-      
-    @Override 
-      public ArrayList<ArrayList<Number>> getMeasurments(){
-          return measurements;
-      }
-      
-      @Override
-       public void addFromCSV(String s){}
 
+    @Override
+    public ArrayList<MicroObject> getObjects() {
+        return objects;
+    }
+
+    @Override
+    public ArrayList<ArrayList<Number>> getMeasurments() {
+        return measurements;
+    }
+
+    @Override
+    public void addFromCSV(String s) {
+    }
 
 }

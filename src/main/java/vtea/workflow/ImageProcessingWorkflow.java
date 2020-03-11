@@ -27,48 +27,44 @@ import org.scijava.plugin.Plugin;
 import vtea.processor.ImageProcessingProcessor;
 import vtea.protocol.datastructure.ImageProcessingProtocol;
 
-
 /**
  *
  * @author vinfrais
  */
-@Plugin (type = Workflow.class)
+@Plugin(type = Workflow.class)
 public class ImageProcessingWorkflow extends AbstractWorkflow {
 
     ImagePlus impOriginal;
     ImagePlus impProcessed;
     ImagePlus impPreview;
-    
+
     int channelProcess; //-1. 0, 1 etc.  -1 for all.
-    
+
     /*ImageProcessing steps are kept as fields in an ArrayList 
     These fields are arraylists that include:
     0:Name 1: Channel to operate on 2... Components
-   */
-    
-    public ImageProcessingWorkflow(){
+     */
+    public ImageProcessingWorkflow() {
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
         COMMENT = "New functionality";
         NAME = "Image Processing Workflow";
         KEY = "ImageProcessing";
     }
-    
-    
 
     public ImageProcessingWorkflow(ImagePlus imp, ImageProcessingProtocol al) {
-        
+
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
         COMMENT = "New functionality";
         NAME = "Image Processing Workflow";
         KEY = "ImageProcessing";
-        
+
         impOriginal = imp;
         protocol = al;
-        
+
     }
-    
+
     @Override
     public ImagePlus process() {
         impProcessed = new Duplicator().run(impOriginal);
@@ -79,7 +75,7 @@ public class ImageProcessingWorkflow extends AbstractWorkflow {
         }
         return impProcessed;
     }
-    
+
     @Override
     public ImagePlus processPreview() {
         makePreviewImage();
@@ -91,7 +87,7 @@ public class ImageProcessingWorkflow extends AbstractWorkflow {
         impPreview.resetDisplayRange();
         return impPreview;
     }
-    
+
     @Override
     public ImagePlus getResult() {
         return impProcessed;
@@ -99,30 +95,30 @@ public class ImageProcessingWorkflow extends AbstractWorkflow {
 
     @Override
     public ImagePlus getPreview() {
-        try{
-        return impPreview;
-        }catch(NullPointerException ex){
+        try {
+            return impPreview;
+        } catch (NullPointerException ex) {
             Logger.getLogger(ImageProcessingWorkflow.class.getName()).log(Level.SEVERE, "Could not find preview image.", ex);
             return processPreview();
         }
     }
-    
+
     @Override
     public ImageProcessingProtocol getSteps() {
         return (ImageProcessingProtocol) protocol;
     }
-    
+
     private void makePreviewImage() {
-        
-        impOriginal.setZ(impOriginal.getNSlices()/2);
-        impOriginal.setRoi(new Roi(0,0,255,255));
-        if(impOriginal.getWidth() < 255 || impOriginal.getHeight() < 255){
-            impOriginal.setRoi(new Roi(0,0,impOriginal.getWidth(),impOriginal.getHeight()));
+
+        impOriginal.setZ(impOriginal.getNSlices() / 2);
+        impOriginal.setRoi(new Roi(0, 0, 255, 255));
+        if (impOriginal.getWidth() < 255 || impOriginal.getHeight() < 255) {
+            impOriginal.setRoi(new Roi(0, 0, impOriginal.getWidth(), impOriginal.getHeight()));
         }
         impPreview = new Duplicator().run(impOriginal); //with ROI duplicator only copies ROI
         impPreview.hide();
         impOriginal.deleteRoi();
-        
+
     }
 
 }

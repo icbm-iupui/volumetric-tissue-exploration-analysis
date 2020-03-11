@@ -17,7 +17,6 @@
  */
 package vtea.measurement;
 
-
 import ij.ImagePlus;
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -34,44 +33,45 @@ import vtea.protocol.listeners.UpdateProgressListener;
 import vteaobjects.MicroObject;
 
 /**
- * Window for analysis methods. Keeps track of analysis methods that are added 
- * and removed and submits the methods with parameters to get results. 
+ * Window for analysis methods. Keeps track of analysis methods that are added
+ * and removed and submits the methods with parameters to get results.
+ *
  * @author drewmcnutt
  */
-public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
-    
+public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener {
+
     protected ArrayList<MeasurementStepBlockGUI> FeatureStepsList;
     ArrayList descriptions;
     ArrayList<MicroObject> features;
     int nvol;           //number of volumes
-    
+
     ArrayList<AddFeaturesListener> listeners = new ArrayList<AddFeaturesListener>();
-    
+
     protected GridLayout FeatureLayout = new GridLayout(4, 1, 0, 0);
 
     /**
-     * Constructor.
-     * Creates new form FeatureFrame
+     * Constructor. Creates new form FeatureFrame
+     *
      * @param descriptions
-     * @param table 
+     * @param table
      */
     public MeasurementFrame(ArrayList descriptions, ArrayList<MicroObject> obj, ImagePlus imp) {
 
         this.descriptions = new ArrayList<String>();
-        
+
         this.descriptions.add("PosX");
         this.descriptions.add("PosY");
         this.descriptions.add("PosZ");
-       
+
         this.descriptions.addAll(descriptions);
-        
+
         features = obj;
         nvol = obj.size();
-                
+
         FeatureStepsList = new ArrayList<>();
-        
+
         initComponents();
-        
+
         exploreText.setVisible(false);
         FeatureGo.setText("Calculate");
         FeatureStepsPanel.setLayout(FeatureLayout);
@@ -301,18 +301,19 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
+
     /**
      * Adds analysis step.
+     *
      * @param evt clicking of AddStep button
      */
     private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
         //this.setVisible(false);
-        MeasurementStepBlockGUI block = new MeasurementStepBlockGUI("Measurement Step", "", Color.LIGHT_GRAY,FeatureStepsList.size() + 1, features, nvol);
+        MeasurementStepBlockGUI block = new MeasurementStepBlockGUI("Measurement Step", "", Color.LIGHT_GRAY, FeatureStepsList.size() + 1, features, nvol);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
         //this.notifyRepaintFeatureListeners();
-        
+
         FeatureStepsPanel.setLayout(FeatureLayout);
         FeatureStepsPanel.add(block.getPanel());
         FeatureStepsPanel.repaint();
@@ -325,17 +326,18 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         if (FeatureStepsList.size() >= 4) {
             AddStep.setEnabled(false);
         }
-        if (!FeatureStepsList.isEmpty()){
+        if (!FeatureStepsList.isEmpty()) {
             DeleteAllSteps.setEnabled(true);
         }
         repaintFeature();
         this.setVisible(true);
-        
+
         FeatureGo.setEnabled(true);
     }//GEN-LAST:event_AddStepActionPerformed
-    
+
     /**
      * Delete all analysis steps.
+     *
      * @param evt clicking of DeleteAll button
      */
     private void DeleteAllStepsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteAllStepsActionPerformed
@@ -348,16 +350,17 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         FeatureStepsPanel.repaint();
         //pack();
     }//GEN-LAST:event_DeleteAllStepsActionPerformed
-    
+
     /**
      * Sets up for analysis.
+     *
      * @param evt clicking of FeatureGo button
      */
     private void FeatureGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FeatureGoActionPerformed
-        
+
         findFeatures();
         VTEAProgressBar.setValue(0);
-        
+
     }//GEN-LAST:event_FeatureGoActionPerformed
 
     private void jPanel1formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPanel1formKeyPressed
@@ -366,43 +369,47 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
 
     /**
      * Rebuilds the panel.
-     * @param type 
+     *
+     * @param type
      */
     @Override
     public void rebuildPanel(int type) {
         this.RebuildPanelFeature();
     }
-    
+
     /**
      * Deletes specific step.
+     *
      * @param type useless(left over from DeleteBlockListener)
      * @param position the order number of the step
      */
     @Override
     public void deleteBlock(int type, int position) {
         this.deleteFeatureStep(position);
-        if (FeatureStepsList.isEmpty()){
+        if (FeatureStepsList.isEmpty()) {
             FeatureGo.setEnabled(false);
         }
     }
-    
+
     /**
      * Sets progress bar reading.
+     *
      * @param text string next to progress bar
      * @param min minimum value for progress bar
      * @param max maximum value for progress bar
      * @param position value to set progress bar to
      */
     @Override
-    public void changeProgress(String text, int min, int max, int position) {      
+    public void changeProgress(String text, int min, int max, int position) {
         VTEAProgressBar.setMinimum(min);
         VTEAProgressBar.setMaximum(max);
         VTEAProgressBar.setValue(position);
-        FeatureComment.setText(text);    
+        FeatureComment.setText(text);
     }
-    
+
     /**
      * Changes progress bar or text.
+     *
      * @param evt details what the property change is for
      */
     @Override
@@ -412,11 +419,11 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
             VTEAProgressBar.setValue(progress);
             FeatureComment.setText(String.format(
                     "Completed %d%%...\n", progress));
-        } 
-        if (evt.getPropertyName().equals("comment")){
-            FeatureComment.setText((String)evt.getNewValue());
         }
-        if (evt.getPropertyName().equals("escape") && !(Boolean)evt.getNewValue()){
+        if (evt.getPropertyName().equals("comment")) {
+            FeatureComment.setText((String) evt.getNewValue());
+        }
+        if (evt.getPropertyName().equals("escape") && !(Boolean) evt.getNewValue()) {
             System.out.println("PROFILING: Error is processing, thread terminated early...");
         }
     }
@@ -425,7 +432,7 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
      * Repaint the window.
      */
     @Override
-    public void repaintFeature(){
+    public void repaintFeature() {
         this.repaint();
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -445,7 +452,7 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
-    
+
     /**
      * Reconstruct the blocks.
      */
@@ -455,19 +462,20 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         while (litr.hasNext()) {
             sb = (MeasurementStepBlockGUI) litr.next();
             sb.setPosition(FeatureStepsList.indexOf(sb) + 1);
-            FeatureStepsPanel.add(sb.getPanel());   
+            FeatureStepsPanel.add(sb.getPanel());
         }
     }
-    
+
     /**
      * Extracts the Steps.
+     *
      * @param sb_al
-     * @return 
+     * @return
      */
     static public ArrayList extractSteps(ArrayList sb_al) {
 
         ArrayList<ArrayList> Result = new ArrayList<>();
-        
+
         MeasurementStepBlockGUI msb;
         ListIterator<Object> litr = sb_al.listIterator();
         while (litr.hasNext()) {
@@ -477,17 +485,19 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
 
         return Result;
     }
-    
+
     /**
      * Retrieve all of the steps.
+     *
      * @return list of all of the steps
      */
     public ArrayList getFeatureSteps() {
         return this.FeatureStepsList;
     }
-    
+
     /**
      * Deletes specific step.
+     *
      * @param position the position of the step to delete
      */
     private void deleteFeatureStep(int position) {
@@ -495,10 +505,10 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         //remove from FeatureStepsList
         FeatureStepsList.remove(position - 1);
         FeatureStepsList.trimToSize();
-        
+
         FeatureStepsPanel.removeAll();
         FeatureStepsPanel.setLayout(FeatureLayout);
-        
+
         if (FeatureStepsList.size() < 0) {
         } else {
             RebuildPanelFeature();
@@ -507,7 +517,7 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         if (FeatureStepsList.size() < 4) {
             AddStep.setEnabled(true);
         }
-        if(FeatureStepsList.isEmpty()){
+        if (FeatureStepsList.isEmpty()) {
             DeleteAllSteps.setEnabled(false);
         }
 
@@ -515,23 +525,22 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         pack();
 
     }
-    
+
     /**
      * Starts the analysis of the features.
      */
-    private void findFeatures(){
+    private void findFeatures() {
         FeatureComment.setText("Finding features...");
         ArrayList<ArrayList> protocol = new ArrayList<>();
         //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
         protocol = extractSteps(FeatureStepsList);
-        
+
 ////////        FeatureProcessor fp = new FeatureProcessor(features, protocol);
 ////////        fp.addPropertyChangeListener(this);
 ////////        fp.addListener(this);
 ////////        fp.execute();
-        
     }
-    
+
 //    private ArrayList<Integer> examineColumns(){
 //        /*
 //            Makes a new 2D array with the rows equal to every measurement type
@@ -627,20 +636,19 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
 //        
 //        features = newfeat;
 //    }
-
     @Override
     public void addFeatures(String name, ArrayList<ArrayList<Number>> result) {
         notifyListeners(name, result);
-        
+
     }
-    
+
     public void addListener(AddFeaturesListener listener) {
         listeners.add(listener);
     }
 
     private void notifyListeners(String name, ArrayList<ArrayList<Number>> result) {
         for (AddFeaturesListener listener : listeners) {
-            listener.addFeatures(name , result);
+            listener.addFeatures(name, result);
         }
     }
 }

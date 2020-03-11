@@ -22,5 +22,6 @@ package vtea.exploration.listeners;
  * @author winfrees
  */
 public interface PlotUpdateListener {
+
     void onPlotUpdateListener();
 }

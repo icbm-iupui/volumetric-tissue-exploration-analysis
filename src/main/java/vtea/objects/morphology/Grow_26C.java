@@ -33,8 +33,7 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Morphology.class)
 public class Grow_26C extends AbstractMorphology {
-    
-    
+
     JTextField Distance = new JTextField("1", 5);
 
     public Grow_26C() {
@@ -44,40 +43,39 @@ public class Grow_26C extends AbstractMorphology {
         NAME = "Grow 26C";
         KEY = "GR26C";
     }
-    
+
     //Allowed operations: 6C, 8C
     //Allowed arguments:  in String arg.
-
     @Override
     public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, List<JComponent> protocol, String operation, String arg) {
-       
-        JTextField distance = (JTextField)protocol.get(1); 
-       
-       return growRegion26C(x, y, z, Integer.parseInt(distance.getText()));
+
+        JTextField distance = (JTextField) protocol.get(1);
+
+        return growRegion26C(x, y, z, Integer.parseInt(distance.getText()));
     }
-    
+
     @Override
-    public String getUID(ArrayList<JComponent> al){       
-        JTextField distance = (JTextField)al.get(1); 
+    public String getUID(ArrayList<JComponent> al) {
+        JTextField distance = (JTextField) al.get(1);
         return this.NAME + "_" + distance;
     }
-    
+
     @Override
-    public ArrayList getOptions(){ 
-         ArrayList<JComponent> al = new ArrayList<JComponent>();
-         al.add(new JLabel("Dilation distance: "));
-         al.add(Distance);
-         return al;   
+    public ArrayList getOptions() {
+        ArrayList<JComponent> al = new ArrayList<JComponent>();
+        al.add(new JLabel("Dilation distance: "));
+        al.add(Distance);
+        return al;
     }
-    
+
     @Override
     public JPanel getMorphologicalTool() {
         JPanel panel = new JPanel();
-        panel.setPreferredSize(new Dimension(300,300));
+        panel.setPreferredSize(new Dimension(300, 300));
         panel.add(new JLabel("Coming soon, demostration space..."));
         return panel;
     }
-    
+
     private ArrayList<ArrayList<Number>> growRegion26C(int[] x, int[] y, int[] z, int times) {
 
         //System.out.println("PROFILING:                       Starting object size: " + x.length + ".");
@@ -94,17 +92,15 @@ public class Grow_26C extends AbstractMorphology {
             yList.add(y[k]);
             zList.add(z[k]);
         }
-        
+
         ArrayList<ArrayList<Number>> noDups = new ArrayList();
 
         //to determine how many expansions
-        
         for (int j = 1; j <= times; j++) {
 
             int n = x.length;
-            
+
             //System.out.println("PROFILING:             Expansion time: " + times + ".");
-            
             //8 connected.
             for (int i = 0; i < n; i++) {
 
@@ -219,29 +215,28 @@ public class Grow_26C extends AbstractMorphology {
                 yArr.add(y[i] - 1);
                 zArr.add(z[i] + 1);
 
-               
             }
-             //reassign
+            //reassign
 
-            noDups = removeDuplicates(xArr, yArr, zArr); 
-            
+            noDups = removeDuplicates(xArr, yArr, zArr);
+
             noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
-            
+
             if (times > 1) {
-                
-                    xArr = noDups.get(0);
-                    yArr = noDups.get(1);
-                    zArr = noDups.get(2);
 
-                    x = new int[xArr.size()];
-                    y = new int[xArr.size()];
-                    z = new int[xArr.size()];
+                xArr = noDups.get(0);
+                yArr = noDups.get(1);
+                zArr = noDups.get(2);
 
-                    for (int k = 0; k < xArr.size(); k++) {
-                        x[k] = (Integer) xArr.get(k);
-                        y[k] = (Integer) yArr.get(k);
-                        z[k] = (Integer) zArr.get(k);
-                    }
+                x = new int[xArr.size()];
+                y = new int[xArr.size()];
+                z = new int[xArr.size()];
+
+                for (int k = 0; k < xArr.size(); k++) {
+                    x[k] = (Integer) xArr.get(k);
+                    y[k] = (Integer) yArr.get(k);
+                    z[k] = (Integer) zArr.get(k);
+                }
             }
         }
         return noDups;

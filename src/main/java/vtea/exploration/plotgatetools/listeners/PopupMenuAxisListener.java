@@ -21,8 +21,8 @@ package vtea.exploration.plotgatetools.listeners;
  *
  * @author vinfrais
  */
-public interface PopupMenuAxisListener{
-        
-        public void changeAxes(int axis, String position);
-        
-    }
+public interface PopupMenuAxisListener {
+
+    public void changeAxes(int axis, String position);
+
+}

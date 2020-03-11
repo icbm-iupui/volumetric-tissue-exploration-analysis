@@ -22,5 +22,5 @@ package vtea.protocol.blockstepgui;
  * @author vinfrais
  */
 public interface MicroStepBlock {
-    
+
 }

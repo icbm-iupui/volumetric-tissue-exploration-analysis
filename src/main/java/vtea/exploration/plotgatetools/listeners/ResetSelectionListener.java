@@ -22,7 +22,7 @@ package vtea.exploration.plotgatetools.listeners;
  * @author vinfrais
  */
 public interface ResetSelectionListener {
-    
+
     public void resetGateSelection();
-    
+
 }

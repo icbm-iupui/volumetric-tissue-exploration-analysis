@@ -24,5 +24,6 @@ import java.util.ArrayList;
  * @author sethwinfree
  */
 public interface UpdatedProtocolListener {
-     void protocolUpdated(ArrayList<ArrayList> al);
+
+    void protocolUpdated(ArrayList<ArrayList> al);
 }

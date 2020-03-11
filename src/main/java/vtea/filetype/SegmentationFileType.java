@@ -23,12 +23,13 @@ import org.scijava.plugin.Plugin;
  *
  * @author sethwinfree
  */
-@Plugin (type = FileType.class)
+@Plugin(type = FileType.class)
 public class SegmentationFileType extends AbstractFileType implements FileType {
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "Seth Winfree";
     protected String COMMENT = "Segmentation binary file";
     protected String NAME = "Segmentation File";
     protected String KEY = "SEGMENTATIONFILETYPE";
-    
+
 }

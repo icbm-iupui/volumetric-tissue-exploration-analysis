@@ -22,14 +22,13 @@ package vtea.filetype;
  * @author sethwinfree
  */
 public abstract class AbstractFileType implements FileType {
-    
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "Seth Winfree";
     protected String COMMENT = "New functionality";
     protected String NAME = "ABSTRACTFILETYPE";
     protected String KEY = "ABSTRACTFILETYPE";
-    
-    
+
     @Override
     public String getName() {
         return NAME;
@@ -39,5 +38,5 @@ public abstract class AbstractFileType implements FileType {
     public String getKey() {
         return KEY;
     }
-    
+
 }

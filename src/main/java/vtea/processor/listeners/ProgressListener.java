@@ -22,7 +22,7 @@ package vtea.processor.listeners;
  * @author sethwinfree
  */
 public interface ProgressListener {
-    
+
     public void FireProgressChange(String str, double db);
-    
+
 }

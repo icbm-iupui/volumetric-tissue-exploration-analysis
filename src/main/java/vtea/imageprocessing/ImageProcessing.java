@@ -24,46 +24,44 @@ import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import vtea.VTEAModule;
 
-
-
 /**
  *
  * @author vinfrais
  */
 public interface ImageProcessing<T extends Component, A extends RealType> extends VTEAModule {
-    
+
     public boolean setOptions(ArrayList<T> al);
-    
+
     public ArrayList<T> getOptions();
-    
+
     public boolean process(ArrayList al, ImagePlus imp);
-    
+
     public boolean process(ArrayList al, Img<A> img);
-    
+
     public Img<A> getResult();
-    
+
     public ImagePlus getImpResult();
-    
+
     public Img<A> getPreview();
-    
+
     public String getImageJMacroCommand();
-    
+
     public String runImageJMacroCommand(String str);
-    
+
     public String getVersion();
-    
+
     public String getAuthor();
-    
+
     public String getComment();
-    
+
     public void sendProgressComment();
-    
+
     public String getProgressComment();
-    
+
     public boolean copyComponentParameter(String version, ArrayList<T> dComponents, ArrayList<T> sComponents);
-    
+
     public boolean loadComponentParameter(String version, ArrayList<T> dComponents, ArrayList fields);
-    
+
     public boolean saveComponentParameter(String version, ArrayList<T> dComponents, ArrayList fields);
-    
+
 }

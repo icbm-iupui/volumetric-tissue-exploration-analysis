@@ -32,40 +32,40 @@ import vtea.protocol.listeners.CopyBlocksListener;
  * @author vinfrais
  */
 public class JMenuExploration extends JMenu implements ActionListener, ItemListener {
-                JMenuItem LoadSteps;
-                JMenuItem SaveSteps;
-                JMenu CopySteps;
-                //JMenuItem Item3;
-                boolean batch;              
-                int ProtocolType;
-                
-                String ItemString1 = "Load...";
-                String ItemString2 = "Save...";
-                String ItemString3 = "Copy from...";
-                
-                private ArrayList<BatchStateListener> listeners = new ArrayList<BatchStateListener>();
-                private ArrayList<CopyBlocksListener> CopyListeners = new ArrayList<CopyBlocksListener>();
-                
-                public JMenuExploration(final String text, int type){
-                    
-                    super(text);
-                    
-                    this.ProtocolType = type;
-                    
-                     LoadSteps = new JMenuItem("Load...");
-                     LoadSteps.setActionCommand("Load");
-                     LoadSteps.addActionListener(this);
-                     
-                     SaveSteps = new JMenuItem("Save...");
-                     SaveSteps.setActionCommand("Load");
-                     SaveSteps.addActionListener(this);
-                     
-                     CopySteps = new JMenu("Copy from...");
-                     CopySteps.setActionCommand("Copy");
-                     CopySteps.addActionListener(this);
-                     
-                     //ListIterator<String> itr = tabs.listIterator();
-                     
+
+    JMenuItem LoadSteps;
+    JMenuItem SaveSteps;
+    JMenu CopySteps;
+    //JMenuItem Item3;
+    boolean batch;
+    int ProtocolType;
+
+    String ItemString1 = "Load...";
+    String ItemString2 = "Save...";
+    String ItemString3 = "Copy from...";
+
+    private ArrayList<BatchStateListener> listeners = new ArrayList<BatchStateListener>();
+    private ArrayList<CopyBlocksListener> CopyListeners = new ArrayList<CopyBlocksListener>();
+
+    public JMenuExploration(final String text, int type) {
+
+        super(text);
+
+        this.ProtocolType = type;
+
+        LoadSteps = new JMenuItem("Load...");
+        LoadSteps.setActionCommand("Load");
+        LoadSteps.addActionListener(this);
+
+        SaveSteps = new JMenuItem("Save...");
+        SaveSteps.setActionCommand("Load");
+        SaveSteps.addActionListener(this);
+
+        CopySteps = new JMenu("Copy from...");
+        CopySteps.setActionCommand("Copy");
+        CopySteps.addActionListener(this);
+
+        //ListIterator<String> itr = tabs.listIterator();
 //                     JMenuItem OpenTab = new JMenuItem(); 
 //                     
 //                     while(itr.hasNext())
@@ -83,24 +83,19 @@ public class JMenuExploration extends JMenu implements ActionListener, ItemListe
 //                    add(LoadSteps);
 //                    add(SaveSteps);
 //                    add(CopySteps);
-                } 
+    }
 
-                
     //private void copySteps           
-                
-                
     @Override
     public void itemStateChanged(ItemEvent ie) {
-        
+
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
-        
+
     }
-    
-        
-    
+
 //    public void addBatchListener(BatchStateListener listener) {
 //        listeners.add(listener);
 //    }
@@ -110,16 +105,15 @@ public class JMenuExploration extends JMenu implements ActionListener, ItemListe
 //            listener.batchStateAdd(batch);
 //        }
 //    }
-    
-    public void addStepCopierListener(CopyBlocksListener listener){
-         CopyListeners.add(listener);
-         
+    public void addStepCopierListener(CopyBlocksListener listener) {
+        CopyListeners.add(listener);
+
     }
-    
-    public void notifyStepCopierListener(String source, int type){
-        for (CopyBlocksListener listener : CopyListeners){
-     //IJ.log(type + ", Event: " + source);
-    listener.onCopy(source, type);
+
+    public void notifyStepCopierListener(String source, int type) {
+        for (CopyBlocksListener listener : CopyListeners) {
+            //IJ.log(type + ", Event: " + source);
+            listener.onCopy(source, type);
+        }
+    }
 }
-    }
-                }

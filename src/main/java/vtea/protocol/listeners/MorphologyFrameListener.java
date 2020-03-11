@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * @author sethwinfree
  */
 public interface MorphologyFrameListener {
-    
+
     public void addMorphology(ArrayList<ArrayList> al);
-    
+
 }

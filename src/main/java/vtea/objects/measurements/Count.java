@@ -25,23 +25,23 @@ import org.scijava.plugin.Plugin;
  * @author sethwinfree
  */
 @Plugin(type = Measurements.class)
-public class Count extends AbstractMeasurement{
-    
-    public Count(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate number of pixels";
-    NAME = "Count";
-    KEY = "Count";
-    TYPE = "Shape";
-    
+public class Count extends AbstractMeasurement {
+
+    public Count() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate number of pixels";
+        NAME = "Count";
+        KEY = "Count";
+        TYPE = "Shape";
+
     }
-    
+
     @Override
-    public Number process(ArrayList al, ArrayList values)  {
-    
-    return values.size();
-};
-    
-   
+    public Number process(ArrayList al, ArrayList values) {
+
+        return values.size();
+    }
+;
+
 }

@@ -17,13 +17,12 @@
  */
 package vtea.exploration.plotgatetools.listeners;
 
-
 import java.util.ArrayList;
 
 /**
  *
  * @author vinfrais
- * 
+ *
  * This interface is for updating the highlighted cells on impoverlay
  */
 public interface ImageHighlightSelectionListener {

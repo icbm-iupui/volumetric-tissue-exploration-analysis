@@ -22,11 +22,11 @@ package vtea.protocol.listeners;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author vinfrais
  */
 public interface RequestObjectProtocolListener {
+
     public void onObjectProtocolRequest(String tab);
 }

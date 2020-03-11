@@ -26,42 +26,39 @@ import javax.swing.JPanel;
  * @author vinfrais
  */
 public class AddTabTab extends JPanel {
-    
-    public AddTabTab(){
-        
+
+    public AddTabTab() {
+
         super();
-        
-        
-        
-        this.addMouseListener(new MouseListener(){
+
+        this.addMouseListener(new MouseListener() {
 
             @Override
             public void mouseClicked(MouseEvent me) {
-            
+
             }
 
             @Override
             public void mousePressed(MouseEvent me) {
-                
+
             }
 
             @Override
             public void mouseReleased(MouseEvent me) {
-                
+
             }
 
             @Override
             public void mouseEntered(MouseEvent me) {
-                
+
             }
 
             @Override
             public void mouseExited(MouseEvent me) {
-                
+
             }
         });
-        
-        
+
     }
-   
+
 }

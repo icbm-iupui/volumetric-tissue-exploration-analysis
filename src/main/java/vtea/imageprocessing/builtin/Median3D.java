@@ -34,52 +34,51 @@ import vtea.imageprocessing.ImageProcessing;
  * @author sukhoc
  */
 @Plugin(type = ImageProcessing.class)
-public class Median3D extends AbstractImageProcessing{
-    
+public class Median3D extends AbstractImageProcessing {
+
     public Median3D() {
-        
+
         VERSION = "0.1";
-        
+
         AUTHOR = "Suraj Khochare";
-        
+
         COMMENT = "Implements the 3D Median from StackProcessor in ImageJ";
-        
+
         NAME = "Median3D";
-        
+
         KEY = "Median3D";
 
         protocol = new ArrayList();
-        
+
         protocol.add(new JLabel("X radius (pixels):"));
-        
-        protocol.add(new JTextField("1", 3));
-        
-        protocol.add(new JLabel("Y radius (pixels):"));
-        
-        protocol.add(new JTextField("1", 3));
-        
-        protocol.add(new JLabel("Z radius (pixels):"));
-        
+
         protocol.add(new JTextField("1", 3));
 
-        
+        protocol.add(new JLabel("Y radius (pixels):"));
+
+        protocol.add(new JTextField("1", 3));
+
+        protocol.add(new JLabel("Z radius (pixels):"));
+
+        protocol.add(new JTextField("1", 3));
+
     }
-    
+
     @Override
     public boolean process(ArrayList al, ImagePlus imp) {
 
         JTextField Xradius = (JTextField) al.get(3);
         JTextField Yradius = (JTextField) al.get(5);
-        JTextField Zradius = (JTextField) al.get(7);        
-               
+        JTextField Zradius = (JTextField) al.get(7);
+
         ImageStack is;
         is = imp.getImageStack();
-        
+
         ImageProcessor ip;
         ip = imp.getProcessor();
-        
+
         StackProcessor sp = new StackProcessor(is, ip);
-        
+
         float xRad = Float.parseFloat(Xradius.getText());
         float yRad = Float.parseFloat(Yradius.getText());
         float zRad = Float.parseFloat(Zradius.getText());
@@ -98,9 +97,9 @@ public class Median3D extends AbstractImageProcessing{
     public Img getPreview() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public String getImageJMacroCommand(){
+    public String getImageJMacroCommand() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -118,72 +117,72 @@ public class Median3D extends AbstractImageProcessing{
     public String getProgressComment() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
     public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
-    
-        try{
+
+        try {
             dComponents.clear();
-            
+
             JTextField xRadius = (JTextField) sComponents.get(1);
             JTextField yRadius = (JTextField) sComponents.get(3);
             JTextField zRadius = (JTextField) sComponents.get(5);
-            
+
             dComponents.add(new JLabel("X radius (pixels):"));
-            dComponents.add((new JTextField(xRadius.getText(), 3))); 
+            dComponents.add((new JTextField(xRadius.getText(), 3)));
             dComponents.add(new JLabel("Y radius (pixels):"));
-            dComponents.add((new JTextField(yRadius.getText(), 3))); 
+            dComponents.add((new JTextField(yRadius.getText(), 3)));
             dComponents.add(new JLabel("Z radius (pixels):"));
-            dComponents.add((new JTextField(zRadius.getText(), 3))); 
-        
-        return true;
-        } catch(Exception e){
+            dComponents.add((new JTextField(zRadius.getText(), 3)));
+
+            return true;
+        } catch (Exception e) {
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
             return false;
         }
     }
-    
+
     @Override
     public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
-             try{
-                  dComponents.clear();
-            
-            String xRadius = (String)fields.get(0);
-            String yRadius = (String)fields.get(1);
-            String zRadius = (String)fields.get(2);
-       
+        try {
+            dComponents.clear();
+
+            String xRadius = (String) fields.get(0);
+            String yRadius = (String) fields.get(1);
+            String zRadius = (String) fields.get(2);
+
             dComponents.add(new JLabel("X radius (pixels):"));
-            dComponents.add((new JTextField(xRadius, 3))); 
+            dComponents.add((new JTextField(xRadius, 3)));
             dComponents.add(new JLabel("Y radius (pixels):"));
             dComponents.add((new JTextField(yRadius, 3)));
             dComponents.add(new JLabel("Z radius (pixels):"));
             dComponents.add((new JTextField(zRadius, 3)));
-            
-        return true;
-        
-        } catch(Exception e){
-            
+
+            return true;
+
+        } catch (Exception e) {
+
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
-            
+
             return false;
-        }   
+        }
     }
-    
+
     @Override
     public boolean saveComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
-            try{
-                  fields.clear();
-                  fields.add(((JTextField)(dComponents.get(1))).getText());
-                  fields.add(((JTextField)(dComponents.get(3))).getText());
-                  fields.add(((JTextField)(dComponents.get(5))).getText());
-        return true;
-        
-        } catch(Exception e){
-            
+        try {
+            fields.clear();
+            fields.add(((JTextField) (dComponents.get(1))).getText());
+            fields.add(((JTextField) (dComponents.get(3))).getText());
+            fields.add(((JTextField) (dComponents.get(5))).getText());
+            return true;
+
+        } catch (Exception e) {
+
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
-            
+
             return false;
-        }   
+        }
     }
-    
+
 }

@@ -25,9 +25,9 @@ import vtea.VTEAModule;
  * @author sethwinfree
  */
 public interface Processor extends VTEAModule {
-    
+
     int process(ArrayList al, String... str);
-    
+
     String getChange();
-    
+
 }

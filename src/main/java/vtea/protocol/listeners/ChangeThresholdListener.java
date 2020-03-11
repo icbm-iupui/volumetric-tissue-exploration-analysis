@@ -22,7 +22,7 @@ package vtea.protocol.listeners;
  * @author sethwinfree
  */
 public interface ChangeThresholdListener {
-    
+
     public void thresholdChanged(double min, double max);
-    
+
 }

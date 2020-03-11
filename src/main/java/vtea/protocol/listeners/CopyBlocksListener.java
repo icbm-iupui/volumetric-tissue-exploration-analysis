@@ -22,5 +22,6 @@ package vtea.protocol.listeners;
  * @author vinfrais
  */
 public interface CopyBlocksListener {
+
     public void onCopy(String source, int StepsList);
 }

@@ -413,7 +413,7 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
         ImagePlus imp = roi == null ? getImage() : WindowManager.getCurrentImage();
 
         if (!imp.getTitle().contains("Plot")) {
-           // IJ.log("***NOT a PLOT image***");
+            // IJ.log("***NOT a PLOT image***");
             return false;
         }
 
@@ -1105,7 +1105,7 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
      }
      */
 
-    /* This method performs measurements for several ROI's in a stack
+ /* This method performs measurements for several ROI's in a stack
      and arranges the results with one line per slice.  By constast, the 
      measure() method produces several lines per slice.  The results 
      from multiMeasure() may be easier to import into a spreadsheet 

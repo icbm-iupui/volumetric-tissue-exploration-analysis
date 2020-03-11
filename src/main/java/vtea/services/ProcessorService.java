@@ -22,14 +22,12 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
 import vtea.processor.Processor;
 
-
-
 /**
  *
  * @author sethwinfree
  */
 @Plugin(type = Service.class)
-public class ProcessorService extends AbstractService< Processor > {
+public class ProcessorService extends AbstractService< Processor> {
 
     public ProcessorService(Context context) {
         super(Processor.class, context);

@@ -22,5 +22,6 @@ package vtea.exploration.listeners;
  * @author sethwinfree
  */
 public interface remapOverlayListener {
+
     public void onRemapOverlay(Boolean b, int row);
 }

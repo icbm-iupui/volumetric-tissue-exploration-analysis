@@ -22,7 +22,7 @@ package vtea.exploration.listeners;
  * @author Seth
  */
 public interface DistanceMapListener {
-    
+
     public void addDistanceMapFromGate(String name);
-    
+
 }

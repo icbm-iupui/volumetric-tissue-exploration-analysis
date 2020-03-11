@@ -24,19 +24,19 @@ import ij.ImagePlus;
  * @author sethwinfree
  */
 public abstract class ImageRepository implements Dataset {
-    
-private static ImagePlus imp;
-    
-public ImagePlus getReferenceToImage(){
-   return imp;
-}
 
-public void setReferenceToImage(ImagePlus ip){
-   imp = ip;
-}
+    private static ImagePlus imp;
 
-public ImagePlus getCopyOfImage(){
-   return imp.duplicate();
-}
-    
+    public ImagePlus getReferenceToImage() {
+        return imp;
+    }
+
+    public void setReferenceToImage(ImagePlus ip) {
+        imp = ip;
+    }
+
+    public ImagePlus getCopyOfImage() {
+        return imp.duplicate();
+    }
+
 }

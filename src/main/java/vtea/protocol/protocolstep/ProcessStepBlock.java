@@ -26,7 +26,6 @@ import vtea.protocol.listeners.MicroBlockSetupListener;
  */
 public class ProcessStepBlock extends Object implements MicroBlockSetupListener {
 
-
     @Override
     public void onChangeSetup(ArrayList al) {
 

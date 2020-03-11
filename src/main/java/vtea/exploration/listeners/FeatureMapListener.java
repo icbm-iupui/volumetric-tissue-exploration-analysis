@@ -24,5 +24,6 @@ import java.util.ArrayList;
  * @author Seth
  */
 public interface FeatureMapListener {
+
     public void addFeatureMap(String name, ArrayList<ArrayList<Number>> al);
 }

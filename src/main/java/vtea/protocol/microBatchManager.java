@@ -24,18 +24,15 @@ import java.util.ArrayList;
  * @author vinfrais
  */
 public class microBatchManager {
-    
+
     private String directory;
     private ArrayList<String> Files;
     private ArrayList<MicroExperiment> Experiments;
-    
-    microBatchManager(){}
-    
-    private void ProcessFiles(){}
-    
-    
-    
-  
-    
-    
+
+    microBatchManager() {
+    }
+
+    private void ProcessFiles() {
+    }
+
 }

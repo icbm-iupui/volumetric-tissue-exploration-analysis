@@ -32,7 +32,6 @@ import org.scijava.plugin.Plugin;
 import static vtea._vtea.PROCESSINGMAP;
 import vtea.imageprocessing.AbstractImageProcessing;
 
-
 /**
  *
  * @author sethwinfree
@@ -44,35 +43,35 @@ public class ImageProcessingProcessor extends AbstractProcessor {
     ImagePlus impPreview;
     ArrayList protocol;
     int channelProcess; //-1. 0, 1 etc.  -1 for all.
-    
+
     /*ImageProcessing steps are kept as fields in an ArrayList 
     These fields are arraylists that include:
     0:Name 1: Channel to operate on 2... Components
-   */
-    public ImageProcessingProcessor(){
-    
-    VERSION = "0.1";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Converting to SciJava plugin architecture";
-    NAME = "Image Processing Processor";
-    KEY = "ImageProcessingProcessor";
-    
+     */
+    public ImageProcessingProcessor() {
+
+        VERSION = "0.1";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Converting to SciJava plugin architecture";
+        NAME = "Image Processing Processor";
+        KEY = "ImageProcessingProcessor";
+
     }
 
     public ImageProcessingProcessor(ImagePlus imp, ArrayList protocol) {
 
-    VERSION = "0.1";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Converting to SciJava plugin architecture";
-    NAME = "Image Processing Processor";
-    KEY = "ImageProcessingProcessor";   
-    
+        VERSION = "0.1";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Converting to SciJava plugin architecture";
+        NAME = "Image Processing Processor";
+        KEY = "ImageProcessingProcessor";
+
         impOriginal = imp;
         this.protocol = protocol;
         //channelProcess = channel;
-    
+
     }
-    
+
     public ImagePlus processPreview() {
         makePreviewImage();
         ListIterator<Object> litr = this.protocol.listIterator();
@@ -82,7 +81,7 @@ public class ImageProcessingProcessor extends AbstractProcessor {
         impPreview.resetDisplayRange();
         return impPreview;
     }
-    
+
     public ImagePlus process() {
         impPreview = new Duplicator().run(impOriginal);
         ListIterator<Object> litr = protocol.listIterator();
@@ -91,7 +90,7 @@ public class ImageProcessingProcessor extends AbstractProcessor {
         }
         return impPreview;
     }
-    
+
     public ImagePlus getResult() {
         return this.impOriginal;
     }
@@ -99,11 +98,11 @@ public class ImageProcessingProcessor extends AbstractProcessor {
     public ImagePlus getPreview() {
         return this.impPreview;
     }
-    
+
     public ArrayList getSteps() {
         return this.protocol;
     }
-    
+
     private void ProcessManager(ArrayList protocol, ImagePlus imp) {
 
         Object iImp = new Object();
@@ -114,89 +113,89 @@ public class ImageProcessingProcessor extends AbstractProcessor {
             Constructor<?> con;
             try {
                 con = c.getConstructor();
-                iImp = con.newInstance();  
-                ((AbstractImageProcessing)iImp).getVersion();
+                iImp = con.newInstance();
+                ((AbstractImageProcessing) iImp).getVersion();
 
-            } catch ( NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
         } catch (NullPointerException | ClassNotFoundException ex) {
             Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-       if(imp.getNChannels()>1){
-        
-       ChannelSplitter cs = new ChannelSplitter();
-       
-       RGBStackMerge rsm = new RGBStackMerge();
-       
-       ImagePlus temp_imp = new ImagePlus("Ch_" + (Integer)protocol.get(1) + "_modified", cs.getChannel(imp, (Integer)protocol.get(1)+1)); 
-       
-       ImagePlus[] merged = new ImagePlus[imp.getNChannels()];
-       
-       for(int i = 0; i < merged.length; i++){
-           merged[i] = new ImagePlus("Ch_" + i, cs.getChannel(imp, (Integer)protocol.get(1)+1));
-       }
-       
-       merged[(Integer)protocol.get(1)] = temp_imp;   
-       
-       ((AbstractImageProcessing)iImp).process(protocol, temp_imp);
-       
-       imp = rsm.mergeHyperstacks(merged, false);
-       
-       } else {
-           ((AbstractImageProcessing)iImp).process(protocol, imp);
-           imp.resetDisplayRange();
-       }
+
+        if (imp.getNChannels() > 1) {
+
+            ChannelSplitter cs = new ChannelSplitter();
+
+            RGBStackMerge rsm = new RGBStackMerge();
+
+            ImagePlus temp_imp = new ImagePlus("Ch_" + (Integer) protocol.get(1) + "_modified", cs.getChannel(imp, (Integer) protocol.get(1) + 1));
+
+            ImagePlus[] merged = new ImagePlus[imp.getNChannels()];
+
+            for (int i = 0; i < merged.length; i++) {
+                merged[i] = new ImagePlus("Ch_" + i, cs.getChannel(imp, (Integer) protocol.get(1) + 1));
+            }
+
+            merged[(Integer) protocol.get(1)] = temp_imp;
+
+            ((AbstractImageProcessing) iImp).process(protocol, temp_imp);
+
+            imp = rsm.mergeHyperstacks(merged, false);
+
+        } else {
+            ((AbstractImageProcessing) iImp).process(protocol, imp);
+            imp.resetDisplayRange();
+        }
     }
-    
+
     private void makePreviewImage() {
-        
-        impOriginal.setZ(impOriginal.getNSlices()/2);
-        impOriginal.setRoi(new Roi(0,0,255,255));
-        if(impOriginal.getWidth() < 255 || impOriginal.getHeight() < 255){
-            impOriginal.setRoi(new Roi(0,0,impOriginal.getWidth(),impOriginal.getHeight()));
+
+        impOriginal.setZ(impOriginal.getNSlices() / 2);
+        impOriginal.setRoi(new Roi(0, 0, 255, 255));
+        if (impOriginal.getWidth() < 255 || impOriginal.getHeight() < 255) {
+            impOriginal.setRoi(new Roi(0, 0, impOriginal.getWidth(), impOriginal.getHeight()));
         }
         impPreview = new Duplicator().run(impOriginal); //with ROI duplicator only copies ROI
         impPreview.hide();
-        impOriginal.deleteRoi(); 
-    }   
+        impOriginal.deleteRoi();
+    }
 
     @Override
     protected Void doInBackground() throws Exception {
-      
+
         int progress = 0;
-   
-        try{       
+
+        try {
             firePropertyChange("comment", "", "Starting image processing...");
             firePropertyChange("progress", 0, 5);
             ListIterator<Object> litr = this.protocol.listIterator();
-            
-            int step = 100/protocol.size();
-                    
-        while (litr.hasNext()) {
-            setProgress(progress);
-            ProcessManager((ArrayList) litr.next(), impOriginal);
-            progress += step;
-        }
-        setProgress(100);
-        firePropertyChange("comment", "", "Done.");
-        }catch(Exception e){
-        throw e;
+
+            int step = 100 / protocol.size();
+
+            while (litr.hasNext()) {
+                setProgress(progress);
+                ProcessManager((ArrayList) litr.next(), impOriginal);
+                progress += step;
+            }
+            setProgress(100);
+            firePropertyChange("comment", "", "Done.");
+        } catch (Exception e) {
+            throw e;
         }
 
-      return null;  
+        return null;
     }
-    
+
     @Override
     public void done() {
-        try{
-              
+        try {
+
             firePropertyChange("escape", false, true);
-        
+
         } catch (Exception ex) {
-          ex.printStackTrace();         
+            ex.printStackTrace();
         }
     }
 

@@ -22,7 +22,7 @@ package vtea.protocol.listeners;
  * @author vinfrais
  */
 public interface RebuildPanelListener {
-    
+
     public void rebuildPanel(int type);
-    
+
 }

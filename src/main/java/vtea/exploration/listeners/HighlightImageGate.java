@@ -22,5 +22,5 @@ package vtea.exploration.listeners;
  * @author vinfrais
  */
 public interface HighlightImageGate {
-    
+
 }

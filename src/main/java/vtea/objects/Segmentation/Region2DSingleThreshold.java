@@ -45,7 +45,6 @@ import vteaobjects.MicroObject;
  * @author winfrees
  */
 //@Plugin(type = Segmentation.class)
-
 public class Region2DSingleThreshold extends AbstractSegmentation {
 
     private int[] minConstants = new int[4]; // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold

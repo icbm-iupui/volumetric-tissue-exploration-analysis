@@ -33,57 +33,57 @@ import vteaobjects.MicroObject;
  * @author winfrees
  */
 public interface Segmentation<T extends Component, A extends RealType> extends VTEAModule {
-    
+
     public ImagePlus getSegmentation();
-    
+
     public ArrayList<MicroObject> getObjects();
-    
+
     public boolean process(ImageStack[] is, List details, boolean calculate);
-    
+
     public boolean process(ImagePlus imp, List details, boolean calculate);
-    
+
     public JPanel getOptionsPanel();
-    
+
     public String runImageJMacroCommand(String str);
-    
+
     public String getVersion();
-    
+
     public String getAuthor();
-    
+
     public String getComment();
-    
+
     public String getDimensionalityCompatibility();
-   
+
     public void sendProgressComment();
-    
+
     public String getProgressComment();
 
     public boolean setOptions(ArrayList al);
-    
+
     public void setSegmentationTool(ArrayList al);
-     
+
     public JPanel getSegmentationTool();
-    
+
     public ArrayList getSegmentationToolOptions();
-    
+
     public ArrayList getOptions();
-    
+
     public ArrayList getDefaultValues();
-    
+
     public void addSegmentationListener(SegmentationListener sl);
-    
+
     public void notifySegmentationListener(String str, Double dbl);
-    
+
     public void setImage(ImagePlus thresholdPreview);
-    
+
     public void updateImage(ImagePlus thresholdPreview);
 
     public boolean copyComponentParameter(String version, ArrayList<T> dComponents, ArrayList<T> sComponents);
-    
+
     public boolean loadComponentParameter(String version, ArrayList<T> dComponents, ArrayList fields);
-    
+
     public boolean saveComponentParameter(String version, ArrayList<T> dComponents, ArrayList fields);
-    
+
     public void doUpdateOfTool();
-    
+
 }

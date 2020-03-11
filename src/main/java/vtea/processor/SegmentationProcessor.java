@@ -53,7 +53,7 @@ public class SegmentationProcessor extends AbstractProcessor {
     int channelProcess;
 
     private ImageStack[] imageStackArray;
-    
+
     List<MicroObject> volumes = Collections.synchronizedList(new ArrayList<MicroObject>());
 
     public SegmentationProcessor() {
@@ -127,16 +127,14 @@ public class SegmentationProcessor extends AbstractProcessor {
         ((AbstractSegmentation) iImp).addListener(this);
 
         try {
-            if(impOriginal.getNSlices() > 1){
-            ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false);
-            }
-            else {
-            ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false); 
+            if (impOriginal.getNSlices() > 1) {
+                ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false);
+            } else {
+                ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false);
             }
 
             volumes = ((AbstractSegmentation) iImp).getObjects();
 
-            
         } catch (Exception ex) {
             System.out.println("EXCEPTION: Error in object segmentation... ");
 
@@ -167,7 +165,7 @@ public class SegmentationProcessor extends AbstractProcessor {
     }
 
     public ArrayList getObjects() {
-        return (ArrayList)volumes;
+        return (ArrayList) volumes;
     }
 
     public ArrayList getProtocol() {
@@ -188,8 +186,7 @@ public class SegmentationProcessor extends AbstractProcessor {
         private int stop;
 
         private ArrayList protocol;
-        
-        
+
         ProcessorForkPool(ArrayList p, int start, int stop) {
 
             this.start = start;
@@ -200,11 +197,9 @@ public class SegmentationProcessor extends AbstractProcessor {
 
         @Override
         protected void compute() {
-            
+
             long processors = Runtime.getRuntime().availableProcessors();
-            
-            
-          
+
             long length = volumes.size() / processors;
 
             if (volumes.size() < processors) {
@@ -223,61 +218,44 @@ public class SegmentationProcessor extends AbstractProcessor {
 
         private void doThis() {
 
-              /**
+            /**
              * segmentation and measurement protocol redefining. 0: title text,
              * 1: method (as String), 2: channel, 3: ArrayList of JComponents
              * used for analysis 4: ArrayList of Arraylist for morphology
              * determination
-             * 
-             // ArrayList for morphology:  0: method(as String), 1: channel, 
-             // 2: ArrayList of JComponents for method
+             *
+             * // ArrayList for morphology: 0: method(as String), 1: channel, //
+             * 2: ArrayList of JComponents for method
              */
             //descriptors for derived volumes
-            
             firePropertyChange("reset", 0, 0);
-            
+
             int count = 1;
 
             double progress = 1;
-            
-            
 
             ArrayList<ArrayList> morphologies = (ArrayList) protocol.get(4);
-            
-             Iterator<ArrayList> itr = morphologies.iterator();
+
+            Iterator<ArrayList> itr = morphologies.iterator();
 
             Object iImp = new Object();
-            
-            
 
             while (itr.hasNext()) {
 
-                ArrayList morphology = (ArrayList)itr.next();
-                
-                 
+                ArrayList morphology = (ArrayList) itr.next();
 
-                int channel = (int)morphology.get(1);
-                
-                    
-                
+                int channel = (int) morphology.get(1);
+
                 //components for method approach
-                
-                
-                ArrayList<JComponent> components = (ArrayList<JComponent>)morphology.get(2);
-                
-                //System.out.println("PROFILING: Morphological processing: " + (String) morphology.get(0) + ", on " + volumes.size() + " volumes.");
-                
-                
+                ArrayList<JComponent> components = (ArrayList<JComponent>) morphology.get(2);
 
+                //System.out.println("PROFILING: Morphological processing: " + (String) morphology.get(0) + ", on " + volumes.size() + " volumes.");
                 try {
 
                     Class<?> c;
-                    
-                    //method name for class generation
 
+                    //method name for class generation
                     String str = (String) morphology.get(0);
-                    
-                    
 
                     c = Class.forName(MORPHOLOGICALMAP.get(str));
                     Constructor<?> con;
@@ -285,31 +263,22 @@ public class SegmentationProcessor extends AbstractProcessor {
                     con = c.getConstructor();
                     iImp = con.newInstance();
 
-                    
                     ArrayList<ArrayList<Number>> result;
                     int morph = 0;
 
                     int volumecount = 1;
 
                     //List sub_volumes = volumes.subList(start, stop);
-                    
-                    
                     ListIterator<MicroObject> itr_vol = volumes.listIterator(start);
-                    
-                    
 
                     int i = start;
-                    
-                    int end = stop-start;
-                    
-                    
-                    
-                     
+
+                    int end = stop - start;
+
                     //this is where I grab the protocols.
-                    
-                    while (itr_vol.hasNext() && i <= stop){
+                    while (itr_vol.hasNext() && i <= stop) {
                         MicroObject obj = new MicroObject();
-                        obj = (MicroObject)itr_vol.next();
+                        obj = (MicroObject) itr_vol.next();
 
                         progress = 100 * ((double) count / (double) volumes.size());
                         firePropertyChange("progress", 0, ((int) progress));
@@ -321,61 +290,46 @@ public class SegmentationProcessor extends AbstractProcessor {
                          * result. This is an arraylist of arraylist of numbers.
                          *
                          */
-                        
-                         
-                        
-                        
                         //test for existing morphology
-                        
-                        String current_UID = ((AbstractMorphology)iImp).getUID(components);
-                        
-                        
+                        String current_UID = ((AbstractMorphology) iImp).getUID(components);
+
                         //System.out.println("PROFILING: Current morphology: " + current_UID);
-                        
                         current_UID.concat(str);
-                        
+
                         int same_morphology = obj.checkMorphological(current_UID);
-                        
+
                         //System.out.println("PROFILING: Checked for morphology: " + current_UID + ", result: " + same_morphology);
-                        
-                       
                         //grab the morphology results
-                        
                         //System.out.println("PROFILING: Object size: " + (obj.getPixelsX()).length);
-                        
                         //String Derived_UID = iImp.getClass().getName();
-                        
-                        if(same_morphology == -1){
-                        
-                        
-                        result = ((AbstractMorphology) iImp).process(obj.getPixelsX(), obj.getPixelsY(), obj.getPixelsZ(), components, "", String.valueOf(channel));
-                          
-                        ArrayList<Number> xAr = result.get(0);
-                        ArrayList<Number> yAr = result.get(1);
-                        ArrayList<Number> zAr = result.get(2);
-                        
-                        int[] x = new int[xAr.size()];
-                        int[] y = new int[xAr.size()];
-                        int[] z = new int[xAr.size()];
-                        
-                        for(int j = 0; j < xAr.size(); j++){
-                            x[j] = xAr.get(j).intValue();
-                            y[j] = yAr.get(j).intValue();
-                            z[j] = zAr.get(j).intValue();
+                        if (same_morphology == -1) {
+
+                            result = ((AbstractMorphology) iImp).process(obj.getPixelsX(), obj.getPixelsY(), obj.getPixelsZ(), components, "", String.valueOf(channel));
+
+                            ArrayList<Number> xAr = result.get(0);
+                            ArrayList<Number> yAr = result.get(1);
+                            ArrayList<Number> zAr = result.get(2);
+
+                            int[] x = new int[xAr.size()];
+                            int[] y = new int[xAr.size()];
+                            int[] z = new int[xAr.size()];
+
+                            for (int j = 0; j < xAr.size(); j++) {
+                                x[j] = xAr.get(j).intValue();
+                                y[j] = yAr.get(j).intValue();
+                                z[j] = zAr.get(j).intValue();
+                            }
+
+                            //System.out.println("PROFILING: Generating morphology");
+                            obj.setMorphological(current_UID, x, y, z);
+
+                        } else {
+
+                            //System.out.println("PROFILING: Skipping morphology and copying");
+                            obj.setMorphological(current_UID, obj.getMorphPixelsX(same_morphology), obj.getMorphPixelsY(same_morphology), obj.getMorphPixelsZ(same_morphology));
+
                         }
-                        
-                        //System.out.println("PROFILING: Generating morphology");
-                        
-                        obj.setMorphological(current_UID, x, y, z);
-                        
-                        }else{
-                            
-                        //System.out.println("PROFILING: Skipping morphology and copying");
-                           
-                        obj.setMorphological(current_UID, obj.getMorphPixelsX(same_morphology), obj.getMorphPixelsY(same_morphology), obj.getMorphPixelsZ(same_morphology));   
-                            
-                        }
-                        
+
                         volumecount++;
                         morph++;
                         i++;

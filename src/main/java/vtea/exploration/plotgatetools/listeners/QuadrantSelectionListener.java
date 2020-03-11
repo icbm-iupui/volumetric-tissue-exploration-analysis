@@ -22,7 +22,7 @@ package vtea.exploration.plotgatetools.listeners;
  * @author vinfrais
  */
 public interface QuadrantSelectionListener {
-    
-     public void quadrantSelection(float x, float y);
-     
+
+    public void quadrantSelection(float x, float y);
+
 }

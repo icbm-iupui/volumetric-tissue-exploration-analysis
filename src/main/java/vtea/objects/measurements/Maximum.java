@@ -27,40 +27,39 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Measurements.class)
 public class Maximum extends AbstractMeasurement {
-    static public Number getMaximum(ArrayList values){
-        
+
+    static public Number getMaximum(ArrayList values) {
+
         double maximum = 0;
-        
+
         ListIterator<Number> itr = values.listIterator();
-        while(itr.hasNext()){
-            try{
+        while (itr.hasNext()) {
+            try {
                 Number value = itr.next();
-                if(value.doubleValue() > maximum){
+                if (value.doubleValue() > maximum) {
                     maximum = value.doubleValue();
                 }
-            } catch(Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
         return maximum;
-        
+
     }
-    
-    public Maximum(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate maximum value";
-    NAME = "Max";
-    KEY = "Max";
-    TYPE = "Intensity";
+
+    public Maximum() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate maximum value";
+        NAME = "Max";
+        KEY = "Max";
+        TYPE = "Intensity";
     }
 
     @Override
     public Number process(ArrayList al, ArrayList values) {
-      
-    return getMaximum(values);
-    }  
-    
-    
-   
+
+        return getMaximum(values);
+    }
+
 }

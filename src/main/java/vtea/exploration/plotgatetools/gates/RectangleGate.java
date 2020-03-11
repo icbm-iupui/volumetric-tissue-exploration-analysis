@@ -29,9 +29,10 @@ import org.jfree.chart.ChartPanel;
  */
 public class RectangleGate extends PolygonGate implements Gate {
 
-    RectangleGate(ArrayList<Point2D.Double> points){
-    super(points);
+    RectangleGate(ArrayList<Point2D.Double> points) {
+        super(points);
     }
+
     ;   
 
     @Override
@@ -43,8 +44,6 @@ public class RectangleGate extends PolygonGate implements Gate {
     public ArrayList getGateAsPoints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-
 
     @Override
     public boolean getSelected() {
@@ -76,8 +75,6 @@ public class RectangleGate extends PolygonGate implements Gate {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-
     @Override
     public boolean getKeyStroke() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -92,7 +89,5 @@ public class RectangleGate extends PolygonGate implements Gate {
     public Color getColor() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-   
 
 }

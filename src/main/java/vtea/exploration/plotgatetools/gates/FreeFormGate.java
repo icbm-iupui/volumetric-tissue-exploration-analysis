@@ -57,8 +57,6 @@ public class FreeFormGate extends Path2D.Float implements Gate {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-
     @Override
     public boolean getSelected() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -88,8 +86,6 @@ public class FreeFormGate extends Path2D.Float implements Gate {
     public void createInChartSpace(ChartPanel chart) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
- 
 
     @Override
     public boolean getKeyStroke() {
@@ -198,7 +194,7 @@ public class FreeFormGate extends Path2D.Float implements Gate {
         Graphics2D graphics2D;
         //this is what we'll be using to draw on
         int currentX, currentY, oldX, oldY;
-	//these are gonna hold our mouse coordinates
+        //these are gonna hold our mouse coordinates
 
         //Now for the constructors
         public PadDraw() {

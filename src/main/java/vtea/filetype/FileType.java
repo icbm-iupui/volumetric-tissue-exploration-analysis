@@ -24,7 +24,5 @@ import vtea.VTEAModule;
  * @author sethwinfree
  */
 public interface FileType extends VTEAModule {
-    
 
-    
 }

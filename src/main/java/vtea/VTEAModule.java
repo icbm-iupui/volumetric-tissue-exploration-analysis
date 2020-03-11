@@ -22,13 +22,13 @@ import org.scijava.plugin.SciJavaPlugin;
 /**
  *
  * @author sethwinfree
- * 
- * 
+ *
+ *
  */
 public interface VTEAModule extends SciJavaPlugin {
-    
+
     public String getName();
-    
+
     public String getKey();
-    
+
 }

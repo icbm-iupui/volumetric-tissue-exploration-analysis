@@ -33,7 +33,7 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
 
     public static final int X_VALUES = 1;
     public static final int Y_VALUES = 2;
-    
+
     public static final int MASK = 0;
     public static final int GROW = 1;  //use subtype to determine how much
     public static final int FILL = 2;
@@ -50,10 +50,8 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     private int nDerivedRegions = 0;	//number of member derived regions by array location
 
 //regions for the mask volume
-    
-    private microRegion[] Regions; 
+    private microRegion[] Regions;
     private List<microRegion> alRegions = new CopyOnWriteArrayList<microRegion>();
-    
 
 //derived regions for all dependent channels,  
     private microDerivedRegion[][] DerivedRegions;
@@ -72,17 +70,14 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
 
     private Color[][] Colorized = new Color[4][9];
     private ArrayList ResultsPointer;
-    
 
-    microVolume Original; 
-    
+    microVolume Original;
+
     int serialID = 0;
-    
-    
-    private boolean gated = false;
-    
 
-   //   Volume measurements; 297, 1663.5555, 558321, 0.0, 4095.0
+    private boolean gated = false;
+
+    //   Volume measurements; 297, 1663.5555, 558321, 0.0, 4095.0
 //[channel][0, count, 1, mean, 2, integrated density, 3, min, 4, max, 5 standard deviation, 6 Feret_AR, 7 Feret_Min, 8 Feret_Max]
 //derived regions for regions, 2D array, [Regions][Derived Regions],  or each region may have different derived regions.
 //use GROW_1 and GROW_2 for intial lookup of Derived Regions-add analyses as required.  nDerived is the counter
@@ -92,8 +87,6 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     public microVolume() {
         super();
     }
-    
-    
 
 //    public void makeDerivedRegions(int[][] derivedRegionType, int channels, ImageStack[] Stacks, ArrayList ResultsPointers) {
 //        
@@ -125,15 +118,11 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
 //            }
 //        }
 //    }
-    
-
-  
 //    public void calculateAllDerivedVolumeMeasurements(){   
 //        for(int i = 0; i < this.nChannels; i++){
 //            calculateDerivedVolumeMeasurements(i);
 //        } 
 //    }
-    
 //    public void calculateDerivedVolumeMeasurements(int Channel) {
 //        int countPixels = 0;
 //        long total = 0;
@@ -308,7 +297,6 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
 //        //IJ.log("microVolume::calculateVolumeMeasurements Mask Volume measurements: " + analysisMaskVolume[0] + ", " + analysisMaskVolume[1] + ", " + analysisMaskVolume[2] + ", " + analysisMaskVolume[3] + ", " + analysisMaskVolume[4]);
 //
 //    }
-
 ////redefine derived region --> may upgrade to multiple derived states, depends upon utility
 ////public void rederiveRegion(int n, int type){DerivedRegions[n] = new derivedRegion(Regions[n], type);}
 ////private methods for making derived regions
@@ -343,59 +331,56 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
 //            i++;
 //        }
 //};
-    
     //Extract pixels array for MicroObject requirements
-    
-    public void makePixelArrays(){
-        
+    public void makePixelArrays() {
+
         ArrayList<Integer> xAl = new ArrayList();
         ArrayList<Integer> yAl = new ArrayList();
         ArrayList<Integer> zAl = new ArrayList();
-        
+
         ListIterator<microRegion> itr = alRegions.listIterator();
-        
-        while(itr.hasNext()){          
-           microRegion region = itr.next();
-           int[] xR = region.getPixelsX();
-           int[] yR = region.getPixelsY();
-           int[] zR = new int[xR.length];
-           
-           int z_position = region.getZPosition();
-           
-           for(int i = 0; i < xR.length; i++){
+
+        while (itr.hasNext()) {
+            microRegion region = itr.next();
+            int[] xR = region.getPixelsX();
+            int[] yR = region.getPixelsY();
+            int[] zR = new int[xR.length];
+
+            int z_position = region.getZPosition();
+
+            for (int i = 0; i < xR.length; i++) {
                 zAl.add(z_position);
                 xAl.add(xR[i]);
                 yAl.add(yR[i]);
-           }
+            }
 
         }
-        
+
         z = new int[xAl.size()];
         y = new int[xAl.size()];
         x = new int[xAl.size()];
 
-        for(int j = 0; j < xAl.size(); j++){
-            z[j] = zAl.get(j); 
-            x[j] = xAl.get(j); 
-            y[j] = yAl.get(j); 
+        for (int j = 0; j < xAl.size(); j++) {
+            z[j] = zAl.get(j);
+            x[j] = xAl.get(j);
+            y[j] = yAl.get(j);
         }
     }
-    
-    
+
 //region manipulation
-public void addRegion(int[] x, int[] y, int n, int z) {
+    public void addRegion(int[] x, int[] y, int n, int z) {
         this.Regions[this.nRegions + 1] = new microRegion(x, y, n, z);
         this.nRegions++;
     }
 
-public void addRegion(microRegion Region) {
+    public void addRegion(microRegion Region) {
         this.alRegions.add(Region);
         this.nRegions++;
-}
+    }
 
-public void addRegions(List<microRegion> regions){
-    alRegions.addAll(regions);
-}
+    public void addRegions(List<microRegion> regions) {
+        alRegions.addAll(regions);
+    }
 
     public void setRegion(microRegion Region, int nRegions) {
         this.Regions[nRegions] = Region;
@@ -404,30 +389,30 @@ public void addRegions(List<microRegion> regions){
     public List getRegions() {
         return this.alRegions;
     }
-    
+
     public microRegion[] getRegionsAsArray() {
         List<microRegion> ls = getRegions();
         return ls.toArray(Regions);
     }
-    
-    public ArrayList getDRegions(int channel) {   
+
+    public ArrayList getDRegions(int channel) {
         ArrayList<microDerivedRegion> mral = new ArrayList<microDerivedRegion>();
-        
+
         for (int i = 0; i <= nDerivedRegions - 1; i++) {
             mral.add(DerivedRegions[channel][i]);
         }
         return mral;
     }
-    
-    public microDerivedRegion[][] getDRegions() {   
+
+    public microDerivedRegion[][] getDRegions() {
         return this.DerivedRegions;
     }
-    
-    public void setDerivedRegions(microDerivedRegion[][] mdr){
+
+    public void setDerivedRegions(microDerivedRegion[][] mdr) {
         this.DerivedRegions = mdr;
     }
-    
-    public int getNDRegions(){
+
+    public int getNDRegions() {
         return nDerivedRegions;
     }
 
@@ -463,11 +448,9 @@ public void addRegions(List<microRegion> regions){
 //    public double getMax() {
 //        return (Double)analysisMaskVolume[4];
 //    }
-
 //    public int getPixelCount() {
 //        return this.n;
 //    }
-    
 //    public int getNChannels() {
 //        return this.nChannels;
 //    }
@@ -475,7 +458,6 @@ public void addRegions(List<microRegion> regions){
 //    public double getMin() {
 //        return this.min;
 //    }
-
 //    public ArrayList getVolumePixels(int dim) {
 //        int countRegion = this.nRegions;
 //        int countPixel;
@@ -515,11 +497,9 @@ public void addRegions(List<microRegion> regions){
 //                return Dpixels;
 //        }
 //    }
-
 //    public int getParticleCount(microRegion Region) {
 //        return Region.getPixelCount();
 //    }
-
 //    @Override
 //    public Object[][] getAnalysisResultsVolume() {
 //        return this.analysisResultsVolume;
@@ -533,7 +513,6 @@ public void addRegions(List<microRegion> regions){
 //    public ArrayList getResultPointer() {
 //        return this.ResultsPointer;
 //    }
-    
 //    public Color getAnalyticColor(int channel, int analytic) {
 //        try{return Colorized[channel][analytic];}
 //        catch(NullPointerException np){}
@@ -543,7 +522,6 @@ public void addRegions(List<microRegion> regions){
 //    public void setAnalyticColor(Color clr,int channel, int analytic){
 //        this.Colorized[channel][analytic] = clr;
 //    }
-    
 //    public void setName(String str){
 //        name = str;
 //    }
@@ -551,7 +529,6 @@ public void addRegions(List<microRegion> regions){
 //    public String getName(){
 //        return name;
 //    }
-    
 //    public int[] getBoundsCenter(){
 //        int[] center = new int[2];
 //        center[0] = (Integer)this.x_centroid;
@@ -684,7 +661,6 @@ public void addRegions(List<microRegion> regions){
 //    public double getSerialID() {
 //       return serialID;
 //    }
-
 //     @Override
 //    public int[] getXPixelsInRegion(int i) {
 //        List regions = getRegions();
@@ -718,8 +694,4 @@ public void addRegions(List<microRegion> regions){
 //                }
 //                return null;
 //    }
-
-
-
-
-    };
+};

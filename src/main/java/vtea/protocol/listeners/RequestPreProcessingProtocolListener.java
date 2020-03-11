@@ -22,5 +22,6 @@ package vtea.protocol.listeners;
  * @author vinfrais
  */
 public interface RequestPreProcessingProtocolListener {
+
     public void onPreProcessingProtocolRequest(String tab);
 }

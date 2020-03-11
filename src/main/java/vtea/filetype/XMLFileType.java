@@ -23,12 +23,13 @@ import org.scijava.plugin.Plugin;
  *
  * @author sethwinfree
  */
-@Plugin (type = FileType.class)
+@Plugin(type = FileType.class)
 public class XMLFileType extends AbstractFileType implements FileType {
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "Seth Winfree";
     protected String COMMENT = "XML parser access for human readable protocol";
     protected String NAME = "XML";
     protected String KEY = "XMLFILETYPE";
-    
+
 }

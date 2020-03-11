@@ -22,5 +22,5 @@ package vtea.protocol.datastructure;
  * @author sethwinfree
  */
 public class SegmentationProtocol {
-    
+
 }

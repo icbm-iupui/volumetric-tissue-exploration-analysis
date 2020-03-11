@@ -22,8 +22,7 @@ package vtea.exploration.plotgatetools.listeners;
  * @author vinfrais
  */
 public interface PopupMenuLUTListener {
-    
+
     public void changeLUT(int LUT);
-        
-    
+
 }

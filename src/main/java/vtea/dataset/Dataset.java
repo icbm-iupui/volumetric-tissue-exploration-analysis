@@ -20,12 +20,12 @@ package vtea.dataset;
 /**
  *
  * @author sethwinfree
- * 
- * 
- * This will be were we handle the image data and object results.  This should
- * centralize the image location and facilitate a reduction in memory 
+ *
+ *
+ * This will be were we handle the image data and object results. This should
+ * centralize the image location and facilitate a reduction in memory
  * requirements.
  */
 public interface Dataset {
-   
+
 }

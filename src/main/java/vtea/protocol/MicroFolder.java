@@ -28,9 +28,9 @@ import vtea.objects.layercake.microVolume;
  *
  * @author vinfrais
  */
-
 @Deprecated
 public class MicroFolder extends java.lang.Object implements Runnable {
+
     public static ImageStack[] getInterleavedStacks(ImagePlus imp) {
         ImageStack[] stacks = new ImageStack[imp.getNChannels()];
         ImageStack stack = imp.getImageStack();
@@ -62,75 +62,72 @@ public class MicroFolder extends java.lang.Object implements Runnable {
     private ImageStack[] imagedata;
     private SingleThresholdDataModel stdm;
     private boolean calculate;
-    
+
     private boolean imageChanged = false;
     private boolean protocolChanged = false;
-    
+
     private Thread t;
     private String threadName = "microFolder_" + System.nanoTime();
 
     // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     MicroFolder(ImagePlus imp, ArrayList al, boolean calculate) {
         protocol = al;
-        imagedata = getInterleavedStacks(imp); 
+        imagedata = getInterleavedStacks(imp);
         this.calculate = calculate;
         imageChanged = true;
         protocolChanged = true;
     }
-    
-    public void setProcessedFlags(boolean b){
+
+    public void setProcessedFlags(boolean b) {
         imageChanged = false;
         protocolChanged = false;
     }
-    
-    
-    
-    //rewrite this to decided on class by mask(1)
 
+    //rewrite this to decided on class by mask(1)
     public void process() {
 
         ArrayList mask;
-        mask =  (ArrayList)protocol.get(0);
+        mask = (ArrayList) protocol.get(0);
 
-        if(mask.get(1).equals("LayerCake 3D")){
-                stdm = new SingleThresholdDataModel();
-                stdm.processDataLayerCake(imagedata, protocol, calculate);
-                volumes = stdm.getObjects();
+        if (mask.get(1).equals("LayerCake 3D")) {
+            stdm = new SingleThresholdDataModel();
+            stdm.processDataLayerCake(imagedata, protocol, calculate);
+            volumes = stdm.getObjects();
 //                System.out.println("PROFILING: Getting " + volumes.size() + " 3D layercake volumes.");
-                setProcessedFlags(false);
-        }else if(mask.get(1).equals("FloodFill 3D")){
-                stdm = new SingleThresholdDataModel();
-                stdm.processData3DFloodFill(imagedata, protocol, calculate);
-                volumes = stdm.getObjects();
+            setProcessedFlags(false);
+        } else if (mask.get(1).equals("FloodFill 3D")) {
+            stdm = new SingleThresholdDataModel();
+            stdm.processData3DFloodFill(imagedata, protocol, calculate);
+            volumes = stdm.getObjects();
 //                System.out.println("PROFILING: Getting " + volumes.size() + " 3D flood fill volumes.");
-                setProcessedFlags(false);
+            setProcessedFlags(false);
         }
-        
-    }  
-    
-    public void setNewImageData(ImagePlus imp) {
-       imagedata = getInterleavedStacks(imp); 
-       imageChanged = true;
+
     }
-    
+
+    public void setNewImageData(ImagePlus imp) {
+        imagedata = getInterleavedStacks(imp);
+        imageChanged = true;
+    }
+
     public void setNewProtocol(ArrayList al) {
         protocol.clear();
         protocol.addAll(al);
         protocolChanged = true;
     }
-    
-    public boolean getProtocolUpdate(){
+
+    public boolean getProtocolUpdate() {
         return protocolChanged;
     }
-    
-    public boolean getImageUpdate(){
+
+    public boolean getImageUpdate() {
         return imageChanged;
     }
 
     public ArrayList getVolumes() {
         return volumes;
-    }   
-    
+    }
+
     public ArrayList getVolumes3D() {
         return volumes3D;
     }
@@ -150,14 +147,14 @@ public class MicroFolder extends java.lang.Object implements Runnable {
                 } else {
                     derived = "_d" + ((ArrayList) protocol.get(i)).get(1) + " ";
                 }
-                text = "Ch" + ((Integer)((ArrayList) protocol.get(i)).get(0)+1) + derived + microVolume.Analytics[c];
+                text = "Ch" + ((Integer) ((ArrayList) protocol.get(i)).get(0) + 1) + derived + microVolume.Analytics[c];
                 al.add(text);
             }
         }
         return al;
     }
-    
-        public ArrayList getAvailableData3D() {
+
+    public ArrayList getAvailableData3D() {
 
         ArrayList al = new ArrayList();
 
@@ -179,22 +176,20 @@ public class MicroFolder extends java.lang.Object implements Runnable {
         return al;
     }
 
-
     @Override
     public void run() {
         process();
     }
-    
-    public void start(){
- 
 
-                     t = new Thread (this, threadName);
-                     t.start ();
-            try {
-                t.join();
-            } catch (InterruptedException ex) {     
-            }
-            System.out.println("PROFILING: Exiting MicroExperiment thread: " + threadName); 
-            IJ.log("PROFILING: Exiting MicroExperiment thread: " + threadName); 
+    public void start() {
+
+        t = new Thread(this, threadName);
+        t.start();
+        try {
+            t.join();
+        } catch (InterruptedException ex) {
         }
+        System.out.println("PROFILING: Exiting MicroExperiment thread: " + threadName);
+        IJ.log("PROFILING: Exiting MicroExperiment thread: " + threadName);
+    }
 }

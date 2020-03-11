@@ -24,10 +24,10 @@ import vtea.objects.morphology.Morphology;
  *
  * @author sethwinfree
  */
-public class MorphologicalFilterService extends AbstractService< Morphology > {
-    
+public class MorphologicalFilterService extends AbstractService< Morphology> {
+
     public MorphologicalFilterService(Context context) {
         super(Morphology.class, context);
     }
-    
+
 }

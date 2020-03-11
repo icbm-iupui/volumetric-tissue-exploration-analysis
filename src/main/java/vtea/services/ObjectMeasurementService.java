@@ -27,10 +27,10 @@ import vtea.objects.measurements.Measurements;
  * @author sethwinfree
  */
 @Plugin(type = Service.class)
-public class ObjectMeasurementService extends AbstractService< Measurements > {
-    
+public class ObjectMeasurementService extends AbstractService< Measurements> {
+
     public ObjectMeasurementService(Context context) {
         super(Measurements.class, context);
     }
-    
+
 }

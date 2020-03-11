@@ -17,8 +17,6 @@
  */
 package vtea.exploration.listeners;
 
-
-
 /**
  *
  * @author vinfrais

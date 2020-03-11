@@ -22,8 +22,5 @@ package vtea.jdbc;
  * @author sethwinfree
  */
 public class jdbcConnection {
-    
-    
-    
-    
+
 }

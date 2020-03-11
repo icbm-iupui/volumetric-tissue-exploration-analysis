@@ -27,41 +27,40 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Measurements.class)
 public class Minimum extends AbstractMeasurement {
-    static public Number getMinimum(ArrayList values){
-        
-        double minimum = (double)Maximum.getMaximum(values);
-        
+
+    static public Number getMinimum(ArrayList values) {
+
+        double minimum = (double) Maximum.getMaximum(values);
+
         ListIterator<Number> itr = values.listIterator();
-        
-        while(itr.hasNext()){
-            try{
+
+        while (itr.hasNext()) {
+            try {
                 Number value = itr.next();
-                if(value.doubleValue() < minimum){
+                if (value.doubleValue() < minimum) {
                     minimum = value.doubleValue();
                 }
-            } catch(Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
         return minimum;
-        
+
     }
-    
-    public Minimum(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate minimum";
-    NAME = "Min";
-    KEY = "Min";
-    TYPE = "Intensity";
+
+    public Minimum() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate minimum";
+        NAME = "Min";
+        KEY = "Min";
+        TYPE = "Intensity";
     }
 
     @Override
     public Number process(ArrayList al, ArrayList values) {
-      
-    return getMinimum(values);
-    }  
-    
-    
-   
+
+        return getMinimum(values);
+    }
+
 }

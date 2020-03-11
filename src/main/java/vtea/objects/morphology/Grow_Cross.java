@@ -33,8 +33,7 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Morphology.class)
 public class Grow_Cross extends AbstractMorphology {
-    
-    
+
     JTextField Distance = new JTextField("1", 5);
 
     public Grow_Cross() {
@@ -44,98 +43,93 @@ public class Grow_Cross extends AbstractMorphology {
         NAME = "Cross";
         KEY = "CROSS";
     }
-    
+
     //Allowed operations: 6C, 8C
     //Allowed arguments:  in String arg.
-
     @Override
     public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, List<JComponent> protocol, String operation, String arg) {
-       
-        JTextField distance = (JTextField)protocol.get(1);
-        
+
+        JTextField distance = (JTextField) protocol.get(1);
+
         ArrayList<Number> centroid = getCentroid(x, y, z);
-       
-       return makeCross6C(centroid.get(0).intValue(), centroid.get(1).intValue(), centroid.get(2).intValue(), Integer.parseInt(distance.getText()));
+
+        return makeCross6C(centroid.get(0).intValue(), centroid.get(1).intValue(), centroid.get(2).intValue(), Integer.parseInt(distance.getText()));
     }
-    
+
     @Override
-    public String getUID(ArrayList<JComponent> al){
-        JTextField distance = (JTextField)al.get(1); 
+    public String getUID(ArrayList<JComponent> al) {
+        JTextField distance = (JTextField) al.get(1);
         return this.NAME + "_" + distance;
     }
-    
+
     @Override
-    public ArrayList getOptions(){ 
-         ArrayList<JComponent> al = new ArrayList<JComponent>();
-         al.add(new JLabel("Dilation distance: "));
-         al.add(Distance);
-         return al;   
+    public ArrayList getOptions() {
+        ArrayList<JComponent> al = new ArrayList<JComponent>();
+        al.add(new JLabel("Dilation distance: "));
+        al.add(Distance);
+        return al;
     }
-    
+
     @Override
     public JPanel getMorphologicalTool() {
         JPanel panel = new JPanel();
-        panel.setPreferredSize(new Dimension(300,300));
+        panel.setPreferredSize(new Dimension(300, 300));
         panel.add(new JLabel("Coming soon, demostration space..."));
         return panel;
     }
-    
-    private ArrayList<Number> getCentroid(int[] x, int[] y, int[] z){
-        
-        int maxX = 0;
-        int maxY = 0; 
-        int maxZ = 0; 
-        
 
-                
-        
-        for(int i = 0; i < x.length; i++){ 
-            
-            if(x[i] > maxX){
+    private ArrayList<Number> getCentroid(int[] x, int[] y, int[] z) {
+
+        int maxX = 0;
+        int maxY = 0;
+        int maxZ = 0;
+
+        for (int i = 0; i < x.length; i++) {
+
+            if (x[i] > maxX) {
                 maxX = x[i];
             }
-            if(y[i] > maxY){
+            if (y[i] > maxY) {
                 maxY = y[i];
             }
-            if(z[i] > maxZ){
+            if (z[i] > maxZ) {
                 maxZ = z[i];
             }
 
         }
-        
+
         int minX = maxX;
-        int minY = maxY; 
-        int minZ = maxZ; 
-        
-        for(int i = 0; i < x.length; i++){ 
-            
-            if(x[i] < minX){
+        int minY = maxY;
+        int minZ = maxZ;
+
+        for (int i = 0; i < x.length; i++) {
+
+            if (x[i] < minX) {
                 minX = x[i];
             }
-            if(y[i] < minY){
+            if (y[i] < minY) {
                 minY = y[i];
             }
-            if(z[i] < minZ){
+            if (z[i] < minZ) {
                 minZ = z[i];
             }
-            
 
         }
-        
-        int centX = maxX-minX/2;
-        int centY = maxY-minY/2;
-        int centZ = maxZ-minZ/2;
-        
+
+        int centX = maxX - minX / 2;
+        int centY = maxY - minY / 2;
+        int centZ = maxZ - minZ / 2;
+
         ArrayList<Number> result = new ArrayList<Number>();
-        
+
         result.add(centX);
         result.add(centY);
         result.add(centZ);
-        
+
         return result;
     }
-    
-   private ArrayList<ArrayList<Number>> makeCross6C(int x, int y, int z, int times) {
+
+    private ArrayList<ArrayList<Number>> makeCross6C(int x, int y, int z, int times) {
 
         //System.out.println("PROFILING");
         ArrayList<Number> xArr = new ArrayList();
@@ -149,43 +143,43 @@ public class Grow_Cross extends AbstractMorphology {
         ArrayList<ArrayList<Number>> noDups = new ArrayList();
 
         //to determine how many expansions
-        
         for (int j = 1; j <= times; j++) {
 
-                xArr.add(x - j);
-                yArr.add(y);
-                zArr.add(z);
+            xArr.add(x - j);
+            yArr.add(y);
+            zArr.add(z);
 
-                xArr.add(x + j);
-                yArr.add(y);
-                zArr.add(z);
+            xArr.add(x + j);
+            yArr.add(y);
+            zArr.add(z);
 
-                xArr.add(x);
-                yArr.add(y - j);
-                zArr.add(z);
+            xArr.add(x);
+            yArr.add(y - j);
+            zArr.add(z);
 
-                xArr.add(x);
-                yArr.add(y + j);
-                zArr.add(z);
+            xArr.add(x);
+            yArr.add(y + j);
+            zArr.add(z);
 
-                //z below
-                xArr.add(x);
-                yArr.add(y);
-                zArr.add(z - j);
+            //z below
+            xArr.add(x);
+            yArr.add(y);
+            zArr.add(z - j);
 
-                //z above
-                xArr.add(x);
-                yArr.add(y);
-                zArr.add(z + j);
-      
-            }
-             //reassign
+            //z above
+            xArr.add(x);
+            yArr.add(y);
+            zArr.add(z + j);
 
-            noDups = removeDuplicates(xArr, yArr, zArr); 
-            noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
+        }
+        //reassign
+
+        noDups = removeDuplicates(xArr, yArr, zArr);
+        noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
 
         return noDups;
     }
+
     private ArrayList<ArrayList<Number>> removeDuplicates(ArrayList<Number> x, ArrayList<Number> y, ArrayList<Number> z) {
 
         Number xPos;

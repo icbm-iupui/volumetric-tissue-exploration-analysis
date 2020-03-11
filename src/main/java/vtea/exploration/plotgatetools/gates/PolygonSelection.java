@@ -96,5 +96,4 @@ public class PolygonSelection extends MicroSelection {
         return new Dimension(512, 512);
     }
 
-
 }

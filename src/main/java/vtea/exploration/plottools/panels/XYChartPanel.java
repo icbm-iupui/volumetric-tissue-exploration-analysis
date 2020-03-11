@@ -88,12 +88,13 @@ public class XYChartPanel implements RoiListener {
     static Color EIGHTYPERCENT = new Color(0x1f1feb);
     static Color NINETYPERCENT = new Color(0x0f0ff5);
     static Color ALLPERCENT = new Color(0x0000ff);
+
     //
 //    //test class for H2 database with canned data
     public static void insertFromCSV(Connection connection) throws SQLException {
-        
+
         PreparedStatement createPreparedStatement = null;
-        
+
         try {
             connection.setAutoCommit(false);
             String ImportQuery = "CREATE TABLE VTEA AS SELECT * FROM CSVREAD('AQtest_LSConnect3D_vtea_022519.csv')";
@@ -244,7 +245,6 @@ public class XYChartPanel implements RoiListener {
         });
         f.pack();
     }
-
 
     private ChartPanel createChart(Connection connection, int x, int y, int l, String xText, String yText, String lText, Color imageGateColor) {
 

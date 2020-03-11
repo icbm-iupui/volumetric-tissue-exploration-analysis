@@ -24,36 +24,34 @@ import vtea.processor.listeners.ProgressListener;
  *
  * @author sethwinfree
  */
-public abstract class AbstractProcessor extends SwingWorker<Void,Void> implements Processor, ProgressListener {
-    
+public abstract class AbstractProcessor extends SwingWorker<Void, Void> implements Processor, ProgressListener {
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
     protected String NAME = "ABSTRACTPROCESSOR";
     protected String KEY = "ABSTRACTPROCESSOR";
-    
+
     protected String key;
 
-    
-     @Override
+    @Override
     public String getName() {
-       return NAME;
+        return NAME;
     }
 
     @Override
     public String getKey() {
         return KEY;
-    }   
-    
+    }
+
     public String getUIDKey() {
         return key;
     }
-    
+
     @Override
-    public void FireProgressChange(String str, double db) {      
-            firePropertyChange("progress", 0, (int)db);
-            firePropertyChange("comment", key, str);
+    public void FireProgressChange(String str, double db) {
+        firePropertyChange("progress", 0, (int) db);
+        firePropertyChange("comment", key, str);
     }
 
-    
 }

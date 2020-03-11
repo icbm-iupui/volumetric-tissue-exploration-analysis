@@ -24,5 +24,5 @@ package vteaobjects;
 public class RegionFactory {
     //take a segmentation definition in the form of a binary image
     //define objects with one of the object making approaches
-    
+
 }

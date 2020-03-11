@@ -115,6 +115,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         ImageHighlightSelectionListener, ChangePlotAxesListener,
         UpdatePlotWindowListener, AddGateListener, DeleteGateListener, SaveGatedImagesListener,
         SubGateListener, ImageListener, NameUpdateListener, colorUpdateListener, remapOverlayListener {
+
     static String printResult = "";
 
     XYChartPanel cpd;
@@ -125,7 +126,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     int gated = 0;
     String key = "";
     String keySQLSafe = "";
-
 
     private Connection connection;
 

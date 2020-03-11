@@ -47,11 +47,10 @@ public abstract class AbstractMicroBlockStepGUI<T extends AbstractMicroBlockStep
     JLabel Position = new JLabel();
     public JLabel Comment = new JLabel("Block by Block");
     JLabel Headline = new JLabel("First things first");
-    
+
     int position;
     int type;
     ArrayList<String> Channels;
-     
 
     JWindow thumb = new JWindow();
     ImagePlus ThumbnailImage;
@@ -66,7 +65,6 @@ public abstract class AbstractMicroBlockStepGUI<T extends AbstractMicroBlockStep
     AbstractMicroBlockStepGUI() {
     }
 
-
     protected void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, boolean multiple, ImagePlus ThumbnailImage, ImagePlus OriginalImage, ArrayList<String> Channels, final int type, ArrayList<T> protocol, final int position) {
 
         this.ThumbnailImage = ThumbnailImage;
@@ -74,7 +72,7 @@ public abstract class AbstractMicroBlockStepGUI<T extends AbstractMicroBlockStep
         this.Channels = Channels;
         this.position = position;
         this.type = type;
-        
+
         Headline.setText(ProcessText);
 
         Comment.setText(CommentText);
@@ -181,7 +179,7 @@ public abstract class AbstractMicroBlockStepGUI<T extends AbstractMicroBlockStep
             ;
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                
+
             }
 
             ;
@@ -196,7 +194,9 @@ public abstract class AbstractMicroBlockStepGUI<T extends AbstractMicroBlockStep
                 if (!SwingUtilities.isRightMouseButton(evt)) {
                     showThumbnail(evt.getXOnScreen(), evt.getYOnScreen());
                 }
-            } ;
+            }
+
+            ;
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
 
@@ -212,17 +212,16 @@ public abstract class AbstractMicroBlockStepGUI<T extends AbstractMicroBlockStep
         this.notifyDeleteBlockListeners(type, this.position);
         this.notifyRebuildPanelListeners(type);
     }
- 
+
     protected void showThumbnail(int x, int y) {
         thumb.setSize(300, 300);
-                        //ExtractSteps
+        //ExtractSteps
         //new micro preproccessing use imp returned.
 
         thumb.add(new PreviewImagePanel(ThumbnailImage.getImage()));
         thumb.setLocation(x, y);
         thumb.setVisible(true);
     }
-
 
     public void setPosition(int n) {
         position = n;
@@ -254,7 +253,7 @@ public abstract class AbstractMicroBlockStepGUI<T extends AbstractMicroBlockStep
     public void addDeleteBlockListener(DeleteBlockListener listener) {
         deleteblocklisteners.add(listener);
     }
-    
+
     protected void notifyDeleteBlockListeners(int type, int position) {
         for (DeleteBlockListener listener : deleteblocklisteners) {
             listener.deleteBlock(type, position);

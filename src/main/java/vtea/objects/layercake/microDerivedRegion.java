@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class  microDerivedRegion extends microRegion {
+public class microDerivedRegion extends microRegion {
 
     public static final int INCLUDED = 1;
     public static final int EXCLUDED = 2;
@@ -39,19 +39,16 @@ public class  microDerivedRegion extends microRegion {
     /**
      * Variables
      */
-    
     private ArrayList<int[]> sourcePixels;
     private ArrayList<int[]> pixels;
     private int[] xOriginal;
     private int[] yOriginal;
     private int nOriginal;
     private int[] x;			//x coordinates
-    private int[] y;  
+    private int[] y;
     //y coordinates
     private Set<int[]> points = Collections.synchronizedSet(new HashSet<int[]>());
-    
 
-    
     private int z;				//z position
     private int n;				//number of pixels
     private int type;			//what kind of analysis
@@ -120,20 +117,19 @@ public class  microDerivedRegion extends microRegion {
 
     public microDerivedRegion(int[] x, int[] y, int n, int z, int type, int subtype, String name) {
 
-        
         this.x = x;
         this.y = y;
         this.n = n;
-        
+
         this.nOriginal = n;
         this.xOriginal = new int[x.length];
         this.yOriginal = new int[y.length];
-        
+
         System.arraycopy(this.x, 0, this.xOriginal, 0, this.n);
         System.arraycopy(this.y, 0, this.yOriginal, 0, this.n);
-        
-        int[] holder = new int[2];    
-        for(int i = 0; i < n; i++){
+
+        int[] holder = new int[2];
+        for (int i = 0; i < n; i++) {
             holder[0] = x[i];
             holder[1] = y[i];
             this.points.add(holder);
@@ -160,15 +156,15 @@ public class  microDerivedRegion extends microRegion {
         //System.out.println("microDerivedRegion::<init>  ...making region " + this.getName() + ", from " + n + " pixels");
     }
 
-    private void setXYfromSet(Set<int[]> points){
+    private void setXYfromSet(Set<int[]> points) {
         Iterator<int[]> itr = points.iterator();
-        
+
         int[] xNew = new int[points.size()];
         int[] yNew = new int[points.size()];
         int[] holder = new int[2];
         int i = 0;
-        
-        while(itr.hasNext()){
+
+        while (itr.hasNext()) {
             holder = itr.next();
             xNew[i] = holder[0];
             yNew[i] = holder[1];
@@ -182,51 +178,51 @@ public class  microDerivedRegion extends microRegion {
     private void growRegion2(int times) {
         ArrayList<Integer> xArr = new ArrayList<Integer>();
         ArrayList<Integer> yArr = new ArrayList<Integer>();
-        for(int j = 1; j <= times; j++){
-            for(int i = 0; i < n; i++){
-                xArr.add(x[i]-1);
+        for (int j = 1; j <= times; j++) {
+            for (int i = 0; i < n; i++) {
+                xArr.add(x[i] - 1);
                 yArr.add(y[i]);
-                
-                xArr.add(x[i]+1);
+
+                xArr.add(x[i] + 1);
                 yArr.add(y[i]);
-                
+
                 xArr.add(x[i]);
-                yArr.add(y[i]-1);
-                
+                yArr.add(y[i] - 1);
+
                 xArr.add(x[i]);
-                yArr.add(y[i]+1);
-                
-                xArr.add(x[i]+1);
-                yArr.add(y[i]+1);
-                
-                xArr.add(x[i]+1);
-                yArr.add(y[i]-1);
-                
-                xArr.add(x[i]-1);
-                yArr.add(y[i]+1);
-                
-                xArr.add(x[i]-1);
-                yArr.add(y[i]-1);
+                yArr.add(y[i] + 1);
+
+                xArr.add(x[i] + 1);
+                yArr.add(y[i] + 1);
+
+                xArr.add(x[i] + 1);
+                yArr.add(y[i] - 1);
+
+                xArr.add(x[i] - 1);
+                yArr.add(y[i] + 1);
+
+                xArr.add(x[i] - 1);
+                yArr.add(y[i] - 1);
             }
-            
+
             int[] xVal = new int[xArr.size()];
             int[] yVal = new int[yArr.size()];
-            
-            for(int k = 0; k < xArr.size(); k++){
-                    xVal[k] = xArr.get(k);
-                    yVal[k] = yArr.get(k);
+
+            for (int k = 0; k < xArr.size(); k++) {
+                xVal[k] = xArr.get(k);
+                yVal[k] = yArr.get(k);
             }
 
             x = xVal;
-            y = yVal;    
+            y = yVal;
             n = xArr.size();
-            
-            this.removeDuplicates(x, y, n);  
+
+            this.removeDuplicates(x, y, n);
         }
-            removeOriginalRegionPixels();  
-            //System.out.println("PROFILING-DETAILED: old size: " + xOriginal.length + ", new size: " + x.length);
+        removeOriginalRegionPixels();
+        //System.out.println("PROFILING-DETAILED: old size: " + xOriginal.length + ", new size: " + x.length);
     }
-    
+
     private void growRegion(int growPixels) {
 
         //no neighbor as criteria with 8-connected
@@ -234,25 +230,18 @@ public class  microDerivedRegion extends microRegion {
         int n_local = this.n;
 
         //could use ArrayList here instead of dynamically reseting array size...
-        
         //for now lets use the circumfrence of a circle with 
         //area n_local as an estimate.
-
         //double primary = 2*Math.PI*(Math.sqrt(n_local/Math.PI));
         //double secondary = 2*Math.PI*(Math.sqrt(n_local/Math.PI) + growPixels);   
-        
         int maxsize = 5000;
-        
+
         //IJ.log("MaxSize for microRegion: " + maxsize);
         //IJ.log("Region size: " + this.n);
-        
-        int[] x_local = new int[this.n*100];
-        int[] y_local = new int[this.n*100];
-        
+        int[] x_local = new int[this.n * 100];
+        int[] y_local = new int[this.n * 100];
+
         //List<int[]> resultPixels = new ArrayList<int[]>();
-
-        
-
         System.arraycopy(this.x, 0, x_local, 0, this.n);
         System.arraycopy(this.y, 0, y_local, 0, this.n);
 
@@ -290,18 +279,17 @@ public class  microDerivedRegion extends microRegion {
             W = false;
 
 //cycle through the existing pixels
-            for (int i = 0; i <= n_local-1; i++) {
+            for (int i = 0; i <= n_local - 1; i++) {
                 //parse regions pixels
                 xCurrent = x_local[i];
                 yCurrent = y_local[i];
-                for (int m = 0; m <= n_local-1; m++) {
+                for (int m = 0; m <= n_local - 1; m++) {
                     //check by 8-pt connectedness, if not in existing array, needs to be flipped.
                     xTest = x_local[m];
                     yTest = y_local[m];
 
                     //true is when a point in the array is there
                     //false is when a point is not in the array
-
                     if (xCurrent - 1 == xTest) {
                         if (yCurrent - 1 == yTest) {
                             NW = (true || NW);
@@ -359,50 +347,50 @@ public class  microDerivedRegion extends microRegion {
                     //NEED TO REMOVE OVERLAP....OR REMOVE COPYS FROM ARRAY...
                     //Could work off of a copy array.
                     //IJ.log("                              Found edge pixel...  " + xCurrent + " ," + yCurrent); 
-                    if (xCurrent != 0 && yCurrent != 0){
-                    
-                    if (NW == true) {
-                        xGrow[nGrow] = xCurrent - 1;
-                        yGrow[nGrow] = yCurrent - 1;
-                        nGrow++;
+                    if (xCurrent != 0 && yCurrent != 0) {
+
+                        if (NW == true) {
+                            xGrow[nGrow] = xCurrent - 1;
+                            yGrow[nGrow] = yCurrent - 1;
+                            nGrow++;
+                        }
+                        if (N == true) {
+                            xGrow[nGrow] = xCurrent;
+                            yGrow[nGrow] = yCurrent - 1;
+                            nGrow++;
+                        }
+                        if (NE == true) {
+                            xGrow[nGrow] = xCurrent + 1;
+                            yGrow[nGrow] = yCurrent - 1;
+                            nGrow++;
+                        }
+                        if (E == true) {
+                            xGrow[nGrow] = xCurrent + 1;
+                            yGrow[nGrow] = yCurrent;
+                            nGrow++;
+                        }
+                        if (SE == true) {
+                            xGrow[nGrow] = xCurrent + 1;
+                            yGrow[nGrow] = yCurrent + 1;
+                            nGrow++;
+                        }
+                        if (S == true) {
+                            xGrow[nGrow] = xCurrent;
+                            yGrow[nGrow] = yCurrent + 1;
+                            nGrow++;
+                        }
+                        if (SW == true) {
+                            xGrow[nGrow] = xCurrent - 1;
+                            yGrow[nGrow] = yCurrent + 1;
+                            nGrow++;
+                        }
+                        if (W == true) {
+                            xGrow[nGrow] = xCurrent - 1;
+                            yGrow[nGrow] = yCurrent;
+                            nGrow++;
+                        }
                     }
-                    if (N == true) {
-                        xGrow[nGrow] = xCurrent;
-                        yGrow[nGrow] = yCurrent - 1;
-                        nGrow++;
-                    }
-                    if (NE == true) {
-                        xGrow[nGrow] = xCurrent + 1;
-                        yGrow[nGrow] = yCurrent - 1;
-                        nGrow++;
-                    }
-                    if (E == true) {
-                        xGrow[nGrow] = xCurrent + 1;
-                        yGrow[nGrow] = yCurrent;
-                        nGrow++;
-                    }
-                    if (SE == true) {
-                        xGrow[nGrow] = xCurrent + 1;
-                        yGrow[nGrow] = yCurrent + 1;
-                        nGrow++;
-                    }
-                    if (S == true) {
-                        xGrow[nGrow] = xCurrent;
-                        yGrow[nGrow] = yCurrent + 1;
-                        nGrow++;
-                    }
-                    if (SW == true) {
-                        xGrow[nGrow] = xCurrent - 1;
-                        yGrow[nGrow] = yCurrent + 1;
-                        nGrow++;
-                    }
-                    if (W == true) {
-                        xGrow[nGrow] = xCurrent - 1;
-                        yGrow[nGrow] = yCurrent;
-                        nGrow++;
-                    }
-                    }
-                    
+
                     //if this is a grow by x add to parent and result array and repeat x		
                 }
                 NW = false;
@@ -434,76 +422,76 @@ public class  microDerivedRegion extends microRegion {
 //        this.n = nGrow;
         //IJ.log("                               Start size...               " + (start_count));
         //IJ.log("                               Grow size...               " + (this.n));
-
     }
 
-    private void dilateRegion(int numberTimes){       
-    Polygon shape = new Polygon(x, y, n);
-    Rectangle bounds = shape.getBounds();   
-    bounds.grow(numberTimes+1, numberTimes+1); 
-    
+    private void dilateRegion(int numberTimes) {
+        Polygon shape = new Polygon(x, y, n);
+        Rectangle bounds = shape.getBounds();
+        bounds.grow(numberTimes + 1, numberTimes + 1);
+
     }
 
     //calculated values-inherited from microRegion
     @Override
     public void calculateMeasurements(ImageStack stack) {
-        
+
         int[] x_local = this.x;
         int[] y_local = this.y;
         int z_local = this.z;
         int n_local = this.n;
-        
+
         //System.out.println("microDerivedRegion::calculateMeasurements      ...calculating for region " + this.getName() + ", from " + n + " pixels");
-        
         long total = 0;
         double local_min = 0;
         double local_max = 0;
-        
-        if(n > 0){
-        double[] deviation = new double[n];
-        
-        
-        for (int i = 0; i <= n_local - 1; i++) {
-            if(getVoxelBounds(stack,x_local[i], y_local[i], z_local) > -1){
-            total = total + (long) stack.getVoxel(x_local[i], y_local[i], z_local);
-            if (stack.getVoxel(x_local[i], y_local[i], z_local) < local_min) {
-                local_min = stack.getVoxel(x_local[i], y_local[i], z_local);
+
+        if (n > 0) {
+            double[] deviation = new double[n];
+
+            for (int i = 0; i <= n_local - 1; i++) {
+                if (getVoxelBounds(stack, x_local[i], y_local[i], z_local) > -1) {
+                    total = total + (long) stack.getVoxel(x_local[i], y_local[i], z_local);
+                    if (stack.getVoxel(x_local[i], y_local[i], z_local) < local_min) {
+                        local_min = stack.getVoxel(x_local[i], y_local[i], z_local);
+                    }
+                    if (stack.getVoxel(x_local[i], y_local[i], z_local) > local_max) {
+                        local_max = stack.getVoxel(x_local[i], y_local[i], z_local);
+                        deviation[i] = stack.getVoxel(x[i], y[i], z);
+                    }
+                }
+                this.deviation = deviation;
+                //IJ.log("DerivedRegions max: " + local_max + "getVoxel: x " + x_local[i] + ", y " + y_local[i] + ", z" + z_local + " value: " + stack.getVoxel(x_local[i], y_local[i], z_local));
             }
-            if (stack.getVoxel(x_local[i], y_local[i], z_local) > local_max) {
-                local_max = stack.getVoxel(x_local[i], y_local[i], z_local);
-            deviation[i] = stack.getVoxel(x[i], y[i], z);
+            this.max = local_max;
+            this.min = local_min;
+            this.mean = total / n_local;
+            this.integrated_density = total;
+            total = 0;
+            int thresholdcount = 0;
+            for (int j = 0; j <= n_local - 1; j++) {
+                if (getVoxelBounds(stack, x_local[j], y_local[j], z_local) > -1) {
+                    if (stack.getVoxel(x_local[j], y_local[j], z_local) > local_max * this.thresholdformean) {
+                        total = total + (long) stack.getVoxel(x_local[j], y_local[j], z_local);
+                        thresholdcount++;
+                    }
+                }
             }
+            this.thresholdedid = total;
+            this.nThreshold = thresholdcount;
+            if (thresholdcount > 0) {
+                this.thresholdedmean = total / thresholdcount;
+            } else {
+                this.thresholdedmean = 0;
+            }
+            calculateCenter();
         }
-        this.deviation = deviation;
-            //IJ.log("DerivedRegions max: " + local_max + "getVoxel: x " + x_local[i] + ", y " + y_local[i] + ", z" + z_local + " value: " + stack.getVoxel(x_local[i], y_local[i], z_local));
-        }
-        this.max = local_max;
-        this.min = local_min;
-        this.mean = total / n_local;
-        this.integrated_density = total;      
-        total = 0;
-        int thresholdcount = 0;        
-        for(int j = 0; j <= n_local - 1; j++) {
-            if(getVoxelBounds(stack,x_local[j], y_local[j], z_local) > -1){
-                if (stack.getVoxel(x_local[j], y_local[j], z_local) > local_max*this.thresholdformean){
-                    total = total + (long) stack.getVoxel(x_local[j], y_local[j], z_local);
-                    thresholdcount++;
-            }  
-            }
-        }   
-        this.thresholdedid = total;
-        this.nThreshold = thresholdcount;
-        if(thresholdcount > 0) {this.thresholdedmean = total/thresholdcount;}
-        else {this.thresholdedmean = 0;}
-        calculateCenter();
-        } 
     }
-    
-        private double getVoxelBounds(ImageStack stack, int x, int y, int z){
-        
-        try{
+
+    private double getVoxelBounds(ImageStack stack, int x, int y, int z) {
+
+        try {
             return stack.getVoxel(x, y, z);
-        }catch(IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             return -1;
         }
     }
@@ -529,41 +517,36 @@ public class  microDerivedRegion extends microRegion {
         this.centerBoundX = xCenter + bounds.x;
         this.centerBoundY = yCenter + bounds.y;
     }
-    
-    private void removeOriginalRegionPixels(){
 
+    private void removeOriginalRegionPixels() {
 
-            //IJ.log("Sizes derived, original:                                    (" + n + ", " + xOriginal.length + ")");
+        //IJ.log("Sizes derived, original:                                    (" + n + ", " + xOriginal.length + ")");
+        ArrayList<Integer> xOrigArr = new ArrayList<Integer>();
+        ArrayList<Integer> yOrigArr = new ArrayList<Integer>();
 
-            ArrayList<Integer> xOrigArr = new ArrayList<Integer>();
-            ArrayList<Integer> yOrigArr = new ArrayList<Integer>();
-            
-            ArrayList<Integer> xArr = new ArrayList<Integer>();
-            ArrayList<Integer> yArr = new ArrayList<Integer>();
-            
-            for(int i = 0; i < nOriginal; i++){
-                xOrigArr.add(xOriginal[i]);
-                yOrigArr.add(yOriginal[i]);
-            }
-            
+        ArrayList<Integer> xArr = new ArrayList<Integer>();
+        ArrayList<Integer> yArr = new ArrayList<Integer>();
 
-            
-            for(int i = 0; i < n; i++){
-                xArr.add(x[i]);
-                yArr.add(y[i]);
-            }
+        for (int i = 0; i < nOriginal; i++) {
+            xOrigArr.add(xOriginal[i]);
+            yOrigArr.add(yOriginal[i]);
+        }
 
         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < nOriginal; j++) {            
-                if ((xOrigArr.get(j) == xArr.get(i)) && (yOrigArr.get(j) == yArr.get(i))) {        
+            xArr.add(x[i]);
+            yArr.add(y[i]);
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < nOriginal; j++) {
+                if ((xOrigArr.get(j) == xArr.get(i)) && (yOrigArr.get(j) == yArr.get(i))) {
                     xArr.remove(i);
                     yArr.remove(i);
-                    n--;       
-                //IJ.log("Original pixel(" + xOrigArr.get(j) + ", " + yOrigArr.get(j) + ") == (" + xArr.get(i) + ", " + yArr.get(i) + ");  Pixels remaining: " + xArr.size() + ".");
-                
-                }
-                else{
-                 //IJ.log("Original pixel(" + xOrigArr.get(j) + ", " + yOrigArr.get(j) + ")  != (" + xArr.get(i) + ", " + yArr.get(i) + ");  Pixels remaining: " + xArr.size() + ".");   
+                    n--;
+                    //IJ.log("Original pixel(" + xOrigArr.get(j) + ", " + yOrigArr.get(j) + ") == (" + xArr.get(i) + ", " + yArr.get(i) + ");  Pixels remaining: " + xArr.size() + ".");
+
+                } else {
+                    //IJ.log("Original pixel(" + xOrigArr.get(j) + ", " + yOrigArr.get(j) + ")  != (" + xArr.get(i) + ", " + yArr.get(i) + ");  Pixels remaining: " + xArr.size() + ".");   
                 }
             }
         }
@@ -577,17 +560,14 @@ public class  microDerivedRegion extends microRegion {
 //
 //            }
 //        }
-        
-            int[] resultX = new int[xArr.size()];
-            int[] resultY = new int[yArr.size()];
-            
-            for(int i = 0; i < xArr.size(); i++ ){
-                resultX[i] = xArr.get(i);
-                resultY[i] = yArr.get(i);
-            }
-            
-        
-        
+        int[] resultX = new int[xArr.size()];
+        int[] resultY = new int[yArr.size()];
+
+        for (int i = 0; i < xArr.size(); i++) {
+            resultX[i] = xArr.get(i);
+            resultY[i] = yArr.get(i);
+        }
+
         this.x = resultX;
         this.y = resultY;
         this.n = resultX.length;
@@ -622,7 +602,7 @@ public class  microDerivedRegion extends microRegion {
             }
         }
 
-        for (int k = 0; k <= n-1; k++) {
+        for (int k = 0; k <= n - 1; k++) {
             if ((x[k] + y[k]) != 0) {
                 resultX[counter] = x[k];
                 resultY[counter] = y[k];
@@ -706,31 +686,30 @@ public class  microDerivedRegion extends microRegion {
     public Object[] getDerivedConstants() {
         return this.analysisResultsRegion;
     }
-    
+
     @Override
-            public double[] getDeviations() {
+    public double[] getDeviations() {
         return this.deviation;
     }
-            
+
     @Override
     public double getThresholdedIntegratedIntensity() {
         return this.thresholdedid;
     }
-    
+
     @Override
     public double getThresholdedMeanIntensity() {
         return this.thresholdedmean;
     }
+
     @Override
     public void setThreshold(double threshold) {
         this.thresholdformean = threshold;
     }
+
     @Override
     public int getThresholdPixelCount() {
         return this.nThreshold;
     }
-
-       
-
 
 }

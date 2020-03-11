@@ -23,39 +23,41 @@ import java.util.ArrayList;
  *
  * @author sethwinfree
  */
-public abstract class AbstractProtocol extends ArrayList implements Protocol  {
-    
-       String NAME = "Abstract Protocol";
-       String KEY = "AbstractProtocol";
-       String DESCRIPTION = "Abstract class for protocols.  Protocols string "
-               + "processes together or hold segmentation approaches.";
-       
-    
-    AbstractProtocol(){
+public abstract class AbstractProtocol extends ArrayList implements Protocol {
+
+    String NAME = "Abstract Protocol";
+    String KEY = "AbstractProtocol";
+    String DESCRIPTION = "Abstract class for protocols.  Protocols string "
+            + "processes together or hold segmentation approaches.";
+
+    AbstractProtocol() {
     }
-    
-    AbstractProtocol(String name){
+
+    AbstractProtocol(String name) {
         NAME = name;
     }
-    
-    AbstractProtocol(String name, ArrayList al){
+
+    AbstractProtocol(String name, ArrayList al) {
         NAME = name;
         addAll(al);
     }
-    
-    AbstractProtocol(String name, String description, ArrayList al){
+
+    AbstractProtocol(String name, String description, ArrayList al) {
         NAME = name;
         DESCRIPTION = description;
         addAll(al);
-    }  
+    }
+
     @Override
     public String getName() {
         return NAME;
     }
+
     @Override
     public String getKey() {
         return KEY;
     }
+
     @Override
     public String getDescription() {
         return DESCRIPTION;

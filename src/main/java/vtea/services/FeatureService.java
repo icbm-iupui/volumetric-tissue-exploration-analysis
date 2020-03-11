@@ -17,23 +17,20 @@
  */
 package vtea.services;
 
-
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
 import vtea.featureprocessing.FeatureProcessing;
-
 
 /**
  *
  * @author Drew
  */
 @Plugin(type = Service.class)
-public class FeatureService extends AbstractService< FeatureProcessing >{
-    
+public class FeatureService extends AbstractService< FeatureProcessing> {
+
     public FeatureService(Context context) {
         super(FeatureProcessing.class, context);
     }
-    
-}
 
+}

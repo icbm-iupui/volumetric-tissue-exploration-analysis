@@ -37,10 +37,11 @@ import vtea.protocol.setup.MicroBlockSetup;
 
 /**
  * Block for Analysis Steps in FeatureFrame.
+ *
  * @author drewmcnutt
  */
-public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implements MicroBlockSetupListener{
-    
+public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implements MicroBlockSetupListener {
+
     JPanel step = new JPanel();
     Font PositionFont = new Font("Arial", Font.PLAIN, 16);
     Font FeatureFont = new Font("Arial", Font.BOLD, 12);
@@ -51,31 +52,31 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
     boolean ProcessTypeSet = false;
     int position;
 
-
     JButton DeleteButton;
     JButton EditButton;
-    
+
     JPopupMenu Popup;
     JCheckBoxMenuItem ValidationSelector;
-    
+
     boolean performValidation;
 
     MicroBlockSetup mbs;
 
     private ArrayList settings;
     ArrayList ad;
-    
+
     public ArrayList<RebuildPanelListener> rebuildpanelisteners = new ArrayList<>();
     public ArrayList<DeleteBlockListener> deleteblocklisteners = new ArrayList<>();
-    
+
     /**
      * Constructor. Empty
      */
     public MeasurementStepBlockGUI() {
     }
-    
+
     /**
      * Constructor. Creates block with specified features.
+     *
      * @param FeatureText text for title of block
      * @param CommentText text for subtitle of block
      * @param BlockColor color of the block
@@ -84,9 +85,9 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
      * @param nvol number of volumes
      */
     public MeasurementStepBlockGUI(String FeatureText, String CommentText, Color BlockColor, int position, ArrayList AvailableData, int nvol) {
-            BuildStepBlock(FeatureText, CommentText, Color.GRAY, position, AvailableData, nvol);
+        BuildStepBlock(FeatureText, CommentText, Color.GRAY, position, AvailableData, nvol);
     }
-    
+
     private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, final int position, ArrayList AvailableData, final int nvol) {
         this.position = position;
         Feature.setText("");
@@ -97,15 +98,15 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
         //need max size set here
         Position.setText(position + ".");
         Position.setFont(PositionFont);
-        
+
         Comment.setText("");
 
         FeatureFont = new Font("Arial", Font.BOLD, 14);
         CommentFont = new Font("Arial", Font.ITALIC, 10);
-        
+
         Feature.setFont(FeatureFont);
         Comment.setFont(CommentFont);
-        
+
         ad = AvailableData;
         mbs = new MicroBlockMeasurementSetup(position, AvailableData, nvol);
 
@@ -127,7 +128,7 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
                 mbs.setVisible(true);
             }
         });
-        
+
 //        Popup = new JPopupMenu();
 //        ValidationSelector = new JCheckBoxMenuItem("Perform Validation on this method");
 //        ValidationSelector.addItemListener(new java.awt.event.ItemListener() {
@@ -138,7 +139,6 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
 //        });
 //        ValidationSelector.setEnabled(false);
 //        Popup.add(ValidationSelector);
-        
         performValidation = false;
 
         DeleteButton.setSize(20, 20);
@@ -148,7 +148,7 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
         EditButton.setSize(20, 20);
         EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
-        
+
         step.setSize(205, 20);
         step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -189,7 +189,7 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
         layoutConstraints.ipadx = -1;
         layoutConstraints.ipady = -1;
         step.add(DeleteButton, layoutConstraints);
-        
+
         layoutConstraints.fill = GridBagConstraints.BOTH;
         layoutConstraints.anchor = GridBagConstraints.EAST;
         layoutConstraints.gridx = 2;
@@ -199,33 +199,46 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
         layoutConstraints.ipadx = -1;
         layoutConstraints.ipady = -1;
         step.add(EditButton, layoutConstraints);
-        
+
         step.addMouseListener(new java.awt.event.MouseListener() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-            };
+            }
+
+            ;
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 //thumb.setVisible(false);
-            };
+            }
+
+            ;
             @Override
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 showPopup(evt);
-            };
+            }
+
+            ;
             @Override
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 showPopup(evt);
-            };
+            }
+
+            ;
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                
-            };
-            private void showPopup(java.awt.event.MouseEvent evt){
+
+            }
+
+            ;
+            private void showPopup(java.awt.event.MouseEvent evt) {
                 if (evt.isPopupTrigger()) {
                     Popup.show(evt.getComponent(), evt.getX(), evt.getY());
                 }
-            };
-        });
+            }
+        ;
+    }
+
+    );
     }    
     
     /**
@@ -240,7 +253,8 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
 
     /**
      * Retrieves GUI of the block.
-     * @return 
+     *
+     * @return
      */
     @Override
     public JPanel getPanel() {
@@ -256,33 +270,34 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
     public ArrayList getVariables() {
         return settings;
     }
-    
+
     /**
      * Retrieves the Setup class for the block
+     *
      * @return Setup for block
      */
-    public MicroBlockSetup getSetup(){
+    public MicroBlockSetup getSetup() {
         return mbs;
     }
-    
+
     /**
      * Updates the protocol to be the parameters selected in the Setup class.
      */
-    public void updateSetup(){
-        ((MicroBlockFeatureSetup)mbs).updateProtocol();
+    public void updateSetup() {
+        ((MicroBlockFeatureSetup) mbs).updateProtocol();
     }
-    
+
     /**
      * Rebuilds the block text when the parameters are changed in the Setup.
+     *
      * @param al the selected parameters
      */
     @Override
-    public void onChangeSetup(ArrayList al){
-        
+    public void onChangeSetup(ArrayList al) {
+
         //int len = al.size();
-        
         Feature.setText(al.get(0).toString());
-        
+
 //        String text;
 //        boolean validate;
 //        try{
@@ -299,12 +314,11 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
 //        }
 //        
 //        Comment.setText(text);
-        
         notifyRebuildPanelListeners(4);
         this.settings = al;
-       // this.settings.set(3, false);
+        // this.settings.set(3, false);
         addToolTip();
-        
+
 //        if(validate){
 //            ValidationSelector.setEnabled(true);
 //        }else{
@@ -313,14 +327,14 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
 //        }
 //        setupForValidation(ValidationSelector.isSelected());
     }
-    
+
     @Override
     protected void deleteStep(int type) {
         this.notifyDeleteBlockListeners(type, this.position);
         this.notifyRebuildPanelListeners(type);
         mbs.setVisible(false);
     }
-    
+
     @Override
     public void addRebuildPanelListener(RebuildPanelListener listener) {
         rebuildpanelisteners.add(listener);
@@ -344,36 +358,36 @@ public class MeasurementStepBlockGUI extends AbstractMicroBlockStepGUI implement
             listener.deleteBlock(type, position);
         }
     }
-    
-    private void addToolTip(){
+
+    private void addToolTip() {
         String tt = "<html>";
-        ArrayList data = (ArrayList)this.settings.get(1);
+        ArrayList data = (ArrayList) this.settings.get(1);
         String curline = "";
-        
-        for(int i = 0; i < data.size(); i++){
-            if((boolean)data.get(i)){
+
+        for (int i = 0; i < data.size(); i++) {
+            if ((boolean) data.get(i)) {
                 String f = ad.get(i).toString();
                 int flen = f.length();
-                if(curline.length() + flen > 67){
+                if (curline.length() + flen > 67) {
                     curline = curline.concat("<br>");
                     tt = tt.concat(curline);
                     curline = "";
                 }
                 curline = curline.concat(f);
-                if(curline.length() > 0){
+                if (curline.length() > 0) {
                     curline = curline.concat(", ");
                 }
             }
         }
         tt = tt.concat(curline);
-        
+
         tt = tt.substring(0, tt.lastIndexOf(",")); //removes trailing ','
         tt = tt.concat("</html>");
-        
+
         step.setToolTipText(tt);
     }
-    
-    private void setupForValidation(boolean selected){
-            this.settings.set(3, selected);
+
+    private void setupForValidation(boolean selected) {
+        this.settings.set(3, selected);
     }
 }

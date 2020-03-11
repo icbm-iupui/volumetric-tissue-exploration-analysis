@@ -24,5 +24,6 @@ import java.util.ArrayList;
  * @author sethwinfree
  */
 public interface AxesChangeListener {
+
     public void onAxesSetting(ArrayList al, ArrayList al1);
 }

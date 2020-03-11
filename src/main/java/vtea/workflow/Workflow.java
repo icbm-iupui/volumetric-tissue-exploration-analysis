@@ -17,26 +17,24 @@
  */
 package vtea.workflow;
 
-
 import java.util.ArrayList;
 import vtea.VTEAModule;
-
 
 /**
  *
  * @author sethwinfree
  * @param <T>
  */
-public interface Workflow<T extends java.lang.Object, S extends ArrayList> extends VTEAModule{
-   
+public interface Workflow<T extends java.lang.Object, S extends ArrayList> extends VTEAModule {
+
     T process();
-    
+
     T processPreview();
-    
+
     T getResult();
 
-    T getPreview();   
-    
+    T getPreview();
+
     public S getSteps();
-    
+
 }

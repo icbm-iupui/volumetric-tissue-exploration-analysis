@@ -22,13 +22,12 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
 import vtea.workflow.Workflow;
 
-
 /**
  *
  * @author sethwinfree
  */
 @Plugin(type = Service.class)
-public class WorkflowService extends AbstractService< Workflow > {
+public class WorkflowService extends AbstractService< Workflow> {
 
     public WorkflowService(Context context) {
         super(Workflow.class, context);

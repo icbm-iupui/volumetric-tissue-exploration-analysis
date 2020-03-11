@@ -23,30 +23,26 @@ import java.util.ArrayList;
  *
  * @author sethwinfree
  */
-
 public abstract class AbstractMeasurement implements Measurements {
-    
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
     protected String NAME = "ND";
     protected String KEY = "ND";
     protected String TYPE = "Abstract";
-    
-    
-    
+
     /**
      *
      * @param al
      * @param values
      * @return
      */
-    
     @Override
-    public Number process(ArrayList al, ArrayList values){
+    public Number process(ArrayList al, ArrayList values) {
         return 0;
     }
-    
+
     @Override
     public String getName() {
         return NAME;
@@ -57,24 +53,20 @@ public abstract class AbstractMeasurement implements Measurements {
         return KEY;
     }
 
-    
     public String getVersion() {
         return VERSION;
     }
 
-    
     public String getAuthor() {
         return AUTHOR;
     }
 
-   
     public String getComment() {
         return COMMENT;
     }
-    
+
     public String getType() {
         return TYPE;
     }
-    
-    
+
 }

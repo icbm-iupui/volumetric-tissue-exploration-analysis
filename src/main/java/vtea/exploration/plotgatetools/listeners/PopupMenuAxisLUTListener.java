@@ -21,9 +21,8 @@ package vtea.exploration.plotgatetools.listeners;
  *
  * @author vinfrais
  */
-public interface PopupMenuAxisLUTListener{
-        
-        public void changeAxisLUT(String position);
-        
-    }
+public interface PopupMenuAxisLUTListener {
 
+    public void changeAxisLUT(String position);
+
+}

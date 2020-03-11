@@ -22,9 +22,7 @@ package vtea.protocol.listeners;
  * @author vinfrais
  */
 public interface TransferProtocolStepsListener {
-    
 
-    
     public void transferThese(int type, int tab, String arg);
-    
+
 }

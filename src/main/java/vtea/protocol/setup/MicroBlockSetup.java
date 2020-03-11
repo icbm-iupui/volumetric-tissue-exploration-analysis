@@ -34,10 +34,9 @@ import vtea.protocol.listeners.MicroBlockSetupListener;
 public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
     private String[] ProcessOptions = {"", "", ""};
-    
+
     protected ArrayList<String> Channels = new ArrayList<String>();
-    
-    
+
     protected DefaultComboBoxModel processComboBox;
     protected DefaultComboBoxModel channelsComboBox;
     public ArrayList<MicroBlockSetupListener> MicroBlockSetupListeners = new ArrayList<MicroBlockSetupListener>();
@@ -57,28 +56,29 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
     protected String DefaultTitle;
 
-
     protected ArrayList CurrentProcessList;
     protected ArrayList<ArrayList> CurrentProcessItems = new ArrayList<ArrayList>();
-    
-    protected String[][] ProcessVariables = {{"750", "5", "20", "1000"},{"750", "4095", "20", "1000"}};
+
+    protected String[][] ProcessVariables = {{"750", "5", "20", "1000"}, {"750", "4095", "20", "1000"}};
 
     /**
      * Creates new form MicroBlockSetup
      *
      * @param step
      */
-    MicroBlockSetup(){
-    
+    MicroBlockSetup() {
+
     }
-    
+
     MicroBlockSetup(int step, ArrayList channel) {
-  
+
         Channels = channel;
 
         this.step = step;
-        
-        for (int i = 0; i < 10; i++) { CurrentProcessItems.add(null);}
+
+        for (int i = 0; i < 10; i++) {
+            CurrentProcessItems.add(null);
+        }
 
         DefaultTitle = "BlockStep_" + step;
         channelsComboBox = new DefaultComboBoxModel(Channels.toArray());
@@ -89,10 +89,12 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         PreviewButton.setVisible(false);
         pack();
     }
-    
-    MicroBlockSetup(int step){
+
+    MicroBlockSetup(int step) {
         this.step = step;
-        for (int i = 0; i< 10; i++) { CurrentProcessItems.add(null);}
+        for (int i = 0; i < 10; i++) {
+            CurrentProcessItems.add(null);
+        }
         DefaultTitle = "BlockStep_" + step;
         processComboBox = new DefaultComboBoxModel(ProcessOptions);
         channelsComboBox = new DefaultComboBoxModel(ProcessOptions);
@@ -479,7 +481,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         // TODO add your handling code here:
         this.setVisible(false);
         blockSetupOKAction();
-        
+
     }//GEN-LAST:event_BlockSetupOKActionPerformed
 
     private void ProcessSelectComboBoxCaretPositionChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_ProcessSelectComboBoxCaretPositionChanged
@@ -503,20 +505,20 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         if (TitleText.getText().length() == 0) {
             TitleText.setText(DefaultTitle);
         } else {
-            
+
         }
         updateTitles();
         pack();
     }//GEN-LAST:event_TitleTextFocusLost
 
     private void secondaryObjectsMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_secondaryObjectsMousePressed
-    
+
 // TODO add your handling code here:
     }//GEN-LAST:event_secondaryObjectsMousePressed
 
     private void secondaryObjectsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_secondaryObjectsMouseClicked
-        this.secondaryTable.setEnabled(!(this.secondaryTable.isEnabled()));   
-        
+        this.secondaryTable.setEnabled(!(this.secondaryTable.isEnabled()));
+
     }//GEN-LAST:event_secondaryObjectsMouseClicked
 
     private void TitleTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TitleTextActionPerformed
@@ -529,23 +531,23 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
     private void PreviewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreviewButtonActionPerformed
         this.PreviewProgress.setText("Getting segmentation preview...");
-        
+
         getSegmentationPreview();
-        
+
     }//GEN-LAST:event_PreviewButtonActionPerformed
-    
-    protected void getSegmentationPreview(){
-        
+
+    protected void getSegmentationPreview() {
+
     }
-    
-   public int getProtocolPosition(){
+
+    public int getProtocolPosition() {
         return ProcessSelectComboBox.getSelectedIndex();
     }
-   
-    public void setProtocolPosition(int i){
+
+    public void setProtocolPosition(int i) {
         ProcessSelectComboBox.setSelectedIndex(i);
     }
-    
+
     public void addMicroBlockSetupListener(MicroBlockSetupListener listener) {
         MicroBlockSetupListeners.add(listener);
     }
@@ -562,13 +564,13 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         return result;
     }
-    
+
     protected ArrayList makeMethodComponentsArray(String method, String[][] str) {
-                ArrayList result = new ArrayList();
+        ArrayList result = new ArrayList();
 
         return result;
     }
-    
+
     protected ArrayList makeSecondaryComponentsArray(int position) {
 
         ArrayList result = new ArrayList();
@@ -579,24 +581,22 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     private JPanel defaultProtocolPanel() {
         return new JPanel();
     }
-    
-    public void cloneProcessList(String str, ArrayList al){
-         
+
+    public void cloneProcessList(String str, ArrayList al) {
+
     }
 
     protected JPanel makeProtocolPanel(String str) {
-  JPanel BuiltPanel = new JPanel();
+        JPanel BuiltPanel = new JPanel();
         return BuiltPanel;
-        }
+    }
 
     protected JPanel makeProtocolPanel(int position) {
 
-        
         JPanel BuiltPanel = new JPanel();
         ArrayList ProcessComponents = new ArrayList();
 
-        ProcessComponents = makeMethodComponentsArray(position,ProcessVariables);
-
+        ProcessComponents = makeMethodComponentsArray(position, ProcessVariables);
 
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
@@ -709,155 +709,144 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         notifyMicroBlockSetupListeners(this.CurrentStepProtocol);
 
     }
-    
+
     protected void blockSetupCancelAction() {
 
     }
-    
-    
-    public ArrayList getProcessList(){
+
+    public ArrayList getProcessList() {
         return CurrentProcessList;
     }
-    
 
-    protected void setImage(ImagePlus imp){
+    protected void setImage(ImagePlus imp) {
     }
-    
-    protected void updateTitles(){}
-    
-    
+
+    protected void updateTitles() {
+    }
+
     protected void updateProtocolPanel(ActionEvent evt) {
-        
-        
-        
+
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
-        
-        makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
+
+        makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());
 
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
-       
+
         pack();
 
     }
-    
-    @Override    
+
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone(); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public String getTitle(){
+    public String getTitle() {
         return this.TitleText.getText();
     }
-    
+
     @Override
-        public void setTitle(String title){
+    public void setTitle(String title) {
         TitleText.setText(title);
     }
-    
-    public void setChannel(int position){
+
+    public void setChannel(int position) {
         this.ChannelComboBox.setSelectedIndex(position);
     }
-    
-    public void setMethod(String str){
+
+    public void setMethod(String str) {
         this.ProcessSelectComboBox.setSelectedItem(str);
 
     }
-    
-       public String getMethod(){
-        return (String)ProcessSelectComboBox.getSelectedItem();
+
+    public String getMethod() {
+        return (String) ProcessSelectComboBox.getSelectedItem();
     }
-   
-    public int getChannel(){
+
+    public int getChannel() {
         return this.ChannelComboBox.getSelectedIndex();
     }
-    
-    
-     
-    public void setSetup(ArrayList ProcessComponents){
-        try{
-            
-        
-            
-        MethodDetails.setVisible(false);
-        MethodDetails.removeAll();
 
-        //BuiltPanel.setLayout(new GridBagLayout());
-        GridBagConstraints layoutConstraints = new GridBagConstraints();
+    public void setSetup(ArrayList ProcessComponents) {
+        try {
 
-        //MethodDetail
-        if (ProcessComponents.size() > 0) {
-            layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 0;
-            layoutConstraints.gridy = 0;
-            layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
-            MethodDetails.add((Component) ProcessComponents.get(0), layoutConstraints);
+            MethodDetails.setVisible(false);
+            MethodDetails.removeAll();
+
+            //BuiltPanel.setLayout(new GridBagLayout());
+            GridBagConstraints layoutConstraints = new GridBagConstraints();
+
+            //MethodDetail
+            if (ProcessComponents.size() > 0) {
+                layoutConstraints.fill = GridBagConstraints.CENTER;
+                layoutConstraints.gridx = 0;
+                layoutConstraints.gridy = 0;
+                layoutConstraints.weightx = 1;
+                layoutConstraints.weighty = 1;
+                MethodDetails.add((Component) ProcessComponents.get(0), layoutConstraints);
+            }
+
+            if (ProcessComponents.size() > 1) {
+                layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+                layoutConstraints.gridx = 1;
+                layoutConstraints.gridy = 0;
+                MethodDetails.add((Component) ProcessComponents.get(1), layoutConstraints);
+            }
+
+            if (ProcessComponents.size() > 2) {
+                layoutConstraints.fill = GridBagConstraints.CENTER;
+                layoutConstraints.gridx = 2;
+                layoutConstraints.gridy = 0;
+                MethodDetails.add((Component) ProcessComponents.get(2), layoutConstraints);
+            }
+            if (ProcessComponents.size() > 3) {
+                layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+                layoutConstraints.gridx = 3;
+                layoutConstraints.gridy = 0;
+                MethodDetails.add((Component) ProcessComponents.get(3), layoutConstraints);
+            }
+            if (ProcessComponents.size() > 4) {
+                layoutConstraints.fill = GridBagConstraints.CENTER;
+                layoutConstraints.gridx = 0;
+                layoutConstraints.gridy = 1;
+                MethodDetails.add((Component) ProcessComponents.get(4), layoutConstraints);
+            }
+            if (ProcessComponents.size() > 5) {
+                layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+                layoutConstraints.gridx = 1;
+                layoutConstraints.gridy = 1;
+                MethodDetails.add((Component) ProcessComponents.get(5), layoutConstraints);
+            }
+            if (ProcessComponents.size() > 6) {
+                layoutConstraints.fill = GridBagConstraints.CENTER;
+                layoutConstraints.gridx = 2;
+                layoutConstraints.gridy = 1;
+                MethodDetails.add((Component) ProcessComponents.get(6), layoutConstraints);
+            }
+            if (ProcessComponents.size() > 7) {
+                layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+                layoutConstraints.gridx = 3;
+                layoutConstraints.gridy = 1;
+                MethodDetails.add((Component) ProcessComponents.get(7), layoutConstraints);
+            }
+
+            pack();
+            MethodDetails.setVisible(true);
+
+            CurrentProcessList.clear();
+
+            CurrentProcessList.add(processComboBox.getSelectedItem());
+            CurrentProcessList.add(channelsComboBox.getIndexOf(channelsComboBox.getSelectedItem()));
+            CurrentProcessList.addAll(ProcessComponents);
+
+        } catch (Exception e) {
         }
 
-        if (ProcessComponents.size() > 1) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 1;
-            layoutConstraints.gridy = 0;
-            MethodDetails.add((Component) ProcessComponents.get(1), layoutConstraints);
-        }
-
-        if (ProcessComponents.size() > 2) {
-            layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 2;
-            layoutConstraints.gridy = 0;
-            MethodDetails.add((Component) ProcessComponents.get(2), layoutConstraints);
-        }
-        if (ProcessComponents.size() > 3) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 3;
-            layoutConstraints.gridy = 0;
-            MethodDetails.add((Component) ProcessComponents.get(3), layoutConstraints);
-        }
-        if (ProcessComponents.size() > 4) {
-            layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 0;
-            layoutConstraints.gridy = 1;
-            MethodDetails.add((Component) ProcessComponents.get(4), layoutConstraints);
-        }
-        if (ProcessComponents.size() > 5) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 1;
-            layoutConstraints.gridy = 1;
-            MethodDetails.add((Component) ProcessComponents.get(5), layoutConstraints);
-        }
-        if (ProcessComponents.size() > 6) {
-            layoutConstraints.fill = GridBagConstraints.CENTER;
-            layoutConstraints.gridx = 2;
-            layoutConstraints.gridy = 1;
-            MethodDetails.add((Component) ProcessComponents.get(6), layoutConstraints);
-        }
-        if (ProcessComponents.size() > 7) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 3;
-            layoutConstraints.gridy = 1;
-            MethodDetails.add((Component) ProcessComponents.get(7), layoutConstraints);
-        }
-
-        pack();
-        MethodDetails.setVisible(true);
-        
-        CurrentProcessList.clear();
-
-        CurrentProcessList.add(processComboBox.getSelectedItem());
-        CurrentProcessList.add(channelsComboBox.getIndexOf(channelsComboBox.getSelectedItem()));
-        CurrentProcessList.addAll(ProcessComponents);
-            
-           
-            
-        }catch (Exception e){}
-        
-        
     }
- 
 
     /**
      * @param args the command line arguments

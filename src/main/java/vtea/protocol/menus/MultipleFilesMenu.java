@@ -32,42 +32,43 @@ import vtea.protocol.listeners.BatchStateListener;
  * @author vinfrais
  */
 public class MultipleFilesMenu extends JPopupMenu implements ActionListener, ItemListener {
-                JRadioButtonMenuItem SingleFile;
-                JRadioButtonMenuItem MultipleFiles;
-                JMenuItem Item2;
-                JMenuItem Item3;
-                boolean batch;
-                private ArrayList<BatchStateListener> listeners = new ArrayList<BatchStateListener>();
-                
-                public MultipleFilesMenu(boolean multiple){
-                    batch = multiple;
-                     MultipleFiles = new JRadioButtonMenuItem("Multiple Files");
-                     MultipleFiles.setSelected(multiple);
-                     MultipleFiles.setActionCommand("Multiple");
-                     MultipleFiles.addItemListener(this);
-                     MultipleFiles.addActionListener(this);
-                     Item2 = new JMenuItem("Item2");
-                     Item3 = new JMenuItem("Item3");
 
-                    add(MultipleFiles);
-                    addSeparator();
-                    add(Item2);
-                    add(Item3);
-                } 
+    JRadioButtonMenuItem SingleFile;
+    JRadioButtonMenuItem MultipleFiles;
+    JMenuItem Item2;
+    JMenuItem Item3;
+    boolean batch;
+    private ArrayList<BatchStateListener> listeners = new ArrayList<BatchStateListener>();
+
+    public MultipleFilesMenu(boolean multiple) {
+        batch = multiple;
+        MultipleFiles = new JRadioButtonMenuItem("Multiple Files");
+        MultipleFiles.setSelected(multiple);
+        MultipleFiles.setActionCommand("Multiple");
+        MultipleFiles.addItemListener(this);
+        MultipleFiles.addActionListener(this);
+        Item2 = new JMenuItem("Item2");
+        Item3 = new JMenuItem("Item3");
+
+        add(MultipleFiles);
+        addSeparator();
+        add(Item2);
+        add(Item3);
+    }
 
     @Override
     public void itemStateChanged(ItemEvent ie) {
-        
+
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
-        if(ae.getActionCommand().equals("Multiple")){
+        if (ae.getActionCommand().equals("Multiple")) {
             //batch = !batch;
             //notifyBatchListeners(batch);
         }
     }
-    
+
 //    public void addBatchListener(BatchStateListener listener) {
 //        listeners.add(listener);
 //    }
@@ -77,6 +78,4 @@ public class MultipleFilesMenu extends JPopupMenu implements ActionListener, Ite
 //            listener.batchStateAdd(batch);
 //        }
 //    }
-
-                }
-
+}

@@ -29,11 +29,10 @@ import vtea.exploration.listeners.AxesChangeListener;
  * @author sethwinfree
  */
 public class PlotAxesSetup extends javax.swing.JFrame {
-    
+
     ArrayList<AxesChangeListener> AxesChangeListeners = new ArrayList();
     ArrayList<Component> ContentList = new ArrayList();
     ArrayList<Component> LUTList = new ArrayList();
-    
 
     /**
      * Creates new form PlotAxesSetup
@@ -206,7 +205,6 @@ public class PlotAxesSetup extends javax.swing.JFrame {
     private void BlockSetupOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BlockSetupOKActionPerformed
         // TODO add your handling code here:
         this.setVisible(false);
-        
 
     }//GEN-LAST:event_BlockSetupOKActionPerformed
 
@@ -214,27 +212,26 @@ public class PlotAxesSetup extends javax.swing.JFrame {
         notifyAxesChangeListeners(ContentList, LUTList);
     }//GEN-LAST:event_PreviewButton1ActionPerformed
 
-    
-    public void setAdjustable(boolean state){
+    public void setAdjustable(boolean state) {
         Content.setEnabled(state);
     }
-    
-    public ArrayList<Component> getSettings(){
+
+    public ArrayList<Component> getSettings() {
         ArrayList<Component> al = new ArrayList();
         return al;
     }
-    
-    public void setContent(ArrayList<Component> al){
-        
+
+    public void setContent(ArrayList<Component> al) {
+
         //Content = new JPanel();       
-        Content.setSize(new Dimension(350,350));
+        Content.setSize(new Dimension(350, 350));
         Content.setLayout(new GridBagLayout());
 
         Content.removeAll();
-        
+
         ContentList.clear();
         ContentList.addAll(al);
-        
+
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
         //MethodDetail
@@ -324,24 +321,23 @@ public class PlotAxesSetup extends javax.swing.JFrame {
 //            layoutConstraints.gridy = 1;
 //            Content.add((Component) al.get(7), layoutConstraints);
 //        }
-        
-        
+
         Content.setVisible(true);
-        
-        pack();   
+
+        pack();
     }
-    
-     public void setLUT(ArrayList<Component> al){
-        
+
+    public void setLUT(ArrayList<Component> al) {
+
         //Content = new JPanel();       
-        LUT.setSize(new Dimension(350,350));
+        LUT.setSize(new Dimension(350, 350));
         LUT.setLayout(new GridBagLayout());
 
         LUT.removeAll();
-        
+
         LUTList.clear();
         LUTList.addAll(al);
-        
+
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
         //MethodDetail
@@ -431,24 +427,23 @@ public class PlotAxesSetup extends javax.swing.JFrame {
 //            layoutConstraints.gridy = 1;
 //            Content.add((Component) al.get(7), layoutConstraints);
 //        }
-        
-        
+
         LUT.setVisible(true);
-        
-        pack();   
+
+        pack();
     }
-    
-    public void addAxesChangeListener(AxesChangeListener listener){
+
+    public void addAxesChangeListener(AxesChangeListener listener) {
         AxesChangeListeners.add(listener);
     }
-    
+
     public void notifyAxesChangeListeners(ArrayList content, ArrayList LUT) {
         for (AxesChangeListener listener : AxesChangeListeners) {
             listener.onAxesSetting(content, LUT);
         }
     }
-    
-    public void setDescriptor(String str){
+
+    public void setDescriptor(String str) {
         this.jLabel1.setText(str);
     }
     /**

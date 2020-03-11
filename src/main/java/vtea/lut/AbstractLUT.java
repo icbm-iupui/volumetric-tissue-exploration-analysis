@@ -25,7 +25,7 @@ import java.util.HashMap;
  * @author sethwinfree
  */
 public abstract class AbstractLUT implements LUT {
-    
+
     static Color TENPERCENT = new Color(0, 0, 82);
     static Color TWENTYPERCENT = new Color(61, 0, 178);
     static Color THIRTYPERCENT = new Color(122, 0, 227);
@@ -46,7 +46,7 @@ public abstract class AbstractLUT implements LUT {
     @Override
     public HashMap getLUTMAP() {
         HashMap<String, Color> hm = new HashMap<String, Color>();
-        
+
         hm.put("0", ZEROPERCENT);
         hm.put("10", TENPERCENT);
         hm.put("20", TWENTYPERCENT);
@@ -58,9 +58,9 @@ public abstract class AbstractLUT implements LUT {
         hm.put("80", EIGHTYPERCENT);
         hm.put("90", NINETYPERCENT);
         hm.put("100", ALLPERCENT);
-        
+
         return hm;
-      }
+    }
 
     @Override
     public String getName() {
@@ -71,10 +71,10 @@ public abstract class AbstractLUT implements LUT {
     public String getKey() {
         return KEY;
     }
-    
+
     @Override
     public Color getColor(int i) {
-        switch(i){
+        switch (i) {
             case 0:
                 return ZEROPERCENT;
             case 10:
@@ -88,7 +88,7 @@ public abstract class AbstractLUT implements LUT {
             case 50:
                 return FIFTYPERCENT;
             case 60:
-                return SIXTYPERCENT;          
+                return SIXTYPERCENT;
             case 70:
                 return SEVENTYPERCENT;
             case 80:
@@ -100,9 +100,5 @@ public abstract class AbstractLUT implements LUT {
         }
         return ZEROPERCENT;
     }
-    
-  
-    
-    
-    
+
 }

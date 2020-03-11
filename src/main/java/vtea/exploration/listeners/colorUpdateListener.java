@@ -24,5 +24,6 @@ import java.awt.Color;
  * @author sethwinfree
  */
 public interface colorUpdateListener {
+
     public void onColorUpdate(Color color, int row);
 }
