@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2018 SciJava
+/* 
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,17 +15,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-/*******************************************************************************
- * Copyright (c) 2013 Jay Unruh, Stowers Institute for Medical Research.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v2.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- ******************************************************************************/
-
-/**Copyright (C) 2016-2018 Indiana University*/
-
 package vtea.imageprocessing.builtin;
 
 
