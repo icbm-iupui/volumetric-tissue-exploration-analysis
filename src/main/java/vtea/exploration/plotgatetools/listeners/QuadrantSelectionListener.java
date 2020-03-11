@@ -17,8 +17,6 @@
  */
 package vtea.exploration.plotgatetools.listeners;
 
-import java.util.ArrayList;
-
 /**
  *
  * @author vinfrais

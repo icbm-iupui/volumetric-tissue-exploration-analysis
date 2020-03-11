@@ -17,7 +17,6 @@
  */
 package vtea.protocol.setup;
 
-import vtea.protocol.setup.*;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;

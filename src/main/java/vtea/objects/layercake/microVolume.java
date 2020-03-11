@@ -17,19 +17,13 @@
  */
 package vtea.objects.layercake;
 
-import ij.*;
-import ij.gui.ImageRoi;
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.lang.Integer;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
-//
 
 //new class for defining a cell object for microFLOW analysis
 public class microVolume extends MicroObject implements MicroObjectModel, Cloneable, java.io.Serializable {
@@ -43,6 +37,8 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     public static final int MASK = 0;
     public static final int GROW = 1;  //use subtype to determine how much
     public static final int FILL = 2;
+    static public String[] Analytics = {"#pixels", "mean", "sum", "min", "max", "SD", "AR", "F_min", "F_max", "mean_th", "mean_sq"};
+    static int serialCounter = 0;
 
     private int x_centroid;    //center x_centroid
     private int y_centroid;    //center y_centroid
@@ -74,7 +70,6 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     private Object[][] analysisResultsVolume = new Object[6][11];
     private Object[] analysisMaskVolume = new Object[11];
 
-    static public String[] Analytics = {"#pixels", "mean", "sum", "min", "max", "SD", "AR", "F_min", "F_max", "mean_th", "mean_sq"};
     private Color[][] Colorized = new Color[4][9];
     private ArrayList ResultsPointer;
     
@@ -83,7 +78,6 @@ public class microVolume extends MicroObject implements MicroObjectModel, Clonea
     
     int serialID = 0;
     
-    static int serialCounter = 0;
     
     private boolean gated = false;
     

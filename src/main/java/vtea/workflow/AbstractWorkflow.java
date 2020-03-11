@@ -17,7 +17,6 @@
  */
 package vtea.workflow;
 
-import ij.ImagePlus;
 import java.util.ArrayList;
 import vtea.protocol.datastructure.AbstractProtocol;
 

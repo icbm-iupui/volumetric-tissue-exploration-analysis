@@ -18,10 +18,6 @@
 package vtea.filetype;
 
 import org.scijava.plugin.Plugin;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import javax.swing.JFileChooser;
 
 /**
  *

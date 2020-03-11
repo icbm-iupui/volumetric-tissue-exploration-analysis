@@ -19,23 +19,18 @@ package vtea.measurement;
 
 
 import ij.ImagePlus;
-import vtea.feature.listeners.RepaintFeatureListener;
-import vtea.protocol.listeners.RebuildPanelListener;
-
-import vtea.protocol.listeners.UpdateProgressListener;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.ListIterator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import java.util.Collections;
-import javax.swing.JOptionPane;
+import java.util.ArrayList;
+import java.util.ListIterator;
 import vtea.exploration.listeners.AddFeaturesListener;
-import vtea.processor.FeatureProcessor;
+import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.protocol.blockstepgui.MeasurementStepBlockGUI;
 import vtea.protocol.listeners.DeleteBlockListener;
+import vtea.protocol.listeners.RebuildPanelListener;
+import vtea.protocol.listeners.UpdateProgressListener;
 import vteaobjects.MicroObject;
 
 /**

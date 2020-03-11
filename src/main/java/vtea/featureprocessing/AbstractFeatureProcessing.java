@@ -19,18 +19,18 @@ package vtea.featureprocessing;
 
 import java.awt.Component;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import static java.lang.Math.sqrt;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import net.imglib2.type.numeric.RealType;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import net.imglib2.type.numeric.RealType;
 
 /**
  *Abstract of all Feature Processing classes. All features must extend this.

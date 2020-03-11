@@ -16,11 +16,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 package vtea.objects.layercake;
-
-import vtea.objects.layercake.microVolume;
-import ij.*;
-
-//new class for defining a region object-reference by volume class
 @Deprecated
 public class microAnalysis extends Object implements Cloneable, java.io.Serializable {
 

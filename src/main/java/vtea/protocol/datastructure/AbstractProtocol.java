@@ -30,20 +30,6 @@ public abstract class AbstractProtocol extends ArrayList implements Protocol  {
        String DESCRIPTION = "Abstract class for protocols.  Protocols string "
                + "processes together or hold segmentation approaches.";
        
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public String getKey() {
-        return KEY;
-    }
-    
-    @Override
-    public String getDescription() {
-        return DESCRIPTION;
-    }
     
     AbstractProtocol(){
     }
@@ -62,4 +48,16 @@ public abstract class AbstractProtocol extends ArrayList implements Protocol  {
         DESCRIPTION = description;
         addAll(al);
     }  
+    @Override
+    public String getName() {
+        return NAME;
+    }
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+    @Override
+    public String getDescription() {
+        return DESCRIPTION;
+    }
 }

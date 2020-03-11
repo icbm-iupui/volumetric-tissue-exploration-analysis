@@ -17,9 +17,6 @@
  */
 package vtea.protocol.blockstepgui;
 
-import vtea.protocol.listeners.MicroBlockSetupListener;
-import vtea.protocol.setup.MicroBlockObjectSetup;
-import vtea.protocol.setup.MicroBlockSetup;
 import ij.ImagePlus;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -32,7 +29,10 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import vtea.protocol.listeners.DeleteBlockListener;
+import vtea.protocol.listeners.MicroBlockSetupListener;
 import vtea.protocol.listeners.RebuildPanelListener;
+import vtea.protocol.setup.MicroBlockObjectSetup;
+import vtea.protocol.setup.MicroBlockSetup;
 
 /**
  *

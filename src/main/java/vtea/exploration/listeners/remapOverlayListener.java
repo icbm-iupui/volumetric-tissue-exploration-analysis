@@ -17,8 +17,6 @@
  */
 package vtea.exploration.listeners;
 
-import java.awt.Color;
-
 /**
  *
  * @author sethwinfree

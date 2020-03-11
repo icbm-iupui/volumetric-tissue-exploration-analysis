@@ -17,9 +17,7 @@
  */
 package vtea.objects.measurements;
 
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import net.imglib2.RealPoint;
 
 /**
  *

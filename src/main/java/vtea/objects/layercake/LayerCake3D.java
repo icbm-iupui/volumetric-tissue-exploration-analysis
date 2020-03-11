@@ -17,13 +17,9 @@
  */
 package vtea.objects.layercake;
 
-import com.opencsv.CSVWriter;
 import ij.*;
 import ij.process.*;
 import java.util.*;
-import ij.ImagePlus;
-
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 

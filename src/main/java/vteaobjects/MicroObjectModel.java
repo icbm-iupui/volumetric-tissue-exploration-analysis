@@ -17,9 +17,7 @@
  */
 package vteaobjects;
 
-import ij.ImageStack;
 import java.awt.Rectangle;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 

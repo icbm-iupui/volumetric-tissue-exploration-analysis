@@ -51,16 +51,6 @@ public class H2DatabaseEngine {
     
     private static ResultSetMetaData meta;
     
-    public void H2DatabaseEngine(String path){
-
-        try{
-        ResultSet rs = new Csv().read(path, null, null);
-        meta = rs.getMetaData();
-
-        } catch (SQLException e) {
-            System.out.println("Exception Message " + e.getLocalizedMessage());
-        }
-    }
     
     public static void createIndex(String table, String field, String idxName) throws SQLException{
         
@@ -598,6 +588,16 @@ public static void startupDBConnection() {
             e.printStackTrace();
         } finally {
             connection.close();
+        }
+    }
+    public void H2DatabaseEngine(String path){
+        
+        try{
+            ResultSet rs = new Csv().read(path, null, null);
+            meta = rs.getMetaData();
+            
+        } catch (SQLException e) {
+            System.out.println("Exception Message " + e.getLocalizedMessage());
         }
     }
 

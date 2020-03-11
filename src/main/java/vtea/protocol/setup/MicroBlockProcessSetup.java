@@ -17,14 +17,11 @@
  */
 package vtea.protocol.setup;
 
-import vtea.protocol.blockstepgui.ProcessStepBlockGUI;
 import ij.ImagePlus;
 import ij.LookUpTable;
-import ij.gui.Roi;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Duplicator;
 import ij.process.LUT;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -42,14 +39,9 @@ import java.util.Arrays;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
@@ -58,8 +50,8 @@ import static vtea._vtea.PROCESSINGMAP;
 import static vtea._vtea.PROCESSINGOPTIONS;
 import vtea.imageprocessing.AbstractImageProcessing;
 import vtea.processor.ImageProcessingProcessor;
+import vtea.protocol.blockstepgui.ProcessStepBlockGUI;
 import vtea.protocol.datastructure.ImageProcessingProtocol;
-import vteaexploration.PlotAxesSetup;
 
 /**
  *

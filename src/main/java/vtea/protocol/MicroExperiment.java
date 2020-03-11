@@ -18,17 +18,13 @@
 package vtea.protocol;
 
 import ij.IJ;
-import vteaexploration.MicroExplorer;
-import vtea.exploration.plottools.panels.DefaultPlotPanels;
-import vtea.exploration.plottools.panels.XYExplorationPanel;
 import ij.ImagePlus;
 import java.util.ArrayList;
 import java.util.HashMap;
-import vteaobjects.MicroObjectModel;
+import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vtea.workflow.ImageProcessingWorkflow;
-
-import java.lang.IllegalArgumentException;
-import vteaobjects.MicroObject;
+import vteaexploration.MicroExplorer;
+import vteaobjects.MicroObjectModel;
 
 /**
  *

@@ -40,6 +40,21 @@ import vtea.featureprocessing.FeatureProcessing;
 public class KMeans extends AbstractFeatureProcessing{
     
     public static boolean validate = true;
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString() + ", ");
+        comment = comment.concat(((JLabel)comComponents.get(6)).getText() + ": ");
+        comment = comment.concat(((JTextField)comComponents.get(7)).getText());
+        comment = comment.concat("</html>");
+        return comment;
+    }
     
     Random rand;
     Runtime rt;
@@ -196,21 +211,6 @@ public class KMeans extends AbstractFeatureProcessing{
         return best;
     }
     
-    /**
-     * Creates the Comment Text for the Block GUI.
-     * @param comComponents the parameters (Components) selected by the user in 
-     * the Setup Frame.
-     * @return comment text detailing the parameters
-     */
-    public static String getBlockComment(ArrayList comComponents){
-        String comment = "<html>";
-        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
-        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString() + ", ");
-        comment = comment.concat(((JLabel)comComponents.get(6)).getText() + ": ");
-        comment = comment.concat(((JTextField)comComponents.get(7)).getText());
-        comment = comment.concat("</html>");
-        return comment;
-    }
     
     
     double calculateDistanceSq(double[] n1, double[] n2){
@@ -227,31 +227,6 @@ public class KMeans extends AbstractFeatureProcessing{
         return dist;
     }
     
-    class Centroids{
-        ArrayList<double[]> centers;
-        int[] membership;
-        double dissimilarity; 
-        
-        Centroids(){
-            
-        }
-        
-        Centroids(ArrayList<double[]> cents, int[] memb){
-            centers = cents;
-            membership = memb;
-        }
-        
-        public double getDissimilarity(){return dissimilarity;}
-        public int[] getMembership(){return membership;}
-        public void setDissimilarity(double[][] feature){
-            dissimilarity = 0;
-            for(int i = 0; i < membership.length; i++){
-                dissimilarity += calculateDistanceSq(centers.get(membership[i]),feature[i]);
-            }
-        }
-                
-        
-    }
     
     private Centroids calculateClusters(int n_clust, double[][] feature, int[] list){
         double dissimilarity = 0;
@@ -311,6 +286,31 @@ public class KMeans extends AbstractFeatureProcessing{
         Centroids c = new Centroids(clusters,membership);
         c.setDissimilarity(feature);
         return c;
+    }
+    class Centroids{
+        ArrayList<double[]> centers;
+        int[] membership;
+        double dissimilarity;
+        
+        Centroids(){
+            
+        }
+        
+        Centroids(ArrayList<double[]> cents, int[] memb){
+            centers = cents;
+            membership = memb;
+        }
+        
+        public double getDissimilarity(){return dissimilarity;}
+        public int[] getMembership(){return membership;}
+        public void setDissimilarity(double[][] feature){
+            dissimilarity = 0;
+            for(int i = 0; i < membership.length; i++){
+                dissimilarity += calculateDistanceSq(centers.get(membership[i]),feature[i]);
+            }
+        }
+        
+        
     }
     
 }

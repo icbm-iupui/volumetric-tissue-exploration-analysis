@@ -17,7 +17,6 @@
  */
 package vtea.workflow;
 
-import vtea.workflow.AbstractWorkflow;
 import org.scijava.plugin.Plugin;
 
 /**

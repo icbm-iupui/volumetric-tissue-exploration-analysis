@@ -36,11 +36,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
@@ -69,6 +67,8 @@ import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
  * @author vinfrais
  */
 public class GateLayer implements ActionListener, ItemListener {
+    public static PolygonGate clipboardGate;
+    public static boolean gateInClipboard = false;
 
     public transient boolean msActive;
     public transient boolean msPolygon;
@@ -116,8 +116,6 @@ public class GateLayer implements ActionListener, ItemListener {
             new Color(255, 102, 255), new Color(255, 102, 178)
         };
     
-    public static PolygonGate clipboardGate;
-    public static boolean gateInClipboard = false;
     
 
     public GateLayer() {

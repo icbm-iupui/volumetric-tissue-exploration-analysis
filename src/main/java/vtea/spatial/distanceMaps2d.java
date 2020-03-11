@@ -24,7 +24,6 @@ import ij.plugin.ZProjector;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import vtea.exploration.listeners.AddFeaturesListener;
-import vtea.protocol.setup.SegmentationPreviewer;
 import vteaobjects.MicroObject;
 
 /**

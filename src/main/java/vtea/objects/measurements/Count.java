@@ -18,7 +18,6 @@
 package vtea.objects.measurements;
 
 import java.util.ArrayList;
-import java.util.ListIterator;
 import org.scijava.plugin.Plugin;
 
 /**

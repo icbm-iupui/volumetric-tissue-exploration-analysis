@@ -17,23 +17,15 @@
  */
 package vtea.protocol.setup;
 
-import vtea.protocol.MicroExperiment;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.WindowManager;
-import ij.gui.Roi;
-import ij.plugin.Duplicator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import vteaobjects.MicroObject;
-import vtea.objects.layercake.microVolume;
 import vtea.processor.SegmentationProcessor;
-import vtea.processor.listeners.ProgressListener;
+import vteaobjects.MicroObject;
 
 /**
  *
@@ -41,6 +33,42 @@ import vtea.processor.listeners.ProgressListener;
  */
 
 public class SegmentationPreviewer implements Runnable, PropertyChangeListener{
+    public static void SegmentationFactory(ImagePlus imp, ArrayList<MicroObject> objects){
+        makeImage(imp, objects);
+    }
+    static private void makeImage(ImagePlus imp, ArrayList<MicroObject> objects){
+        
+        ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
+        ImageStack resultStack = resultImage.getStack();
+        int value = 1;
+        ListIterator<MicroObject> citr = objects.listIterator();
+        
+        while(citr.hasNext()){
+            MicroObject vol = (MicroObject) citr.next();
+            vol.setColor(value);
+            value++;
+            if(value > 255){value = 1;}
+        }
+        
+        for (int i = 0; i <= imp.getNSlices(); i++) {
+            ListIterator<MicroObject> itr = objects.listIterator();
+            while(itr.hasNext()){
+                try {
+                    MicroObject vol = (MicroObject) itr.next();
+                    int[] x_pixels = vol.getXPixelsInRegion(i);
+                    int[] y_pixels = vol.getYPixelsInRegion(i);
+                    for (int c = 0; c < x_pixels.length; c++) {
+                        resultStack.setVoxel(x_pixels[c], y_pixels[c], i, vol.getColor());
+                    }
+                    
+                } catch (NullPointerException e) {
+                }
+            }
+        }
+        IJ.run(resultImage, "3-3-2 RGB", "");
+        resultImage.show();
+        
+    }
    
     
 ArrayList protocol;
@@ -73,45 +101,6 @@ public void SegmentationPreviewFactory(){
 
 
 
-public static void SegmentationFactory(ImagePlus imp, ArrayList<MicroObject> objects){
-    makeImage(imp, objects);  
-}
-
-
-
-static private void makeImage(ImagePlus imp, ArrayList<MicroObject> objects){
-
-    ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());    
-    ImageStack resultStack = resultImage.getStack();   
-    int value = 1;   
-    ListIterator<MicroObject> citr = objects.listIterator();
-   
-    while(citr.hasNext()){
-                            MicroObject vol = (MicroObject) citr.next();
-                            vol.setColor(value);
-                            value++;
-                            if(value > 255){value = 1;}
-    }
-
-        for (int i = 0; i <= imp.getNSlices(); i++) {
-                ListIterator<MicroObject> itr = objects.listIterator();
-                while(itr.hasNext()){
-                        try {
-                            MicroObject vol = (MicroObject) itr.next();
-                            int[] x_pixels = vol.getXPixelsInRegion(i);
-                            int[] y_pixels = vol.getYPixelsInRegion(i);
-                            for (int c = 0; c < x_pixels.length; c++) {
-                                resultStack.setVoxel(x_pixels[c], y_pixels[c], i, vol.getColor());                               
-                            }
-
-                        } catch (NullPointerException e) {
-                        }
-                }
-        }
-    IJ.run(resultImage, "3-3-2 RGB", "");
-    resultImage.show();
-    
-  }  
 
     @Override
     public void run() {

@@ -18,7 +18,6 @@
 package vteaobjects;
 
 import ij.ImageStack;
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;

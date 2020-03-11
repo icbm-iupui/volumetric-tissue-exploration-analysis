@@ -17,23 +17,12 @@
  */
 package vtea.exploration.plotgatetools;
 
-import vtea.exploration.plottools.panels.XYChartPanel;
-import ij.IJ;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import org.jfree.chart.plot.XYPlot;
+import vtea.exploration.plottools.panels.XYChartPanel;
 
 /**
  *

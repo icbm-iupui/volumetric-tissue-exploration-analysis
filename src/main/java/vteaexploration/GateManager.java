@@ -17,8 +17,6 @@
  */
 package vteaexploration;
 
-import java.util.HashMap;
-
 /**
  *
  * @author winfrees

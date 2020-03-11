@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
+import smile.projection.PCA;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
-import smile.projection.PCA;
 
 /**
  * Principal Component Analysis.
@@ -35,6 +35,19 @@ import smile.projection.PCA;
 @Plugin (type = FeatureProcessing.class)
 public class PCAReduction extends AbstractFeatureProcessing{
     public static boolean validate = false;
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        comment = comment.concat(((JComboBox)comComponents.get(4)).getSelectedItem() + ": ");
+        comment = comment.concat(((JTextField)comComponents.get(5)).getText());
+        comment = comment.concat("</html>");
+        return comment;
+    }
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -139,17 +152,4 @@ public class PCAReduction extends AbstractFeatureProcessing{
         return true;
     }
     
-    /**
-     * Creates the Comment Text for the Block GUI.
-     * @param comComponents the parameters (Components) selected by the user in 
-     * the Setup Frame.
-     * @return comment text detailing the parameters
-     */
-    public static String getBlockComment(ArrayList comComponents){
-        String comment = "<html>";
-        comment = comment.concat(((JComboBox)comComponents.get(4)).getSelectedItem() + ": ");
-        comment = comment.concat(((JTextField)comComponents.get(5)).getText());
-        comment = comment.concat("</html>");
-        return comment;
-    }
 }

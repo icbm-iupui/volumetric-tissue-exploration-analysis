@@ -26,14 +26,6 @@ import org.scijava.plugin.RichPlugin;
  *
  * @author sethwinfree
  */
-
-
-import org.scijava.plugin.RichPlugin;
-
-/**
- *
- * @author sethwinfree
- */
 public abstract class VTEAAbstractPlugin implements RichPlugin, Runnable {
 
     @Override

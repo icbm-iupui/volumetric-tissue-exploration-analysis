@@ -17,9 +17,6 @@
  */
 package vtea.exploration.plottools.panels;
 
-import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
-import vtea.objects.layercake.microVolume;
-import vtea._vtea;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -32,6 +29,9 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIDefaults;
+import vtea._vtea;
+import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
+import vtea.objects.layercake.microVolume;
 
 /**
  *

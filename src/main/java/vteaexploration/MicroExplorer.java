@@ -17,17 +17,6 @@
  */
 package vteaexploration;
 
-import vtea.exploration.plottools.panels.VerticalLabelUI;
-import vtea.exploration.plotgatetools.gates.Gate;
-import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
-import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
-import vtea.exploration.plotgatetools.listeners.PopupMenuAxisListener;
-import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
-import vtea.exploration.plotgatetools.listeners.PopupMenuAxisLUTListener;
-import vtea.exploration.plotgatetools.listeners.PopupMenuLUTListener;
-import vtea.exploration.plottools.panels.ExplorationCenter;
-import vtea.exploration.plottools.panels.PlotAxesPanels;
-import vtea.exploration.plottools.panels.XYPanels;
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
@@ -79,13 +68,23 @@ import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
+import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
+import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
+import vtea.exploration.plotgatetools.listeners.PopupMenuAxisLUTListener;
+import vtea.exploration.plotgatetools.listeners.PopupMenuAxisListener;
+import vtea.exploration.plotgatetools.listeners.PopupMenuLUTListener;
+import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vtea.exploration.plottools.panels.AbstractExplorationPanel;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
-import vteaobjects.MicroObject;
+import vtea.exploration.plottools.panels.ExplorationCenter;
+import vtea.exploration.plottools.panels.PlotAxesPanels;
+import vtea.exploration.plottools.panels.VerticalLabelUI;
+import vtea.exploration.plottools.panels.XYPanels;
 import vtea.feature.FeatureFrame;
 import vtea.measurement.MeasurementFrame;
 import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
+import vteaobjects.MicroObject;
 
 /**
  *

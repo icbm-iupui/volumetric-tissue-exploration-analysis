@@ -17,40 +17,29 @@
  */
 package vtea.protocol.blockstepgui;
 
-import vtea.protocol.ProtocolManagerMulti;
-import vtea.protocol.listeners.DeleteBlockListener;
-import vtea.protocol.listeners.MicroBlockSetupListener;
-import vtea.protocol.listeners.RebuildPanelListener;
-import vtea.protocol.setup.MicroBlockProcessSetup;
-import vtea.protocol.setup.MicroBlockSetup;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.Duplicator;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
-import static vtea._vtea.PROCESSINGMAP;
-import vtea.imageprocessing.AbstractImageProcessing;
 import vtea.processor.ImageProcessingProcessor;
+import vtea.protocol.ProtocolManagerMulti;
 import vtea.protocol.datastructure.ImageProcessingProtocol;
-import vtea.workflow.ImageProcessingWorkflow;
+import vtea.protocol.listeners.DeleteBlockListener;
+import vtea.protocol.listeners.MicroBlockSetupListener;
+import vtea.protocol.listeners.RebuildPanelListener;
+import vtea.protocol.setup.MicroBlockProcessSetup;
 
 /**
  *

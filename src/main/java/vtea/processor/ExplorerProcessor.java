@@ -18,23 +18,11 @@
 package vtea.processor;
 
 import ij.ImagePlus;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JWindow;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
 import org.scijava.plugin.Plugin;
-import vtea.gui.CustomTableModel;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vtea.exploration.plottools.panels.XYExplorationPanel;
 import vtea.jdbc.H2DatabaseEngine;

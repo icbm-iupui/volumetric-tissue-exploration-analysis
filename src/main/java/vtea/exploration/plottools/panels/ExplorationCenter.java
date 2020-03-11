@@ -20,14 +20,14 @@ package vtea.exploration.plottools.panels;
 import ij.ImagePlus;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
-import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
-import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.JPanel;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
+import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
+import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vteaobjects.MicroObject;
 
 /**

@@ -28,6 +28,30 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Measurements.class)
 public class ThresholdMean extends AbstractMeasurement {
+    static public Number getMean(ArrayList values) {
+        
+        Number max = Maximum.getMaximum(values);
+        Number min = Minimum.getMinimum(values);
+        
+        double cutoff = max.doubleValue()-((max.doubleValue()-min.doubleValue())/4);
+        
+        double n = 0;
+        int count = 0;
+        ListIterator<Number> itr = values.listIterator();
+        while(itr.hasNext()){
+            try{
+                Number value = itr.next();
+                if(value.doubleValue() >= cutoff){
+                    n = n + value.doubleValue();
+                    count++;
+                }
+            } catch(Exception ex){
+                ex.printStackTrace();
+            }
+        }
+        return n/count;
+        
+    }
     
     public ThresholdMean(){
     VERSION = "1.0";
@@ -44,28 +68,4 @@ public class ThresholdMean extends AbstractMeasurement {
     return getMean(values);
     }  
     
-    static public Number getMean(ArrayList values) {
-        
-       Number max = Maximum.getMaximum(values);
-       Number min = Minimum.getMinimum(values);
-       
-       double cutoff = max.doubleValue()-((max.doubleValue()-min.doubleValue())/4);
-        
-       double n = 0;
-       int count = 0;
-        ListIterator<Number> itr = values.listIterator();   
-    while(itr.hasNext()){
-        try{
-        Number value = itr.next(); 
-        if(value.doubleValue() >= cutoff){
-        n = n + value.doubleValue();
-        count++;
-        }
-        } catch(Exception ex){
-            ex.printStackTrace();
-        }
-    }   
-    return n/count;
-        
-    }
 }

@@ -62,13 +62,11 @@ package vtea.exploration.plottools.panels;
  */
 //package org.jfree.chart.demo;
 import java.awt.RenderingHints;
-
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.FastScatterPlot;
 import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 
 /**
  * A demo of the fast scatter plot.

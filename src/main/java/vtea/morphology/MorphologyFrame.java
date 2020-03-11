@@ -17,26 +17,24 @@
  */
 package vtea.morphology;
 
-import vtea.feature.listeners.RepaintFeatureListener;
-import vtea.protocol.listeners.RebuildPanelListener;
-import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
-import vtea.protocol.listeners.UpdateProgressListener;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.WindowEvent;
 import static java.awt.event.WindowEvent.WINDOW_CLOSED;
 import java.awt.event.WindowStateListener;
-import java.util.ArrayList;
-import java.util.ListIterator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ListIterator;
 import javax.swing.JOptionPane;
 import vtea.exploration.listeners.AddFeaturesListener;
-import vtea.processor.FeatureProcessor;
+import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.protocol.blockstepgui.MorphologyStepBlockGUI;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MorphologyFrameListener;
+import vtea.protocol.listeners.RebuildPanelListener;
+import vtea.protocol.listeners.UpdateProgressListener;
 
 /**
  * Window for analysis methods. Keeps track of analysis methods that are added 

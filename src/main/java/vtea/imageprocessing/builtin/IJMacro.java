@@ -20,7 +20,6 @@ package vtea.imageprocessing.builtin;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import javax.swing.JScrollPane;
-
 import javax.swing.JTextPane;
 import org.scijava.plugin.Plugin;
 import vtea.imageprocessing.AbstractImageProcessing;

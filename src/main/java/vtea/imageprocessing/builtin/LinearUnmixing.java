@@ -20,13 +20,9 @@ package vtea.imageprocessing.builtin;
 
 import ij.IJ;
 import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.ChannelSplitter;
-import ij.plugin.filter.BackgroundSubtracter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.JLabel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import net.imglib2.img.Img;
 import org.scijava.plugin.Plugin;

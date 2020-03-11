@@ -17,9 +17,8 @@
  */
 package vtea.services;
 
-import vtea.objects.morphology.Morphology;
 import org.scijava.Context;
-import vtea.objects.measurements.Measurements;
+import vtea.objects.morphology.Morphology;
 
 /**
  *

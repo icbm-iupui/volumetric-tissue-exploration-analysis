@@ -19,18 +19,11 @@ package vtea.workflow;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
-import ij.plugin.ChannelSplitter;
 import ij.plugin.Duplicator;
-import ij.plugin.RGBStackMerge;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.scijava.plugin.Plugin;
-import vtea.imageprocessing.AbstractImageProcessing;
-import static vtea._vtea.PROCESSINGMAP;
 import vtea.processor.ImageProcessingProcessor;
 import vtea.protocol.datastructure.ImageProcessingProtocol;
 

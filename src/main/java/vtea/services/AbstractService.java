@@ -23,8 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import vtea.VTEAModule;
-
 import org.scijava.Context;
 import org.scijava.InstantiableException;
 import org.scijava.log.LogService;
@@ -32,6 +30,7 @@ import org.scijava.plugin.Plugin;
 import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
 import org.scijava.service.Service;
+import vtea.VTEAModule;
 
 
 /**
@@ -47,11 +46,6 @@ public abstract class AbstractService< K extends VTEAModule >
 {
 	private final Class< K > cl;
 
-	public AbstractService( final Class< K > cl , Context context)
-	{
-		this.cl = cl;
-		registerModules(context);
-	}
 
 	protected List< String > keys;
 
@@ -64,6 +58,11 @@ public abstract class AbstractService< K extends VTEAModule >
 	protected List< String > disabled;
 
 	protected Map< String, K > implementations;
+        public AbstractService( final Class< K > cl , Context context)
+        {
+            this.cl = cl;
+            registerModules(context);
+        }
 
 	private void registerModules(Context context)
 	{

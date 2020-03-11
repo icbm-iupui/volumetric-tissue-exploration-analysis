@@ -17,7 +17,6 @@
  */
 package vtea.exploration.plotgatetools.gates;
 
-import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -32,7 +31,7 @@ import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 
 /**
  *
@@ -45,30 +44,6 @@ public class PolygonSelection extends MicroSelection {
 
     List<Point> points = new ArrayList<Point>();
     ArrayList<PolygonSelectionListener> gateListener = new ArrayList();
-
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setPaint(Color.blue);
-        for (int j = 0; j < points.size() - 1; j++) {
-            Point p = points.get(j);
-            Point next = points.get(j + 1);
-            g2.draw(new Line2D.Double(p, next));
-        }
-        g2.setPaint(Color.red);
-        for (int j = 0; j < points.size(); j++) {
-            Point p = points.get(j);
-            g2.fill(new Ellipse2D.Double(p.x - 2, p.y - 2, 4, 4));
-        }
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(512, 512);
-    }
-
     public MouseListener ml = new MouseAdapter() {
         int size = 5;
         int PROXIMAL = 5;
@@ -97,5 +72,29 @@ public class PolygonSelection extends MicroSelection {
             repaint();
         }
     };
+
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setPaint(Color.blue);
+        for (int j = 0; j < points.size() - 1; j++) {
+            Point p = points.get(j);
+            Point next = points.get(j + 1);
+            g2.draw(new Line2D.Double(p, next));
+        }
+        g2.setPaint(Color.red);
+        for (int j = 0; j < points.size(); j++) {
+            Point p = points.get(j);
+            g2.fill(new Ellipse2D.Double(p.x - 2, p.y - 2, 4, 4));
+        }
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(512, 512);
+    }
+
 
 }

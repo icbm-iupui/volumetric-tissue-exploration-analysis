@@ -33,10 +33,10 @@ import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import org.scijava.plugin.Plugin;
+import smile.math.Math;
 import smile.stat.distribution.MultivariateGaussianDistribution;
 import smile.stat.distribution.MultivariateGaussianMixture;
 import smile.stat.distribution.MultivariateMixture;
-import smile.math.Math;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
 
@@ -49,11 +49,29 @@ import vtea.featureprocessing.FeatureProcessing;
  */
 @Plugin (type = FeatureProcessing.class)
 public class GaussianMix extends AbstractFeatureProcessing{
+    public static boolean validate = true;
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        JCheckBox jcb = (JCheckBox)comComponents.get(6);
+        if(jcb.isSelected())
+            comment = comment.concat(jcb.getText() + ": Enabled");
+        else{
+            comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+            comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
+            comment = comment.concat("</html>");
+        }
+        return comment;
+    }
     List<MultivariateMixture.Component> components;
     Runtime rt;
     Random rand;
     
-    public static boolean validate = true;
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -102,24 +120,6 @@ public class GaussianMix extends AbstractFeatureProcessing{
         protocol.add(infoCrit);
     }
     
-    /**
-     * Creates the Comment Text for the Block GUI.
-     * @param comComponents the parameters (Components) selected by the user in 
-     * the Setup Frame.
-     * @return comment text detailing the parameters
-     */
-    public static String getBlockComment(ArrayList comComponents){
-        String comment = "<html>";
-        JCheckBox jcb = (JCheckBox)comComponents.get(6);
-        if(jcb.isSelected())
-            comment = comment.concat(jcb.getText() + ": Enabled");
-        else{
-            comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
-            comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
-            comment = comment.concat("</html>");
-        }
-        return comment;
-    }
     
     @Override
     public String getDataDescription(ArrayList params){

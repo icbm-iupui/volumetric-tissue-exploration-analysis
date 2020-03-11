@@ -17,17 +17,8 @@
  */
 package vtea.exploration.plotgatetools;
 
-import vteaexploration.MicroExplorer;
-import ij.IJ;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  *

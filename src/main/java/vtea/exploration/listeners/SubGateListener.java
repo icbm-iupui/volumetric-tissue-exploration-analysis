@@ -17,8 +17,6 @@
  */
 package vtea.exploration.listeners;
 
-import java.awt.geom.Path2D;
-
 /**
  *
  * @author sethwinfree

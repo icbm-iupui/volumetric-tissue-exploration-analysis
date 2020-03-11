@@ -23,13 +23,13 @@ package vteaexploration;
  */
 import ij.*;
 import ij.gui.*;
-import ij.process.*;
-import ij.measure.Calibration;
 import ij.macro.Interpreter;
+import ij.measure.Calibration;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Concatenator;
 import ij.plugin.Duplicator;
 import ij.plugin.RGBStackMerge;
+import ij.process.*;
 import java.awt.*;
 import java.awt.image.*;
 

@@ -20,7 +20,6 @@ package vtea.services;
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
-import vtea.VTEAModule;
 import vtea.objects.Segmentation.Segmentation;
 
 /**

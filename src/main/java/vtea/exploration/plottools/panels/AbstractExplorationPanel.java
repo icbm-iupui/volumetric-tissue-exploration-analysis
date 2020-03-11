@@ -41,6 +41,7 @@ import vteaobjects.MicroObject;
  * @author vinfrais
  */
 public abstract class AbstractExplorationPanel extends JFrame implements ExplorationCenter {
+    protected static Color imageGateColor = new Color(0,177,76);
 
     ArrayList<MakeImageOverlayListener> overlaylisteners = new ArrayList<MakeImageOverlayListener>();
     
@@ -82,7 +83,6 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected int currentY;
     protected int currentL; 
     protected int pointsize;
-    protected static Color imageGateColor = new Color(0,177,76);   
 
     public AbstractExplorationPanel() {
         CenterPanel.setOpaque(false);

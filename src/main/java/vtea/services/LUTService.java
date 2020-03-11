@@ -21,7 +21,6 @@ package vtea.services;
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
-import vtea.featureprocessing.FeatureProcessing;
 import vtea.lut.LUT;
 
 

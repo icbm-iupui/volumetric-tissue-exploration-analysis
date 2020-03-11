@@ -18,14 +18,13 @@
 package vtea.objects.Segmentation;
 
 import ij.IJ;
-import vteaexploration.Datasets;
-
 import ij.ImageStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import vtea.objects.floodfill3D.FloodFill3D;
 import vtea.objects.layercake.LayerCake3D;
+import vteaexploration.Datasets;
 
 /**
  *

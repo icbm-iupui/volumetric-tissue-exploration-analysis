@@ -20,17 +20,13 @@ package vtea.objects.Segmentation;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.event.ChangeEvent;
-import org.scijava.plugin.Plugin;
-import vteaobjects.MicroObject;
 import vtea.objects.floodfill3D.FloodFill3D;
+import vteaobjects.MicroObject;
 
 /**
  *

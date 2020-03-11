@@ -18,24 +18,21 @@
 package vtea.feature;
 
 import ij.ImagePlus;
-import vtea.feature.listeners.RepaintFeatureListener;
-import vtea.protocol.listeners.RebuildPanelListener;
-import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
-import vtea.protocol.listeners.UpdateProgressListener;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.ListIterator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ListIterator;
 import javax.swing.JOptionPane;
 import vtea.exploration.listeners.AddFeaturesListener;
+import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.processor.FeatureProcessor;
+import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
 import vtea.protocol.listeners.DeleteBlockListener;
+import vtea.protocol.listeners.RebuildPanelListener;
+import vtea.protocol.listeners.UpdateProgressListener;
 
 /**
  * Window for analysis methods. Keeps track of analysis methods that are added 

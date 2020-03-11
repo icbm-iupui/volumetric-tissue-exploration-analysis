@@ -19,9 +19,7 @@ package vtea.objects.measurements;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import net.imglib2.RealPoint;
 import org.scijava.plugin.Plugin;
-import vtea.processor.Processor;
 
 /**
  *
@@ -29,6 +27,21 @@ import vtea.processor.Processor;
  */
 @Plugin(type = Measurements.class)
 public class Mean extends AbstractMeasurement {
+    static public Number getMean(ArrayList values) {
+        
+        double n = 0;
+        ListIterator<Number> itr = values.listIterator();
+        while(itr.hasNext()){
+            try{
+                Number value = itr.next();
+                n = n + value.doubleValue();
+            } catch(Exception ex){
+                ex.printStackTrace();
+            }
+        }
+        return n/values.size();
+        
+    }
     
     public Mean(){
     VERSION = "1.0";
@@ -45,19 +58,4 @@ public class Mean extends AbstractMeasurement {
     return getMean(values);
     }  
     
-    static public Number getMean(ArrayList values) {
-        
-                double n = 0;
-        ListIterator<Number> itr = values.listIterator();   
-    while(itr.hasNext()){
-        try{
-        Number value = itr.next(); 
-        n = n + value.doubleValue();
-        } catch(Exception ex){
-            ex.printStackTrace();
-        }
-    }   
-    return n/values.size();
-        
-    }
 }

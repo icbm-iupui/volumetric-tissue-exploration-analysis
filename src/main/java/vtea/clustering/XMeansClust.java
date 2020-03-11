@@ -23,9 +23,9 @@ import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import org.scijava.plugin.Plugin;
+import smile.clustering.XMeans;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
-import smile.clustering.XMeans;
 
 /**
  *X-Means Clustering. An improvement upon K-Means clustering. For more 
@@ -36,6 +36,19 @@ import smile.clustering.XMeans;
 @Plugin (type = FeatureProcessing.class)
 public class XMeansClust extends AbstractFeatureProcessing{
     public static boolean validate = false;
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
+        comment = comment.concat("</html>");
+        return comment;
+    }
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -102,17 +115,4 @@ public class XMeansClust extends AbstractFeatureProcessing{
         return true;
     }
     
-    /**
-     * Creates the Comment Text for the Block GUI.
-     * @param comComponents the parameters (Components) selected by the user in 
-     * the Setup Frame.
-     * @return comment text detailing the parameters
-     */
-    public static String getBlockComment(ArrayList comComponents){
-        String comment = "<html>";
-        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
-        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
-        comment = comment.concat("</html>");
-        return comment;
-    }
 }

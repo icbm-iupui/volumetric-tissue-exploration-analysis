@@ -47,10 +47,10 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
 import org.jfree.chart.renderer.xy.XYShapeRenderer;
 import org.jfree.chart.title.PaintScaleLegend;
+import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.DefaultXYZDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYZDataset;
-import org.jfree.chart.ui.RectangleEdge;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.jdbc.H2DatabaseEngine;
 import vteaobjects.MicroObject;
@@ -88,6 +88,26 @@ public class XYChartPanel implements RoiListener {
     static Color EIGHTYPERCENT = new Color(0x1f1feb);
     static Color NINETYPERCENT = new Color(0x0f0ff5);
     static Color ALLPERCENT = new Color(0x0000ff);
+    //
+//    //test class for H2 database with canned data
+    public static void insertFromCSV(Connection connection) throws SQLException {
+        
+        PreparedStatement createPreparedStatement = null;
+        
+        try {
+            connection.setAutoCommit(false);
+            String ImportQuery = "CREATE TABLE VTEA AS SELECT * FROM CSVREAD('AQtest_LSConnect3D_vtea_022519.csv')";
+            createPreparedStatement = connection.prepareStatement(ImportQuery);
+            createPreparedStatement.executeUpdate();
+            createPreparedStatement.close();
+        } catch (SQLException e) {
+            System.out.println("Exception Message " + e.getLocalizedMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            connection.close();
+        }
+    }
 
     private ChartPanel chartPanel;
     private List measurements = new ArrayList();
@@ -225,26 +245,6 @@ public class XYChartPanel implements RoiListener {
         f.pack();
     }
 
-//    
-//    //test class for H2 database with canned data
-    public static void insertFromCSV(Connection connection) throws SQLException {
-
-        PreparedStatement createPreparedStatement = null;
-
-        try {
-            connection.setAutoCommit(false);
-            String ImportQuery = "CREATE TABLE VTEA AS SELECT * FROM CSVREAD('AQtest_LSConnect3D_vtea_022519.csv')";
-            createPreparedStatement = connection.prepareStatement(ImportQuery);
-            createPreparedStatement.executeUpdate();
-            createPreparedStatement.close();
-        } catch (SQLException e) {
-            System.out.println("Exception Message " + e.getLocalizedMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            connection.close();
-        }
-    }
 
     private ChartPanel createChart(Connection connection, int x, int y, int l, String xText, String yText, String lText, Color imageGateColor) {
 

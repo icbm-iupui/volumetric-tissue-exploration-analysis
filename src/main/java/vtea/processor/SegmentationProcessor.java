@@ -22,7 +22,6 @@ import ij.ImageStack;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -30,18 +29,14 @@ import java.util.ListIterator;
 import java.util.concurrent.ForkJoinPool;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
 import java.util.concurrent.RecursiveAction;
+import javax.swing.JComponent;
 import org.scijava.plugin.Plugin;
 import static vtea._vtea.MORPHOLOGICALMAP;
 import static vtea._vtea.SEGMENTATIONMAP;
 import static vtea._vtea.getInterleavedStacks;
 import vtea.objects.Segmentation.AbstractSegmentation;
-import vtea.objects.Segmentation.Region2DSingleThreshold;
-import vtea.objects.layercake.microRegion;
-import vtea.objects.layercake.microVolume;
 import vtea.objects.morphology.AbstractMorphology;
 import vteaobjects.MicroObject;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import javax.swing.JComponent;
 
 /**
  *

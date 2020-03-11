@@ -17,8 +17,6 @@
  */
 package vtea.protocol.listeners;
 
-import javax.swing.JList;
-
 /**
  *
  * @author vinfrais

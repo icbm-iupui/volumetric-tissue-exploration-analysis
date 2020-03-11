@@ -18,12 +18,6 @@
 package vtea.reduction;
 
 
-import ij.IJ;
-import java.util.ArrayList;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import org.scijava.plugin.Plugin;
-import com.jujutsu.utils.TSneUtils;
 import com.jujutsu.tsne.PrincipalComponentAnalysis;
 import com.jujutsu.tsne.TSneConfiguration;
 import com.jujutsu.tsne.barneshut.DataPoint;
@@ -31,6 +25,8 @@ import com.jujutsu.tsne.barneshut.Distance;
 import com.jujutsu.tsne.barneshut.EuclideanDistance;
 import com.jujutsu.tsne.barneshut.VpTree;
 import com.jujutsu.utils.MatrixOps;
+import com.jujutsu.utils.TSneUtils;
+import ij.IJ;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.BufferedReader;
@@ -41,9 +37,13 @@ import static java.lang.Math.exp;
 import static java.lang.Math.log;
 import static java.lang.Math.max;
 import static java.lang.Math.sqrt;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import org.scijava.plugin.Plugin;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
 
@@ -53,10 +53,37 @@ import vtea.featureprocessing.FeatureProcessing;
  */
 @Plugin (type = FeatureProcessing.class)
 public class TSNEReductionAdjust extends AbstractFeatureProcessing{
+    public static boolean validate = true;
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+        comment = comment.concat(((JTextField)comComponents.get(5)).getText() + ", ");
+        comment = comment.concat(((JLabel)comComponents.get(6)).getText() + ": ");
+        comment = comment.concat(((JTextField)comComponents.get(7)).getText() + ", ");
+        comment = comment.concat(((JLabel)comComponents.get(8)).getText() + ": ");
+        comment = comment.concat(((JTextField)comComponents.get(9)).getText() + ", ");
+        comment = comment.concat(((JLabel)comComponents.get(10)).getText() + ": ");
+        comment = comment.concat(((JTextField)comComponents.get(11)).getText() + ", ");
+        comment = comment.concat(((JLabel)comComponents.get(12)).getText());
+        boolean pca = ((JCheckBox)comComponents.get(13)).isSelected();
+        comment = comment.concat(pca? ": Enabled" : ": Disabled");
+        if(pca){
+            comment = comment.concat(((JLabel)comComponents.get(14)).getText() + ": ");
+            comment = comment.concat(((JTextField)comComponents.get(15)).getText());
+        }
+        comment = comment.concat("</html>");
+        return comment;
+    }
+    static double sign_tsne(double x) { return (x == .0 ? .0 : (x < .0 ? -1.0 : 1.0)); }
     protected final Distance distance = new EuclideanDistance();
     protected volatile boolean abort = false;
     
-    public static boolean validate = true;
     Runtime rt;
     Random rand;
     /**
@@ -197,32 +224,6 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
         return true;
     }
     
-    /**
-     * Creates the Comment Text for the Block GUI.
-     * @param comComponents the parameters (Components) selected by the user in 
-     * the Setup Frame.
-     * @return comment text detailing the parameters
-     */
-    public static String getBlockComment(ArrayList comComponents){
-        String comment = "<html>";
-        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
-        comment = comment.concat(((JTextField)comComponents.get(5)).getText() + ", ");
-        comment = comment.concat(((JLabel)comComponents.get(6)).getText() + ": ");
-        comment = comment.concat(((JTextField)comComponents.get(7)).getText() + ", ");
-        comment = comment.concat(((JLabel)comComponents.get(8)).getText() + ": ");
-        comment = comment.concat(((JTextField)comComponents.get(9)).getText() + ", ");
-        comment = comment.concat(((JLabel)comComponents.get(10)).getText() + ": ");
-        comment = comment.concat(((JTextField)comComponents.get(11)).getText() + ", ");
-        comment = comment.concat(((JLabel)comComponents.get(12)).getText());
-        boolean pca = ((JCheckBox)comComponents.get(13)).isSelected();
-        comment = comment.concat(pca? ": Enabled" : ": Disabled");
-        if(pca){
-            comment = comment.concat(((JLabel)comComponents.get(14)).getText() + ": ");
-            comment = comment.concat(((JTextField)comComponents.get(15)).getText());
-        }
-        comment = comment.concat("</html>");
-        return comment;
-    }
     
     private void performReduction(double[][] feature, int outDim, int itr, double eta, int perpl, int inDim, boolean pca){
         double[][] list = new double[feature.length][outDim];
@@ -633,18 +634,6 @@ public class TSNEReductionAdjust extends AbstractFeatureProcessing{
 		return expanded;
     }
     
-    class SymResult{
-        int []    sym_row_P;
-        int []    sym_col_P;
-        double [] sym_val_P;
-
-        public SymResult(int[] sym_row_P, int[] sym_col_P, double[] sym_val_P) {
-                super();
-                this.sym_row_P = sym_row_P;
-                this.sym_col_P = sym_col_P;
-                this.sym_val_P = sym_val_P;
-        }
-    }
     
     SymResult symmetrizeMatrix(int [] _row_P, int [] _col_P, double [] _val_P, int N) {
 
@@ -756,7 +745,6 @@ double[] gains){
         }
     }
     
-    static double sign_tsne(double x) { return (x == .0 ? .0 : (x < .0 ? -1.0 : 1.0)); }
     
     private void zeroMean(double [] X, int N, int D){
         // Compute data mean
@@ -802,6 +790,18 @@ double[] gains){
         }
 
         return C;
+    }
+    class SymResult{
+        int []    sym_row_P;
+        int []    sym_col_P;
+        double [] sym_val_P;
+        
+        public SymResult(int[] sym_row_P, int[] sym_col_P, double[] sym_val_P) {
+            super();
+            this.sym_row_P = sym_row_P;
+            this.sym_col_P = sym_col_P;
+            this.sym_val_P = sym_val_P;
+        }
     }
     
     class SPTree{

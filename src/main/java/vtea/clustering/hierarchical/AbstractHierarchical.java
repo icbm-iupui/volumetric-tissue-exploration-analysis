@@ -26,9 +26,9 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import smile.clustering.HierarchicalClustering;
 import smile.clustering.linkage.Linkage;
-import vtea.featureprocessing.AbstractFeatureProcessing;
 import smile.plot.Dendrogram;
 import smile.plot.PlotCanvas;
+import vtea.featureprocessing.AbstractFeatureProcessing;
 
 /**
  * Clusters using Hierarchical clustering with ambiguous linkage method. 

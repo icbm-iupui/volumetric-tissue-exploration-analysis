@@ -30,10 +30,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JScrollBar;
 import javax.swing.UIManager;
-import javax.swing.plaf.ComponentUI;
-import org.h2.tools.DeleteDbFiles;
 import org.scijava.Context;
 import org.scijava.Prioritized;
 import org.scijava.Priority;
@@ -41,7 +38,6 @@ import org.scijava.log.LogService;
 import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
 import org.scijava.plugin.RichPlugin;
-import vtea.jdbc.H2DatabaseEngine;
 import vtea.protocol.ProtocolManagerMulti;
 import vtea.services.FeatureService;
 import vtea.services.FileTypeService;
@@ -104,14 +100,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static ConcurrentHashMap<String, String> MORPHOLOGICALMAP;
     public static ConcurrentHashMap<String, String> FEATUREMAP;
     public static ConcurrentHashMap<String, String> LUTMAP;
-    
-    public ProtocolManagerMulti protocolWindow;
-    
-    public Context context;
-    public double priority;
-    
     public static void main(String[] args) {
-         //set the plugins.dir property to make the plugin appear in the Plugins menu
+        //set the plugins.dir property to make the plugin appear in the Plugins menu
         Class<?> clazz = _vtea.class;
         String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
         String pluginsDir = url.substring(5, url.length() - clazz.getName().length() - 6);
@@ -123,6 +113,63 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         });
     }
     //private Server sonicServer;
+    public static void setJLF(){
+        
+        try{
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        }catch(Exception e){}
+        
+    }
+    public static void setNLF(){
+        
+        try{
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }catch(Exception e){}
+        
+        
+        
+        
+    }
+    public static long getPossibleThreads(double stackSize){
+        
+        long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long freeMemory = Runtime.getRuntime().maxMemory() - usedMemory;
+        
+        double availMemory = freeMemory - (freeMemory*(0.25));
+        
+        if(Math.round(availMemory/stackSize) > Runtime.getRuntime().availableProcessors()){
+            //System.out.println("PROFILING:  Possible threads per dataset size: " + Runtime.getRuntime().availableProcessors());
+            return Runtime.getRuntime().availableProcessors();
+        } else {
+            //System.out.println("PROFILING:  Possible threads per dataset size: " + Math.round(availMemory/stackSize));
+            return Math.round(availMemory/stackSize);
+        }
+    }
+    public static long getAvailableMemory(){
+        
+        long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long freeMemory = Runtime.getRuntime().maxMemory() - usedMemory;
+        
+        return freeMemory;
+        
+    }
+    public static ImageStack[] getInterleavedStacks(ImagePlus imp) {
+        ImageStack[] stacks = new ImageStack[imp.getNChannels()];
+        ImageStack stack = imp.getImageStack();
+        for (int m = 0; m <= imp.getNChannels() - 1; m++) {
+            stacks[m] = new ImageStack(imp.getWidth(), imp.getHeight());
+            for (int n = m; n <= imp.getStackSize() - 1; n += imp.getNChannels()) {
+                stacks[m].addSlice(stack.getProcessor(n + 1));
+            }
+        }
+        return stacks;
+    }
+    
+    public ProtocolManagerMulti protocolWindow;
+    
+    public Context context;
+    public double priority;
+    
 
 
     @Override
@@ -448,61 +495,6 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public static void setJLF(){
-                  
-            try{
-                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-            }catch(Exception e){}
-
-    }
-    
-    public static void setNLF(){
-        
-            try{
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            }catch(Exception e){}
-
-       
-    
-        
-    }
-    
-    public static long getPossibleThreads(double stackSize){
-        
-            long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-            long freeMemory = Runtime.getRuntime().maxMemory() - usedMemory;
-            
-            double availMemory = freeMemory - (freeMemory*(0.25));
-            
-            if(Math.round(availMemory/stackSize) > Runtime.getRuntime().availableProcessors()){
-                //System.out.println("PROFILING:  Possible threads per dataset size: " + Runtime.getRuntime().availableProcessors());
-                return Runtime.getRuntime().availableProcessors();
-            } else {
-                //System.out.println("PROFILING:  Possible threads per dataset size: " + Math.round(availMemory/stackSize));
-                return Math.round(availMemory/stackSize);
-            }
-    }
-    
-    public static long getAvailableMemory(){
-        
-            long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-            long freeMemory = Runtime.getRuntime().maxMemory() - usedMemory;
-            
-            return freeMemory;
-
-    }
-    
-    public static ImageStack[] getInterleavedStacks(ImagePlus imp) {
-        ImageStack[] stacks = new ImageStack[imp.getNChannels()];
-        ImageStack stack = imp.getImageStack();
-        for (int m = 0; m <= imp.getNChannels() - 1; m++) {
-            stacks[m] = new ImageStack(imp.getWidth(), imp.getHeight());
-            for (int n = m; n <= imp.getStackSize() - 1; n += imp.getNChannels()) {
-                stacks[m].addSlice(stack.getProcessor(n + 1));
-            }
-        }	
-        return stacks;
-    }
 
 
  

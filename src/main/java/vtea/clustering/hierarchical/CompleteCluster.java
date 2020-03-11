@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Random;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import org.scijava.plugin.Plugin;
@@ -40,6 +39,19 @@ import vtea.featureprocessing.FeatureProcessing;
 public class CompleteCluster extends AbstractHierarchical{
     
     public static boolean validate = true;
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
+        comment = comment.concat("</html>");
+        return comment;
+    }
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -145,18 +157,5 @@ public class CompleteCluster extends AbstractHierarchical{
         }
     }
     
-     /**
-     * Creates the Comment Text for the Block GUI.
-     * @param comComponents the parameters (Components) selected by the user in 
-     * the Setup Frame.
-     * @return comment text detailing the parameters
-     */
-    public static String getBlockComment(ArrayList comComponents){
-        String comment = "<html>";
-        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
-        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
-        comment = comment.concat("</html>");
-        return comment;
-    }
     
 }

@@ -25,9 +25,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
-import smile.clustering.linkage.WardLinkage;
 import org.scijava.plugin.Plugin;
-import smile.clustering.linkage.CompleteLinkage;
+import smile.clustering.linkage.WardLinkage;
 import vtea.featureprocessing.FeatureProcessing;
 
 /**
@@ -40,6 +39,19 @@ import vtea.featureprocessing.FeatureProcessing;
 public class WardCluster extends AbstractHierarchical{
     
     public static boolean validate = true;
+    /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
+        comment = comment.concat("</html>");
+        return comment;
+    }
     /**
      * Basic Constructor. Sets all protected variables
      */
@@ -150,18 +162,5 @@ public class WardCluster extends AbstractHierarchical{
         }
     }
     
-     /**
-     * Creates the Comment Text for the Block GUI.
-     * @param comComponents the parameters (Components) selected by the user in 
-     * the Setup Frame.
-     * @return comment text detailing the parameters
-     */
-    public static String getBlockComment(ArrayList comComponents){
-        String comment = "<html>";
-        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
-        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
-        comment = comment.concat("</html>");
-        return comment;
-    }
     
 }

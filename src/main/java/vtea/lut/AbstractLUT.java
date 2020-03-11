@@ -19,7 +19,6 @@ package vtea.lut;
 
 import java.awt.Color;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -27,13 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractLUT implements LUT {
     
-    protected String VERSION = "0.1";
-    protected String AUTHOR = "VTEA Developer";
-    protected String COMMENT = "Abstract LUT";
-    protected String NAME = "ABSTRACT LUT";
-    protected String KEY = "ABSTRACT LUT";
-    
-    Color ZEROPERCENT = new Color(0, 0, 0);
     static Color TENPERCENT = new Color(0, 0, 82);
     static Color TWENTYPERCENT = new Color(61, 0, 178);
     static Color THIRTYPERCENT = new Color(122, 0, 227);
@@ -44,6 +36,12 @@ public abstract class AbstractLUT implements LUT {
     static Color EIGHTYPERCENT = new Color(255, 175, 0);
     static Color NINETYPERCENT = new Color(255, 190, 0);
     static Color ALLPERCENT = new Color(255, 250, 50);
+    protected String VERSION = "0.1";
+    protected String AUTHOR = "VTEA Developer";
+    protected String COMMENT = "Abstract LUT";
+    protected String NAME = "ABSTRACT LUT";
+    protected String KEY = "ABSTRACT LUT";
+    Color ZEROPERCENT = new Color(0, 0, 0);
 
     @Override
     public HashMap getLUTMAP() {

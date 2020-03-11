@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import org.scijava.plugin.Plugin;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
@@ -30,6 +29,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FilenameUtils;
+import org.scijava.plugin.Plugin;
 import static vtea._vtea.FEATUREMAP;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.featureprocessing.AbstractFeatureProcessing;
@@ -43,6 +43,18 @@ import vtea.featureprocessing.AbstractFeatureProcessing;
 @Plugin(type = Processor.class)
 public class FeatureProcessor extends AbstractProcessor{
     /**
+     * the size of one feature in comparison to total progress
+     */
+    static int step;
+    /**
+     * Method.
+     * Retrieves the step size
+     * @return the size of one feature analysis in terms of total progress
+     */
+    public static int getStep(){
+        return step;
+    }
+    /**
      * Features to be analyzed with their settings
      */
     ArrayList protocol;
@@ -50,10 +62,6 @@ public class FeatureProcessor extends AbstractProcessor{
      * 2D array of objects and features
      */
     double[][] features;
-    /**
-     * the size of one feature in comparison to total progress
-     */
-    static int step;
     /**
      * The newly computed features
      */
@@ -175,14 +183,6 @@ public class FeatureProcessor extends AbstractProcessor{
         return "";
     }
     
-    /**
-     * Method.
-     * Retrieves the step size
-     * @return the size of one feature analysis in terms of total progress
-     */
-    public static int getStep(){
-        return step;
-    }
     
     public void addListener(AddFeaturesListener listener) {
         listeners.add(listener);

@@ -31,21 +31,16 @@ import java.util.ListIterator;
 import java.util.concurrent.ForkJoinPool;
 import static java.util.concurrent.ForkJoinTask.invokeAll;
 import java.util.concurrent.RecursiveAction;
-import javax.swing.JComponent;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
-import vteaobjects.MicroObject;
-import vtea.objects.layercake.LayerCake3D;
 import vtea.objects.layercake.microRegion;
 import vtea.objects.layercake.microVolume;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-
 import vtea.protocol.listeners.ChangeThresholdListener;
 import vtea.protocol.setup.MicroThresholdAdjuster;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
+import vteaobjects.MicroObject;
 
 
 /**

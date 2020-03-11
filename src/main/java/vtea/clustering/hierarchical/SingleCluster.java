@@ -35,6 +35,19 @@ import vtea.featureprocessing.FeatureProcessing;
 public class SingleCluster extends AbstractHierarchical{
     public static boolean validate = false;
     /**
+     * Creates the Comment Text for the Block GUI.
+     * @param comComponents the parameters (Components) selected by the user in
+     * the Setup Frame.
+     * @return comment text detailing the parameters
+     */
+    public static String getBlockComment(ArrayList comComponents){
+        String comment = "<html>";
+        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
+        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
+        comment = comment.concat("</html>");
+        return comment;
+    }
+    /**
      * Basic Constructor. Sets all protected variables
      */
     public SingleCluster(){
@@ -101,17 +114,4 @@ public class SingleCluster extends AbstractHierarchical{
         return true;
     }
     
-     /**
-     * Creates the Comment Text for the Block GUI.
-     * @param comComponents the parameters (Components) selected by the user in 
-     * the Setup Frame.
-     * @return comment text detailing the parameters
-     */
-    public static String getBlockComment(ArrayList comComponents){
-        String comment = "<html>";
-        comment = comment.concat(((JLabel)comComponents.get(4)).getText() + ": ");
-        comment = comment.concat(((JSpinner)comComponents.get(5)).getValue().toString());
-        comment = comment.concat("</html>");
-        return comment;
-    }
 }

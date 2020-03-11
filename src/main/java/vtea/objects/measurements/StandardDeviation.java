@@ -19,9 +19,7 @@ package vtea.objects.measurements;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import net.imglib2.RealPoint;
 import org.scijava.plugin.Plugin;
-import vtea.processor.Processor;
 
 /**
  *
@@ -29,6 +27,23 @@ import vtea.processor.Processor;
  */
 @Plugin(type = Measurements.class)
 public class StandardDeviation extends AbstractMeasurement {
+    static public Number getStandardDeviation(ArrayList values){
+        
+        Double mean = (Double)Mean.getMean(values);
+        Double stdev = 0.0;
+        
+        ListIterator<Number> itr = values.listIterator();
+        while(itr.hasNext()){
+            try{
+                Number value = itr.next();
+                stdev = stdev + Math.pow((mean - value.doubleValue()),2);
+            } catch(Exception ex){
+                ex.printStackTrace();
+            }
+        }
+        return Math.sqrt((stdev)/(values.size()-1));
+        
+    }
     
     public StandardDeviation(){
     VERSION = "1.0";
@@ -49,23 +64,6 @@ public class StandardDeviation extends AbstractMeasurement {
     return getStandardDeviation(values);
     }  
     
-    static public Number getStandardDeviation(ArrayList values){
-        
-        Double mean = (Double)Mean.getMean(values);
-        Double stdev = 0.0;
-        
-        ListIterator<Number> itr = values.listIterator();   
-    while(itr.hasNext()){
-        try{
-        Number value = itr.next(); 
-        stdev = stdev + Math.pow((mean - value.doubleValue()),2);
-        } catch(Exception ex){
-            ex.printStackTrace();
-        }
-    }   
-        return Math.sqrt((stdev)/(values.size()-1));
-        
-    }
     
    
 }

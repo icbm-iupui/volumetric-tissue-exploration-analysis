@@ -19,9 +19,7 @@ package vtea.objects.measurements;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import net.imglib2.RealPoint;
 import org.scijava.plugin.Plugin;
-import vtea.processor.Processor;
 
 /**
  *
@@ -29,6 +27,24 @@ import vtea.processor.Processor;
  */
 @Plugin(type = Measurements.class)
 public class Maximum extends AbstractMeasurement {
+    static public Number getMaximum(ArrayList values){
+        
+        double maximum = 0;
+        
+        ListIterator<Number> itr = values.listIterator();
+        while(itr.hasNext()){
+            try{
+                Number value = itr.next();
+                if(value.doubleValue() > maximum){
+                    maximum = value.doubleValue();
+                }
+            } catch(Exception ex){
+                ex.printStackTrace();
+            }
+        }
+        return maximum;
+        
+    }
     
     public Maximum(){
     VERSION = "1.0";
@@ -45,24 +61,6 @@ public class Maximum extends AbstractMeasurement {
     return getMaximum(values);
     }  
     
-    static public Number getMaximum(ArrayList values){
-    
-        double maximum = 0;
-
-        ListIterator<Number> itr = values.listIterator();   
-    while(itr.hasNext()){
-        try{
-        Number value = itr.next(); 
-        if(value.doubleValue() > maximum){
-            maximum = value.doubleValue();
-        }
-        } catch(Exception ex){
-            ex.printStackTrace();
-        }
-    }   
-        return maximum;
-        
-    }
     
    
 }

@@ -17,11 +17,10 @@
  */
 package vtea.imageprocessing.builtin;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.process.StackProcessor;
 import ij.process.ImageProcessor;
+import ij.process.StackProcessor;
 import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.JTextField;

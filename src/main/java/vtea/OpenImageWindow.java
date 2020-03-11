@@ -24,11 +24,8 @@ import ij.WindowManager;
 import ij.plugin.Duplicator;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 /*
  * To change this template, choose Tools | Templates

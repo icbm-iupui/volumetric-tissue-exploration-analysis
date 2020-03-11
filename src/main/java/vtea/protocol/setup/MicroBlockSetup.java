@@ -18,7 +18,6 @@
 package vtea.protocol.setup;
 
 import ij.ImagePlus;
-import vtea.protocol.listeners.MicroBlockSetupListener;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -26,6 +25,7 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
+import vtea.protocol.listeners.MicroBlockSetupListener;
 
 /**
  *

@@ -30,7 +30,6 @@ import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.event.TableModelEvent;
@@ -550,11 +549,11 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
  class ColorEditor extends AbstractCellEditor
                          implements TableCellEditor,
                         ActionListener {
+     protected static final String EDIT = "edit";
     Color currentColor;
     JButton button;
     JColorChooser colorChooser;
     JDialog dialog;
-    protected static final String EDIT = "edit";
  
     public ColorEditor() {
         //Set up the editor (from the table's point of view),

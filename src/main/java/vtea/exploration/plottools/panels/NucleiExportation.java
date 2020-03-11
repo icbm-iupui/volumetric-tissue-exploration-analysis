@@ -40,32 +40,31 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
-import vteaobjects.MicroObject;
-import java.lang.reflect.Method;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
 import vtea.gui.CustomTableModel;
+import vteaobjects.MicroObject;
 
 /**
  * Facilitates exportation of segmented nuclei images
@@ -1012,21 +1011,20 @@ class JTextAreaFile extends JTextArea {
     private File location;
     ImagePlus image;
     
-    @Override
-    public void setSize(Dimension d) {
-        setSize(d.width, d.height); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setSize(int width, int height) {
-        super.setSize(100, 30); //To change body of generated methods, choose Tools | Templates.
-    }
 
     ArrayList<ChangeTextListener> ChangeTextListeners = new ArrayList<ChangeTextListener>();
     
 
     public JTextAreaFile(String s) {
         super(s);
+    }
+    @Override
+    public void setSize(Dimension d) {
+        setSize(d.width, d.height); //To change body of generated methods, choose Tools | Templates.
+    }
+    @Override
+    public void setSize(int width, int height) {
+        super.setSize(100, 30); //To change body of generated methods, choose Tools | Templates.
     }
     
     

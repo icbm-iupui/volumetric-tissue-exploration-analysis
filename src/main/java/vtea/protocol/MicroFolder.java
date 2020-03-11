@@ -18,12 +18,11 @@
 package vtea.protocol;
 
 import ij.IJ;
-import vtea.objects.layercake.SingleThresholdDataModel;
-import vtea.objects.layercake.microVolume;
 import ij.ImagePlus;
 import ij.ImageStack;
 import java.util.ArrayList;
-import vteaobjects.MicroObject;
+import vtea.objects.layercake.SingleThresholdDataModel;
+import vtea.objects.layercake.microVolume;
 
 /**
  *
@@ -32,6 +31,17 @@ import vteaobjects.MicroObject;
 
 @Deprecated
 public class MicroFolder extends java.lang.Object implements Runnable {
+    public static ImageStack[] getInterleavedStacks(ImagePlus imp) {
+        ImageStack[] stacks = new ImageStack[imp.getNChannels()];
+        ImageStack stack = imp.getImageStack();
+        for (int m = 0; m <= imp.getNChannels() - 1; m++) {
+            stacks[m] = new ImageStack(imp.getWidth(), imp.getHeight());
+            for (int n = m; n <= imp.getStackSize() - 1; n += imp.getNChannels()) {
+                stacks[m].addSlice(stack.getProcessor(n + 1));
+            }
+        }
+        return stacks;
+    }
 
     //class to organize the microbuilder classes
     /**
@@ -169,17 +179,6 @@ public class MicroFolder extends java.lang.Object implements Runnable {
         return al;
     }
 
-    public static ImageStack[] getInterleavedStacks(ImagePlus imp) {
-        ImageStack[] stacks = new ImageStack[imp.getNChannels()];
-        ImageStack stack = imp.getImageStack();
-        for (int m = 0; m <= imp.getNChannels() - 1; m++) {
-            stacks[m] = new ImageStack(imp.getWidth(), imp.getHeight());
-            for (int n = m; n <= imp.getStackSize() - 1; n += imp.getNChannels()) {
-                stacks[m].addSlice(stack.getProcessor(n + 1));
-            }
-        }	
-        return stacks;
-    }
 
     @Override
     public void run() {

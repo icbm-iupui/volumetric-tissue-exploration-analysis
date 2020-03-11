@@ -32,14 +32,17 @@ import java.util.ListIterator;
 import java.util.UUID;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.ui.RectangleEdge;
-import static vtea.exploration.plotgatetools.gates.GateLayer.clipboardGate;
 
 /**
  *
  * @author vinfrais
  */
 public class PolygonGate extends Component implements Gate, Serializable {
+    private static String makeUID() {
+        UUID id = UUID.randomUUID();
+        String st = id.toString();
+        return st.replaceAll("-", "");
+    }
 
     private ArrayList<Point2D.Double> vertices = new ArrayList<>();
     private ArrayList<Point2D.Double> verticesInChartSpace = new ArrayList<>();
@@ -78,11 +81,6 @@ public class PolygonGate extends Component implements Gate, Serializable {
         uidGate = makeUID();
     }
 
-    private static String makeUID() {
-        UUID id = UUID.randomUUID();
-        String st = id.toString();
-        return st.replaceAll("-", "");
-    }
 
     public Point getBoundingAnchor() {
 

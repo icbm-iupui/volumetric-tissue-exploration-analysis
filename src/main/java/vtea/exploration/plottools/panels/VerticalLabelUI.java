@@ -43,28 +43,24 @@ import javax.swing.plaf.basic.BasicLabelUI;
  * from: http://stackoverflow.com/questions/92781/how-do-i-present-text-vertically-in-a-jlabel-java-1-6
  */
 public class VerticalLabelUI extends BasicLabelUI {
-  static {
-    labelUI = new VerticalLabelUI(false);
-  }
-
-  protected boolean clockwise;
-
-  public VerticalLabelUI( boolean clockwise ){
-    super();
-    this.clockwise = clockwise;
-  }
-
-
-  @Override
-  public Dimension getPreferredSize(JComponent c){
-    Dimension dim = super.getPreferredSize(c);
-    return new Dimension( dim.height, dim.width );
-  }
 
   private static Rectangle paintIconR = new Rectangle();
   private static Rectangle paintTextR = new Rectangle();
   private static Rectangle paintViewR = new Rectangle();
   private static Insets paintViewInsets = new Insets(0, 0, 0, 0);
+  static {
+      labelUI = new VerticalLabelUI(false);
+  }
+  protected boolean clockwise;
+  public VerticalLabelUI( boolean clockwise ){
+      super();
+      this.clockwise = clockwise;
+  }
+  @Override
+  public Dimension getPreferredSize(JComponent c){
+      Dimension dim = super.getPreferredSize(c);
+      return new Dimension( dim.height, dim.width );
+  }
 
   @Override
   public void paint(Graphics g, JComponent c){

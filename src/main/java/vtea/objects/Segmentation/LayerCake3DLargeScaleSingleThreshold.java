@@ -19,9 +19,7 @@ package vtea.objects.Segmentation;
 
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.WindowManager;
 import ij.plugin.Duplicator;
-import ij.plugin.RGBStackMerge;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -30,20 +28,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ForkJoinPool;
+import static java.util.concurrent.ForkJoinTask.invokeAll;
 import java.util.concurrent.RecursiveAction;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
-import vteaobjects.MicroObject;
-import vtea.objects.layercake.microRegion;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
 import static vtea._vtea.getInterleavedStacks;
-
+import vtea.objects.layercake.microRegion;
+import vtea.processor.listeners.ProgressListener;
 import vtea.protocol.listeners.ChangeThresholdListener;
 import vtea.protocol.setup.MicroThresholdAdjuster;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import vtea.processor.listeners.ProgressListener;
+import vteaobjects.MicroObject;
 
 /**
  *
@@ -355,90 +352,6 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private class SegmentationForkPool extends RecursiveAction implements ProgressListener {
-
-        private ArrayList<ImagePlus> imps = new ArrayList<ImagePlus>();
-        private ArrayList<MicroObject> volumes = new ArrayList<MicroObject>();
-
-        private ImageStack[] stack;
-        private ImageStack original;
-        private int start;
-        private int stop;
-
-        SegmentationForkPool(ArrayList<ImagePlus> imps, int start, int stop) {
-
-            this.imps = imps;
-
-            this.start = start;
-            this.stop = stop;
-
-        }
-
-        @Override
-        protected void compute() {
-
-            long length = 0;
-
-            if (stop - start > length) {
-
-                invokeAll(new SegmentationForkPool(imps, start, start + ((stop - start) / 2)),
-                        new SegmentationForkPool(imps, start + ((stop - start) / 2) + 1, stop));
-
-            } else {
-                LayerCake3DSingleThreshold lc3dst1 = new LayerCake3DSingleThreshold();
-                
-                lc3dst1.addListener(this);
-                
-                protocol.set(2,(int)0);
-
-                lc3dst1.process(getInterleavedStacks(imps.get(start - 1)), protocol, watershedImageJ);
-
-                if (((ArrayList) (lc3dst1.getObjects())).size() > 0) {
-
-                    //System.out.println("PROFILING: Adding offset of " + ((int) xStart.get(start - 1)) + " and " + ((int) yStart.get(start - 1)));
-
-                    ArrayList<MicroObject> al = lc3dst1.getObjects();
-
-                    ListIterator<MicroObject> itr = al.listIterator();
-
-                    //add offset to for mapping back to image and meaurements
-                    while (itr.hasNext()) {
-                        MicroObject object = itr.next();
-                        object.setPixelsX(addOffset((int) xStart.get(start - 1), object.getPixelsX()));
-                        object.setPixelsY(addOffset((int) yStart.get(start - 1), object.getPixelsY()));
-                        object.setCentroid();
-                    }
-
-                    alVolumes.addAll(al);
-                }
-
-            }
-            //reset serial id
-            ListIterator<MicroObject> allObjects = alVolumes.listIterator();
-            int serial = 0;
-            while (allObjects.hasNext()) {
-                MicroObject object = allObjects.next();
-                object.setSerialID(serial);
-                serial++;
-            }
-        }
-
-        private int[] addOffset(int d, int[] pixels) {
-
-            int[] result = new int[pixels.length];
-
-            for (int i = 0; i < pixels.length; i++) {
-                result[i] = pixels[i] + d;
-            }
-            return result;
-        }
-
-        @Override
-        public void FireProgressChange(String str, double db) {
-              notifyProgressListeners(str, db); 
-        }
-
-    }
     /** Copies components between an source and destination arraylist
      * 
      * @param version
@@ -549,6 +462,90 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME + "\n" + e.getLocalizedMessage());
             return false;
         }
+    }
+    private class SegmentationForkPool extends RecursiveAction implements ProgressListener {
+        
+        private ArrayList<ImagePlus> imps = new ArrayList<ImagePlus>();
+        private ArrayList<MicroObject> volumes = new ArrayList<MicroObject>();
+        
+        private ImageStack[] stack;
+        private ImageStack original;
+        private int start;
+        private int stop;
+        
+        SegmentationForkPool(ArrayList<ImagePlus> imps, int start, int stop) {
+            
+            this.imps = imps;
+            
+            this.start = start;
+            this.stop = stop;
+            
+        }
+        
+        @Override
+        protected void compute() {
+            
+            long length = 0;
+            
+            if (stop - start > length) {
+                
+                invokeAll(new SegmentationForkPool(imps, start, start + ((stop - start) / 2)),
+                        new SegmentationForkPool(imps, start + ((stop - start) / 2) + 1, stop));
+                
+            } else {
+                LayerCake3DSingleThreshold lc3dst1 = new LayerCake3DSingleThreshold();
+                
+                lc3dst1.addListener(this);
+                
+                protocol.set(2,(int)0);
+                
+                lc3dst1.process(getInterleavedStacks(imps.get(start - 1)), protocol, watershedImageJ);
+                
+                if (((ArrayList) (lc3dst1.getObjects())).size() > 0) {
+                    
+                    //System.out.println("PROFILING: Adding offset of " + ((int) xStart.get(start - 1)) + " and " + ((int) yStart.get(start - 1)));
+                    
+                    ArrayList<MicroObject> al = lc3dst1.getObjects();
+                    
+                    ListIterator<MicroObject> itr = al.listIterator();
+                    
+                    //add offset to for mapping back to image and meaurements
+                    while (itr.hasNext()) {
+                        MicroObject object = itr.next();
+                        object.setPixelsX(addOffset((int) xStart.get(start - 1), object.getPixelsX()));
+                        object.setPixelsY(addOffset((int) yStart.get(start - 1), object.getPixelsY()));
+                        object.setCentroid();
+                    }
+                    
+                    alVolumes.addAll(al);
+                }
+                
+            }
+            //reset serial id
+            ListIterator<MicroObject> allObjects = alVolumes.listIterator();
+            int serial = 0;
+            while (allObjects.hasNext()) {
+                MicroObject object = allObjects.next();
+                object.setSerialID(serial);
+                serial++;
+            }
+        }
+        
+        private int[] addOffset(int d, int[] pixels) {
+            
+            int[] result = new int[pixels.length];
+            
+            for (int i = 0; i < pixels.length; i++) {
+                result[i] = pixels[i] + d;
+            }
+            return result;
+        }
+        
+        @Override
+        public void FireProgressChange(String str, double db) {
+            notifyProgressListeners(str, db);
+        }
+        
     }
 
 

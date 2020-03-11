@@ -24,14 +24,12 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
-import vteaobjects.MicroObject;
-
-import javax.swing.JPanel;
-
 import vtea.protocol.listeners.ChangeThresholdListener;
 import vtea.protocol.setup.MicroThresholdAdjuster;
+import vteaobjects.MicroObject;
 
 
 /**

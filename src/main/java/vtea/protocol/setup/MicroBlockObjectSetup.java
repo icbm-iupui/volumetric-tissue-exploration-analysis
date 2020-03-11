@@ -47,9 +47,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.TableColumn;
-import static vtea._vtea.PROCESSINGMAP;
 import static vtea._vtea.SEGMENTATIONMAP;
-import vtea.imageprocessing.AbstractImageProcessing;
 import vtea.morphology.MorphologyFrame;
 import vtea.objects.Segmentation.AbstractSegmentation;
 import vtea.processor.ImageProcessingProcessor;
@@ -61,6 +59,21 @@ import vtea.protocol.listeners.MorphologyFrameListener;
  * @author vinfrais
  */
 public final class MicroBlockObjectSetup extends MicroBlockSetup implements ActionListener, SegmentationListener, MorphologyFrameListener, ImageListener, RoiListener {
+    static private boolean checkImage(ImagePlus imp){
+        try{
+            Roi r = imp.getRoi();
+            ImagePlus test = r.getImage().duplicate();
+        }catch(NullPointerException e){
+            JFrame frame = new JFrame();
+            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+            JOptionPane.showMessageDialog(frame,
+                    "Please select a region of the threshold preview image \nto preview the segmentation.",
+                    "Roi required.",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
+    }
 
     private Object[] columnTitles = {"Channel", "Method"};
 
@@ -231,21 +244,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         }
     }
     
-    static private boolean checkImage(ImagePlus imp){
-    try{
-        Roi r = imp.getRoi();
-       ImagePlus test = r.getImage().duplicate();
-        }catch(NullPointerException e){
-            JFrame frame = new JFrame();
-            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
-            JOptionPane.showMessageDialog(frame,
-            "Please select a region of the threshold preview image \nto preview the segmentation.",
-            "Roi required.",
-            JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-    return true; 
-}
 
     @Override
     public void setVisible(boolean b) {

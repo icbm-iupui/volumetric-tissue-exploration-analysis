@@ -17,8 +17,8 @@
  */
 package vtea.protocol.setup;
 
-import vtea.protocol.listeners.MicroBlockSetupListener;
 import java.util.ArrayList;
+import vtea.protocol.listeners.MicroBlockSetupListener;
 
 public class ObjectStepBlock extends Object implements MicroBlockSetupListener {
 

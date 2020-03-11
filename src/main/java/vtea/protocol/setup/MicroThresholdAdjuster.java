@@ -25,7 +25,6 @@ package vtea.protocol.setup;
  * https://imagej.nih.gov/ij/developer/source/ij/plugin/frame/ThresholdAdjuster.java.html
  */
 
-import vtea.protocol.listeners.ChangeThresholdListener;
 import ij.*;
 import ij.gui.*;
 import ij.measure.*;
@@ -38,7 +37,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -47,6 +45,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import vtea.protocol.listeners.ChangeThresholdListener;
 
 /** Adjusts the lower and upper threshold levels of the active image. This
     class is multi-threaded to provide a more responsive user interface. */
@@ -70,6 +69,72 @@ public class MicroThresholdAdjuster  implements Measurements,
     static String[] methodNames = AutoThresholder.getMethods();
     static String method = methodNames[DEFAULT];
     static AutoThresholder thresholder = new AutoThresholder();
+    static final int RESET = 0;
+    static final int AUTO = 1;
+    static final int HIST = 2;
+    static final int APPLY = 3;
+    static final int STATE_CHANGE = 4;
+    static final int MIN_THRESHOLD = 5;
+    static final int MAX_THRESHOLD = 6;
+    static final int SET = 7;
+    /** Notifies the ThresholdAdjuster that the image has changed.
+     *  If the image has no threshold, it does not autothreshold the image. */
+//    public static void update() {
+//        if (instance!=null) {
+//            ThresholdAdjuster ta = ((ThresholdAdjuster)instance);
+//            ImagePlus imp = WindowManager.getCurrentImage();
+//            if (imp!=null && ta.previousImageID==imp.getID()) {
+//                if ((imp.getCurrentSlice()!=ta.previousSlice) && ta.entireStack(imp))
+//                    return;
+//                ta.previousImageID = 0;
+//                ta.setup(imp, false);
+//            }
+//        }
+//    }
+    
+    /** Returns the current thresholding method ("Default", "Huang", etc). */
+    public static String getMethod() {
+        return method;
+    }
+    /** Sets the thresholding method ("Default", "Huang", etc). */
+    public static void setMethod(String thresholdingMethod) {
+        boolean valid = false;
+        for (int i=0; i<methodNames.length; i++) {
+            if (methodNames[i].equals(thresholdingMethod)) {
+                valid = true;
+                break;
+            }
+        }
+        if (valid) {
+            method = thresholdingMethod;
+            if (instance!=null)
+                instance.methodChoice.setSelectedItem(method);
+        }
+    }
+    /** Returns the current mode ("Red","B&W" or"Over/Under").
+     * @return  */
+    public static String getMode() {
+        return modes[mode];
+    }
+    /** Sets the current mode ("Red","B&W" or"Over/Under").
+     * @param tmode */
+    public static void setMode(String tmode) {
+        if (instance!=null) synchronized (instance) {
+            MicroThresholdAdjuster ta = ((MicroThresholdAdjuster)instance);
+            if (modes[0].equals(tmode))
+                mode = 0;
+            else if (modes[1].equals(tmode))
+                mode = 1;
+            else if (modes[2].equals(tmode))
+                mode = 2;
+            else
+                return;
+            ta.setLutColor(mode);
+            ta.doStateChange = true;
+            ta.modeChoice.setSelectedItem(mode);
+            //ta.notify();
+        }
+    }
     ThresholdPlot plot = new ThresholdPlot();
     Thread thread;
     
@@ -774,7 +839,6 @@ public class MicroThresholdAdjuster  implements Measurements,
             (new Thresholder()).run("mask");
     }
     
-    static final int RESET=0, AUTO=1, HIST=2, APPLY=3, STATE_CHANGE=4, MIN_THRESHOLD=5, MAX_THRESHOLD=6, SET=7;
 
     // Separate thread that does the potentially time-consuming processing 
     @Override
@@ -859,67 +923,6 @@ public class MicroThresholdAdjuster  implements Measurements,
         return roi!=null?roi.getHashCode():0;
     }
 
-    /** Notifies the ThresholdAdjuster that the image has changed.
-     *  If the image has no threshold, it does not autothreshold the image. */
-//    public static void update() {
-//        if (instance!=null) {
-//            ThresholdAdjuster ta = ((ThresholdAdjuster)instance);
-//            ImagePlus imp = WindowManager.getCurrentImage();
-//            if (imp!=null && ta.previousImageID==imp.getID()) {
-//                if ((imp.getCurrentSlice()!=ta.previousSlice) && ta.entireStack(imp))
-//                    return;
-//                ta.previousImageID = 0;
-//                ta.setup(imp, false);
-//            }
-//        }
-//    }
-
-    /** Returns the current thresholding method ("Default", "Huang", etc). */
-    public static String getMethod() {
-        return method;
-    }
-    
-    /** Sets the thresholding method ("Default", "Huang", etc). */
-    public static void setMethod(String thresholdingMethod) {
-        boolean valid = false;
-        for (int i=0; i<methodNames.length; i++) {
-            if (methodNames[i].equals(thresholdingMethod)) {
-                valid = true;
-                break;
-            }
-        }
-        if (valid) {
-            method = thresholdingMethod;
-            if (instance!=null)
-                instance.methodChoice.setSelectedItem(method);
-        }
-    }
-    
-    /** Returns the current mode ("Red","B&W" or"Over/Under").
-     * @return  */
-    public static String getMode() {
-        return modes[mode];
-    }
-    
-    /** Sets the current mode ("Red","B&W" or"Over/Under").
-     * @param tmode */
-    public static void setMode(String tmode) {
-        if (instance!=null) synchronized (instance) {
-            MicroThresholdAdjuster ta = ((MicroThresholdAdjuster)instance);
-            if (modes[0].equals(tmode))
-                mode = 0;
-            else if (modes[1].equals(tmode))
-                mode = 1;
-            else if (modes[2].equals(tmode))
-                mode = 2;
-            else
-                return;
-            ta.setLutColor(mode);
-            ta.doStateChange = true;
-            ta.modeChoice.setSelectedItem(mode);
-            //ta.notify();
-        }
-    }
 
     public JPanel getPanel(){
         return this.gui;

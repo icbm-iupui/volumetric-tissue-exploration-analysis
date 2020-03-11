@@ -17,14 +17,7 @@
  */
 package vtea.protocol;
 
-import vtea.protocol.listeners.BatchFileListListener;
-import vtea.ImageSelectionListener;
-import ij.ImagePlus;
-import ij.WindowManager;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
 
 /**
  *
