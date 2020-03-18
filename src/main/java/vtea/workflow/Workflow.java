@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,27 +17,24 @@
  */
 package vtea.workflow;
 
-
 import java.util.ArrayList;
-
 import vtea.VTEAModule;
-
 
 /**
  *
  * @author sethwinfree
  * @param <T>
  */
-public interface Workflow<T extends java.lang.Object, S extends ArrayList> extends VTEAModule{
-   
+public interface Workflow<T extends java.lang.Object, S extends ArrayList> extends VTEAModule {
+
     T process();
-    
+
     T processPreview();
-    
+
     T getResult();
 
-    T getPreview();   
-    
+    T getPreview();
+
     public S getSteps();
-    
+
 }

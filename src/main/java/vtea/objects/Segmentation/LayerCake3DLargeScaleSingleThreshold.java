@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,9 +19,7 @@ package vtea.objects.Segmentation;
 
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.WindowManager;
 import ij.plugin.Duplicator;
-import ij.plugin.RGBStackMerge;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -30,20 +28,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ForkJoinPool;
+import static java.util.concurrent.ForkJoinTask.invokeAll;
 import java.util.concurrent.RecursiveAction;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
-import vteaobjects.MicroObject;
-import vtea.objects.layercake.microRegion;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
 import static vtea._vtea.getInterleavedStacks;
-
+import vtea.objects.layercake.microRegion;
+import vtea.processor.listeners.ProgressListener;
 import vtea.protocol.listeners.ChangeThresholdListener;
 import vtea.protocol.setup.MicroThresholdAdjuster;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import vtea.processor.listeners.ProgressListener;
+import vteaobjects.MicroObject;
 
 /**
  *
@@ -56,13 +53,13 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
     private int[] minConstants = new int[6]; // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     private ImagePlus imageOriginal;
     private ImagePlus imageResult;
-    private ImageStack stackOriginal;
-    protected ImageStack stackResult;
+    //private ImageStack stackOriginal;
+    //protected ImageStack stackResult;
 
     private double[][] distance;
 
     private boolean watershedImageJ = true;
-    
+
     private boolean extraLargeScale = false;
 
     private ArrayList xPositions = new ArrayList();
@@ -165,10 +162,10 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
         mta = new MicroThresholdAdjuster(imagePreview);
         panel.add(mta.getPanel());
         mta.addChangeThresholdListener(f1);
-        mta.notifyChangeThresholdListeners(mta.getMin(), mta.getMax()); 
+        mta.notifyChangeThresholdListeners(mta.getMin(), mta.getMax());
         return panel;
     }
-    
+
     @Override
     public void doUpdateOfTool() {
         f1.setText(String.valueOf(mta.getMin()));
@@ -224,12 +221,12 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
 
         int width = is[0].getWidth();
         int height = is[0].getHeight();
-        
+
         //build the volumes
         int xyDim = minConstants[4];
-        
-        int lsxyDim = width;    
-                
+
+        int lsxyDim = width;
+
 //        if(extraLargeScale){
 //            
 //            if(width > height){
@@ -238,21 +235,17 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
 //                xyDim = height/3;
 //            }
 //        }   
+        int segmentationChannel = (int) protocol.get(2);
 
-         int segmentationChannel = (int)protocol.get(2);
-         
-                  
-        stackOriginal = is[segmentationChannel];
-        imageOriginal = new ImagePlus("Mask", stackOriginal);
-        stackResult = stackOriginal.duplicate();
+        //stackOriginal = is[segmentationChannel];
+        imageOriginal = new ImagePlus("Mask", is[segmentationChannel]);
+        //stackResult = stackOriginal.duplicate();
 
         ArrayList<ImagePlus> volumes = new ArrayList<ImagePlus>();
 
         boolean processing = true;
 
         int round = 1;
-        
-        
 
         for (int x = 0; x < width; x = x + xyDim) {
             xPositions.add(x);
@@ -272,7 +265,7 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
             for (int p = 0; p < yPositions.size(); p++) {
 
                 int y = (int) yPositions.get(p);
-                
+
                 Duplicator dup1 = new Duplicator();
                 imageOriginal.setRoi(new Rectangle(x, y, xyDim, xyDim));
                 volumes.add(dup1.run(imageOriginal));
@@ -285,7 +278,7 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
 
         int xRemain = 0;
         int yRemain = 0;
- 
+
         if (((int) xPositions.get(xPositions.size() - 1) + xyDim) < width) {
 
             int x = (int) xPositions.get(xPositions.size() - 1) + xyDim;
@@ -294,14 +287,14 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
             for (int p = 0; p < yPositions.size(); p++) {
 
                 int y = (int) yPositions.get(p);
-                 Duplicator dup2 = new Duplicator();
+                Duplicator dup2 = new Duplicator();
                 imageOriginal.setRoi(new Rectangle(x, y, xRemain, xyDim));
                 volumes.add(dup2.run(imageOriginal));
                 imageOriginal.deleteRoi();
 
                 xStart.add(x);
                 yStart.add(y);
-          }
+            }
         }
 
         //get y remain for all x
@@ -313,7 +306,7 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
             for (int p = 0; p < yPositions.size(); p++) {
 
                 int x = (int) xPositions.get(p);
-                 Duplicator dup3 = new Duplicator();
+                Duplicator dup3 = new Duplicator();
                 imageOriginal.setRoi(new Rectangle(x, y, xyDim, yRemain));
                 volumes.add(dup3.run(imageOriginal));
                 imageOriginal.deleteRoi();
@@ -328,7 +321,7 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
 
             int xLast = ((int) xPositions.get(xPositions.size() - 1) + xyDim);
             int yLast = ((int) yPositions.get(yPositions.size() - 1) + xyDim);
-             Duplicator dup4 = new Duplicator();
+            Duplicator dup4 = new Duplicator();
             imageOriginal.setRoi(new Rectangle(xLast, yLast, xRemain, yRemain));
             volumes.add(dup4.run(imageOriginal));
             imageOriginal.deleteRoi();
@@ -353,6 +346,118 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
     @Override
     public void FireProgressChange(String str, double db) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     * Copies components between an source and destination arraylist
+     *
+     * @param version
+     * @param dComponents
+     * @param sComponents
+     * @return
+     */
+    @Override
+    public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
+        try {
+            dComponents.clear();
+
+            JTextFieldLinked f1 = (JTextFieldLinked) sComponents.get(1);
+            JTextField f2 = (JTextField) sComponents.get(3);
+            JTextField f3 = (JTextField) sComponents.get(5);
+            JTextField f4 = (JTextField) sComponents.get(7);
+            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox) (sComponents.get(8))).isSelected());
+            JTextField f5 = (JTextField) sComponents.get(10);
+
+            dComponents.add(new JLabel("Low Threshold"));
+            dComponents.add(f1);
+            dComponents.add(new JLabel("Centroid Offset"));
+            dComponents.add(f2);
+            dComponents.add(new JLabel("Min Vol (vox)"));
+            dComponents.add(f3);
+            dComponents.add(new JLabel("Max Vol (vox)"));
+            dComponents.add(f4);
+            dComponents.add(watershed);
+            dComponents.add(new JLabel("XY division"));
+            dComponents.add(f5);
+            dComponents.add(new JCheckBox("ELS", false));
+
+            return true;
+        } catch (Exception e) {
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            return false;
+        }
+    }
+
+    /**
+     * Takes a set of values from 'fields' and populates the components , as
+     * defined herein
+     *
+     * @param version
+     * @param dComponents
+     * @param fields
+     * @return
+     */
+
+    @Override
+    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
+        try {
+
+            //dComponents.clear();
+            JTextFieldLinked n1 = (JTextFieldLinked) dComponents.get(1);
+            JTextField n2 = (JTextField) dComponents.get(3);
+            JTextField n3 = (JTextField) dComponents.get(5);
+            JTextField n4 = (JTextField) dComponents.get(7);
+            JCheckBox n5 = (JCheckBox) dComponents.get(8);
+            JTextField n6 = (JTextField) dComponents.get(10);
+
+            n1.setText((String) fields.get(0));
+            n2.setText((String) fields.get(1));
+            n3.setText((String) fields.get(2));
+            n4.setText((String) fields.get(3));
+            n5.setSelected((boolean) fields.get(4));
+            n6.setText((String) fields.get(5));
+
+            return true;
+        } catch (Exception e) {
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
+            return false;
+        }
+    }
+
+    /**
+     * Takes the a set of components, as defined herein and populates the fields
+     * ArrayList for serialization.
+     *
+     * @param version in case multiple versions need support
+     * @param sComponents
+     * @param fields
+     * @return
+     */
+    @Override
+    public boolean saveComponentParameter(String version, ArrayList fields, ArrayList sComponents) {
+
+        try {
+
+            JTextFieldLinked f1 = (JTextFieldLinked) sComponents.get(1);
+            JTextField f2 = (JTextField) sComponents.get(3);
+            JTextField f3 = (JTextField) sComponents.get(5);
+            JTextField f4 = (JTextField) sComponents.get(7);
+            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox) (sComponents.get(8))).isSelected());
+            JTextField f5 = (JTextField) sComponents.get(10);
+
+            fields.add(f1.getText());
+            fields.add(f2.getText());
+            fields.add(f3.getText());
+            fields.add(f4.getText());
+            fields.add(((JCheckBox) (sComponents.get(8))).isSelected());
+            fields.add(f5.getText());
+            fields.add(false);
+
+            return true;
+        } catch (Exception e) {
+            System.out.println("ERROR: Could not copy parameter(s) for " + NAME + "\n" + e.getLocalizedMessage());
+            return false;
+        }
     }
 
     private class SegmentationForkPool extends RecursiveAction implements ProgressListener {
@@ -386,17 +491,16 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
 
             } else {
                 LayerCake3DSingleThreshold lc3dst1 = new LayerCake3DSingleThreshold();
-                
+
                 lc3dst1.addListener(this);
-                
-                protocol.set(2,(int)0);
+
+                protocol.set(2, (int) 0);
 
                 lc3dst1.process(getInterleavedStacks(imps.get(start - 1)), protocol, watershedImageJ);
 
                 if (((ArrayList) (lc3dst1.getObjects())).size() > 0) {
 
                     //System.out.println("PROFILING: Adding offset of " + ((int) xStart.get(start - 1)) + " and " + ((int) yStart.get(start - 1)));
-
                     ArrayList<MicroObject> al = lc3dst1.getObjects();
 
                     ListIterator<MicroObject> itr = al.listIterator();
@@ -435,123 +539,10 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
 
         @Override
         public void FireProgressChange(String str, double db) {
-              notifyProgressListeners(str, db); 
+            notifyProgressListeners(str, db);
         }
 
     }
-    /** Copies components between an source and destination arraylist
-     * 
-     * @param version
-     * @param dComponents
-     * @param sComponents
-     * @return 
-     */
-        @Override
-    public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
-      try{
-            dComponents.clear();
-
-            JTextFieldLinked f1 = (JTextFieldLinked) sComponents.get(1);
-            JTextField f2 = (JTextField) sComponents.get(3);
-            JTextField f3 = (JTextField) sComponents.get(5);
-            JTextField f4 = (JTextField) sComponents.get(7);
-            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox)(sComponents.get(8))).isSelected());
-            JTextField f5 = (JTextField) sComponents.get(10);
-            
-   
-        dComponents.add(new JLabel("Low Threshold"));
-        dComponents.add(f1);
-        dComponents.add(new JLabel("Centroid Offset"));
-        dComponents.add(f2);
-        dComponents.add(new JLabel("Min Vol (vox)"));
-        dComponents.add(f3);
-        dComponents.add(new JLabel("Max Vol (vox)"));
-        dComponents.add(f4);
-        dComponents.add(watershed);
-        dComponents.add(new JLabel("XY division"));
-        dComponents.add(f5);
-        dComponents.add(new JCheckBox("ELS", false));
-
-        return true;
-        } catch(Exception e){
-            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
-            return false;
-        }
-    }
-    /**Takes  a set of values from 'fields' and populates the components , 
-     * as defined herein 
-     * 
-     * @param version
-     * @param dComponents
-     * @param fields
-     * @return 
-     */
-   
-    
-    @Override
-    public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
-             try{
-            
-        //dComponents.clear();
-        
-        
-        JTextFieldLinked n1 = (JTextFieldLinked)dComponents.get(1);
-        JTextField n2 = (JTextField)dComponents.get(3);
-        JTextField n3 = (JTextField)dComponents.get(5);
-        JTextField n4 = (JTextField)dComponents.get(7);
-        JCheckBox n5 = (JCheckBox)dComponents.get(8);
-        JTextField n6 = (JTextField)dComponents.get(10);
-        
-        n1.setText((String)fields.get(0));
-        n2.setText((String)fields.get(1));
-        n3.setText((String)fields.get(2));
-        n4.setText((String)fields.get(3));
-        n5.setSelected((boolean)fields.get(4));
-        n6.setText((String)fields.get(5));
-        
-        return true;
-        } catch(Exception e){
-            System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
-            return false;
-        }
-    }
-    /**
-     * Takes the a set of components, as defined herein and populates the fields
-     * ArrayList for serialization.
-     * @param version in case multiple versions need support 
-     * @param sComponents
-     * @param fields
-     * @return 
-     */
-    @Override
-    public boolean saveComponentParameter(String version, ArrayList fields, ArrayList sComponents) {
-            
-        
-        try{
-            
-            JTextFieldLinked f1 = (JTextFieldLinked) sComponents.get(1);
-            JTextField f2 = (JTextField) sComponents.get(3);
-            JTextField f3 = (JTextField) sComponents.get(5);
-            JTextField f4 = (JTextField) sComponents.get(7);
-            JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox)(sComponents.get(8))).isSelected());
-            JTextField f5 = (JTextField) sComponents.get(10);
-
-            fields.add(f1.getText());
-            fields.add(f2.getText());
-            fields.add(f3.getText());
-            fields.add(f4.getText());
-            fields.add(((JCheckBox)(sComponents.get(8))).isSelected()); 
-            fields.add(f5.getText());
-            fields.add(false);
-
-            return true;
-        } catch(Exception e){
-            System.out.println("ERROR: Could not copy parameter(s) for " + NAME + "\n" + e.getLocalizedMessage());
-            return false;
-        }
-    }
-
-
 
     public class JTextFieldLinked extends JTextField implements ChangeThresholdListener {
 
@@ -577,6 +568,6 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
 
             f1.setText("" + String.valueOf(Math.round(min)));
         }
-        
+
     }
 }

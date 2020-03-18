@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,11 +24,11 @@ import ij.gui.Roi;
  * @author vinfrais
  */
 public interface IJ1RoiModifiedListener {
-    
+
     public void roiCreated(Roi r);
-    
+
     public void roiMoved(Roi r);
-    
+
     public void roiDeleted(Roi r);
-    
+
 }

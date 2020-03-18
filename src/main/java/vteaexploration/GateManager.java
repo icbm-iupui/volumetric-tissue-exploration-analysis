@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,16 +17,12 @@
  */
 package vteaexploration;
 
-import java.util.HashMap;
-
 /**
  *
  * @author winfrees
  */
 public class GateManager extends javax.swing.JFrame {
-    
-    
-    
+
     /**
      * Creates new form GateManager
      */
@@ -125,8 +121,6 @@ public class GateManager extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane gateTree;
     private javax.swing.JPanel jPanel1;
@@ -135,9 +129,5 @@ public class GateManager extends javax.swing.JFrame {
     private javax.swing.JTable jTable1;
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
-
-    
-
-
 
 }

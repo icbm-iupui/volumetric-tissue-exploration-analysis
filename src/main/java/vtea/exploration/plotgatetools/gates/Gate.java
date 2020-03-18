@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,9 +44,9 @@ public interface Gate {
     public Path2D.Double createPath2DInChartSpace();
 
     public Path2D.Double getPath2D();
-    
+
     public boolean getImageGated();
-    
+
     public void setImageGated(boolean b);
 
     public boolean getSelected();
@@ -54,19 +54,19 @@ public interface Gate {
     public void setSelected(boolean b);
 
     public boolean getHovering();
-    
+
     public String getName();
 
     public void setName(String s);
-    
+
     public void setXAxis(String s);
-    
+
     public void setYAxis(String s);
-    
+
     public void setObjectsInGate(int count);
-    
+
     public void setTotalObjects(int count);
-    
+
     public int getTotalObjects();
 
     public void setHovering(boolean b);
@@ -78,15 +78,15 @@ public interface Gate {
     public Color getColor();
 
     public void setSelectedColor(Color c);
-    
+
     public void setUnselectedColor(Color c);
-    
+
     public void setGateOverlayStack(ImageStack is);
-    
+
     public void setColorizedGateOverlayStack(ImageStack is);
 
     public ImageStack getGateOverlayStack();
-     
+
     public ImageStack getColorizedGateOverlayStack();
-     
+
 }

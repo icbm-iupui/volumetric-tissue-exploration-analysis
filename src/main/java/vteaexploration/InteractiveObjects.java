@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,32 +25,29 @@ import vtea.exploration.plottools.panels.XYChartPanel;
  * @author winfrees
  */
 public class InteractiveObjects {
-    
+
     protected HashMap<Integer, double[]> plotDimensionsHM;
     protected HashMap<Integer, String> AvailableDataHM;
     protected HashMap<Integer, XYChartPanel> plotPanelsHM;
 
-    
-    
-    public void setDimensionHashMap(HashMap<Integer, double[]> hm){
-    this.plotDimensionsHM = hm;    
+    public void setDimensionHashMap(HashMap<Integer, double[]> hm) {
+        this.plotDimensionsHM = hm;
     }
-    
-    public double[] getDimensionHashMap(Integer key)throws NullPointerException{  
+
+    public double[] getDimensionHashMap(Integer key) throws NullPointerException {
         return plotDimensionsHM.get(key);
     }
-    
-    public void setPlotDimensionHashMap(Integer key, double[] value) throws NullPointerException{
+
+    public void setPlotDimensionHashMap(Integer key, double[] value) throws NullPointerException {
         plotDimensionsHM.replace(key, value);
     }
-    
-    public XYChartPanel getPlotPanelHashMap(Integer key)throws NullPointerException{  
+
+    public XYChartPanel getPlotPanelHashMap(Integer key) throws NullPointerException {
         return plotPanelsHM.get(key);
     }
-    
-    public void setPlotPanelHashMap(Integer key, XYChartPanel value) throws NullPointerException{
+
+    public void setPlotPanelHashMap(Integer key, XYChartPanel value) throws NullPointerException {
         plotPanelsHM.replace(key, value);
     }
-    
-    
+
 }

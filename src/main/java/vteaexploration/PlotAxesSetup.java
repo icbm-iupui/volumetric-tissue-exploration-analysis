@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -231,7 +231,6 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     private void BlockSetupOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BlockSetupOKActionPerformed
         // TODO add your handling code here:
         this.setVisible(false);
-        
 
     }//GEN-LAST:event_BlockSetupOKActionPerformed
 
@@ -314,23 +313,23 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     public void setAdjustable(boolean state){
         Content.setEnabled(state);
     }
-    
-    public ArrayList<Component> getSettings(){
+
+    public ArrayList<Component> getSettings() {
         ArrayList<Component> al = new ArrayList();
         return al;
     }
-    
-    public void setContent(ArrayList<Component> al){
-        
+
+    public void setContent(ArrayList<Component> al) {
+
         //Content = new JPanel();       
-        Content.setSize(new Dimension(350,350));
+        Content.setSize(new Dimension(350, 350));
         Content.setLayout(new GridBagLayout());
 
         Content.removeAll();
-        
+
         ContentList.clear();
         ContentList.addAll(al);
-        
+
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
         //MethodDetail
@@ -420,24 +419,23 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
 //            layoutConstraints.gridy = 1;
 //            Content.add((Component) al.get(7), layoutConstraints);
 //        }
-        
-        
+
         Content.setVisible(true);
-        
-        pack();   
+
+        pack();
     }
-    
-     public void setLUT(ArrayList<Component> al){
-        
+
+    public void setLUT(ArrayList<Component> al) {
+
         //Content = new JPanel();       
-        LUT.setSize(new Dimension(350,350));
+        LUT.setSize(new Dimension(350, 350));
         LUT.setLayout(new GridBagLayout());
 
         LUT.removeAll();
-        
+
         LUTList.clear();
         LUTList.addAll(al);
-        
+
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
         //MethodDetail
@@ -555,18 +553,18 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         
         ((JButton)LUT.getComponent(1)).setEnabled(FALSE);
     }
-    
-    public void addAxesChangeListener(AxesChangeListener listener){
+
+    public void addAxesChangeListener(AxesChangeListener listener) {
         AxesChangeListeners.add(listener);
     }
-    
+
     public void notifyAxesChangeListeners(ArrayList content, ArrayList LUT) {
         for (AxesChangeListener listener : AxesChangeListeners) {
             listener.onAxesSetting(content, LUT);
         }
     }
-    
-    public void setDescriptor(String str){
+
+    public void setDescriptor(String str) {
         this.jLabel1.setText(str);
     }
     /**

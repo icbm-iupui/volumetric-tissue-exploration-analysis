@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,6 @@ package vtea.imageprocessing.builtin;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -46,26 +45,25 @@ import vtea.imageprocessing.ImageProcessing;
 public class Gaussian extends AbstractImageProcessing {
 
     public Gaussian() {
-        
+
         VERSION = "0.1";
-        
+
         AUTHOR = "Seth Winfree";
-        
+
         COMMENT = "Implements the Gaussian plugin from ImageJ";
-        
+
         NAME = "Gaussian";
-        
+
         KEY = "Gaussian";
 
         protocol = new ArrayList();
-        
+
         protocol.add(new JLabel("Sigma (pixels):"));
-        
+
         protocol.add(new JTextField("1", 3));
 
-        
     }
-    
+
     @Override
     public boolean process(ArrayList al, ImagePlus imp) {
 
@@ -104,58 +102,57 @@ public class Gaussian extends AbstractImageProcessing {
     public String getProgressComment() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
     public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
-    
-        try{
+
+        try {
             dComponents.clear();
-            
+
             JTextField sRadius = (JTextField) sComponents.get(1);
             dComponents.add(new JLabel("Sigma (pixels):"));
-            dComponents.add(new JTextField(sRadius.getText(), 3)); 
-        
-        return true;
-        } catch(Exception e){
+            dComponents.add(new JTextField(sRadius.getText(), 3));
+
+            return true;
+        } catch (Exception e) {
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
             return false;
         }
     }
-    
+
     @Override
     public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
-             try{
-                  dComponents.clear();
-            
-            String sRadius = (String)fields.get(0);
-       
+        try {
+            dComponents.clear();
+
+            String sRadius = (String) fields.get(0);
+
             dComponents.add(new JLabel("Sigma (pixels):"));
-            dComponents.add((new JTextField(sRadius, 3))); 
-            
-        return true;
-        
-        } catch(Exception e){
-            
+            dComponents.add((new JTextField(sRadius, 3)));
+
+            return true;
+
+        } catch (Exception e) {
+
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
-            
+
             return false;
-        }   
+        }
     }
-    
-        @Override
+
+    @Override
     public boolean saveComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
-            try{
-                  fields.clear();
-                  fields.add(((JTextField)(dComponents.get(1))).getText());
-        return true;
-        
-        } catch(Exception e){
-            
+        try {
+            fields.clear();
+            fields.add(((JTextField) (dComponents.get(1))).getText());
+            return true;
+
+        } catch (Exception e) {
+
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
-            
+
             return false;
-        }   
+        }
     }
-    
 
 }

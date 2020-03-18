@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,21 +18,20 @@
 package vtea.objects.Segmentation;
 
 import ij.IJ;
-import vteaexploration.Datasets;
-
 import ij.ImageStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import vtea.objects.floodfill3D.FloodFill3D;
 import vtea.objects.layercake.LayerCake3D;
+import vteaexploration.Datasets;
 
 /**
  *
  * @author vinfrais
  */
 @Deprecated
-public class SingleThresholdDataModel implements Datasets{
+public class SingleThresholdDataModel implements Datasets {
 
     private ArrayList Volumes;
     private ArrayList Volumes3D;
@@ -41,28 +40,27 @@ public class SingleThresholdDataModel implements Datasets{
     private LayerCake3D builderRegions;
     private LayerCake3D builderVolumes;
     private FloodFill3D builder3DVolumes;
-    
+
     public SingleThresholdDataModel() {
     }
-    
+
     public SingleThresholdDataModel(ImageStack[] is, List details, String method) {
-        
-        if(method.equals("LayerCake 3D")){
+
+        if (method.equals("LayerCake 3D")) {
             this.processDataLayerCake(is, details);
-        }else if (method.equals("FloodFill 3D")){
+        } else if (method.equals("FloodFill 3D")) {
             this.processData3DFloodFill(is, details);
         }
-        
-        }    
- 
-    
+
+    }
+
     public void processDataLayerCake(ImageStack[] is, List details) {
         //takes a stack and details for object definiton as defined by details
         //Details incluldes:
         //channel, segmentation_key as integer should use a centralized system, Arraylist with fields descriptors, field1, field2, field3...
         //field descriptors acts as a key for the fields.
         int[] minConstants = new int[4];
-	// 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
+        // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
 
         //derivedRegionType[][], [Channel][0, type, 1, subtype];
         int[][] derivedRegionType = new int[is.length][2];
@@ -79,37 +77,36 @@ public class SingleThresholdDataModel implements Datasets{
         minConstants[0] = Integer.parseInt(alprimary.get(fieldnames.indexOf("minObjectSize") + 3).toString());
 
         long start = System.nanoTime();
-        
-        
+
         //make builder with all the detectable regions   
         System.out.println("PROFILING: ImageStack size: " + is[Integer.parseInt(alprimary.get(0).toString())].getSize() + " slices.");
         IJ.log("PROFILING: ImageStack size: " + is[Integer.parseInt(alprimary.get(0).toString())].getSize() + " slices.");
-        
+
         builderRegions = new LayerCake3D(is[Integer.parseInt(alprimary.get(0).toString())], minConstants, false);
         long end = System.nanoTime();
-        System.out.println("PROFILING: Region find time: " + ((end-start)/1000000) + " ms. " + "Found " + builderRegions.getRegionsCount() + " regions.");
-        IJ.log("PROFILING: Region find time: " + ((end-start)/1000000) + " ms. " + "Found " + builderRegions.getRegionsCount() + " regions.");
+        System.out.println("PROFILING: Region find time: " + ((end - start) / 1000000) + " ms. " + "Found " + builderRegions.getRegionsCount() + " regions.");
+        IJ.log("PROFILING: Region find time: " + ((end - start) / 1000000) + " ms. " + "Found " + builderRegions.getRegionsCount() + " regions.");
         //make builder with all the volumes from the detectable regions
         start = System.nanoTime();
         builderVolumes = new LayerCake3D(builderRegions.getRegions(), minConstants, is[Integer.parseInt(alprimary.get(0).toString())]);
         end = System.nanoTime();
-        
-        System.out.println("PROFILING: Volume build time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getVolumesCount() + " volumes.");
-        IJ.log("PROFILING: Volume build time: " + ((end-start)/1000000) + " ms. " + "Made " + builderVolumes.getVolumesCount() + " volumes.");
-        
+
+        System.out.println("PROFILING: Volume build time: " + ((end - start) / 1000000) + " ms. " + "Made " + builderVolumes.getVolumesCount() + " volumes.");
+        IJ.log("PROFILING: Volume build time: " + ((end - start) / 1000000) + " ms. " + "Made " + builderVolumes.getVolumesCount() + " volumes.");
+
         ListIterator itr = alsecondary.listIterator();
         while (itr.hasNext()) {
             Object[] derived = ((ArrayList) itr.next()).toArray();
             derivedRegionType[(Integer) derived[0]][0] = Integer.parseInt(derived[1].toString());
             derivedRegionType[(Integer) derived[0]][1] = Integer.parseInt(derived[2].toString());
         }
-        
-        start = System.nanoTime(); 
+
+        start = System.nanoTime();
         //builderVolumes.makeDerivedRegionsThreading(derivedRegionType, is.length, is, getResultsPointers(details));
-       // builderVolumes.makeDerivedRegionsPool(derivedRegionType, is.length, is, getResultsPointers(details));
+        // builderVolumes.makeDerivedRegionsPool(derivedRegionType, is.length, is, getResultsPointers(details));
         end = System.nanoTime();
-        System.out.println("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. ");
-        IJ.log("PROFILING: Derived region time: " + ((end-start)/1000000) + " ms. ");
+        System.out.println("PROFILING: Derived region time: " + ((end - start) / 1000000) + " ms. ");
+        IJ.log("PROFILING: Derived region time: " + ((end - start) / 1000000) + " ms. ");
         Volumes = builderVolumes.getVolumesAsList();
 
 //        start = System.nanoTime(); 
@@ -120,18 +117,15 @@ public class SingleThresholdDataModel implements Datasets{
 //        IJ.log("PROFILING: 3D Floodfill time: " + ((end-start)/1000000) + " ms. ");
 //        
 //        Volumes3D = builder3DVolumes.getVolumesAsList();
-        
-        
-    
     }
-    
+
     public void processData3DFloodFill(ImageStack[] is, List details) {
         //takes a stack and details for object definiton as defined by details
         //Details incluldes:
         //channel, segmentation_key as integer should use a centralized system, Arraylist with fields descriptors, field1, field2, field3...
         //field descriptors acts as a key for the fields.
         int[] minConstants = new int[4];
-	// 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
+        // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
 
         //derivedRegionType[][], [Channel][0, type, 1, subtype];
         int[][] derivedRegionType = new int[is.length][2];
@@ -149,11 +143,11 @@ public class SingleThresholdDataModel implements Datasets{
 
         long start = System.nanoTime();
         long end = System.nanoTime();
-        
+
         //make builder with all the detectable regions   
         System.out.println("PROFILING: ImageStack size: " + is[Integer.parseInt(alprimary.get(0).toString())].getSize() + " slices.");
         IJ.log("PROFILING: ImageStack size: " + is[Integer.parseInt(alprimary.get(0).toString())].getSize() + " slices.");
-         
+
         ListIterator itr = alsecondary.listIterator();
         while (itr.hasNext()) {
             Object[] derived = ((ArrayList) itr.next()).toArray();
@@ -161,17 +155,15 @@ public class SingleThresholdDataModel implements Datasets{
             derivedRegionType[(Integer) derived[0]][1] = Integer.parseInt(derived[2].toString());
         }
 
-        start = System.nanoTime(); 
+        start = System.nanoTime();
         builder3DVolumes = new FloodFill3D(is, Integer.parseInt(alprimary.get(0).toString()), minConstants, false);
         builder3DVolumes.makeDerivedRegionsPool(derivedRegionType, is.length, is, getResultsPointers(details));
         end = System.nanoTime();
-        System.out.println("PROFILING: 3D Floodfill time: " + ((end-start)/1000000) + " ms. ");
-        IJ.log("PROFILING: 3D Floodfill time: " + ((end-start)/1000000) + " ms. ");
-        
+        System.out.println("PROFILING: 3D Floodfill time: " + ((end - start) / 1000000) + " ms. ");
+        IJ.log("PROFILING: 3D Floodfill time: " + ((end - start) / 1000000) + " ms. ");
+
         Volumes = builder3DVolumes.getVolumesAsList();
-        
-        
-    
+
     }
 
     private ArrayList getResultsPointers(List details) {
@@ -216,9 +208,8 @@ public class SingleThresholdDataModel implements Datasets{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-        public ArrayList getObjects3D() {
+    public ArrayList getObjects3D() {
         return Volumes3D;
     }
-
 
 }

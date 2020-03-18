@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,9 +17,6 @@
  */
 package vtea.exploration.plottools.panels;
 
-import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
-import vtea.objects.layercake.microVolume;
-import vtea._vtea;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -32,6 +29,9 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIDefaults;
+import vtea._vtea;
+import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
+import vtea.objects.layercake.microVolume;
 
 /**
  *
@@ -39,53 +39,48 @@ import javax.swing.UIDefaults;
  */
 public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
 
-    
-    
     JTextField X_text = new JTextField("x_axis");
-    JTextField Y_text = new JTextField("y_axis"){
+    JTextField Y_text = new JTextField("y_axis") {
         @Override
-        public void paintComponent(Graphics grphcs) {       
-        
-        Graphics2D g2 = (Graphics2D) grphcs;
-        g2.rotate(-Math.PI/2);
-        g2.drawString(this.getText(),0,0);
-        super.paintComponent(grphcs);
-        }};
+        public void paintComponent(Graphics grphcs) {
+
+            Graphics2D g2 = (Graphics2D) grphcs;
+            g2.rotate(-Math.PI / 2);
+            g2.drawString(this.getText(), 0, 0);
+            super.paintComponent(grphcs);
+        }
+    };
     JTextField X_units = new JTextField("units");
-    JTextField Y_units = new JTextField("units"){
+    JTextField Y_units = new JTextField("units") {
         @Override
-        public void paintComponent(Graphics grphcs) {       
-        
-        Graphics2D g2 = (Graphics2D) grphcs;
-        g2.rotate(-Math.PI/2);
-        g2.drawString(this.getText(),0,0);
-        super.paintComponent(grphcs);
-        }};
-   
+        public void paintComponent(Graphics grphcs) {
+
+            Graphics2D g2 = (Graphics2D) grphcs;
+            g2.rotate(-Math.PI / 2);
+            g2.drawString(this.getText(), 0, 0);
+            super.paintComponent(grphcs);
+        }
+    };
 
     JComboBox X_channels;
     JComboBox X_values;
     JComboBox Y_values;
     JComboBox Z_values;
-    
-
 
     ArrayList<ChangePlotAxesListener> listeners = new ArrayList<ChangePlotAxesListener>();
 
     public XYPanels(ArrayList AvailableData) {
         super();
         setAxesValues();
-        HeaderPanel.setPreferredSize(new Dimension(512,50));
-        RightPanel.setPreferredSize(new Dimension(512,50));
+        HeaderPanel.setPreferredSize(new Dimension(512, 50));
+        RightPanel.setPreferredSize(new Dimension(512, 50));
         RightPanel.setLayout(new FlowLayout());
-        
+
         makeFooterPanel(AvailableData);
         makeLeftPanel(AvailableData);
     }
 
     private void makeFooterPanel(ArrayList AvailableData) {
-        
-
 
         X_values = new JComboBox(AvailableData.toArray());
         //Y_values = new JComboBox(AvailableData.toArray());
@@ -105,7 +100,6 @@ public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
 //                notifyChangePlotAxesListeners(X_values.getSelectedIndex(), Y_values.getSelectedIndex());
 //            }
 //        });
-
         UIDefaults defaults = javax.swing.UIManager.getDefaults();
 
         X_units.setEditable(false);
@@ -131,51 +125,48 @@ public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
         FooterPanel.setLayout(BottomLayout);
         BottomLayout.setHorizontalGroup(
                 BottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(BottomLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(X_text)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(X_values, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(X_units)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
-//                        .addComponent(Y_text)
-//                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-//                        .addComponent(Y_values, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-//                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-//                        .addComponent(Y_units)
-                       .addContainerGap())
+                        .addGroup(BottomLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(X_text)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(X_values, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(X_units)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
+                                //                        .addComponent(Y_text)
+                                //                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                //                        .addComponent(Y_values, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                //                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                //                        .addComponent(Y_units)
+                                .addContainerGap())
         );
         BottomLayout.setVerticalGroup(
                 BottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, BottomLayout.createSequentialGroup()
-                        .addContainerGap(7, Short.MAX_VALUE)
-                        .addGroup(BottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(X_values, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(X_text)
-                                //.addComponent(Y_values, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(X_units))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, BottomLayout.createSequentialGroup()
+                                .addContainerGap(7, Short.MAX_VALUE)
+                                .addGroup(BottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(X_values, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(X_text)
+                                        //.addComponent(Y_values, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(X_units))
                                 //.addComponent(Y_units)
                                 //.addComponent(Y_text))
-                        .addContainerGap())
+                                .addContainerGap())
         );
     }
-    
-    private void makeLeftPanel(ArrayList AvailableData) {
-        
 
+    private void makeLeftPanel(ArrayList AvailableData) {
 
         //X_values = new JComboBox(AvailableData.toArray());
-        Y_values = new JComboBox(AvailableData.toArray()){
-        @Override
-        public void paintComponent(Graphics grphcs) {       
-        
-        Graphics2D g2 = (Graphics2D) grphcs;
-        g2.rotate(-Math.PI/2);
-        super.paintComponent(grphcs);
-        }};
-        
-       
+        Y_values = new JComboBox(AvailableData.toArray()) {
+            @Override
+            public void paintComponent(Graphics grphcs) {
+
+                Graphics2D g2 = (Graphics2D) grphcs;
+                g2.rotate(-Math.PI / 2);
+                super.paintComponent(grphcs);
+            }
+        };
 
 //        X_values.addActionListener(new ActionListener() {
 //
@@ -184,7 +175,6 @@ public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
 //                notifyChangePlotAxesListeners(X_values.getSelectedIndex(), Y_values.getSelectedIndex());
 //            }
 //        });
-
         Y_values.addActionListener(new ActionListener() {
 
             @Override
@@ -200,9 +190,9 @@ public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
 //        X_units.setFocusable(false);
         Y_units.setFocusable(false);
 //        X_text.setBackground(defaults.getColor("Panel.background"));
-       Y_text.setBackground(defaults.getColor("Panel.background"));
+        Y_text.setBackground(defaults.getColor("Panel.background"));
 //        X_units.setBackground(defaults.getColor("Panel.background"));
-       Y_units.setBackground(defaults.getColor("Panel.background"));
+        Y_units.setBackground(defaults.getColor("Panel.background"));
 //        X_text.setBackground(VTEAService.BACKGROUND);
         Y_text.setBackground(_vtea.BACKGROUND);
 //        X_units.setBackground(VTEAService.BACKGROUND);
@@ -218,12 +208,11 @@ public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
         FlowLayout LeftLayout = new java.awt.FlowLayout(FlowLayout.CENTER, 5, 5);
         LeftPanel.setLayout(LeftLayout);
         //LeftPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        
+
         LeftPanel.add(Y_text);
         LeftPanel.add(Y_values);
         LeftPanel.add(Y_units);
-        
-       
+
     }
 
     private void setAxesValues() {
@@ -248,7 +237,6 @@ public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
         for (ChangePlotAxesListener listener : listeners) {
 
             //listener.onChangeAxes(x, y, z, 0);
-
         }
     }
 
@@ -272,7 +260,5 @@ public class XYPanels extends DefaultPlotPanels implements PlotAxesPanels {
     public JPanel getBorderPanelRight() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-   
 
 }

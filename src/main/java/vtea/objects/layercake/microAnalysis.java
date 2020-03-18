@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,10 +17,6 @@
  */
 package vtea.objects.layercake;
 
-import vtea.objects.layercake.microVolume;
-import ij.*;
-
-//new class for defining a region object-reference by volume class
 @Deprecated
 public class microAnalysis extends Object implements Cloneable, java.io.Serializable {
 

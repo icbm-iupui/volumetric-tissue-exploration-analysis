@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,14 +17,12 @@
  */
 package vtea.exploration.plotgatetools.listeners;
 
-import java.util.ArrayList;
-
 /**
  *
  * @author vinfrais
  */
 public interface QuadrantSelectionListener {
-    
-     public void quadrantSelection(float x, float y);
-     
+
+    public void quadrantSelection(float x, float y);
+
 }

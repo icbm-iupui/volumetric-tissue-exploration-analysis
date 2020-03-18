@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,19 +24,19 @@ import ij.ImagePlus;
  * @author sethwinfree
  */
 public abstract class ImageRepository implements Dataset {
-    
-private static ImagePlus imp;
-    
-public ImagePlus getReferenceToImage(){
-   return imp;
-}
 
-public void setReferenceToImage(ImagePlus ip){
-   imp = ip;
-}
+    private static ImagePlus imp;
 
-public ImagePlus getCopyOfImage(){
-   return imp.duplicate();
-}
-    
+    public ImagePlus getReferenceToImage() {
+        return imp;
+    }
+
+    public void setReferenceToImage(ImagePlus ip) {
+        imp = ip;
+    }
+
+    public ImagePlus getCopyOfImage() {
+        return imp.duplicate();
+    }
+
 }

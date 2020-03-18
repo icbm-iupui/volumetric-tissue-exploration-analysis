@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@ package vtea.imageprocessing.builtin;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import javax.swing.JScrollPane;
-
 import javax.swing.JTextPane;
 import org.scijava.plugin.Plugin;
 import vtea.imageprocessing.AbstractImageProcessing;
@@ -30,34 +29,31 @@ import vtea.imageprocessing.ImageProcessing;
  *
  * @author sethwinfree
  */
-@Plugin (type = ImageProcessing.class)
+@Plugin(type = ImageProcessing.class)
 public class IJMacro extends AbstractImageProcessing {
-    
-    public IJMacro(){
+
+    public IJMacro() {
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
         COMMENT = "Implements macro code";
         NAME = "ImageJ Macro";
         KEY = "IJMacro";
-        
+
         protocol = new ArrayList();
-       
+
         JTextPane scriptText = new JTextPane();
-        
+
         JScrollPane paneScrollPane = new JScrollPane(scriptText);
         paneScrollPane.setVerticalScrollBarPolicy(
-                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         paneScrollPane.setPreferredSize(new Dimension(250, 155));
         paneScrollPane.setMinimumSize(new Dimension(250, 155));
         paneScrollPane.setToolTipText("Add IJ macro text here");
-        
-        
+
         //protocol.add(new JLabel("Paste macro here:"));
         protocol.add(paneScrollPane);
-        
+
         //final ImageJ ij = new ImageJ();
-        
-        
 ////        ij.op().labeling().cca(thresholded, StructuringElement.FOUR_CONNECTED);
     }
 }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -73,8 +73,8 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.PopupMenu;
 import java.awt.Rectangle;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
@@ -413,7 +413,7 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
         ImagePlus imp = roi == null ? getImage() : WindowManager.getCurrentImage();
 
         if (!imp.getTitle().contains("Plot")) {
-           // IJ.log("***NOT a PLOT image***");
+            // IJ.log("***NOT a PLOT image***");
             return false;
         }
 
@@ -1105,7 +1105,7 @@ public class microGateManager extends javax.swing.JFrame implements ActionListen
      }
      */
 
-    /* This method performs measurements for several ROI's in a stack
+ /* This method performs measurements for several ROI's in a stack
      and arranges the results with one line per slice.  By constast, the 
      measure() method produces several lines per slice.  The results 
      from multiMeasure() may be easier to import into a spreadsheet 

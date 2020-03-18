@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,11 +17,9 @@
  */
 package vtea.protocol.setup;
 
-
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
-import ij.WindowManager;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.plugin.ChannelSplitter;
@@ -48,9 +46,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.TableColumn;
-import static vtea._vtea.PROCESSINGMAP;
 import static vtea._vtea.SEGMENTATIONMAP;
-import vtea.imageprocessing.AbstractImageProcessing;
 import vtea.morphology.MorphologyFrame;
 import vtea.objects.Segmentation.AbstractSegmentation;
 import vtea.processor.ImageProcessingProcessor;
@@ -63,20 +59,36 @@ import vtea.protocol.listeners.MorphologyFrameListener;
  */
 public final class MicroBlockObjectSetup extends MicroBlockSetup implements ActionListener, SegmentationListener, MorphologyFrameListener, ImageListener, RoiListener {
 
+    static private boolean checkImage(ImagePlus imp) {
+        try {
+            Roi r = imp.getRoi();
+            ImagePlus test = r.getImage().duplicate();
+        } catch (NullPointerException e) {
+            JFrame frame = new JFrame();
+            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+            JOptionPane.showMessageDialog(frame,
+                    "Please select a region of the threshold preview image \nto preview the segmentation.",
+                    "Roi required.",
+                    JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
     private Object[] columnTitles = {"Channel", "Method"};
 
     private boolean[] canEditColumns = new boolean[]{false, false};
     private TableColumn channelColumn;
     private TableColumn analysisColumn;
-    
+
     private AbstractSegmentation Approach;
-    
+
     private ArrayList<ArrayList> Morphology;
-    
+
     private ArrayList CurrentProtocol;
-    
+
     private MorphologyFrame MorphologyMenu;
-    
+
     MicroThresholdAdjuster mta;
 
     ImagePlus ThresholdOriginal = new ImagePlus();
@@ -85,39 +97,37 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
     public MicroBlockObjectSetup(int step, ArrayList Channels, ImagePlus imp) {
 
         super(step, Channels);
-        
+
         this.setTitle("Object_" + (step));
-        
+
         MorphologyMenu = new MorphologyFrame(Channels);
         MorphologyMenu.addMorphologyListener(this);
-        
-   
+
         CurrentProtocol = new ArrayList();
-        
+
         Morphology = new ArrayList<ArrayList>();
-        
+
         //setup the image
-        
-        ThresholdOriginal = imp.duplicate();
+        //ThresholdOriginal = imp.duplicate();
+        ThresholdOriginal = imp;
         ThresholdPreview = getThresholdPreview();
+
+        System.gc();
+
         ThresholdPreview.addImageListener(this);
 
         IJ.run(ThresholdPreview, "Grays", "");
-        
+
         //setup the method
-        
         super.processComboBox = new DefaultComboBoxModel(vtea._vtea.SEGMENTATIONOPTIONS);
-        
+
         ProcessSelectComboBox.setModel(processComboBox);
-        ProcessSelectComboBox.setVisible(true);  
-        
+        ProcessSelectComboBox.setVisible(true);
+
         //ProcessVariables = new String[vtea._vtea.SEGMENTATIONOPTIONS.length][10];        
-
         //setup thresholder       
+        makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());
 
-        makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
-
- 
         setBounds(new java.awt.Rectangle(500, 160, 378, 282));
 
         TitleText.setText("Object_" + (step));
@@ -128,25 +138,25 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
         comments.remove(notesPane);
         comments.remove(tablePane);
-        
+
         JButton MorphologyButton = new JButton("Morphology Settings");
         MorphologyButton.setActionCommand("morphology");
         MorphologyButton.addActionListener(this);
         MorphologyButton.setToolTipText("Morphology settings for measurements");
-        
-        comments.add(MorphologyButton); 
+
+        comments.add(MorphologyButton);
         tablePane.setVisible(true);
         PreviewButton.setVisible(true);
         PreviewButton.setEnabled(true);
-        
+
         repaint();
         pack();
     }
-    
-    public AbstractSegmentation getSegmentation(){
+
+    public AbstractSegmentation getSegmentation() {
         return this.Approach;
     }
-    
+
     public void setProcessedImage(ImagePlus imp) {
         this.ThresholdOriginal = imp;
         //ThresholdPreview = getThresholdPreview();
@@ -163,7 +173,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
             p = new Point(gd.getDisplayMode().getWidth() / 2, gd.getDisplayMode().getHeight() / 2);
         }
         ThresholdPreview.removeImageListener(this);
-        
+
         ThresholdPreview.hide();
         ThresholdPreview.flush();
         ThresholdPreview = getThresholdPreview();
@@ -172,19 +182,18 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         //ThresholdPreview.show();
         //ThresholdPreview.getWindow().setLocation(p);
         ThresholdPreview.hide();
-        
-                
-        if(this.isVisible()){
+
+        if (this.isVisible()) {
             ThresholdPreview.show();
             ThresholdPreview.getWindow().setLocation(p);
         }
-        
+
         ThresholdPreview.addImageListener(this);
 
         tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
-        makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
+        makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
@@ -192,56 +201,34 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         pack();
 
     }
-    
-
 
     @Override
     protected void getSegmentationPreview() {
-        
-       
+
         CurrentStepProtocol = CurrentProcessList;
         ThresholdOriginal.setRoi(ThresholdPreview.getRoi());
-        
-        
-       
 
         PreviewProgress.setText("Getting Preview...");
         PreviewButton.setEnabled(false);
-        
-        if(checkImage(ThresholdOriginal)){ 
-        Duplicator dup = new Duplicator();
 
-        SegmentationPreviewer p = new SegmentationPreviewer(dup.run(ThresholdOriginal), getSettings());
-  
-        new Thread(p).start();
-        
-        Thread preview = new Thread(p);
-        preview.setPriority(MAX_PRIORITY);
+        if (checkImage(ThresholdOriginal)) {
+            Duplicator dup = new Duplicator();
 
-        PreviewButton.setEnabled(true);
-        PreviewProgress.setText("");
+            SegmentationPreviewer p = new SegmentationPreviewer(dup.run(ThresholdOriginal), getSettings());
+
+            new Thread(p).start();
+
+            Thread preview = new Thread(p);
+            preview.setPriority(MAX_PRIORITY);
+
+            PreviewButton.setEnabled(true);
+            PreviewProgress.setText("");
         } else {
             this.PreviewButton.setEnabled(true);
-             PreviewProgress.setText("");
-    
+            PreviewProgress.setText("");
+
         }
     }
-    
-    static private boolean checkImage(ImagePlus imp){
-    try{
-        Roi r = imp.getRoi();
-       ImagePlus test = r.getImage().duplicate();
-        }catch(NullPointerException e){
-            JFrame frame = new JFrame();
-            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
-            JOptionPane.showMessageDialog(frame,
-            "Please select a region of the threshold preview image \nto preview the segmentation.",
-            "Roi required.",
-            JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-    return true; 
-}
 
     @Override
     public void setVisible(boolean b) {
@@ -263,9 +250,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
     protected void updateProtocolPanel(java.awt.event.ActionEvent evt) {
 
         //Rewrite to handoff to a new instance of the segmentation method
-        
         ThresholdPreview.removeImageListener(this);
-        
+
         if (evt.getSource() == ChannelComboBox) {
 
             Point p = new Point();
@@ -275,18 +261,17 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
             } catch (NullPointerException e) {
                 GraphicsDevice gd = GraphicsEnvironment.
                         getLocalGraphicsEnvironment().getDefaultScreenDevice();
-                p = new Point(gd.getDisplayMode().getWidth() / 2, 
+                p = new Point(gd.getDisplayMode().getWidth() / 2,
                         gd.getDisplayMode().getHeight() / 2);
             }
-            
+
             ThresholdPreview.hide();
             ThresholdPreview = getThresholdPreview();
             IJ.run(ThresholdPreview, "Grays", "");
-
             ThresholdPreview.updateImage();
             ThresholdPreview.show();
             ThresholdPreview.getWindow().setLocation(p);
-            
+            System.gc();
         }
 
         tablePane.setVisible(true);
@@ -303,22 +288,19 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
     @Override
     protected JPanel makeProtocolPanel(String str) {
-        
+
         ArrayList ProcessComponents;
-        
+
         JPanel ProcessVisualization;
 
-       Approach = getSegmentationApproach(str);
-       Approach.setImage(ThresholdPreview);
-        
-       ProcessComponents = Approach.getOptions();
-        
-        
-        
+        Approach = getSegmentationApproach(str);
+        Approach.setImage(ThresholdPreview);
+
+        ProcessComponents = Approach.getOptions();
+
         //process components have description and swing object
         //Current Process list is handed to Arraylist for SIP processing
-
-        CurrentProcessList = (ArrayList)ProcessComponents.clone();
+        CurrentProcessList = (ArrayList) ProcessComponents.clone();
 
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
@@ -326,34 +308,33 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
         methodBuild.removeAll();
-        
 
         double width = 4;
-        int rows = (int)Math.ceil(ProcessComponents.size()/width);
-        
-        int count = 0; 
-            
-            for(int y = 0; y < rows; y++){      
-                for(int x = 0; x < width; x++){
-                    layoutConstraints.weightx = 1;
-                    layoutConstraints.weighty = 1;
-                    layoutConstraints.gridx = x;
-                    layoutConstraints.gridy = y;
-                    if(count < ProcessComponents.size()){
+        int rows = (int) Math.ceil(ProcessComponents.size() / width);
+
+        int count = 0;
+
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < width; x++) {
+                layoutConstraints.weightx = 1;
+                layoutConstraints.weighty = 1;
+                layoutConstraints.gridx = x;
+                layoutConstraints.gridy = y;
+                if (count < ProcessComponents.size()) {
                     MethodDetails.add((Component) ProcessComponents.get(count), layoutConstraints);
                     count++;
-                    }
                 }
-            }  
+            }
+        }
         ProcessVisualization = Approach.getSegmentationTool();
         methodBuild.add(ProcessVisualization);
         pack();
         MethodDetails.setVisible(true);
-     
+
         return MethodDetails;
     }
-    
-    public ArrayList getCurrentProtocol(){
+
+    public ArrayList getCurrentProtocol() {
         return CurrentProtocol;
     }
 
@@ -364,7 +345,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
     }
 
     private ImagePlus getThresholdPreview() {
-        
+
         ChannelSplitter cs = new ChannelSplitter();
         ImagePlus imp = new ImagePlus("Threshold " + super.TitleText.getText(),
                 cs.getChannel(ThresholdOriginal,
@@ -382,15 +363,13 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         return result;
     }
 
-
     @Override
     public void blockSetupOKAction() {
         ThresholdPreview.removeImageListener(this);
         CurrentStepProtocol = CurrentProcessList;
-        
 
         notifyMicroBlockSetupListeners(getSettings());
-        
+
         setVisible(false);
         ThresholdPreview.addImageListener(this);
     }
@@ -419,47 +398,45 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
     // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     //field key 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     public ArrayList getSettings() {
-        
-         /**segmentation and measurement protocol redefining.
-         * 0: title text, 1: method (as String), 2: channel, 3: ArrayList of JComponents used 
-         * for analysis 3: ArrayList of Arraylist for morphology determination
-         */
 
+        /**
+         * segmentation and measurement protocol redefining. 0: title text, 1:
+         * method (as String), 2: channel, 3: ArrayList of JComponents used for
+         * analysis 3: ArrayList of Arraylist for morphology determination
+         */
         ArrayList result = new ArrayList();
 
         result.add(TitleText.getText());
 
-        result.add((String)(ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex())));
-        
+        result.add((String) (ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex())));
+
         result.add(ChannelComboBox.getSelectedIndex());
-        
+
         ArrayList<JComponent> Comps = new ArrayList();
-        
+
         Comps.addAll(CurrentStepProtocol);
-     
+
         result.add(Comps);
-        
+
         ArrayList<ArrayList> Measures = new ArrayList();
-        
+
         //MORPHOLOGY GETS IN HERE
         //This is where we need to hand off the morphology settings.  this will
         //follow all the way through to the Segemntation Processor
-        
         // ArrayList for morphology:  0: method(as String), 1: channel, 
         // 2: ArrayList of JComponents for method
+        for (int i = 0; i < Morphology.size(); i++) {
+            ArrayList Morphological = new ArrayList();
+            Morphological = Morphology.get(i);
+            Measures.add(Morphological);
+        }
 
-            for (int i = 0; i < Morphology.size(); i++) {
-                ArrayList Morphological = new ArrayList();
-                Morphological = Morphology.get(i);
-                Measures.add(Morphological);
-            }
-        
         result.add(Measures);
         return result;
     }
-    
+
     @Override
-    public ArrayList getProcessList(){
+    public ArrayList getProcessList() {
         return this.CurrentProcessList;
     }
 
@@ -474,28 +451,28 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
         }
     }
-    
+
     @Override
     public void imageClosed(ImagePlus ip) {
-        if(this.isVisible()){
-        if(!ThresholdPreview.isVisible()){
-            JFrame frame = new JFrame();
-            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
-            Object[] options = {"Yes", "No"};
-            int n = JOptionPane.showOptionDialog(frame,
-                    "The threshold preview has been closed.  Reopen?",
-                    "Preview closed.",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    options,
-                    options[0]);
+        if (this.isVisible()) {
+            if (!ThresholdPreview.isVisible()) {
+                JFrame frame = new JFrame();
+                frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+                Object[] options = {"Yes", "No"};
+                int n = JOptionPane.showOptionDialog(frame,
+                        "The threshold preview has been closed.  Reopen?",
+                        "Preview closed.",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
 
-            if (n == JOptionPane.YES_OPTION) {
-                ThresholdPreview = getThresholdPreview();
-                ThresholdPreview.setTitle(TitleText.toString());
-                IJ.run(ThresholdPreview, "Grays", "");
-                
+                if (n == JOptionPane.YES_OPTION) {
+                    ThresholdPreview = getThresholdPreview();
+                    ThresholdPreview.setTitle(TitleText.toString());
+                    IJ.run(ThresholdPreview, "Grays", "");
+
                     MethodDetails.setVisible(false);
                     MethodDetails.removeAll();
                     makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());
@@ -504,11 +481,11 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
                     MethodDetails.setVisible(true);
 
                     ThresholdPreview.show();
-                
-            } else {
-            }
 
-        }
+                } else {
+                }
+
+            }
         }
     }
 
@@ -519,34 +496,32 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
     @Override
     public void imageUpdated(ImagePlus ip) {
 
-     }
-    
-    private AbstractSegmentation getSegmentationApproach(String method){
-        Object iImp = new Object();
-
-           try {
-               Class<?> c;
-               c = Class.forName(SEGMENTATIONMAP.get(method));
-               Constructor<?> con;
-               try {
-                   con = c.getConstructor();
-                   iImp = con.newInstance();
-                   
-
-                   return (AbstractSegmentation)iImp;
-
-               } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                   Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
-               }
-
-           } catch (ClassNotFoundException ex) {
-               Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
-           }
-           
-           return new AbstractSegmentation();
-        
     }
 
+    private AbstractSegmentation getSegmentationApproach(String method) {
+        Object iImp = new Object();
+
+        try {
+            Class<?> c;
+            c = Class.forName(SEGMENTATIONMAP.get(method));
+            Constructor<?> con;
+            try {
+                con = c.getConstructor();
+                iImp = con.newInstance();
+
+                return (AbstractSegmentation) iImp;
+
+            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return new AbstractSegmentation();
+
+    }
 
     @Override
     public void updateGui(String str, Double dbl) {
@@ -556,23 +531,23 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         MethodDetails.repaint();
         MethodDetails.setVisible(true);
         pack();
-     }
+    }
 
     @Override
-    public void actionPerformed(ActionEvent e) {       
-        if(e.getActionCommand().equals("morphology")){ 
+    public void actionPerformed(ActionEvent e) {
+        if (e.getActionCommand().equals("morphology")) {
             this.MorphologyMenu.setVisible(true);
-        }      
+        }
     }
 
     @Override
     public void addMorphology(ArrayList<ArrayList> morphologies) {
-       Morphology.clear();
-       ListIterator<ArrayList> itr = morphologies.listIterator();
-       while(itr.hasNext()){
-           ArrayList morphology = itr.next(); 
-           Morphology.add(morphology);
-       }
+        Morphology.clear();
+        ListIterator<ArrayList> itr = morphologies.listIterator();
+        while (itr.hasNext()) {
+            ArrayList morphology = itr.next();
+            Morphology.add(morphology);
+        }
     }
 
     private class channelNumber extends javax.swing.JComboBox {

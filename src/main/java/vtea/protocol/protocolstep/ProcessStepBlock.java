@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,24 +17,14 @@
  */
 package vtea.protocol.protocolstep;
 
-import vtea.protocol.listeners.MicroBlockSetupListener;
-import vtea._vtea;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import vtea.protocol.listeners.MicroBlockSetupListener;
 
 /**
  *
  * @author vinfrais
  */
 public class ProcessStepBlock extends Object implements MicroBlockSetupListener {
-
 
     @Override
     public void onChangeSetup(ArrayList al) {

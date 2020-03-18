@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,18 +17,18 @@
  */
 package vtea.jni;
 
-
 public class HelloJNI {
-   static {
-      System.loadLibrary("hello"); // Load native library at runtime
-                                   // hello.dll (Windows) or libhello.so (Unixes)
-   }
- 
-   // Declare a native method sayHello() that receives nothing and returns void
-   public native void sayHello();
- 
-   // Test Driver
-   public static void main(String[] args) {
-      new HelloJNI().sayHello();  // invoke the native method
-   }
+
+    static {
+        System.loadLibrary("hello"); // Load native library at runtime
+        // hello.dll (Windows) or libhello.so (Unixes)
+    }
+
+    // Test Driver
+    public static void main(String[] args) {
+        new HelloJNI().sayHello();  // invoke the native method
+    }
+    // Declare a native method sayHello() that receives nothing and returns void
+
+    public native void sayHello();
 }

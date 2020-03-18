@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,14 +17,11 @@
  */
 package vtea.protocol.setup;
 
-import vtea.protocol.blockstepgui.ProcessStepBlockGUI;
 import ij.ImagePlus;
 import ij.LookUpTable;
-import ij.gui.Roi;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Duplicator;
 import ij.process.LUT;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -42,14 +39,9 @@ import java.util.Arrays;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
@@ -58,8 +50,8 @@ import static vtea._vtea.PROCESSINGMAP;
 import static vtea._vtea.PROCESSINGOPTIONS;
 import vtea.imageprocessing.AbstractImageProcessing;
 import vtea.processor.ImageProcessingProcessor;
+import vtea.protocol.blockstepgui.ProcessStepBlockGUI;
 import vtea.protocol.datastructure.ImageProcessingProtocol;
-import vteaexploration.PlotAxesSetup;
 
 /**
  *
@@ -80,7 +72,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
 
     ArrayList<ProcessStepBlockGUI> ProtocolAll;
 
-    public MicroBlockProcessSetup(){   
+    public MicroBlockProcessSetup() {
     }
 
     public MicroBlockProcessSetup(int step, ArrayList Channels, ArrayList<ProcessStepBlockGUI> Protocols, ImagePlus imp) {
@@ -88,11 +80,13 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         super(step, Channels);
 
         ProtocolAll = Protocols;
-        OriginalImage = new Duplicator().run(imp);
+        //OriginalImage = new Duplicator().run(imp);
+        OriginalImage = imp;
         imp.deleteRoi();
-        
-        if(OriginalImage.getNSlices()>1)
+
+        if (OriginalImage.getNSlices() > 1) {
             currentSlice = OriginalImage.getNSlices() / 2;
+        }
         //subclass specific settings
         TitleText.setText("Processing, Step " + step);
         TitleText.setEditable(false);
@@ -106,8 +100,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         tablePane.setVisible(false);
         secondaryTable.setVisible(false);
         ProcessSelectComboBox.setVisible(true);
-        
-        
 
         JPanel imagePanel = new JPanel() {
 
@@ -145,8 +137,8 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         layoutConstraints.ipadx = 5;
         layoutConstraints.weightx = 1;
         layoutConstraints.weighty = 1;
-        
-        if(OriginalImage.getNSlices()>1){
+
+        if (OriginalImage.getNSlices() > 1) {
             sliceSlider = new JSlider(SwingConstants.VERTICAL, 1, OriginalImage.getNSlices(), currentSlice);
             sliceSlider.addChangeListener(this);
         } else {
@@ -191,8 +183,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         gb.setConstraints(previewControl, layoutConstraints);
         previewControlPanel.add(previewControl);
 
-      
-        
         layoutConstraints.fill = layoutConstraints.gridx = 0;
         layoutConstraints.gridy = 2;
         layoutConstraints.ipadx = 5;
@@ -219,11 +209,11 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
     private void doPreview(int slice) {
         ChannelSplitter cs = new ChannelSplitter();
         final ImagePlus imp = new ImagePlus("preview", cs.getChannel(new Duplicator().run(OriginalImage), ChannelComboBox.getSelectedIndex() + 1));
-        if(imp.getNSlices() > 1){
-        ProcessPreview = new ImagePlus("ProcessPreview", imp.getStack().getProcessor(slice));
-        ProcessPreview.resetStack();
+        if (imp.getNSlices() > 1) {
+            ProcessPreview = new ImagePlus("ProcessPreview", imp.getStack().getProcessor(slice));
+            ProcessPreview.resetStack();
         } else {
-         ProcessPreview = new ImagePlus("ProcessPreview", imp.getProcessor());   
+            ProcessPreview = new ImagePlus("ProcessPreview", imp.getProcessor());
         }
 
         if (this.previewControl.isSelected()) {
@@ -239,12 +229,12 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             ProcessPreview = previewEngine.processPreview();
         }
         if (this.previousInclude.isSelected()) {
-            
+
             CurrentStepProtocol = CurrentProcessList;
             super.notifyMicroBlockSetupListeners(CurrentStepProtocol);
 
             ImageProcessingProtocol protocol = new ImageProcessingProtocol();
-            
+
             for (int i = 0; i < step; i++) {
                 if (ProtocolAll.get(i).getChannel() == ChannelComboBox.getSelectedIndex()) {
                     protocol.add(ProtocolAll.get(i));
@@ -294,7 +284,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         //layoutConstraints.anchor = GridBagConstraints.CENTER;
         pack();
     }
-    
+
 //    public void setSetup(ArrayList ProcessComponents){
 //        try{
 //            
@@ -375,22 +365,21 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
 //        
 //        
 //    }
-    
-    public void updatePreviewImage(ImagePlus imp){
+    public void updatePreviewImage(ImagePlus imp) {
         OriginalImage = imp;
-        doPreview(OriginalImage.getNSlices()/2);
+        doPreview(OriginalImage.getNSlices() / 2);
         repaint();
         pack();
     }
-    
-    public void resetSliderRange(){
+
+    public void resetSliderRange() {
         sliceSlider.removeChangeListener(this);
         sliceSlider.setMinimum(1);
         sliceSlider.setMaximum(OriginalImage.getNSlices());
         sliceSlider.addChangeListener(this);
     }
-    
-    public void updateProtocol(){
+
+    public void updateProtocol() {
         CurrentStepProtocol = CurrentProcessList;
         notifyMicroBlockSetupListeners(CurrentStepProtocol);
     }
@@ -409,7 +398,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             }
         }
         return Result;
-    }  
+    }
 
     @Override
     protected void updateProtocolPanel(ActionEvent evt) {
@@ -433,7 +422,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         }
         return false;
     }
-    
+
 //    public void setChannel(int position){
 //        this.ChannelComboBox.setSelectedIndex(position);
 //    }
@@ -442,7 +431,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
 //        this.ProcessSelectComboBox.setSelectedItem(str);
 //
 //    }
-    
 //   public String getMethod(){
 //        return (String)ProcessSelectComboBox.getSelectedItem();
 //    }
@@ -452,21 +440,18 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
 //    }
 //    
     @Override
-    public void setImage(ImagePlus imp){
+    public void setImage(ImagePlus imp) {
         OriginalImage = imp;
-    }  
-    
-   
-    
-    @Override
-    public void cloneProcessList(String str, ArrayList al){    
-        
-       
     }
-    
+
     @Override
-    public ArrayList getProcessList(){
-        return (ArrayList)CurrentProcessItems.get(0).clone();
+    public void cloneProcessList(String str, ArrayList al) {
+
+    }
+
+    @Override
+    public ArrayList getProcessList() {
+        return (ArrayList) CurrentProcessItems.get(0).clone();
     }
 
     @Override
@@ -543,7 +528,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
 
         pack();
         MethodDetails.setVisible(true);
-        
+
         CurrentProcessList.clear();
 
         CurrentProcessList.add(processComboBox.getSelectedItem());
@@ -556,7 +541,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
     @Override
     protected ArrayList makeMethodComponentsArray(String method, String[][] str) {
 
-         Object iImp = new Object();
+        Object iImp = new Object();
 
         try {
             Class<?> c;
@@ -564,13 +549,13 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             Constructor<?> con;
             try {
                 con = c.getConstructor();
-                iImp = con.newInstance();  
-                return ((AbstractImageProcessing)iImp).getOptions();
+                iImp = con.newInstance();
+                return ((AbstractImageProcessing) iImp).getOptions();
 
             } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -586,8 +571,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         super.notifyMicroBlockSetupListeners(CurrentStepProtocol);
         this.setVisible(false);
     }
-    
-    
 
     @Override
     public void stateChanged(ChangeEvent e) {
@@ -595,15 +578,13 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             currentSlice = ((JSlider) e.getSource()).getValue();
             doPreview(currentSlice);
         } else if (e.getSource() == this.previewControl) {
-            
+
             //push an updated protocol for global consideration
-            
             currentSlice = sliceSlider.getValue();
             doPreview(currentSlice);
         } else if (e.getSource() == this.previousInclude) {
-            
+
             //need to get the updated global protocol
-            
             currentSlice = sliceSlider.getValue();
             doPreview(currentSlice);
         }
@@ -615,11 +596,11 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
             previewControl.setSelected(false);
             previousInclude.setSelected(false);
             currentSlice = sliceSlider.getValue();
-            
-            if(CurrentProcessList.size() > 2){
-                CurrentProcessList.set(1,channelsComboBox.getIndexOf(channelsComboBox.getSelectedItem()));
+
+            if (CurrentProcessList.size() > 2) {
+                CurrentProcessList.set(1, channelsComboBox.getIndexOf(channelsComboBox.getSelectedItem()));
             }
-            
+
             doPreview(currentSlice);
         } else if (e.getSource() == ProcessSelectComboBox) {
             //System.out.println("PROFILING: Process position: " + this.ProcessSelectComboBox.getSelectedIndex());

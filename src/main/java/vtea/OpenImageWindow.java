@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,11 +24,8 @@ import ij.WindowManager;
 import ij.plugin.Duplicator;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 /*
  * To change this template, choose Tools | Templates
@@ -41,19 +38,19 @@ import javax.swing.JOptionPane;
 public class OpenImageWindow extends javax.swing.JFrame {
 
     private int tab;
+
     /**
      * Creates new form microWindowManager
      */
     public OpenImageWindow(javax.swing.JList images) {
 
         OpenImages = images;
-        
 
         GuiSetup();
         initComponents();
-        
+
         this.getRootPane().setDefaultButton(this.SelectImage);
-        
+
         comment.setVisible(false);
 
         //plotNames[0] = "NO PLOTS CREATED"; 
@@ -177,19 +174,19 @@ public class OpenImageWindow extends javax.swing.JFrame {
 
     private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
 
-                // TODO add your handling code here:
+        // TODO add your handling code here:
     }//GEN-LAST:event_formKeyPressed
 
     private void OpenImagesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_OpenImagesValueChanged
-         if(!OpenImages.isSelectionEmpty() && WindowManager.getImageCount() > 0){
-        this.SelectImage.setEnabled(true); 
-        }else{
+        if (!OpenImages.isSelectionEmpty() && WindowManager.getImageCount() > 0) {
+            this.SelectImage.setEnabled(true);
+        } else {
             this.SelectImage.setEnabled(false);
-         }
+        }
     }//GEN-LAST:event_OpenImagesValueChanged
-    
-    protected void ListActionPerformed(ActionEvent evt){
-                new Thread(() -> {
+
+    protected void ListActionPerformed(ActionEvent evt) {
+        new Thread(() -> {
             try {
                 comment.setText("Loading...");
                 comment.setVisible(true);
@@ -201,16 +198,16 @@ public class OpenImageWindow extends javax.swing.JFrame {
             }
         }).start();
     }
-    
-    protected void openImage(){
-        try{
-        int i = OpenImages.getSelectedIndex();
-        notifyImageSelectionListeners(i, this.tab);
-        this.setVisible(false);
-        } catch (NullPointerException e){
+
+    protected void openImage() {
+        try {
+            int i = OpenImages.getSelectedIndex();
+            notifyImageSelectionListeners(i, this.tab);
+            this.setVisible(false);
+        } catch (NullPointerException e) {
         }
     }
-    
+
     protected String[] populateImages() {
         int[] windowList = WindowManager.getIDList();
 
@@ -222,7 +219,6 @@ public class OpenImageWindow extends javax.swing.JFrame {
         }
 
         String[] titles = new String[windowList.length];
-        
 
         for (int i = 0; i < windowList.length; i++) {
             ImagePlus imp_temp = WindowManager.getImage(windowList[i]);
@@ -277,24 +273,21 @@ public class OpenImageWindow extends javax.swing.JFrame {
 //        } else{
 
         for (ImageSelectionListener listener : listeners) {
-            
+
             Duplicator dup = new Duplicator();
-            ImagePlus imp = dup.run(WindowManager.getImage(i + 1)); 
-               if(imp.getType() == ImagePlus.COLOR_RGB){
-                   IJ.run("Make Composite", "");
-               }  
+            ImagePlus imp = dup.run(WindowManager.getImage(i + 1));
+            if (imp.getType() == ImagePlus.COLOR_RGB) {
+                IJ.run("Make Composite", "");
+            }
             listener.onSelect(imp, tab);
-        }  
+        }
         //}
     }
 
-   public void getImageFile(int i){
-       this.setVisible(true);
-       this.tab = i;
-   }
-
-  
-
+    public void getImageFile(int i) {
+        this.setVisible(true);
+        this.tab = i;
+    }
 
     //analysis table and plot table update events
     /**
@@ -302,17 +295,16 @@ public class OpenImageWindow extends javax.swing.JFrame {
      * @param result
      */
     //   public void onUpdatePlots(DefaultListModel result){IJ.log("Updating plot lists.."); this.plots = result; OpenPlots.setModel(plots);}
-            /**
-             *
-             * @param result
-             */
-            //    @Override
-            //   public void onUpdateAnalysis(DefaultListModel result){IJ.log("Updating analysis lists.."); this.analysis = result; //Analyses.setModel(analysis);
-            //   }
-            /**
-             * @param result
-             */
-
+    /**
+     *
+     * @param result
+     */
+    //    @Override
+    //   public void onUpdateAnalysis(DefaultListModel result){IJ.log("Updating analysis lists.."); this.analysis = result; //Analyses.setModel(analysis);
+    //   }
+    /**
+     * @param result
+     */
     private void GuiSetup() {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

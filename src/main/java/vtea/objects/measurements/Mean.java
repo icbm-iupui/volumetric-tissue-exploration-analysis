@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,9 +19,7 @@ package vtea.objects.measurements;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import net.imglib2.RealPoint;
 import org.scijava.plugin.Plugin;
-import vtea.processor.Processor;
 
 /**
  *
@@ -29,35 +27,36 @@ import vtea.processor.Processor;
  */
 @Plugin(type = Measurements.class)
 public class Mean extends AbstractMeasurement {
-    
-    public Mean(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate mean";
-    NAME = "Mean";
-    KEY = "Mean";
-    TYPE = "Intensity";
+
+    static public Number getMean(ArrayList values) {
+
+        double n = 0;
+        ListIterator<Number> itr = values.listIterator();
+        while (itr.hasNext()) {
+            try {
+                Number value = itr.next();
+                n = n + value.doubleValue();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return n / values.size();
+
+    }
+
+    public Mean() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate mean";
+        NAME = "Mean";
+        KEY = "Mean";
+        TYPE = "Intensity";
     }
 
     @Override
     public Number process(ArrayList al, ArrayList values) {
-          
-    return getMean(values);
-    }  
-    
-    static public Number getMean(ArrayList values) {
-        
-                double n = 0;
-        ListIterator<Number> itr = values.listIterator();   
-    while(itr.hasNext()){
-        try{
-        Number value = itr.next(); 
-        n = n + value.doubleValue();
-        } catch(Exception ex){
-            ex.printStackTrace();
-        }
-    }   
-    return n/values.size();
-        
+
+        return getMean(values);
     }
+
 }

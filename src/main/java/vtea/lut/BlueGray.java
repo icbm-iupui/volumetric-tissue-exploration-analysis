@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2018 SciJava
+/* 
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,30 +24,28 @@ import org.scijava.plugin.Plugin;
  *
  * @author sethwinfree
  */
-@Plugin (type = LUT.class)
+@Plugin(type = LUT.class)
 public class BlueGray extends AbstractLUT {
-    
 
-    
-    public BlueGray(){
+    public BlueGray() {
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
         COMMENT = "Implements LUTs for VTEA";
         NAME = "BlueGray";
         KEY = "BGLUT";
-        
-    ZEROPERCENT = new Color(0x999999);
-    TENPERCENT = new Color(0x8a8aa3);
-    TWENTYPERCENT = new Color(0x7b7bad);
-    THIRTYPERCENT = new Color(0x6666bb);
-    FORTYPERCENT = new Color(0x5050ca);
-    FIFTYPERCENT = new Color(0x4c4ccc);
-    SIXTYPERCENT = new Color(0x3d3dd6);
-    SEVENTYPERCENT = new Color(0x2e2ee0);
-    EIGHTYPERCENT = new Color(0x1f1feb);
-    NINETYPERCENT = new Color(0x0f0ff5);
-    ALLPERCENT = new Color(0x0000ff);
-    
+
+        ZEROPERCENT = new Color(0x999999);
+        TENPERCENT = new Color(0x8a8aa3);
+        TWENTYPERCENT = new Color(0x7b7bad);
+        THIRTYPERCENT = new Color(0x6666bb);
+        FORTYPERCENT = new Color(0x5050ca);
+        FIFTYPERCENT = new Color(0x4c4ccc);
+        SIXTYPERCENT = new Color(0x3d3dd6);
+        SEVENTYPERCENT = new Color(0x2e2ee0);
+        EIGHTYPERCENT = new Color(0x1f1feb);
+        NINETYPERCENT = new Color(0x0f0ff5);
+        ALLPERCENT = new Color(0x0000ff);
+
     }
-    
+
 }

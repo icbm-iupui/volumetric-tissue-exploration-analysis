@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,9 +19,7 @@ package vtea.objects.measurements;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import net.imglib2.RealPoint;
 import org.scijava.plugin.Plugin;
-import vtea.processor.Processor;
 
 /**
  *
@@ -29,41 +27,40 @@ import vtea.processor.Processor;
  */
 @Plugin(type = Measurements.class)
 public class Minimum extends AbstractMeasurement {
-    
-    public Minimum(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate minimum";
-    NAME = "Min";
-    KEY = "Min";
-    TYPE = "Intensity";
+
+    static public Number getMinimum(ArrayList values) {
+
+        double minimum = (double) Maximum.getMaximum(values);
+
+        ListIterator<Number> itr = values.listIterator();
+
+        while (itr.hasNext()) {
+            try {
+                Number value = itr.next();
+                if (value.doubleValue() < minimum) {
+                    minimum = value.doubleValue();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return minimum;
+
+    }
+
+    public Minimum() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate minimum";
+        NAME = "Min";
+        KEY = "Min";
+        TYPE = "Intensity";
     }
 
     @Override
     public Number process(ArrayList al, ArrayList values) {
-      
-    return getMinimum(values);
-    }  
-    
-    static public Number getMinimum(ArrayList values){
-    
-        double minimum = (double)Maximum.getMaximum(values);
 
-        ListIterator<Number> itr = values.listIterator();   
-    
-    while(itr.hasNext()){
-        try{
-        Number value = itr.next(); 
-        if(value.doubleValue() < minimum){
-            minimum = value.doubleValue();
-        }
-        } catch(Exception ex){
-            ex.printStackTrace();
-        }
-    }   
-        return minimum;
-        
+        return getMinimum(values);
     }
-    
-   
+
 }

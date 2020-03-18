@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,68 +18,64 @@
 package vtea.feature;
 
 import ij.ImagePlus;
-import vtea.feature.listeners.RepaintFeatureListener;
-import vtea.protocol.listeners.RebuildPanelListener;
-import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
-import vtea.protocol.listeners.UpdateProgressListener;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.ListIterator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ListIterator;
 import javax.swing.JOptionPane;
 import vtea.exploration.listeners.AddFeaturesListener;
+import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.processor.FeatureProcessor;
+import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
 import vtea.protocol.listeners.DeleteBlockListener;
+import vtea.protocol.listeners.RebuildPanelListener;
+import vtea.protocol.listeners.UpdateProgressListener;
 
 /**
- * Window for analysis methods. Keeps track of analysis methods that are added 
- * and removed and submits the methods with parameters to get results. 
+ * Window for analysis methods. Keeps track of analysis methods that are added
+ * and removed and submits the methods with parameters to get results.
+ *
  * @author drewmcnutt
  */
-public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
-    
+public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener {
+
     protected ArrayList<FeatureStepBlockGUI> FeatureStepsList;
     ArrayList descriptions;
     double[][] features;
     int nvol;           //number of volumes
-    
+
     ArrayList<AddFeaturesListener> listeners = new ArrayList<AddFeaturesListener>();
-    
+
     protected GridLayout FeatureLayout = new GridLayout(4, 1, 0, 0);
 
     /**
-     * Constructor.
-     * Creates new form FeatureFrame
+     * Constructor. Creates new form FeatureFrame
+     *
      * @param descriptions
-     * @param table 
+     * @param table
      */
     public FeatureFrame(ArrayList descriptions, double[][] table, ImagePlus imp) {
-        
+
         //ArrayList pos = new ArrayList();
-        
         this.descriptions = new ArrayList<String>();
-        
+
         this.descriptions.add("PosX");
         this.descriptions.add("PosY");
         this.descriptions.add("PosZ");
 
-       
         this.descriptions.addAll(descriptions);
-        
+
         this.features = table;
         this.nvol = table.length;
-                
+
         this.FeatureStepsList = new ArrayList<>();
-        
+
         initComponents();
         FeatureStepsPanel.setLayout(FeatureLayout);
-        
+
     }
 
     /**
@@ -306,18 +302,19 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
+
     /**
      * Adds analysis step.
+     *
      * @param evt clicking of AddStep button
      */
     private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
         //this.setVisible(false);
-        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,FeatureStepsList.size() + 1, descriptions, nvol);
+        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY, FeatureStepsList.size() + 1, descriptions, nvol);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
         //this.notifyRepaintFeatureListeners();
-        
+
         FeatureStepsPanel.setLayout(FeatureLayout);
         FeatureStepsPanel.add(block.getPanel());
         FeatureStepsPanel.repaint();
@@ -330,17 +327,18 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         if (FeatureStepsList.size() >= 4) {
             AddStep.setEnabled(false);
         }
-        if (!FeatureStepsList.isEmpty()){
+        if (!FeatureStepsList.isEmpty()) {
             DeleteAllSteps.setEnabled(true);
         }
         repaintFeature();
         this.setVisible(true);
-        
+
         FeatureGo.setEnabled(true);
     }//GEN-LAST:event_AddStepActionPerformed
-    
+
     /**
      * Delete all analysis steps.
+     *
      * @param evt clicking of DeleteAll button
      */
     private void DeleteAllStepsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteAllStepsActionPerformed
@@ -353,16 +351,17 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         FeatureStepsPanel.repaint();
         //pack();
     }//GEN-LAST:event_DeleteAllStepsActionPerformed
-    
+
     /**
      * Sets up for analysis.
+     *
      * @param evt clicking of FeatureGo button
      */
     private void FeatureGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FeatureGoActionPerformed
-        
+
         findFeatures();
         VTEAProgressBar.setValue(0);
-        
+
     }//GEN-LAST:event_FeatureGoActionPerformed
 
     private void jPanel1formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPanel1formKeyPressed
@@ -371,43 +370,47 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
 
     /**
      * Rebuilds the panel.
-     * @param type 
+     *
+     * @param type
      */
     @Override
     public void rebuildPanel(int type) {
         this.RebuildPanelFeature();
     }
-    
+
     /**
      * Deletes specific step.
+     *
      * @param type useless(left over from DeleteBlockListener)
      * @param position the order number of the step
      */
     @Override
     public void deleteBlock(int type, int position) {
         this.deleteFeatureStep(position);
-        if (FeatureStepsList.isEmpty()){
+        if (FeatureStepsList.isEmpty()) {
             FeatureGo.setEnabled(false);
         }
     }
-    
+
     /**
      * Sets progress bar reading.
+     *
      * @param text string next to progress bar
      * @param min minimum value for progress bar
      * @param max maximum value for progress bar
      * @param position value to set progress bar to
      */
     @Override
-    public void changeProgress(String text, int min, int max, int position) {      
+    public void changeProgress(String text, int min, int max, int position) {
         VTEAProgressBar.setMinimum(min);
         VTEAProgressBar.setMaximum(max);
         VTEAProgressBar.setValue(position);
-        FeatureComment.setText(text);    
+        FeatureComment.setText(text);
     }
-    
+
     /**
      * Changes progress bar or text.
+     *
      * @param evt details what the property change is for
      */
     @Override
@@ -417,11 +420,11 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
             VTEAProgressBar.setValue(progress);
             FeatureComment.setText(String.format(
                     "Completed %d%%...\n", progress));
-        } 
-        if (evt.getPropertyName().equals("comment")){
-            FeatureComment.setText((String)evt.getNewValue());
         }
-        if (evt.getPropertyName().equals("escape") && !(Boolean)evt.getNewValue()){
+        if (evt.getPropertyName().equals("comment")) {
+            FeatureComment.setText((String) evt.getNewValue());
+        }
+        if (evt.getPropertyName().equals("escape") && !(Boolean) evt.getNewValue()) {
             System.out.println("PROFILING: Error is processing, thread terminated early...");
         }
     }
@@ -430,7 +433,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
      * Repaint the window.
      */
     @Override
-    public void repaintFeature(){
+    public void repaintFeature() {
         this.repaint();
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -450,7 +453,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
-    
+
     /**
      * Reconstruct the blocks.
      */
@@ -460,50 +463,52 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         while (litr.hasNext()) {
             sb = (FeatureStepBlockGUI) litr.next();
             sb.setPosition(FeatureStepsList.indexOf(sb) + 1);
-            FeatureStepsPanel.add(sb.getPanel());   
+            FeatureStepsPanel.add(sb.getPanel());
         }
     }
-    
+
     /**
-     * Extracts the Steps.  This had been static, why?
+     * Extracts the Steps. This had been static, why?
+     *
      * @param sb_al
-     * @return 
+     * @return
      */
     public ArrayList extractSteps(ArrayList sb_al) {
 
         ArrayList<ArrayList> Result = new ArrayList<>();
-        
+
         FeatureStepBlockGUI fsb;
         ListIterator<Object> litr = sb_al.listIterator();
         while (litr.hasNext()) {
             fsb = (FeatureStepBlockGUI) litr.next();
             ArrayList stepProtocol = fsb.getVariables();
-            ArrayList useFeature = (ArrayList)stepProtocol.get(1);
-            
-            if(useFeature.size() < descriptions.size()){
-                for(int i = useFeature.size(); i < descriptions.size(); i++){
+            ArrayList useFeature = (ArrayList) stepProtocol.get(1);
+
+            if (useFeature.size() < descriptions.size()) {
+                for (int i = useFeature.size(); i < descriptions.size(); i++) {
                     useFeature.add(false);
                 }
             }
-            
-            
+
             Result.add(stepProtocol);
-            
+
         }
 
         return Result;
     }
-    
+
     /**
      * Retrieve all of the steps.
+     *
      * @return list of all of the steps
      */
     public ArrayList getFeatureSteps() {
         return this.FeatureStepsList;
     }
-    
+
     /**
      * Deletes specific step.
+     *
      * @param position the position of the step to delete
      */
     private void deleteFeatureStep(int position) {
@@ -511,10 +516,10 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         //remove from FeatureStepsList
         FeatureStepsList.remove(position - 1);
         FeatureStepsList.trimToSize();
-        
+
         FeatureStepsPanel.removeAll();
         FeatureStepsPanel.setLayout(FeatureLayout);
-        
+
         if (FeatureStepsList.size() < 0) {
         } else {
             RebuildPanelFeature();
@@ -523,7 +528,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         if (FeatureStepsList.size() < 4) {
             AddStep.setEnabled(true);
         }
-        if(FeatureStepsList.isEmpty()){
+        if (FeatureStepsList.isEmpty()) {
             DeleteAllSteps.setEnabled(false);
         }
 
@@ -531,75 +536,76 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         pack();
 
     }
-    
+
     /**
      * Starts the analysis of the features.
      */
-    private void findFeatures(){
+    private void findFeatures() {
         FeatureComment.setText("Finding features...");
         ArrayList<ArrayList> protocol = new ArrayList<>();
         //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
         protocol = extractSteps(FeatureStepsList);
-        
+
         FeatureProcessor fp = new FeatureProcessor(features, protocol);
         fp.addPropertyChangeListener(this);
         fp.addListener(this);
         fp.execute();
-        
+
     }
-    
-    private ArrayList<Integer> examineColumns(){
+
+    private ArrayList<Integer> examineColumns() {
         /*
             Makes a new 2D array with the rows equal to every measurement type
             (Makes the transpose of the matrix)
-        */
+         */
         double[][] columns = new double[features[0].length][features.length];
-        for(int i = 0; i < features.length; i++){
-            for(int j = 0; j < features[i].length; j++){
-                columns[j][i] = (double)features[i][j];
+        for (int i = 0; i < features.length; i++) {
+            for (int j = 0; j < features[i].length; j++) {
+                columns[j][i] = (double) features[i][j];
             }
         }
-        
+
         /*
             Compares all measurements and add all duplicate columns to the dupl
             ArrayList if they are not already there
-        */
+         */
         ArrayList<Integer> dupl = new ArrayList();
-        for(int j = 4; j < columns.length; j++){
-            for(int k = j + 1; k < columns.length; k++){
-                if(java.util.Arrays.equals(columns[j], columns[k]) && !(dupl.contains(k))){
+        for (int j = 4; j < columns.length; j++) {
+            for (int k = j + 1; k < columns.length; k++) {
+                if (java.util.Arrays.equals(columns[j], columns[k]) && !(dupl.contains(k))) {
                     dupl.add(k);
                 }
-                    
+
             }
         }
-        
+
         Collections.sort(dupl);         //sorts the list into ascending order
-        
+
         return dupl;
     }
-    
+
     /**
      * Gives warning dialog to the user about duplicate columns in the dataset
      * and allows the user to remove them.
      */
-    public void giveWarning(){
+    public void giveWarning() {
         int response;
-        
+
         ArrayList<Integer> dupl = examineColumns();
 
-        if(dupl.isEmpty())
+        if (dupl.isEmpty()) {
             response = JOptionPane.NO_OPTION;
-        else{
+        } else {
             StringBuilder sb = new StringBuilder("The following columns are duplicates of existing columns: \n");
             int count = 0;
-            for(Integer col: dupl){
+            for (Integer col : dupl) {
                 sb.append(descriptions.get(col - 1));
                 count++;
-                if(count != 0){
+                if (count != 0) {
                     sb.append(", ");
-                    if(count % 6 == 0)
+                    if (count % 6 == 0) {
                         sb.append("\n");
+                    }
                 }
 
             }
@@ -607,70 +613,70 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
             sb.append("\nWould you like to delete these columns from the dataset?");
             response = JOptionPane.showConfirmDialog(this, sb, "Duplicate Columns Detected", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         }
-        
-        if(response == JOptionPane.YES_OPTION)
+
+        if (response == JOptionPane.YES_OPTION) {
             deleteColumns(dupl);
+        }
     }
-    
-    public void updateColumns(double[][] newFeatures, ArrayList<String> newDescriptions){
-        
+
+    public void updateColumns(double[][] newFeatures, ArrayList<String> newDescriptions) {
+
         this.descriptions = new ArrayList<String>();
-        
+
         this.descriptions.add("PosX");
         this.descriptions.add("PosY");
         this.descriptions.add("PosZ");
 
-       
         this.descriptions.addAll(newDescriptions);
-        
-        features = newFeatures;  
-    } 
-    
-    private void deleteColumns(ArrayList<Integer> duplicates){
+
+        features = newFeatures;
+    }
+
+    private void deleteColumns(ArrayList<Integer> duplicates) {
         double[][] newfeat = new double[features.length][features[0].length - duplicates.size()];
-        
+
         int count = 0;
         int j = 0;
         int curcol = 0;
-        
-        for(Integer col: duplicates){
-                Object removed = descriptions.remove((int)col - count - 1);
+
+        for (Integer col : duplicates) {
+            Object removed = descriptions.remove((int) col - count - 1);
 //                System.out.println(removed.toString());
-                for(int i = 0; i < features.length; i++){
-                    j = curcol;
-                    for(;j < col;j++){
-                        newfeat[i][j-count] = features[i][j];
-                    }
+            for (int i = 0; i < features.length; i++) {
+                j = curcol;
+                for (; j < col; j++) {
+                    newfeat[i][j - count] = features[i][j];
                 }
-                if(j == col){
-                    count++;
-                    j++;
-                    curcol = col + 1;
-                }
+            }
+            if (j == col) {
+                count++;
+                j++;
+                curcol = col + 1;
+            }
         }
-        
-        for(int i = 0; i < features.length; i++){
-            for(int k = duplicates.get(duplicates.size() - 1) + 1;k < features[0].length; k++)
-                newfeat[i][k-count] = features[i][k];
+
+        for (int i = 0; i < features.length; i++) {
+            for (int k = duplicates.get(duplicates.size() - 1) + 1; k < features[0].length; k++) {
+                newfeat[i][k - count] = features[i][k];
+            }
         }
-        
-        
+
         features = newfeat;
     }
 
     @Override
     public void addFeatures(String name, ArrayList<ArrayList<Number>> result) {
         notifyListeners(name, result);
-        
+
     }
-    
+
     public void addListener(AddFeaturesListener listener) {
         listeners.add(listener);
     }
 
     private void notifyListeners(String name, ArrayList<ArrayList<Number>> result) {
         for (AddFeaturesListener listener : listeners) {
-            listener.addFeatures(name , result);
+            listener.addFeatures(name, result);
         }
     }
 }

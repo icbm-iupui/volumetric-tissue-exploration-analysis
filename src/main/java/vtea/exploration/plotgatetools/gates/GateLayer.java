@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,11 +36,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
@@ -57,8 +55,6 @@ import vtea.exploration.plotgatetools.listeners.ImageHighlightSelectionListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 
-
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -69,6 +65,9 @@ import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
  * @author vinfrais
  */
 public class GateLayer implements ActionListener, ItemListener {
+
+    public static PolygonGate clipboardGate;
+    public static boolean gateInClipboard = false;
 
     public transient boolean msActive;
     public transient boolean msPolygon;
@@ -81,9 +80,9 @@ public class GateLayer implements ActionListener, ItemListener {
     public transient boolean kyShift;
 
     private String xAxis, yAxis;
-    
+
     private ChartPanel chart;
-    
+
     private ArrayList<Point> points = new ArrayList<Point>();
     private ArrayList<PolygonSelectionListener> polygonlisteners = new ArrayList<PolygonSelectionListener>();
     private ArrayList<ImageHighlightSelectionListener> highlightlisteners = new ArrayList<ImageHighlightSelectionListener>();
@@ -94,31 +93,26 @@ public class GateLayer implements ActionListener, ItemListener {
     private ArrayList<SubGateListener> subGateListeners = new ArrayList<SubGateListener>();
     private ArrayList<DistanceMapListener> distanceMapListeners = new ArrayList<>();
     private ArrayList<DensityMapListener> densityMapListeners = new ArrayList<>();
-    
-    
+
     private ArrayList<PolygonGate> gates = new ArrayList<PolygonGate>();
 
     private JPopupMenu menu = new JPopupMenu();
-    
+
     private PolygonGate selectedGate;
-    
-    String[] colors = {"red","green", "blue", "yellow", "orange", "yellow green",
+
+    String[] colors = {"red", "green", "blue", "yellow", "orange", "yellow green",
         "light green", "cyan", "light blue", "dark blue", "purple", "pink",
         "salmon"
-        };
-    
-       Color[] colorsRGB = {
-            new Color(255,0,0), new Color(0,255,0), new Color(0,0,255), 
-            new Color(255, 255, 0), new Color(255, 153, 51), 
-            new Color(153, 255, 51), new Color(51, 255, 153), 
-            new Color(51, 255, 255), new Color(102, 178, 255),
-            new Color(102, 102, 255), new Color(178, 102, 255),
-            new Color(255, 102, 255), new Color(255, 102, 178)
-        };
-    
-    public static PolygonGate clipboardGate;
-    public static boolean gateInClipboard = false;
-    
+    };
+
+    Color[] colorsRGB = {
+        new Color(255, 0, 0), new Color(0, 255, 0), new Color(0, 0, 255),
+        new Color(255, 255, 0), new Color(255, 153, 51),
+        new Color(153, 255, 51), new Color(51, 255, 153),
+        new Color(51, 255, 255), new Color(102, 178, 255),
+        new Color(102, 102, 255), new Color(178, 102, 255),
+        new Color(255, 102, 255), new Color(255, 102, 178)
+    };
 
     public GateLayer() {
 
@@ -127,22 +121,17 @@ public class GateLayer implements ActionListener, ItemListener {
     public ArrayList getGates() {
         return gates;
     }
-    
-   
+
     public JXLayer createLayer(ChartPanel chart, ArrayList<PolygonGate> ag, String x, String y) {
         gates = ag;
         xAxis = x;
         yAxis = y;
         this.chart = chart;
-       
 
         // wrap chart component
         JXLayer layer = new JXLayer(chart);
 
         createPopUpMenu(layer);
-        
-        
-        
 
         // create custom LayerUI
         AbstractLayerUI layerUI = new AbstractLayerUI() {
@@ -168,60 +157,57 @@ public class GateLayer implements ActionListener, ItemListener {
                 y = 0.0;
 
                 //draw existing gates
-                
-                
-                
                 ListIterator<PolygonGate> itr = gates.listIterator();
                 while (itr.hasNext()) {
                     gp = itr.next();
-                if(((PolygonGate)gp).getXAxis().equals(xAxis) &&
-                     ((PolygonGate)gp).getYAxis().equals(yAxis)){
-                    //if a selected gate is found change paint
-                    rescaleGates(chart);
-                    if (gp.getHovering()) {
-                        Path2D polygon = gp.getPath2D();
-                        PathIterator pi = polygon.getPathIterator(null);
-                        g2.setPaint(Color.red);
-                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                                RenderingHints.VALUE_ANTIALIAS_ON);
-                                
-                        double coords[] = new double[6];
+                    if (((PolygonGate) gp).getXAxis().equals(xAxis)
+                            && ((PolygonGate) gp).getYAxis().equals(yAxis)) {
+                        //if a selected gate is found change paint
+                        rescaleGates(chart);
+                        if (gp.getHovering()) {
+                            Path2D polygon = gp.getPath2D();
+                            PathIterator pi = polygon.getPathIterator(null);
+                            g2.setPaint(Color.red);
+                            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                    RenderingHints.VALUE_ANTIALIAS_ON);
 
-                        ArrayList<Point2D> topaint = new ArrayList<Point2D>();
+                            double coords[] = new double[6];
 
-                        while (!pi.isDone()) {
-                            if (pi.currentSegment(coords) == PathIterator.SEG_LINETO) {
-                                topaint.add(new Point2D.Double(coords[0], coords[1]));
+                            ArrayList<Point2D> topaint = new ArrayList<Point2D>();
+
+                            while (!pi.isDone()) {
+                                if (pi.currentSegment(coords) == PathIterator.SEG_LINETO) {
+                                    topaint.add(new Point2D.Double(coords[0], coords[1]));
+                                }
+                                pi.next();
                             }
-                            pi.next();
-                        }
 
-                        ListIterator<Point2D> pli = topaint.listIterator();
+                            ListIterator<Point2D> pli = topaint.listIterator();
 
-                        while (pli.hasNext()) {
-                            if (pli.nextIndex() == 0) {
-                                p0 = pli.next();
+                            while (pli.hasNext()) {
+                                if (pli.nextIndex() == 0) {
+                                    p0 = pli.next();
 
-                                g2.fill(new Ellipse2D.Double(p0.getX() - 4, p0.getY() - 4, 8, 8));
-                                pPrevious = p0;
-                            } else {
-                                pCurrent = pli.next();
-                                g2.fill(new Ellipse2D.Double(pCurrent.getX() - 4, pCurrent.getY() - 4, 8, 8));
-                                g2.draw(new Line2D.Double(pPrevious, pCurrent));
-                                pPrevious = pCurrent;
+                                    g2.fill(new Ellipse2D.Double(p0.getX() - 4, p0.getY() - 4, 8, 8));
+                                    pPrevious = p0;
+                                } else {
+                                    pCurrent = pli.next();
+                                    g2.fill(new Ellipse2D.Double(pCurrent.getX() - 4, pCurrent.getY() - 4, 8, 8));
+                                    g2.draw(new Line2D.Double(pPrevious, pCurrent));
+                                    pPrevious = pCurrent;
+                                }
                             }
-                        }
-                        g2.draw(new Line2D.Double(pCurrent, p0));
-                    }else if (gp.getSelected()) {
+                            g2.draw(new Line2D.Double(pCurrent, p0));
+                        } else if (gp.getSelected()) {
                             g2.setPaint(Color.red);
                             g2.draw(gp.getGateAsShape());
-                    } else {
-                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                                RenderingHints.VALUE_ANTIALIAS_ON);
-                        g2.setPaint(gp.getColor());
-                        g2.draw(gp.getGateAsShape());
+                        } else {
+                            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                    RenderingHints.VALUE_ANTIALIAS_ON);
+                            g2.setPaint(gp.getColor());
+                            g2.draw(gp.getGateAsShape());
+                        }
                     }
-                }
                 }
 
                 if (msPolygon) {
@@ -329,7 +315,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
                     }
                 }
-           
+
             }
 
             @Override
@@ -342,12 +328,12 @@ public class GateLayer implements ActionListener, ItemListener {
                                 try {
                                     drawMicroSelection(e);
                                     makePolygonGate();
-                                   
+
                                 } catch (Throwable ex) {
                                     Logger.getLogger(GateLayer.class.getName()).
                                             log(Level.SEVERE, null, ex);
                                 }
-                                
+
                             }
                             e.consume();
                             //close polygon add to arraylist
@@ -387,48 +373,48 @@ public class GateLayer implements ActionListener, ItemListener {
                                 }
                             }
                             e.consume();
-                            
+
                         }
                     }
 
                 } else {
 
-                    if(gateInClipboard){
-                        ((JMenuItem)menu.getComponent(4)).setEnabled(true);
-                    } else if (!gateInClipboard){
-                        ((JMenuItem)menu.getComponent(4)).setEnabled(false);
+                    if (gateInClipboard) {
+                        ((JMenuItem) menu.getComponent(4)).setEnabled(true);
+                    } else if (!gateInClipboard) {
+                        ((JMenuItem) menu.getComponent(4)).setEnabled(false);
                     }
-                   
+
                     if (SwingUtilities.isRightMouseButton(e) && !checkForGate(e, gates)) {
-                        ((JMenuItem)menu.getComponent(3)).setEnabled(false);
-                        ((JMenuItem)menu.getComponent(5)).setEnabled(false);
-                        
+                        ((JMenuItem) menu.getComponent(3)).setEnabled(false);
+                        ((JMenuItem) menu.getComponent(5)).setEnabled(false);
+
                         menu.show(e.getComponent(),
                                 e.getX(), e.getY());
                         e.consume();
 
                     } else if (SwingUtilities.isRightMouseButton(e) && checkForGate(e, gates)) {
-                         
-                        ((JMenuItem)menu.getComponent(3)).setEnabled(true);
-                        ((JMenuItem)menu.getComponent(5)).setEnabled(true);
-                       
+
+                        ((JMenuItem) menu.getComponent(3)).setEnabled(true);
+                        ((JMenuItem) menu.getComponent(5)).setEnabled(true);
+
                         menu.show(e.getComponent(),
                                 e.getX(), e.getY());
                         e.consume();
                     } else if (e.getClickCount() == 1) {
                         checkForGates(e, gates);
-                        
+
                         e.consume();
                     } else {
                         e.consume();
                     };
                     e.consume();
                 }
-             e.consume();  
+                e.consume();
             }
-            
+
         };
-        
+
         layer.setUI(layerUI);
         System.gc();
         return layer;
@@ -481,7 +467,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
     public void makePolygonGate() throws Throwable {
         this.msPolygon = false;
-        points.remove(points.size()-1);
+        points.remove(points.size() - 1);
         notifyPolygonSelectionListeners(points);
         this.points.clear();
         this.finalize();
@@ -489,7 +475,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
     public void makeRectangleGate() throws Throwable {
         this.msRectangle = false;
-        notifyPolygonSelectionListeners(points);    
+        notifyPolygonSelectionListeners(points);
         this.points.clear();
         this.finalize();
     }
@@ -538,12 +524,12 @@ public class GateLayer implements ActionListener, ItemListener {
         Point p = new Point(e.getX(), e.getY());
         while (itr.hasNext()) {
             gate = itr.next();
-            if(!(e.getModifiersEx() == MouseEvent.SHIFT_DOWN_MASK)){
-               gate.setSelected(false); 
-               e.consume();
-            }          
-            if (gate.getPath2D().contains(p) && (gate.getXAxis().equals(xAxis) &&
-                     gate.getYAxis().equals(yAxis))) {
+            if (!(e.getModifiersEx() == MouseEvent.SHIFT_DOWN_MASK)) {
+                gate.setSelected(false);
+                e.consume();
+            }
+            if (gate.getPath2D().contains(p) && (gate.getXAxis().equals(xAxis)
+                    && gate.getYAxis().equals(yAxis))) {
                 gate.setSelected(true);
                 this.notifyImageHighLightSelectionListeners(gates);
                 e.consume();
@@ -551,7 +537,7 @@ public class GateLayer implements ActionListener, ItemListener {
         }
         e.consume();
         //System.out.println("PROFILING: GateLayer CheckForGateS.");
-        
+
     }
 
     public boolean checkForGate(MouseEvent e, ArrayList<PolygonGate> gates) {
@@ -561,11 +547,11 @@ public class GateLayer implements ActionListener, ItemListener {
         Point p = new Point(e.getX(), e.getY());
         while (itr.hasNext()) {
             gate = itr.next();
-            if (gate.getPath2D().contains(p) && (((PolygonGate)gate).getXAxis().equals(xAxis) &&
-                     ((PolygonGate)gate).getYAxis().equals(yAxis))) {
+            if (gate.getPath2D().contains(p) && (((PolygonGate) gate).getXAxis().equals(xAxis)
+                    && ((PolygonGate) gate).getYAxis().equals(yAxis))) {
                 selectedGate = gate;
-                 //System.out.println("PROFILING: GateLayer CheckForGate.");
-                 e.consume();
+                //System.out.println("PROFILING: GateLayer CheckForGate.");
+                e.consume();
                 return true;
             }
         }
@@ -594,7 +580,7 @@ public class GateLayer implements ActionListener, ItemListener {
             listener.polygonGate(points);
         }
     }
-    
+
     public void addDeleteGateListener(DeleteGateListener listener) {
         //System.out.println("Adding Deleting gate .");
         deletegatelisteners.add(listener);
@@ -605,7 +591,7 @@ public class GateLayer implements ActionListener, ItemListener {
             listener.onDeleteGate(gates);
         }
     }
-    
+
     public void addPasteGateListener(AddGateListener listener) {
         addgatelisteners.add(listener);
     }
@@ -627,89 +613,80 @@ public class GateLayer implements ActionListener, ItemListener {
     }
 
     private void createPopUpMenu(JXLayer layer) {
-        
-                
+
         this.menu = new JPopupMenu();
         //JMenuItem menuItem = new JMenuItem("Color...");
 //        menuItem.addActionListener(this);
 //        menu.add(menuItem);
 
-        
         JMenuItem menuItem = new JMenuItem("");
 
-        
         JMenu jm = new JMenu("Color...");
-        
 
-        
-        for(int i = 0; i < colors.length; i++){   
+        for (int i = 0; i < colors.length; i++) {
             menuItem = new JMenuItem(colors[i]);
             menuItem.addActionListener(this);
-            jm.add(menuItem);  
+            jm.add(menuItem);
         }
-        
+
         menu.add(jm);
-        
+
         menuItem = new JMenuItem("Line...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menu.add(new JSeparator());
-        
+
         menuItem = new JMenuItem("Copy");
         menuItem.addActionListener(this);
         menu.add(menuItem);
-        
+
         menuItem = new JMenuItem("Paste");
         menuItem.setEnabled(gateInClipboard);
 
         menuItem.addActionListener(this);
         menu.add(menuItem);
-        
-        
+
         menuItem = new JMenuItem("Delete");
-        
+
         menuItem.addActionListener(this);
         menu.add(menuItem);
-        
+
         menu.add(new JSeparator());
-        
+
         menuItem = new JMenuItem("Delete All");
-        
+
         menuItem.addActionListener(this);
         menu.add(menuItem);
-        
+
         menu.add(new JSeparator());
-        
+
         menuItem = new JMenuItem("Make Ground Truth...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
-        
-         //NucleiImageOutput_v2
-       // menuItem = new JMenuItem("Run CNN test");
+
+        //NucleiImageOutput_v2
+        // menuItem = new JMenuItem("Run CNN test");
         //menuItem.addActionListener(this);
         //menu.add(menuItem);
-        
+        menu.add(new JSeparator());
+
+        menuItem = new JMenuItem("Subgate Selection...");
+
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
 
         menu.add(new JSeparator());
-        
-        menuItem = new JMenuItem("Subgate Selection...");
-       
-        menuItem.addActionListener(this);
-        menu.add(menuItem);
-        
-         menu.add(new JSeparator());
-        
+
         menuItem = new JMenuItem("Add Distance Map...");
-       
+
         menuItem.addActionListener(this);
         menu.add(menuItem);
-        
+
         menuItem = new JMenuItem("Add Density Map...");
-       
+
         menuItem.addActionListener(this);
         menu.add(menuItem);
-        
 
         //Add listener to the text area so the popup menu can come up.
 //        MouseListener popupListener = new PopupListener(menu);
@@ -719,183 +696,178 @@ public class GateLayer implements ActionListener, ItemListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         //System.out.println(e.getActionCommand());
-     
-        if(e.getActionCommand().equals("Delete")){
-            
-        ListIterator<PolygonGate> gt = gates.listIterator();
-            while(gt.hasNext()){
+
+        if (e.getActionCommand().equals("Delete")) {
+
+            ListIterator<PolygonGate> gt = gates.listIterator();
+            while (gt.hasNext()) {
                 PolygonGate g = gt.next();
-                if(g.getHovering() && (((PolygonGate)g).getXAxis().equals(xAxis) &&
-                     ((PolygonGate)g).getYAxis().equals(yAxis))){
+                if (g.getHovering() && (((PolygonGate) g).getXAxis().equals(xAxis)
+                        && ((PolygonGate) g).getYAxis().equals(yAxis))) {
                     gt.remove();
                 }
             }
-            notifyDeleteGateListeners();   
-        } else if(e.getActionCommand().equals("Copy")){
+            notifyDeleteGateListeners();
+        } else if (e.getActionCommand().equals("Copy")) {
             clipboardGate = selectedGate;
             gateInClipboard = true;
             menu.getComponent(4).setEnabled(true);
-        } else if(e.getActionCommand().equals("Paste")){
-            try{
-            PolygonGate newgate = new PolygonGate(clipboardGate.createInPanelSpace(chart));
-            newgate.setXAxis(xAxis);
-            newgate.setYAxis(yAxis);
-            newgate.createInChartSpace(chart);
-            newgate.createPath2D();
-            gates.add(newgate);   
-            notifyPasteGateListeners();
-            } catch (NullPointerException n){}
-        } else if(e.getActionCommand().equals("Delete All")){
+        } else if (e.getActionCommand().equals("Paste")) {
+            try {
+                PolygonGate newgate = new PolygonGate(clipboardGate.createInPanelSpace(chart));
+                newgate.setXAxis(xAxis);
+                newgate.setYAxis(yAxis);
+                newgate.createInChartSpace(chart);
+                newgate.createPath2D();
+                gates.add(newgate);
+                notifyPasteGateListeners();
+            } catch (NullPointerException n) {
+            }
+        } else if (e.getActionCommand().equals("Delete All")) {
             ListIterator<PolygonGate> gt = gates.listIterator();
-            while(gt.hasNext()){
+            while (gt.hasNext()) {
                 PolygonGate g = gt.next();
-                if((((PolygonGate)g).getXAxis().equals(xAxis) &&
-                     ((PolygonGate)g).getYAxis().equals(yAxis))){
-                    gt.remove(); 
+                if ((((PolygonGate) g).getXAxis().equals(xAxis)
+                        && ((PolygonGate) g).getYAxis().equals(yAxis))) {
+                    gt.remove();
                 }
-            } 
+            }
             notifyDeleteGateListeners();
-        } else if(e.getActionCommand().equals("Make Ground Truth...")){
+        } else if (e.getActionCommand().equals("Make Ground Truth...")) {
             //Used to export individual images of each segmented nuclei
-            
+
             ListIterator<PolygonGate> gt = gates.listIterator();
             Path2D path = null;
-            while(gt.hasNext()){
+            while (gt.hasNext()) {
                 PolygonGate g = gt.next();
-                if(g.getSelected() && (((PolygonGate)g).getXAxis().equals(xAxis) &&
-                     ((PolygonGate)g).getYAxis().equals(yAxis))){
+                if (g.getSelected() && (((PolygonGate) g).getXAxis().equals(xAxis)
+                        && ((PolygonGate) g).getYAxis().equals(yAxis))) {
                     path = g.createPath2DInChartSpace();
                 }
             }
-            if(path != null)
+            if (path != null) {
                 notifyImageListeners(path);
+            }
 
-        }  else if(e.getActionCommand().equals("Subgate Selection...")){
+        } else if (e.getActionCommand().equals("Subgate Selection...")) {
             //Used to subgate to a new MicroExplorer
-            
 
             ListIterator<PolygonGate> gt = gates.listIterator();
             Path2D path = null;
-            while(gt.hasNext()){
+            while (gt.hasNext()) {
                 PolygonGate g = gt.next();
-                if(g.getSelected() && (((PolygonGate)g).getXAxis().equals(xAxis) &&
-                     ((PolygonGate)g).getYAxis().equals(yAxis))){
+                if (g.getSelected() && (((PolygonGate) g).getXAxis().equals(xAxis)
+                        && ((PolygonGate) g).getYAxis().equals(yAxis))) {
                     path = g.createPath2DInChartSpace();
                 }
             }
 
-            
-    
-                notifySubgateListeners();
-        } else if(e.getActionCommand().equals("Add Distance Map...")){
+            notifySubgateListeners();
+        } else if (e.getActionCommand().equals("Add Distance Map...")) {
             //Used to subgate to a new MicroExplorer
-            
+
             ListIterator<PolygonGate> gt = gates.listIterator();
             Path2D path = null;
-            while(gt.hasNext()){
+            while (gt.hasNext()) {
                 PolygonGate g = gt.next();
-                if(g.getSelected() && (((PolygonGate)g).getXAxis().equals(xAxis) &&
-                     ((PolygonGate)g).getYAxis().equals(yAxis))){
+                if (g.getSelected() && (((PolygonGate) g).getXAxis().equals(xAxis)
+                        && ((PolygonGate) g).getYAxis().equals(yAxis))) {
                     path = g.createPath2DInChartSpace();
                 }
             }
-            if(path != null)
-            {
-                
-                String s = (String)JOptionPane.showInputDialog(
-                    null,
-                    "Please enter the group name",
-                    "Distance Map Group",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    null,
-                    "Distance_");
+            if (path != null) {
+
+                String s = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Please enter the group name",
+                        "Distance Map Group",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        "Distance_");
 
                 new Thread(() -> {
-            try {
-        
-                notifyDistanceMapListeners(s);
-        
-        
-    } catch (Exception ex) {
-                System.out.println("ERROR: " + ex.getLocalizedMessage());
+                    try {
+
+                        notifyDistanceMapListeners(s);
+
+                    } catch (Exception ex) {
+                        System.out.println("ERROR: " + ex.getLocalizedMessage());
+                    }
+                }).start();
+
             }
-        }).start();   
-                
-            }
-        } else if(e.getActionCommand().equals("Add Density Map...")){
+        } else if (e.getActionCommand().equals("Add Density Map...")) {
             //Used to subgate to a new MicroExplorer
-            
+
             ListIterator<PolygonGate> gt = gates.listIterator();
             Path2D path = null;
-            while(gt.hasNext()){
+            while (gt.hasNext()) {
                 PolygonGate g = gt.next();
-                if(g.getSelected() && (((PolygonGate)g).getXAxis().equals(xAxis) &&
-                     ((PolygonGate)g).getYAxis().equals(yAxis))){
+                if (g.getSelected() && (((PolygonGate) g).getXAxis().equals(xAxis)
+                        && ((PolygonGate) g).getYAxis().equals(yAxis))) {
                     path = g.createPath2DInChartSpace();
                 }
             }
-            if(path != null)
-            {
-                
-                String s = (String)JOptionPane.showInputDialog(
-                    null,
-                    "Please enter the group name",
-                    "Distance Map Group",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    null,
-                    "Density_");
+            if (path != null) {
+
+                String s = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Please enter the group name",
+                        "Distance Map Group",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        "Density_");
 
                 new Thread(() -> {
-            try {
-        
-                notifyDensityMapListeners(s);
-        
-        
-    } catch (Exception ex) {
-                System.out.println("ERROR: " + ex.getLocalizedMessage());
-            }
-        }).start();   
-                
-            }
-        }   
-        
+                    try {
 
-        for(int i = 0; i < colors.length; i++){
-         if(e.getActionCommand().equals(colors[i])){
-             PolygonGate gp;
-             ListIterator<PolygonGate> itr = gates.listIterator();
+                        notifyDensityMapListeners(s);
+
+                    } catch (Exception ex) {
+                        System.out.println("ERROR: " + ex.getLocalizedMessage());
+                    }
+                }).start();
+
+            }
+        }
+
+        for (int i = 0; i < colors.length; i++) {
+            if (e.getActionCommand().equals(colors[i])) {
+                PolygonGate gp;
+                ListIterator<PolygonGate> itr = gates.listIterator();
                 while (itr.hasNext()) {
                     gp = itr.next();
-                    if(gp.getUID() == selectedGate.getUID()){
+                    if (gp.getUID() == selectedGate.getUID()) {
                         gp.setSelectedColor(colorsRGB[i]);
                     }
-         }
+                }
+            }
         }
-        } 
         notifyPasteGateListeners();
     }
-        
 
     @Override
     public void itemStateChanged(ItemEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     /**
      * Adds a SaveGatedImagesListener
+     *
      * @param listener the listener to add to the ArrayList saveImageListeners
      */
     public void addImagesListener(SaveGatedImagesListener listener) {
         saveImageListeners.add(listener);
     }
-    
+
     /**
      * Notify the SaveGatedImagesListeners to save the gated nuclei
-     * @param path 
+     *
+     * @param path
      */
-    private void notifyImageListeners(Path2D path){
+    private void notifyImageListeners(Path2D path) {
         for (SaveGatedImagesListener listener : saveImageListeners) {
             listener.saveGated(path);
         }
@@ -905,84 +877,88 @@ public class GateLayer implements ActionListener, ItemListener {
 //        for (SaveGatedImagesListener listener : saveImageListeners) {
 //            listener.saveGatedCNN(path);
 //=======
-    
-        /**
+
+    /**
      * Adds a SaveGatedImagesListener
+     *
      * @param listener the listener to add to the ArrayList saveImageListeners
      */
     public void addSubGateListener(SubGateListener listener) {
         subGateListeners.add(listener);
     }
-    
+
     /**
      * Notify the SaveGatedImagesListeners to save the gated nuclei
-     * @param path 
+     *
+     * @param path
      */
-    private void notifySubgateListeners(){
+    private void notifySubgateListeners() {
         for (SubGateListener listener : subGateListeners) {
             listener.subGate();
         }
     }
-    
+
     public void addDistanceMapListener(DistanceMapListener listener) {
         distanceMapListeners.add(listener);
     }
-    
+
     /**
      * Notify the SaveGatedImagesListeners to save the gated nuclei
-     * @param path 
+     *
+     * @param path
      */
-    private void notifyDistanceMapListeners(String name){
+    private void notifyDistanceMapListeners(String name) {
         for (DistanceMapListener listener : distanceMapListeners) {
             listener.addDistanceMapFromGate(name);
 
         }
     }
-    
+
     public void addDensityMapListener(DensityMapListener listener) {
         densityMapListeners.add(listener);
     }
-    
+
     /**
      * Notify the SaveGatedImagesListeners to save the gated nuclei
-     * @param path 
+     *
+     * @param path
      */
-    private void notifyDensityMapListeners(String name){
+    private void notifyDensityMapListeners(String name) {
         for (DensityMapListener listener : densityMapListeners) {
             listener.addDensityMapFromGate(name);
 
         }
     }
-    
-    public void rescaleGates(ChartPanel newchart){
+
+    public void rescaleGates(ChartPanel newchart) {
         //ArrayList<PolygonGate> result = new ArrayList<>();
         ListIterator<PolygonGate> gt = gates.listIterator();
-            while(gt.hasNext()){
-                PolygonGate g = gt.next();
-                if((g.getXAxis().equals(xAxis) &&
-                     g.getYAxis().equals(yAxis))){
-                    g.updatePanelPositions(newchart);
-                }
+        while (gt.hasNext()) {
+            PolygonGate g = gt.next();
+            if ((g.getXAxis().equals(xAxis)
+                    && g.getYAxis().equals(yAxis))) {
+                g.updatePanelPositions(newchart);
             }
+        }
     }
-    
-    public void updateGateName(String name, int row){      
+
+    public void updateGateName(String name, int row) {
         PolygonGate pg = gates.get(row);
-        pg.setName(name);       
+        pg.setName(name);
     }
-    
-    public void updateGateColor(Color color, int row){
+
+    public void updateGateColor(Color color, int row) {
         PolygonGate pg = gates.get(row);
-        pg.setSelectedColor(color);       
+        pg.setSelectedColor(color);
     }
-    
-    public void setGateOverlay(boolean b, int row){      
+
+    public void setGateOverlay(boolean b, int row) {
         PolygonGate pg = gates.get(row);
-        pg.setSelected(b);       
+        pg.setSelected(b);
     }
-    
-    public void importGates(PolygonGate pg){      
-        gates.add(pg); 
+
+    public void importGates(PolygonGate pg) {
+        gates.add(pg);
         notifyPasteGateListeners();
     }
 }

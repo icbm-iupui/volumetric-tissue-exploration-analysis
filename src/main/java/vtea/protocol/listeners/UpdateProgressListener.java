@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@ package vtea.protocol.listeners;
  * @author sethwinfree
  */
 public interface UpdateProgressListener {
-    
-     public void changeProgress(String text, int min, int max, int position);
-    
+
+    public void changeProgress(String text, int min, int max, int position);
+
 }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@ package vtea.services;
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
-import vtea.VTEAModule;
 import vtea.objects.Segmentation.Segmentation;
 
 /**
@@ -28,10 +27,10 @@ import vtea.objects.Segmentation.Segmentation;
  * @author sethwinfree
  */
 @Plugin(type = Service.class)
-public class SegmentationService extends AbstractService< Segmentation > {
-    
+public class SegmentationService extends AbstractService< Segmentation> {
+
     public SegmentationService(Context context) {
         super(Segmentation.class, context);
     }
-    
+
 }

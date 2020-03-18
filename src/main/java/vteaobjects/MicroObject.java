@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 package vteaobjects;
 
 import ij.ImageStack;
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,12 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
  *
  * @author vinfrais
  */
-public class MicroObject implements Serializable, MicroObjectModel  {
+public class MicroObject implements Serializable, MicroObjectModel {
 
     //base pixel positions
     protected int[] x;
@@ -44,11 +42,10 @@ public class MicroObject implements Serializable, MicroObjectModel  {
     protected ArrayList<int[]> derivedZ = new ArrayList();
 
     protected HashMap<String, Integer> derivedkey;
-    
+
     protected int derivedCount;
 
     ConcurrentHashMap<String, Integer> morphologicalLookup = new ConcurrentHashMap();
-
 
     //new way
     ArrayList<ArrayList<Number>> features = new ArrayList();
@@ -60,10 +57,9 @@ public class MicroObject implements Serializable, MicroObjectModel  {
     private float centroid_x = 0;
     private float centroid_y = 0;
     private float centroid_z = 0;
-    
+
     private int max_Z;
     private int min_Z;
-
 
     private double serialID;
 
@@ -74,11 +70,10 @@ public class MicroObject implements Serializable, MicroObjectModel  {
     private int padding = 3;
 
     //private int[][][] theBox;
-
     private boolean gated = false;
 
     private int color = 0;
-    
+
     public MicroObject() {
     }
 
@@ -87,90 +82,86 @@ public class MicroObject implements Serializable, MicroObjectModel  {
         xLimit = is[0].getWidth();
         yLimit = is[0].getHeight();
         zLimit = is[0].getSize();
-        
-        derivedCount = 1;
-        
-        setPixels(pixels);
-        
-        ArrayList<Number> centroid = new ArrayList<Number>();
-        
-        centroid = getCentroid(x,y,z);
-        
-        max_Z = this.setMaxZ();
-        min_Z = this.setMinZ();
-        
-        centroid_x = ((Number)centroid.get(0)).floatValue();
-        centroid_y = ((Number)centroid.get(1)).floatValue();
-        centroid_z = ((Number)centroid.get(2)).floatValue();
-        
-        max_Z = this.setMaxZ();
-        min_Z = this.setMinZ();
-        
-        
-    }
-    
-    public void setCentroid(){
-        ArrayList<Number> centroid = new ArrayList<Number>();
-        
-        centroid = getCentroid(x,y,z);
-        
-        centroid_x = ((Number)centroid.get(0)).floatValue();
-        centroid_y = ((Number)centroid.get(1)).floatValue();
-        centroid_z = ((Number)centroid.get(2)).floatValue();
-    }
-    
- 
-    
-    private ArrayList<Number> getCentroid(int[] x, int[] y, int[] z){
-        
-        int maxX = 0;
-        int maxY = 0; 
-        int maxZ = 0; 
 
-        for(int i = 0; i < x.length; i++){ 
-            
-            if(x[i] > maxX){
+        derivedCount = 1;
+
+        setPixels(pixels);
+
+        ArrayList<Number> centroid = new ArrayList<Number>();
+
+        centroid = getCentroid(x, y, z);
+
+        max_Z = this.setMaxZ();
+        min_Z = this.setMinZ();
+
+        centroid_x = ((Number) centroid.get(0)).floatValue();
+        centroid_y = ((Number) centroid.get(1)).floatValue();
+        centroid_z = ((Number) centroid.get(2)).floatValue();
+
+        max_Z = this.setMaxZ();
+        min_Z = this.setMinZ();
+
+    }
+
+    public void setCentroid() {
+        ArrayList<Number> centroid = new ArrayList<Number>();
+
+        centroid = getCentroid(x, y, z);
+
+        centroid_x = ((Number) centroid.get(0)).floatValue();
+        centroid_y = ((Number) centroid.get(1)).floatValue();
+        centroid_z = ((Number) centroid.get(2)).floatValue();
+    }
+
+    private ArrayList<Number> getCentroid(int[] x, int[] y, int[] z) {
+
+        int maxX = 0;
+        int maxY = 0;
+        int maxZ = 0;
+
+        for (int i = 0; i < x.length; i++) {
+
+            if (x[i] > maxX) {
                 maxX = x[i];
             }
-            if(y[i] > maxY){
+            if (y[i] > maxY) {
                 maxY = y[i];
             }
-            if(z[i] > maxZ){
+            if (z[i] > maxZ) {
                 maxZ = z[i];
             }
 
         }
-        
+
         int minX = maxX;
-        int minY = maxY; 
-        int minZ = maxZ; 
-        
-        for(int i = 0; i < x.length; i++){ 
-            
-            if(x[i] < minX){
+        int minY = maxY;
+        int minZ = maxZ;
+
+        for (int i = 0; i < x.length; i++) {
+
+            if (x[i] < minX) {
                 minX = x[i];
             }
-            if(y[i] < minY){
+            if (y[i] < minY) {
                 minY = y[i];
             }
-            if(z[i] < minZ){
+            if (z[i] < minZ) {
                 minZ = z[i];
-            }        
+            }
         }
-        
-        double centX = ((maxX-minX)/2.0)+minX;
-        double centY = ((maxY-minY)/2.0)+minY;
-        double centZ = ((maxZ-minZ)/2.0)+minZ;
-        
+
+        double centX = ((maxX - minX) / 2.0) + minX;
+        double centY = ((maxY - minY) / 2.0) + minY;
+        double centZ = ((maxZ - minZ) / 2.0) + minZ;
+
         ArrayList<Number> result = new ArrayList<Number>();
-        
+
         result.add(centX);
         result.add(centY);
         result.add(centZ);
- 
+
         return result;
     }
-
 
     private boolean containsPixel(int[] xVal, int[] yVal, int[] zVal, int x, int y, int z) {
         //System.out.println("Checking object voxels!");
@@ -190,7 +181,6 @@ public class MicroObject implements Serializable, MicroObjectModel  {
         return false;
     }
 
-
     private ArrayList<ArrayList> dilatefill3D(ArrayList<ArrayList> al, int x, int y, int z, int width, int height, int size) {
 
         if ((containsPixel(this.x, this.y, this.z, x, y, z))) {
@@ -208,42 +198,47 @@ public class MicroObject implements Serializable, MicroObjectModel  {
         z = pixels.get(2);
     }
 
-    private int getMax(int[] vals){
-        int max=0;
-        for(int i = 0; i < vals.length; i++){
-            if(vals[i] > max){
+    private int getMax(int[] vals) {
+        int max = 0;
+        for (int i = 0; i < vals.length; i++) {
+            if (vals[i] > max) {
                 max = vals[i];
             }
         }
         return max;
     }
-    
-    private int getMin(int[] vals){
-        int min=Integer.MAX_VALUE;
-        for(int i = 0; i < vals.length; i++){
-            if(vals[i] < min){
+
+    private int getMin(int[] vals) {
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < vals.length; i++) {
+            if (vals[i] < min) {
                 min = vals[i];
             }
         }
         return min;
     }
-    
-    public int getRange(int dim){
+
+    public int getRange(int dim) {
         int[] vals;
-        switch(dim){
-            case 0:     vals = x;
-                        break;
-            case 1:     vals = y;
-                        break;
-            case 2:     vals = z;
-            default:    vals = new int[0];
-            
+        switch (dim) {
+            case 0:
+                vals = x;
+                break;
+            case 1:
+                vals = y;
+                break;
+            case 2:
+                vals = z;
+            default:
+                vals = new int[0];
+
         }
-        
+
         int min = getMin(vals);
         int max = getMax(vals);
-        return max-min;
+        return max - min;
     }
+
     @Override
     public int[] getPixelsX() {
         return this.x;
@@ -258,20 +253,17 @@ public class MicroObject implements Serializable, MicroObjectModel  {
     public int[] getPixelsZ() {
         return this.z;
     }
-    
-       
+
     public void setPixelsX(int[] d) {
         this.x = new int[d.length];
         this.x = d;
     }
 
-    
     public void setPixelsY(int[] d) {
         this.y = new int[d.length];
         this.y = d;
     }
 
-   
     public void setPixelsZ(int[] d) {
         this.z = new int[d.length];
         this.z = d;
@@ -286,52 +278,47 @@ public class MicroObject implements Serializable, MicroObjectModel  {
     public float getCentroidY() {
         return this.centroid_y;
     }
-    
-   @Override
+
+    @Override
     public float getCentroidZ() {
         return this.centroid_z;
     }
-    
+
     public int setMinZ() {
         int min = 70000;
-        for(int i = 0; i < z.length; i++){
-            if(z[i] < min){
+        for (int i = 0; i < z.length; i++) {
+            if (z[i] < min) {
                 min = z[i];
             }
         }
         min_Z = min;
         return min;
     }
-    
+
     public int setMaxZ() {
         int max = 0;
-        for(int i = 0; i < z.length; i++){
-            if(z[i] > max){
+        for (int i = 0; i < z.length; i++) {
+            if (z[i] > max) {
                 max = z[i];
             }
         }
         max_Z = max;
         return max;
     }
-    
+
     public int getMinZ() {
         return min_Z;
     }
-    
+
     public int getMaxZ() {
         return max_Z;
     }
 
-
-
     public int getEquivalentMorphology(String str) {
-        
-        
-        
-        
-        
+
         return -1;
     }
+
     @Override
     public ArrayList getObjectPixels() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -341,6 +328,7 @@ public class MicroObject implements Serializable, MicroObjectModel  {
     public ArrayList getResultPointer() {
         return this.ResultsPointer;
     }
+
     @Override
     public double getSerialID() {
         return this.serialID;
@@ -409,30 +397,28 @@ public class MicroObject implements Serializable, MicroObjectModel  {
     public int getColor() {
         return color;
     }
-    
-    public int checkMorphological(String UID){
-        
-        if(morphologicalLookup.containsKey(UID)){
-        
-        return morphologicalLookup.get(UID);
-        }else{
+
+    public int checkMorphological(String UID) {
+
+        if (morphologicalLookup.containsKey(UID)) {
+
+            return morphologicalLookup.get(UID);
+        } else {
             return -1;
         }
     }
-    
 
     public void setMorphological(String method_UID, int[] x, int[] y, int[] z) {
-        
-        
+
         morphologicalLookup.put(method_UID, derivedX.size());
 
         derivedX.add(x);
         derivedY.add(y);
         derivedZ.add(z);
-        
+
     }
-    
-    public int getMorphologicalCount(){
+
+    public int getMorphologicalCount() {
         return derivedX.size();
     }
 
@@ -447,28 +433,27 @@ public class MicroObject implements Serializable, MicroObjectModel  {
 
         return al;
     }
-    
+
     @Override
-    public int[] getMorphPixelsX(int index){
+    public int[] getMorphPixelsX(int index) {
 
         return derivedX.get(index);
 
-    } 
-    
-    @Override
-    public int[] getMorphPixelsY(int index){
-        
-                return derivedY.get(index);
-        
-    } 
-    
-    @Override
-    public int[] getMorphPixelsZ(int index){
-        
-        return derivedZ.get(index);
-        
+    }
 
-    } 
+    @Override
+    public int[] getMorphPixelsY(int index) {
+
+        return derivedY.get(index);
+
+    }
+
+    @Override
+    public int[] getMorphPixelsZ(int index) {
+
+        return derivedZ.get(index);
+
+    }
 
     @Override
     public int getPixelCount() {
@@ -494,5 +479,5 @@ public class MicroObject implements Serializable, MicroObjectModel  {
     public Rectangle getBoundingRectangle() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
 }

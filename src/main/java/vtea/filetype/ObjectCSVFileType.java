@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,21 +18,18 @@
 package vtea.filetype;
 
 import org.scijava.plugin.Plugin;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import javax.swing.JFileChooser;
 
 /**
  *
  * @author sethwinfree
  */
-@Plugin (type = FileType.class)
+@Plugin(type = FileType.class)
 public class ObjectCSVFileType extends AbstractFileType implements FileType {
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "Seth Winfree";
     protected String COMMENT = "CSV file of object parameters";
     protected String NAME = "Object CSV File";
-    protected String KEY = "OBJECTCSVFILETYPE";   
+    protected String KEY = "OBJECTCSVFILETYPE";
 
 }

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2019 SciJava
+/* 
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@ import vteaobjects.MicroObject;
  * @author sethwinfree
  */
 public interface SubGateExplorerListener {
-    
+
     public void makeSubGateExplorer(ArrayList<MicroObject> objects, ArrayList<ArrayList<Number>> measurements);
-    
+
 }

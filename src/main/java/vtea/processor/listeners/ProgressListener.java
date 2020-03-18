@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2018 SciJava
+/* 
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@ package vtea.processor.listeners;
  * @author sethwinfree
  */
 public interface ProgressListener {
-    
+
     public void FireProgressChange(String str, double db);
-    
+
 }

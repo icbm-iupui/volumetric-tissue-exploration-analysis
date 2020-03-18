@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2018 SciJava
+/* 
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,30 +24,28 @@ import org.scijava.plugin.Plugin;
  *
  * @author sethwinfree
  */
-@Plugin (type = LUT.class)
+@Plugin(type = LUT.class)
 public class Black extends AbstractLUT {
-    
 
-    
-    public Black(){
+    public Black() {
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
         COMMENT = "Implements LUTs for VTEA";
         NAME = "Black";
         KEY = "BLACK";
-        
-    ZEROPERCENT = new Color(0x000000);
-    TENPERCENT = new Color(0x000000);
-    TWENTYPERCENT = new Color(0x000000);
-    THIRTYPERCENT = new Color(0x000000);
-    FORTYPERCENT = new Color(0x000000);
-    FIFTYPERCENT = new Color(0x000000);
-    SIXTYPERCENT = new Color(0x000000);
-    SEVENTYPERCENT = new Color(0x000000);
-    EIGHTYPERCENT = new Color(0x000000);
-    NINETYPERCENT = new Color(0x000000);
-    ALLPERCENT = new Color(0x000000);
-    
+
+        ZEROPERCENT = new Color(0x000000);
+        TENPERCENT = new Color(0x000000);
+        TWENTYPERCENT = new Color(0x000000);
+        THIRTYPERCENT = new Color(0x000000);
+        FORTYPERCENT = new Color(0x000000);
+        FIFTYPERCENT = new Color(0x000000);
+        SIXTYPERCENT = new Color(0x000000);
+        SEVENTYPERCENT = new Color(0x000000);
+        EIGHTYPERCENT = new Color(0x000000);
+        NINETYPERCENT = new Color(0x000000);
+        ALLPERCENT = new Color(0x000000);
+
     }
-    
+
 }

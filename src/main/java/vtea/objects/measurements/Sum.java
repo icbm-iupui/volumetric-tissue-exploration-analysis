@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@ package vtea.objects.measurements;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import net.imglib2.RealPoint;
 import org.scijava.plugin.Plugin;
 
 /**
@@ -28,26 +27,26 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Measurements.class)
 public class Sum extends AbstractMeasurement {
-    
-    public Sum(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate sum or integrated density";
-    NAME = "Sum";
-    KEY = "Sum";
-    TYPE = "Intensity";
-}
-    
-    @Override
-    public Number process(ArrayList al, ArrayList values)  {
-    double n = 0;
-    ListIterator<Number> itr = values.listIterator();   
-    while(itr.hasNext()){          
-        Number value = itr.next();  
-        n = n + value.doubleValue();
-    }   
-    return n;
-};
-    
-}
 
+    public Sum() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate sum or integrated density";
+        NAME = "Sum";
+        KEY = "Sum";
+        TYPE = "Intensity";
+    }
+
+    @Override
+    public Number process(ArrayList al, ArrayList values) {
+        double n = 0;
+        ListIterator<Number> itr = values.listIterator();
+        while (itr.hasNext()) {
+            Number value = itr.next();
+            n = n + value.doubleValue();
+        }
+        return n;
+    }
+;
+
+}

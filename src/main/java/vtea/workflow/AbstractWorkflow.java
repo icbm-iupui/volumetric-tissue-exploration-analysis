@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
  */
 package vtea.workflow;
 
-import ij.ImagePlus;
 import java.util.ArrayList;
 import vtea.protocol.datastructure.AbstractProtocol;
 
@@ -28,7 +27,7 @@ import vtea.protocol.datastructure.AbstractProtocol;
  * @param <S>
  */
 public abstract class AbstractWorkflow<T extends Object, S extends ArrayList> implements Workflow {
- 
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
@@ -36,12 +35,11 @@ public abstract class AbstractWorkflow<T extends Object, S extends ArrayList> im
     protected String KEY = "ABSTRACTWORKFLOWPROCESSING";
 
     AbstractProtocol protocol;
-    
+
     Object original;
     Object preview;
     Object result;
 
-    
     @Override
     public T getResult() {
         return (T) new Object();
@@ -51,13 +49,13 @@ public abstract class AbstractWorkflow<T extends Object, S extends ArrayList> im
     public T getPreview() {
         return (T) preview;
     }
-    
+
     @Override
     public AbstractProtocol getSteps() {
         return protocol;
     }
-    
-   @Override
+
+    @Override
     public String getName() {
         return NAME;
     }

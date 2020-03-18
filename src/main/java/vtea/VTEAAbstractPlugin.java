@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,14 +20,6 @@ package vtea;
 import org.scijava.Context;
 import org.scijava.Prioritized;
 import org.scijava.plugin.PluginInfo;
-import org.scijava.plugin.RichPlugin;
-
-/**
- *
- * @author sethwinfree
- */
-
-
 import org.scijava.plugin.RichPlugin;
 
 /**

@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,13 +23,31 @@ import java.util.ArrayList;
  *
  * @author sethwinfree
  */
-public abstract class AbstractProtocol extends ArrayList implements Protocol  {
-    
-       String NAME = "Abstract Protocol";
-       String KEY = "AbstractProtocol";
-       String DESCRIPTION = "Abstract class for protocols.  Protocols string "
-               + "processes together or hold segmentation approaches.";
-       
+public abstract class AbstractProtocol extends ArrayList implements Protocol {
+
+    String NAME = "Abstract Protocol";
+    String KEY = "AbstractProtocol";
+    String DESCRIPTION = "Abstract class for protocols.  Protocols string "
+            + "processes together or hold segmentation approaches.";
+
+    AbstractProtocol() {
+    }
+
+    AbstractProtocol(String name) {
+        NAME = name;
+    }
+
+    AbstractProtocol(String name, ArrayList al) {
+        NAME = name;
+        addAll(al);
+    }
+
+    AbstractProtocol(String name, String description, ArrayList al) {
+        NAME = name;
+        DESCRIPTION = description;
+        addAll(al);
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -39,27 +57,9 @@ public abstract class AbstractProtocol extends ArrayList implements Protocol  {
     public String getKey() {
         return KEY;
     }
-    
+
     @Override
     public String getDescription() {
         return DESCRIPTION;
     }
-    
-    AbstractProtocol(){
-    }
-    
-    AbstractProtocol(String name){
-        NAME = name;
-    }
-    
-    AbstractProtocol(String name, ArrayList al){
-        NAME = name;
-        addAll(al);
-    }
-    
-    AbstractProtocol(String name, String description, ArrayList al){
-        NAME = name;
-        DESCRIPTION = description;
-        addAll(al);
-    }  
 }

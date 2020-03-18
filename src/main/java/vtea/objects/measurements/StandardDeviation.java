@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,9 +19,7 @@ package vtea.objects.measurements;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import net.imglib2.RealPoint;
 import org.scijava.plugin.Plugin;
-import vtea.processor.Processor;
 
 /**
  *
@@ -29,43 +27,40 @@ import vtea.processor.Processor;
  */
 @Plugin(type = Measurements.class)
 public class StandardDeviation extends AbstractMeasurement {
-    
-    public StandardDeviation(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate standard deviation";
-    NAME = "StDev";
-    KEY = "SD";
-    TYPE = "Intensity";
+
+    static public Number getStandardDeviation(ArrayList values) {
+
+        Double mean = (Double) Mean.getMean(values);
+        Double stdev = 0.0;
+
+        ListIterator<Number> itr = values.listIterator();
+        while (itr.hasNext()) {
+            try {
+                Number value = itr.next();
+                stdev = stdev + Math.pow((mean - value.doubleValue()), 2);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return Math.sqrt((stdev) / (values.size() - 1));
+
+    }
+
+    public StandardDeviation() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate standard deviation";
+        NAME = "StDev";
+        KEY = "SD";
+        TYPE = "Intensity";
     }
 
     @Override
     public Number process(ArrayList al, ArrayList values) {
-        
-        
-        
+
         double n = 0;
-        
-    return getStandardDeviation(values);
-    }  
-    
-    static public Number getStandardDeviation(ArrayList values){
-        
-        Double mean = (Double)Mean.getMean(values);
-        Double stdev = 0.0;
-        
-        ListIterator<Number> itr = values.listIterator();   
-    while(itr.hasNext()){
-        try{
-        Number value = itr.next(); 
-        stdev = stdev + Math.pow((mean - value.doubleValue()),2);
-        } catch(Exception ex){
-            ex.printStackTrace();
-        }
-    }   
-        return Math.sqrt((stdev)/(values.size()-1));
-        
+
+        return getStandardDeviation(values);
     }
-    
-   
+
 }

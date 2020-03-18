@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,23 +18,11 @@
 package vtea.processor;
 
 import ij.ImagePlus;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JWindow;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
 import org.scijava.plugin.Plugin;
-import vtea.gui.CustomTableModel;
 import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vtea.exploration.plottools.panels.XYExplorationPanel;
 import vtea.jdbc.H2DatabaseEngine;
@@ -102,36 +90,30 @@ public class ExplorerProcessor extends AbstractProcessor {
             firePropertyChange("comment", "", "Starting explorer processing on " + objects.size() + " objects...");
 
             HashMap<Integer, String> hm = new HashMap<Integer, String>();
-            
+
             for (int i = 0; i < descriptions.size(); i++) {
                 hm.put(i, descriptions.get(i).toString());
             }
-            
+
             Connection connection = H2DatabaseEngine.getDBConnection();
-            
 
-            
-            System.out.println("PROFILING: Exploring on dataset: " + key);  
-
+            System.out.println("PROFILING: Exploring on dataset: " + key);
             
             String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
-            
+
             XYExplorationPanel XY = new XYExplorationPanel(key, connection, measurements, descriptions, hm, objects, title);
             DefaultPlotPanels DPP = new DefaultPlotPanels();
 
-            //String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
+            
 
-             MicroExplorer explorer = new MicroExplorer();
+            MicroExplorer explorer = new MicroExplorer();
 //            explorer.setTitle(impOriginal.getTitle().replace("DUP_", ""));
 //            explorer.setTitle(explorer.getTitle().replace(".tif", ""));
 //            explorer.setTitle(explorer.getTitle().concat("_" + title));
 
 //Get list of data in database
-
-        //Get table of available data... for future use of datasets across 
-        //Explorer windows.
-            
-            
+            //Get table of available data... for future use of datasets across 
+            //Explorer windows.
 //            JPanel j = new JPanel();
 //            JTable t = new JTable();
 //            
@@ -166,11 +148,6 @@ public class ExplorerProcessor extends AbstractProcessor {
 //        frame.getContentPane().add(scroll, BorderLayout.CENTER);
 //        frame.pack();
 //        frame.setVisible(true);
-
-
-
-
-
 //
             explorer.setTitle(title);
             explorer.process(key, impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels);
@@ -195,11 +172,7 @@ public class ExplorerProcessor extends AbstractProcessor {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-
 }
-
-
 
 /**
  *

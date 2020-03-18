@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
  */
 package vtea.protocol.menus;
 
-import vtea.protocol.listeners.BatchStateListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -26,46 +25,45 @@ import java.util.ArrayList;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
+import vtea.protocol.listeners.BatchStateListener;
 
 /**
  *
  * @author vinfrais
  */
 public class AvailableWorkflowsMenu extends JPopupMenu implements ActionListener, ItemListener {
-                JRadioButtonMenuItem SingleFile;
-                JRadioButtonMenuItem MultipleFiles;
-                JMenuItem Item2;
-                JMenuItem Item3;
-                boolean batch;
-                private ArrayList<BatchStateListener> listeners = new ArrayList<BatchStateListener>();
-                
-                public AvailableWorkflowsMenu(){
-                    //batch = multiple;
-                     MultipleFiles = new JRadioButtonMenuItem("Multiple Files");
-                     //MultipleFiles.setSelected(multiple);
-                     MultipleFiles.setActionCommand("Multiple");
-                     MultipleFiles.addItemListener(this);
-                     MultipleFiles.addActionListener(this);
-                     Item2 = new JMenuItem("Item2");
-                     Item3 = new JMenuItem("Item3");
 
-                    add(MultipleFiles);
-                    addSeparator();
-                    add(Item2);
-                    add(Item3);
-                } 
+    JRadioButtonMenuItem SingleFile;
+    JRadioButtonMenuItem MultipleFiles;
+    JMenuItem Item2;
+    JMenuItem Item3;
+    boolean batch;
+    private ArrayList<BatchStateListener> listeners = new ArrayList<BatchStateListener>();
+
+    public AvailableWorkflowsMenu() {
+        //batch = multiple;
+        MultipleFiles = new JRadioButtonMenuItem("Multiple Files");
+        //MultipleFiles.setSelected(multiple);
+        MultipleFiles.setActionCommand("Multiple");
+        MultipleFiles.addItemListener(this);
+        MultipleFiles.addActionListener(this);
+        Item2 = new JMenuItem("Item2");
+        Item3 = new JMenuItem("Item3");
+
+        add(MultipleFiles);
+        addSeparator();
+        add(Item2);
+        add(Item3);
+    }
 
     @Override
     public void itemStateChanged(ItemEvent ie) {
-        
+
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
- 
-        }
-    
-    
 
-                }
+    }
 
+}

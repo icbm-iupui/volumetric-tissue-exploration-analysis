@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,32 +17,22 @@
  */
 package vtea.protocol;
 
-import vtea.protocol.listeners.BatchFileListListener;
-import vtea.ImageSelectionListener;
-import ij.ImagePlus;
-import ij.WindowManager;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
 
 /**
  *
  * @author vinfrais
  */
 public class microBatchManager {
-    
+
     private String directory;
     private ArrayList<String> Files;
     private ArrayList<MicroExperiment> Experiments;
-    
-    microBatchManager(){}
-    
-    private void ProcessFiles(){}
-    
-    
-    
-  
-    
-    
+
+    microBatchManager() {
+    }
+
+    private void ProcessFiles() {
+    }
+
 }

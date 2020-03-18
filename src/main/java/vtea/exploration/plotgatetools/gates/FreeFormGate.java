@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@ package vtea.exploration.plotgatetools.gates;
 
 import ij.ImageStack;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -58,8 +57,6 @@ public class FreeFormGate extends Path2D.Float implements Gate {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-
     @Override
     public boolean getSelected() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -89,8 +86,6 @@ public class FreeFormGate extends Path2D.Float implements Gate {
     public void createInChartSpace(ChartPanel chart) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
- 
 
     @Override
     public boolean getKeyStroke() {
@@ -199,7 +194,7 @@ public class FreeFormGate extends Path2D.Float implements Gate {
         Graphics2D graphics2D;
         //this is what we'll be using to draw on
         int currentX, currentY, oldX, oldY;
-	//these are gonna hold our mouse coordinates
+        //these are gonna hold our mouse coordinates
 
         //Now for the constructors
         public PadDraw() {

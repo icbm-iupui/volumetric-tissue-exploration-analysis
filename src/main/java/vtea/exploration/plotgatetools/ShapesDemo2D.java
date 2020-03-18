@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -78,6 +78,21 @@ public class ShapesDemo2D extends JApplet {
             BasicStroke.CAP_BUTT,
             BasicStroke.JOIN_MITER,
             10.0f, dash1, 0.0f);
+
+    public static void Setup() {
+        JFrame f = new JFrame("ShapesDemo2D");
+        f.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+        JApplet applet = new ShapesDemo2D();
+        f.getContentPane().add("Center", applet);
+        applet.init();
+        f.pack();
+        f.setSize(new Dimension(550, 100));
+        f.setVisible(true);
+    }
     Dimension totalSize;
     FontMetrics fontMetrics;
 
@@ -254,21 +269,6 @@ public class ShapesDemo2D extends JApplet {
         g2.setPaint(fg);
         g2.draw(filledPolygon);
         g2.drawString("Filled and Stroked GeneralPath", x, stringY);
-    }
-
-    public static void Setup() {
-        JFrame f = new JFrame("ShapesDemo2D");
-        f.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
-        });
-        JApplet applet = new ShapesDemo2D();
-        f.getContentPane().add("Center", applet);
-        applet.init();
-        f.pack();
-        f.setSize(new Dimension(550, 100));
-        f.setVisible(true);
     }
 
 }

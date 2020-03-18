@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,12 +20,12 @@ package vtea.dataset;
 /**
  *
  * @author sethwinfree
- * 
- * 
- * This will be were we handle the image data and object results.  This should
- * centralize the image location and facilitate a reduction in memory 
+ *
+ *
+ * This will be were we handle the image data and object results. This should
+ * centralize the image location and facilitate a reduction in memory
  * requirements.
  */
 public interface Dataset {
-   
+
 }

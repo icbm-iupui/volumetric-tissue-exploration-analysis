@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,26 +28,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ForkJoinPool;
+import static java.util.concurrent.ForkJoinTask.invokeAll;
 import java.util.concurrent.RecursiveAction;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
-import org.scijava.plugin.Plugin;
-import vteaobjects.MicroObject;
 import vtea.objects.layercake.microRegion;
 import vtea.objects.layercake.microVolume;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-
 import vtea.protocol.listeners.ChangeThresholdListener;
 import vtea.protocol.setup.MicroThresholdAdjuster;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
+import vteaobjects.MicroObject;
 
 /**
  *
  * @author winfrees
  */
 //@Plugin(type = Segmentation.class)
-
 public class Region2DSingleThreshold extends AbstractSegmentation {
 
     private int[] minConstants = new int[4]; // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold

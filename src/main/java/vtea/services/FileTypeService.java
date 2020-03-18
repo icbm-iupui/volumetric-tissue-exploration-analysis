@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,17 +22,15 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
 import vtea.filetype.FileType;
 
-
-
 /**
  *
  * @author sethwinfree
  */
 @Plugin(type = Service.class)
-public class FileTypeService extends AbstractService< FileType >{
-    
+public class FileTypeService extends AbstractService< FileType> {
+
     public FileTypeService(Context context) {
         super(FileType.class, context);
     }
-    
+
 }

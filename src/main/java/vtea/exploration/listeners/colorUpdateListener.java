@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2020 SciJava
+/* 
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,5 +24,6 @@ import java.awt.Color;
  * @author sethwinfree
  */
 public interface colorUpdateListener {
+
     public void onColorUpdate(Color color, int row);
 }

@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
  */
 package vtea.protocol;
 
-import vtea.protocol.listeners.BatchStateListener;
 import ij.IJ;
 import java.io.File;
 import java.util.ArrayList;
@@ -25,37 +24,36 @@ import java.util.Arrays;
 import java.util.ListIterator;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import vtea.protocol.listeners.BatchStateListener;
 
 /**
  *
  * @author vinfrais
  */
-public class BatchImageProcessing extends javax.swing.JPanel implements BatchStateListener{
+public class BatchImageProcessing extends javax.swing.JPanel implements BatchStateListener {
 
     //public microWindowManager openerWindow = new microWindowManager(OpenImages);
-
-    
     DefaultComboBoxModel cbm = new DefaultComboBoxModel();
-    
-//batch support
 
+//batch support
     private MicroExperiment me = new MicroExperiment();
-    
+
     private int tab;
     private ArrayList tabs;
     private ArrayList files;
     private String directory;
-    
+
     private ArrayList preprocessingprotocol;
     private ArrayList objectprotocol;
+
     //private ArrayList preprocessingprotocol;
     /**
      * Creates new form NewJPanel
      */
-    public BatchImageProcessing(ArrayList tabs, int selected)  {
-       
-       cbm = new DefaultComboBoxModel(tabs.toArray());
-       
+    public BatchImageProcessing(ArrayList tabs, int selected) {
+
+        cbm = new DefaultComboBoxModel(tabs.toArray());
+
         initComponents();
         this.ModelAnalysis.setSelectedIndex(selected);
         this.SourceDirectory.setText(this.directory);
@@ -449,12 +447,12 @@ public class BatchImageProcessing extends javax.swing.JPanel implements BatchSta
     }//GEN-LAST:event_DeleteFileActionPerformed
 
     private void PreProcessingGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreProcessingGoActionPerformed
-       
+
     }//GEN-LAST:event_PreProcessingGoActionPerformed
 
     private void AddFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddFilesActionPerformed
         // TODO add your handling code here:
-       
+
     }//GEN-LAST:event_AddFilesActionPerformed
 
     private void SourceDirectoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SourceDirectoryActionPerformed
@@ -470,11 +468,10 @@ public class BatchImageProcessing extends javax.swing.JPanel implements BatchSta
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void GetDirectoryForAnalysisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GetDirectoryForAnalysisActionPerformed
-     
-     this.FileList.setModel(populateBatchFiles());
-     
-    }//GEN-LAST:event_GetDirectoryForAnalysisActionPerformed
 
+        this.FileList.setModel(populateBatchFiles());
+
+    }//GEN-LAST:event_GetDirectoryForAnalysisActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton AddFiles;
@@ -509,36 +506,37 @@ public class BatchImageProcessing extends javax.swing.JPanel implements BatchSta
     // End of variables declaration//GEN-END:variables
 
     private DefaultListModel populateBatchFiles() {
-    
+
         DefaultListModel dlm = new DefaultListModel();
         String test = "";
-     
-        
+
         this.directory = IJ.getDirectory("Select source directory...");
 
         File f = new File(this.directory);
-        
+
         ArrayList<String> names = new ArrayList<String>(Arrays.asList(f.list()));
-        
+
         ListIterator<String> itr = names.listIterator();
-        
-        while(itr.hasNext()){     
+
+        while (itr.hasNext()) {
 //            test = itr.next();
 //            if(test == )
             dlm.addElement(itr.next());
         }
-this.SourceDirectory.setText(this.directory);
+        this.SourceDirectory.setText(this.directory);
         return dlm;
     }
-      
- public void setTabValue(int tab){this.tab = tab;}
+
+    public void setTabValue(int tab) {
+        this.tab = tab;
+    }
 
     @Override
     public void batchStateAdd(String selected, ArrayList tabs) {
-        
+
     }
- 
-     private class ModelName extends javax.swing.JComboBox {
+
+    private class ModelName extends javax.swing.JComboBox {
 
         public ModelName(ArrayList tabs) {
             this.setModel(new javax.swing.DefaultComboBoxModel(tabs.toArray()));
@@ -548,12 +546,16 @@ this.SourceDirectory.setText(this.directory);
     };
    
      
-public void setPreProcessingProtocols(ArrayList al){this.preprocessingprotocol = al;}
+public void setPreProcessingProtocols(ArrayList al) {
+        this.preprocessingprotocol = al;
+    }
 
-public void setObjectProcotols(ArrayList al){this.objectprotocol = al;}
+    public void setObjectProcotols(ArrayList al) {
+        this.objectprotocol = al;
+    }
 
-public void setProtocolSynopsis(ArrayList process, ArrayList objects){
-    this.MethodSysnopsis.setText("Process: " + process.toString() + "  Objects: " + objects.toString());
-}
-    
+    public void setProtocolSynopsis(ArrayList process, ArrayList objects) {
+        this.MethodSysnopsis.setText("Process: " + process.toString() + "  Objects: " + objects.toString());
+    }
+
 };

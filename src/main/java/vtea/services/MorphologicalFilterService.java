@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,18 +17,17 @@
  */
 package vtea.services;
 
-import vtea.objects.morphology.Morphology;
 import org.scijava.Context;
-import vtea.objects.measurements.Measurements;
+import vtea.objects.morphology.Morphology;
 
 /**
  *
  * @author sethwinfree
  */
-public class MorphologicalFilterService extends AbstractService< Morphology > {
-    
+public class MorphologicalFilterService extends AbstractService< Morphology> {
+
     public MorphologicalFilterService(Context context) {
         super(Morphology.class, context);
     }
-    
+
 }

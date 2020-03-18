@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,8 +33,7 @@ import org.scijava.plugin.Plugin;
  */
 @Plugin(type = Morphology.class)
 public class Grow_6C extends AbstractMorphology {
-    
-    
+
     JTextField Distance = new JTextField("1", 5);
 
     public Grow_6C() {
@@ -44,42 +43,39 @@ public class Grow_6C extends AbstractMorphology {
         NAME = "Grow 6C";
         KEY = "GR6C";
     }
-    
+
     //Allowed operations: 6C, 8C
     //Allowed arguments:  in String arg.
-
     @Override
     public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, List<JComponent> protocol, String operation, String arg) {
-       
-        JTextField distance = (JTextField)protocol.get(1); 
-       
-       return growRegion6C(x, y, z, Integer.parseInt(distance.getText()));
+
+        JTextField distance = (JTextField) protocol.get(1);
+
+        return growRegion6C(x, y, z, Integer.parseInt(distance.getText()));
     }
-    
+
     @Override
-    public String getUID(ArrayList<JComponent> al){
-        JTextField distance = (JTextField)al.get(1); 
+    public String getUID(ArrayList<JComponent> al) {
+        JTextField distance = (JTextField) al.get(1);
         return this.NAME + "_" + distance;
     }
-    
+
     @Override
-    public ArrayList getOptions(){ 
-         ArrayList<JComponent> al = new ArrayList<JComponent>();
-         al.add(new JLabel("Dilation distance: "));
-         al.add(Distance);
-         return al;   
+    public ArrayList getOptions() {
+        ArrayList<JComponent> al = new ArrayList<JComponent>();
+        al.add(new JLabel("Dilation distance: "));
+        al.add(Distance);
+        return al;
     }
-    
+
     @Override
     public JPanel getMorphologicalTool() {
         JPanel panel = new JPanel();
-        panel.setPreferredSize(new Dimension(300,300));
+        panel.setPreferredSize(new Dimension(300, 300));
         panel.add(new JLabel("Coming soon, demostration space..."));
         return panel;
     }
-    
-    
-    
+
     private ArrayList<ArrayList<Number>> growRegion6C(int[] x, int[] y, int[] z, int times) {
 
         //System.out.println("PROFILING:                       Starting object size: " + x.length + ".");
@@ -96,17 +92,15 @@ public class Grow_6C extends AbstractMorphology {
             yList.add(y[k]);
             zList.add(z[k]);
         }
-        
+
         ArrayList<ArrayList<Number>> noDups = new ArrayList();
 
         //to determine how many expansions
-        
         for (int j = 1; j <= times; j++) {
 
             int n = x.length;
-            
+
             //System.out.println("PROFILING:             Expansion time: " + times + ".");
-            
             //8 connected.
             for (int i = 0; i < n; i++) {
 
@@ -131,29 +125,21 @@ public class Grow_6C extends AbstractMorphology {
                 yArr.add(y[i] + 1);
                 zArr.add(z[i]);
 
-
-
-
                 //z below
                 xArr.add(x[i]);
                 yArr.add(y[i]);
                 zArr.add(z[i] - 1);
-
-  
 
                 //z above
                 xArr.add(x[i]);
                 yArr.add(y[i]);
                 zArr.add(z[i] + 1);
 
-
-               
             }
-             //reassign
+            //reassign
 
             //noDups = removeDuplicates(xArr, yArr, zArr);    
             //noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
-
 //            
 //            if (times > 1) {
 //                
@@ -172,7 +158,7 @@ public class Grow_6C extends AbstractMorphology {
 //                    }
 //            }
         }
-        noDups = removeDuplicates(xArr, yArr, zArr);    
+        noDups = removeDuplicates(xArr, yArr, zArr);
         noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
 
         return noDups;

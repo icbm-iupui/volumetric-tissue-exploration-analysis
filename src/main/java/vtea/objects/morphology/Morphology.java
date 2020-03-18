@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,17 +28,17 @@ import vtea.VTEAModule;
  *
  * @author sethwinfree
  */
-public interface Morphology extends VTEAModule{
-    
+public interface Morphology extends VTEAModule {
+
     public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, List<JComponent> protocol, String operation, String arg);
-    
-    public Image getExamples(); 
-    
+
+    public Image getExamples();
+
     public JPanel getMorphologicalTool();
-    
+
     public ArrayList getOptions();
-    
+
     public ArrayList getSettings();
-    
+
     public String getUID(ArrayList<JComponent> al);
 }

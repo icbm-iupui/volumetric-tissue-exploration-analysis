@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2019 SciJava
+/* 
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,12 +17,11 @@
  */
 package vtea.exploration.listeners;
 
-import java.awt.geom.Path2D;
-
 /**
  *
  * @author sethwinfree
  */
 public interface SubGateListener {
+
     public void subGate();
 }

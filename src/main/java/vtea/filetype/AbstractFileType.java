@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,14 +22,13 @@ package vtea.filetype;
  * @author sethwinfree
  */
 public abstract class AbstractFileType implements FileType {
-    
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "Seth Winfree";
     protected String COMMENT = "New functionality";
     protected String NAME = "ABSTRACTFILETYPE";
     protected String KEY = "ABSTRACTFILETYPE";
-    
-    
+
     @Override
     public String getName() {
         return NAME;
@@ -39,5 +38,5 @@ public abstract class AbstractFileType implements FileType {
     public String getKey() {
         return KEY;
     }
-    
+
 }

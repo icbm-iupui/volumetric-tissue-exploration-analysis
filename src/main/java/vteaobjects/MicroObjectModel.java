@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,9 +17,7 @@
  */
 package vteaobjects;
 
-import ij.ImageStack;
 import java.awt.Rectangle;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,45 +26,37 @@ import java.util.List;
  * @author vinfrais
  * @param <T>
  */
-public interface MicroObjectModel <T extends Number> {
-    
+public interface MicroObjectModel<T extends Number> {
+
     //arraylist of points, ordered, not limit on dimensionality
-    
     //are points just different non-native types?
-    
     //way to access this table
-    
     //
-    
 //    public void makeDerivedRegions(int[][] derivedRegionType, int channels, ImageStack[] Stacks, ArrayList ResultsPointers);
-    
 //    public void calculateDerivedObjectMeasurements(int channel, ImageStack is);
 //    
 //    public void calculateObjectMeasurments();
 //    
 //    public int[][] getDerivedObjectConstants();
-    
     public ArrayList getObjectPixels();
-    
+
     //calculated values
 //    public float getMean();
 //
 //    public double[] getFeretValues();
-
     public int getPixelCount();
-    
-//    public int getThresholdPixelCount();
 
+//    public int getThresholdPixelCount();
     public int[] getPixelsX();
 
     public int[] getPixelsY();
-    
+
     public int[] getPixelsZ();
 
     public float getCentroidX();
 
     public float getCentroidY();
-    
+
     public float getCentroidZ();
 
 //    public int getBoundCenterX();
@@ -84,49 +74,45 @@ public interface MicroObjectModel <T extends Number> {
 //    public double getMeanIntensity();
 //    
 //    public double[] getDeviations();
-    
     public double getThresholdedIntegratedIntensity();
-    
+
     public double getThresholdedMeanIntensity();
-    
+
     public void setThreshold(double threshold);
-  
+
     public Rectangle getBoundingRectangle();
-    
+
     public ArrayList getResultPointer();
-    
+
 //    public Object[] getAnalysisMaskVolume();
 //    
 //    public Object[][] getAnalysisResultsVolume();
 //    
     public double getSerialID();
-    
+
     public void setSerialID(int i);
-    
+
     public List getRegions();
-    
+
     public int[] getXPixelsInRegion(int i);
-    
+
     public int[] getYPixelsInRegion(int i);
-    
+
     public void setGated(boolean b);
-    
+
     public boolean getGated();
-    
+
     public void setColor(int c);
-    
+
     public int getColor();
-    
+
     //public void setMorphological(String method_UID, ArrayList x, ArrayList y, ArrayList z); 
-    
-    public ArrayList<int[]> getMorphological(int index); 
-    
-    public int[] getMorphPixelsX(int index); 
-    
-    public int[] getMorphPixelsY(int index); 
-    
-    public int[] getMorphPixelsZ(int index); 
-  
-   
-   
+    public ArrayList<int[]> getMorphological(int index);
+
+    public int[] getMorphPixelsX(int index);
+
+    public int[] getMorphPixelsY(int index);
+
+    public int[] getMorphPixelsZ(int index);
+
 }

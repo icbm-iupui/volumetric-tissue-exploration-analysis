@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * @author sethwinfree
  */
 public class ImageProcessingProtocol extends AbstractProtocol {
-    
+
     public ImageProcessingProtocol() {
         super();
     }
@@ -32,12 +32,12 @@ public class ImageProcessingProtocol extends AbstractProtocol {
     public ImageProcessingProtocol(String name) {
         super(name);
     }
-    
-    public ImageProcessingProtocol(String name, ArrayList al){
+
+    public ImageProcessingProtocol(String name, ArrayList al) {
         super(name, al);
     }
-    
-    public ImageProcessingProtocol(String name, String description, ArrayList al){
+
+    public ImageProcessingProtocol(String name, String description, ArrayList al) {
         super(name, description, al);
-    }  
+    }
 }

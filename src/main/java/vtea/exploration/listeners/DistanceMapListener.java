@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2019 SciJava
+/* 
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@ package vtea.exploration.listeners;
  * @author Seth
  */
 public interface DistanceMapListener {
-    
+
     public void addDistanceMapFromGate(String name);
-    
+
 }

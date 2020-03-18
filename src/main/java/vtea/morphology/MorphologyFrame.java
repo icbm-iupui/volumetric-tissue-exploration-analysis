@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,54 +17,51 @@
  */
 package vtea.morphology;
 
-import vtea.feature.listeners.RepaintFeatureListener;
-import vtea.protocol.listeners.RebuildPanelListener;
-import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
-import vtea.protocol.listeners.UpdateProgressListener;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.WindowEvent;
 import static java.awt.event.WindowEvent.WINDOW_CLOSED;
 import java.awt.event.WindowStateListener;
-import java.util.ArrayList;
-import java.util.ListIterator;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ListIterator;
 import javax.swing.JOptionPane;
 import vtea.exploration.listeners.AddFeaturesListener;
-import vtea.processor.FeatureProcessor;
+import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.protocol.blockstepgui.MorphologyStepBlockGUI;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MorphologyFrameListener;
+import vtea.protocol.listeners.RebuildPanelListener;
+import vtea.protocol.listeners.UpdateProgressListener;
 
 /**
- * Window for analysis methods. Keeps track of analysis methods that are added 
- * and removed and submits the methods with parameters to get results. 
+ * Window for analysis methods. Keeps track of analysis methods that are added
+ * and removed and submits the methods with parameters to get results.
+ *
  * @author drewmcnutt
  */
-public class MorphologyFrame extends javax.swing.JFrame implements WindowStateListener, AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener{
-    
+public class MorphologyFrame extends javax.swing.JFrame implements WindowStateListener, AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener {
+
     protected ArrayList<MorphologyStepBlockGUI> MorphologicalStepsList;
     ArrayList channels;
     ArrayList descriptions;
     double[][] features;
     int nvol;           //number of volumes
-    
+
     ArrayList<AddFeaturesListener> listeners = new ArrayList<AddFeaturesListener>();
-    
+
     ArrayList<MorphologyFrameListener> morphologylisteners = new ArrayList<MorphologyFrameListener>();
-    
+
     protected GridLayout MorphologyLayout = new GridLayout(4, 1, 0, 0);
 
     /**
-     * Constructor.
-     * Creates new form FeatureFrame
+     * Constructor. Creates new form FeatureFrame
+     *
      * @param descriptions
-     * @param table 
+     * @param table
      */
-
-
     public MorphologyFrame(ArrayList channels) {
         MorphologicalStepsList = new ArrayList<MorphologyStepBlockGUI>();
         this.channels = channels;
@@ -294,24 +291,24 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
+
     /**
      * Adds analysis step.
+     *
      * @param evt clicking of AddStep button
      */
     private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
-        
 
         MorphologicalStepsPanel.repaint();
-        
-        MorphologyStepBlockGUI block = new MorphologyStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY,MorphologicalStepsList.size() + 1, channels);
+
+        MorphologyStepBlockGUI block = new MorphologyStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY, MorphologicalStepsList.size() + 1, channels);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
         //this.notifyRepaintFeatureListeners();
 
         MorphologicalStepsPanel.add(block.getPanel());
         MorphologicalStepsPanel.repaint();
-        
+
         MorphologicalStepsList.add(block);
 
         if (MorphologicalStepsList.size() <= 2) {
@@ -320,17 +317,18 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         if (MorphologicalStepsList.size() >= 4) {
             AddStep.setEnabled(false);
         }
-        if (!MorphologicalStepsList.isEmpty()){
+        if (!MorphologicalStepsList.isEmpty()) {
             DeleteAllSteps.setEnabled(true);
         }
         repaintFeature();
         this.setVisible(true);
-        
+
         FeatureGo.setEnabled(true);
     }//GEN-LAST:event_AddStepActionPerformed
-    
+
     /**
      * Delete all analysis steps.
+     *
      * @param evt clicking of DeleteAll button
      */
     private void DeleteAllStepsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteAllStepsActionPerformed
@@ -343,16 +341,17 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         MorphologicalStepsPanel.repaint();
         //pack();
     }//GEN-LAST:event_DeleteAllStepsActionPerformed
-    
+
     /**
      * Sets up for analysis.
+     *
      * @param evt clicking of FeatureGo button
      */
     private void FeatureGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FeatureGoActionPerformed
-        
+
         addMorphology();
         VTEAProgressBar.setValue(0);
-        
+
     }//GEN-LAST:event_FeatureGoActionPerformed
 
     private void jPanel1formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPanel1formKeyPressed
@@ -361,43 +360,47 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
 
     /**
      * Rebuilds the panel.
-     * @param type 
+     *
+     * @param type
      */
     @Override
     public void rebuildPanel(int type) {
         this.RebuildPanelFeature();
     }
-    
+
     /**
      * Deletes specific step.
+     *
      * @param type useless(left over from DeleteBlockListener)
      * @param position the order number of the step
      */
     @Override
     public void deleteBlock(int type, int position) {
         this.deleteFeatureStep(position);
-        if (MorphologicalStepsList.isEmpty()){
+        if (MorphologicalStepsList.isEmpty()) {
             FeatureGo.setEnabled(false);
         }
     }
-    
+
     /**
      * Sets progress bar reading.
+     *
      * @param text string next to progress bar
      * @param min minimum value for progress bar
      * @param max maximum value for progress bar
      * @param position value to set progress bar to
      */
     @Override
-    public void changeProgress(String text, int min, int max, int position) {      
+    public void changeProgress(String text, int min, int max, int position) {
         VTEAProgressBar.setMinimum(min);
         VTEAProgressBar.setMaximum(max);
         VTEAProgressBar.setValue(position);
-        FeatureComment.setText(text);    
+        FeatureComment.setText(text);
     }
-    
+
     /**
      * Changes progress bar or text.
+     *
      * @param evt details what the property change is for
      */
     @Override
@@ -407,11 +410,11 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
             VTEAProgressBar.setValue(progress);
             FeatureComment.setText(String.format(
                     "Completed %d%%...\n", progress));
-        } 
-        if (evt.getPropertyName().equals("comment")){
-            FeatureComment.setText((String)evt.getNewValue());
         }
-        if (evt.getPropertyName().equals("escape") && !(Boolean)evt.getNewValue()){
+        if (evt.getPropertyName().equals("comment")) {
+            FeatureComment.setText((String) evt.getNewValue());
+        }
+        if (evt.getPropertyName().equals("escape") && !(Boolean) evt.getNewValue()) {
             System.out.println("PROFILING: Error is processing, thread terminated early...");
         }
     }
@@ -420,7 +423,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
      * Repaint the window.
      */
     @Override
-    public void repaintFeature(){
+    public void repaintFeature() {
         this.repaint();
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -440,7 +443,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
-    
+
     /**
      * Reconstruct the blocks.
      */
@@ -450,19 +453,20 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         while (litr.hasNext()) {
             sb = (MorphologyStepBlockGUI) litr.next();
             sb.setPosition(MorphologicalStepsList.indexOf(sb) + 1);
-            MorphologicalStepsPanel.add(sb.getPanel());   
+            MorphologicalStepsPanel.add(sb.getPanel());
         }
     }
-    
+
     /**
      * Extracts the Steps.
+     *
      * @param sb_al
-     * @return 
+     * @return
      */
     static public ArrayList extractSteps(ArrayList sb_al) {
 
         ArrayList<ArrayList> Result = new ArrayList<>();
-        
+
         MorphologyStepBlockGUI msb;
         ListIterator<Object> litr = sb_al.listIterator();
         while (litr.hasNext()) {
@@ -472,26 +476,28 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
 
         return Result;
     }
-    
+
     /**
      * Retrieve all of the steps.
+     *
      * @return list of all of the steps
      */
-    public ArrayList<ArrayList> getMorphologies() {        
-        ArrayList<ArrayList> result = new ArrayList<ArrayList>();      
-        ListIterator<MorphologyStepBlockGUI> itr = MorphologicalStepsList.listIterator();       
-        while(itr.hasNext()){
+    public ArrayList<ArrayList> getMorphologies() {
+        ArrayList<ArrayList> result = new ArrayList<ArrayList>();
+        ListIterator<MorphologyStepBlockGUI> itr = MorphologicalStepsList.listIterator();
+        while (itr.hasNext()) {
             ArrayList<ArrayList> settings = itr.next().getVariables();
-            ListIterator<ArrayList> itr_settings = settings.listIterator(); 
-            while(itr_settings.hasNext()){
+            ListIterator<ArrayList> itr_settings = settings.listIterator();
+            while (itr_settings.hasNext()) {
                 result.add(itr_settings.next());
-            }  
+            }
         }
         return result;
     }
-    
+
     /**
      * Deletes specific step.
+     *
      * @param position the position of the step to delete
      */
     private void deleteFeatureStep(int position) {
@@ -499,10 +505,10 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         //remove from FeatureStepsList
         MorphologicalStepsList.remove(position - 1);
         MorphologicalStepsList.trimToSize();
-        
+
         MorphologicalStepsPanel.removeAll();
         MorphologicalStepsPanel.setLayout(MorphologyLayout);
-        
+
         if (MorphologicalStepsList.size() < 0) {
         } else {
             RebuildPanelFeature();
@@ -511,7 +517,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         if (MorphologicalStepsList.size() < 4) {
             AddStep.setEnabled(true);
         }
-        if(MorphologicalStepsList.isEmpty()){
+        if (MorphologicalStepsList.isEmpty()) {
             DeleteAllSteps.setEnabled(false);
         }
 
@@ -519,65 +525,65 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         pack();
 
     }
-    
 
-    private void addMorphology(){
-        notifyMorphologyListeners(getMorphologies()); 
+    private void addMorphology() {
+        notifyMorphologyListeners(getMorphologies());
         setVisible(false);
     }
-    
-    private ArrayList<Integer> examineColumns(){
+
+    private ArrayList<Integer> examineColumns() {
         /*
             Makes a new 2D array with the rows equal to every measurement type
             (Makes the transpose of the matrix)
-        */
+         */
         double[][] columns = new double[features[0].length][features.length];
-        for(int i = 0; i < features.length; i++){
-            for(int j = 0; j < features[i].length; j++){
-                columns[j][i] = (double)features[i][j];
+        for (int i = 0; i < features.length; i++) {
+            for (int j = 0; j < features[i].length; j++) {
+                columns[j][i] = (double) features[i][j];
             }
         }
-        
+
         /*
             Compares all measurements and add all duplicate columns to the dupl
             ArrayList if they are not already there
-        */
+         */
         ArrayList<Integer> dupl = new ArrayList();
-        for(int j = 4; j < columns.length; j++){
-            for(int k = j + 1; k < columns.length; k++){
-                if(java.util.Arrays.equals(columns[j], columns[k]) && !(dupl.contains(k))){
+        for (int j = 4; j < columns.length; j++) {
+            for (int k = j + 1; k < columns.length; k++) {
+                if (java.util.Arrays.equals(columns[j], columns[k]) && !(dupl.contains(k))) {
                     dupl.add(k);
                 }
-                    
+
             }
         }
-        
+
         Collections.sort(dupl);         //sorts the list into ascending order
-        
+
         return dupl;
     }
-    
+
     /**
      * Gives warning dialog to the user about duplicate columns in the dataset
      * and allows the user to remove them.
      */
-    public void giveWarning(){
+    public void giveWarning() {
         int response;
-        
+
         ArrayList<Integer> dupl = examineColumns();
 
-        if(dupl.isEmpty())
+        if (dupl.isEmpty()) {
             response = JOptionPane.NO_OPTION;
-        else{
+        } else {
             StringBuilder sb = new StringBuilder("The following columns are duplicates of existing columns: \n");
             int count = 0;
-            for(Integer col: dupl){
+            for (Integer col : dupl) {
                 sb.append(descriptions.get(col - 1));
                 count++;
-                if(count != 0){
+                if (count != 0) {
                     sb.append(", ");
-                    if(count % 6 == 0)
+                    if (count % 6 == 0) {
                         sb.append("\n");
+                    }
                 }
 
             }
@@ -585,61 +591,61 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
             sb.append("\nWould you like to delete these columns from the dataset?");
             response = JOptionPane.showConfirmDialog(this, sb, "Duplicate Columns Detected", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         }
-        
-        if(response == JOptionPane.YES_OPTION)
+
+        if (response == JOptionPane.YES_OPTION) {
             deleteColumns(dupl);
+        }
     }
-    
-    private void deleteColumns(ArrayList<Integer> duplicates){
+
+    private void deleteColumns(ArrayList<Integer> duplicates) {
         double[][] newfeat = new double[features.length][features[0].length - duplicates.size()];
-        
+
         int count = 0;
         int j = 0;
         int curcol = 0;
-        
-        for(Integer col: duplicates){
-                Object removed = descriptions.remove((int)col - count - 1);
+
+        for (Integer col : duplicates) {
+            Object removed = descriptions.remove((int) col - count - 1);
 //                System.out.println(removed.toString());
-                for(int i = 0; i < features.length; i++){
-                    j = curcol;
-                    for(;j < col;j++){
-                        newfeat[i][j-count] = features[i][j];
-                    }
+            for (int i = 0; i < features.length; i++) {
+                j = curcol;
+                for (; j < col; j++) {
+                    newfeat[i][j - count] = features[i][j];
                 }
-                if(j == col){
-                    count++;
-                    j++;
-                    curcol = col + 1;
-                }
+            }
+            if (j == col) {
+                count++;
+                j++;
+                curcol = col + 1;
+            }
         }
-        
-        for(int i = 0; i < features.length; i++){
-            for(int k = duplicates.get(duplicates.size() - 1) + 1;k < features[0].length; k++)
-                newfeat[i][k-count] = features[i][k];
+
+        for (int i = 0; i < features.length; i++) {
+            for (int k = duplicates.get(duplicates.size() - 1) + 1; k < features[0].length; k++) {
+                newfeat[i][k - count] = features[i][k];
+            }
         }
-        
-        
+
         features = newfeat;
     }
 
     @Override
     public void addFeatures(String name, ArrayList<ArrayList<Number>> result) {
-        
-        
+
         notifyListeners(name, result);
-        
+
     }
-    
+
     public void addListener(AddFeaturesListener listener) {
         listeners.add(listener);
     }
 
     private void notifyListeners(String name, ArrayList<ArrayList<Number>> result) {
         for (AddFeaturesListener listener : listeners) {
-            listener.addFeatures(name , result);
+            listener.addFeatures(name, result);
         }
     }
-    
+
     public void addMorphologyListener(MorphologyFrameListener listener) {
         morphologylisteners.add(listener);
     }
@@ -651,8 +657,8 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
     }
 
     @Override
-    public void windowStateChanged(WindowEvent e) {   
-        if(e.paramString().equals(WINDOW_CLOSED)){
+    public void windowStateChanged(WindowEvent e) {
+        if (e.paramString().equals(WINDOW_CLOSED)) {
             this.setVisible(false);
         }
     }

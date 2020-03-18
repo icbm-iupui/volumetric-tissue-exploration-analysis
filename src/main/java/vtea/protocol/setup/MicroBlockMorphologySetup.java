@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -40,31 +40,27 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
     public static String getMethod(int i) {
         return null;
     }
-  
-    private AbstractMorphology Approach;
 
+    private AbstractMorphology Approach;
 
     public MicroBlockMorphologySetup(int step, ArrayList Channels) {
 
         super(step, Channels);
-        
+
         ChannelSelection.setText("Morphology on: ");
         ChannelComboBox.addItem("All");
 
         //setup the method
-        
         super.processComboBox = new DefaultComboBoxModel(vtea._vtea.MORPHOLOGICALOPTIONS);
-        
+
         ProcessSelectComboBox.setModel(processComboBox);
-        ProcessSelectComboBox.setVisible(true);  
-        
-        ProcessVariables = new String[vtea._vtea.MORPHOLOGICALOPTIONS.length][10];        
+        ProcessSelectComboBox.setVisible(true);
+
+        ProcessVariables = new String[vtea._vtea.MORPHOLOGICALOPTIONS.length][10];
 
         //setup thresholder       
+        makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());
 
-        makeProtocolPanel((String)ProcessSelectComboBox.getSelectedItem());
-
- 
         setBounds(new java.awt.Rectangle(500, 160, 378, 282));
 
         TitleText.setText("Morphology_" + (step));
@@ -75,25 +71,20 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
 
         comments.remove(notesPane);
         comments.remove(tablePane);
-        
-
 
         repaint();
         pack();
     }
 
-
-
     @Override
     protected void updateTitles() {
- 
+
     }
 
     @Override
     protected void updateProtocolPanel(java.awt.event.ActionEvent evt) {
 
         //Rewrite to handoff to a new instance of the segmentation method
-
         if (evt.getSource() == ChannelComboBox) {
 
         }
@@ -107,23 +98,20 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
         MethodDetails.setVisible(true);
 
         pack();
-    
+
     }
 
     @Override
     protected JPanel makeProtocolPanel(String str) {
-        
+
         ArrayList ProcessComponents;
-        
+
         JPanel ProcessVisualization;
 
-       Approach = getMorphologicalApproach(str);
-       
+        Approach = getMorphologicalApproach(str);
 
         ProcessVisualization = Approach.getMorphologicalTool();
         ProcessComponents = Approach.getOptions();
-        
-
 
         CurrentProcessList = ProcessComponents;
 
@@ -136,30 +124,28 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
         methodBuild.add(ProcessVisualization);
 
         double width = 4;
-        int rows = (int)Math.ceil(ProcessComponents.size()/width);
-        
-        int count = 0; 
-            
-            for(int y = 0; y < rows; y++){      
-                for(int x = 0; x < width; x++){
-                    layoutConstraints.weightx = 1;
-                    layoutConstraints.weighty = 1;
-                    layoutConstraints.gridx = x;
-                    layoutConstraints.gridy = y;
-                    if(count < ProcessComponents.size()){
+        int rows = (int) Math.ceil(ProcessComponents.size() / width);
+
+        int count = 0;
+
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < width; x++) {
+                layoutConstraints.weightx = 1;
+                layoutConstraints.weighty = 1;
+                layoutConstraints.gridx = x;
+                layoutConstraints.gridy = y;
+                if (count < ProcessComponents.size()) {
                     MethodDetails.add((Component) ProcessComponents.get(count), layoutConstraints);
                     count++;
-                    }
                 }
-            }    
+            }
+        }
 
         pack();
         MethodDetails.setVisible(true);
 
         return MethodDetails;
     }
-
-
 
     @Override
     protected ArrayList makeMethodComponentsArray(String method, String[][] str) {
@@ -187,18 +173,16 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
         return result;
     }
 
-
-
     @Override
     protected void blockSetupOKAction() {
-        
+
         CurrentStepProtocol = CurrentProcessList;
-        
+
         //updateProcessVariables();
         notifyMicroBlockSetupListeners(getSettings());
-        
-         setVisible(false);
-         
+
+        setVisible(false);
+
     }
 
     @Override
@@ -225,75 +209,66 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
     // 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     //field key 0: minObjectSize, 1: maxObjectSize, 2: minOverlap, 3: minThreshold
     private ArrayList<ArrayList> getSettings() {
-        
-         /**segmentation and measurement protocol redefining.
-         * -: title text, 0: method (as String), 1: channel, 2: ArrayList of JComponents used 
-         * for analysis 3: ArrayList of Arraylist for morphology determination
+
+        /**
+         * segmentation and measurement protocol redefining. -: title text, 0:
+         * method (as String), 1: channel, 2: ArrayList of JComponents used for
+         * analysis 3: ArrayList of Arraylist for morphology determination
          */
-         
-        
-         
-         ArrayList<ArrayList> resultList = new ArrayList<ArrayList>();
-        
+        ArrayList<ArrayList> resultList = new ArrayList<ArrayList>();
+
         ArrayList result = new ArrayList();
 
         //result.add(TitleText.getText());
-
-        
-        
         ArrayList<JComponent> Comps = new ArrayList();
-        
-        if((ChannelComboBox.getSelectedItem().toString()).equals("All")){ 
-          for(int i = 0; i < this.Channels.size(); i++){
-              result = new ArrayList();
-              result.add((String)(ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex())));
-              result.add(i+1);
-              Comps = new ArrayList();
-              Comps.addAll(CurrentStepProtocol);  
-              result.add(Comps);
-              resultList.add(result);
-          }
-        } else {  
-        result = new ArrayList();
-         result.add((String)(ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex())));
-        result.add(ChannelComboBox.getSelectedIndex()+1);
-        Comps = new ArrayList();
-        Comps.addAll(CurrentStepProtocol);     
-        result.add(Comps);
-        resultList.add(result);
+
+        if ((ChannelComboBox.getSelectedItem().toString()).equals("All")) {
+            for (int i = 0; i < this.Channels.size(); i++) {
+                result = new ArrayList();
+                result.add((String) (ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex())));
+                result.add(i + 1);
+                Comps = new ArrayList();
+                Comps.addAll(CurrentStepProtocol);
+                result.add(Comps);
+                resultList.add(result);
+            }
+        } else {
+            result = new ArrayList();
+            result.add((String) (ProcessSelectComboBox.getItemAt(ProcessSelectComboBox.getSelectedIndex())));
+            result.add(ChannelComboBox.getSelectedIndex() + 1);
+            Comps = new ArrayList();
+            Comps.addAll(CurrentStepProtocol);
+            result.add(Comps);
+            resultList.add(result);
         }
         return resultList;
     }
 
-    private AbstractMorphology getMorphologicalApproach(String method){
+    private AbstractMorphology getMorphologicalApproach(String method) {
         Object iImp = new Object();
 
-           try {
-               Class<?> c;
-               c = Class.forName(MORPHOLOGICALMAP.get(method));
-               Constructor<?> con;
-               try {
-                   con = c.getConstructor();
-                   iImp = con.newInstance();
+        try {
+            Class<?> c;
+            c = Class.forName(MORPHOLOGICALMAP.get(method));
+            Constructor<?> con;
+            try {
+                con = c.getConstructor();
+                iImp = con.newInstance();
 
-                   //((AbstractSegmentation) iImp).setImage(ThresholdPreview);
-                   return (AbstractMorphology)iImp;
+                //((AbstractSegmentation) iImp).setImage(ThresholdPreview);
+                return (AbstractMorphology) iImp;
 
-               } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                   Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
-               }
+            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
-           } catch (ClassNotFoundException ex) {
-               Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
-           }
-           
-           return new AbstractMorphology();
-        
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return new AbstractMorphology();
+
     }
-    
-   
-
-
 
 //    private class channelNumber extends javax.swing.JComboBox {
 //
@@ -310,5 +285,4 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
 //        }
 //    ;
 //    };
-
 }

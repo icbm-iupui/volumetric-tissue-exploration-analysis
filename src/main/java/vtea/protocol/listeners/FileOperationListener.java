@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,50 +34,52 @@ package vtea.protocol.listeners;
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 /**
  *
  * @author sethwinfree
  */
 public interface FileOperationListener {
-    
-	/**
-	 * Notifies listeners to attempt to open a file of the appropriate type.  Exceptions must be handled by
-	 * the caller
-	 * 
-	 * @throws Exception
-	 */
-	public int onProccessingFileOpen() throws Exception;
-	/**
-	 * Notifies listeners to attempt to save a file of the appropriate type.  Exceptions must be handled by
-	 * the caller
-	 * 
-	 * @throws Exception
-	 */
-	public void onProcessingFileSave() throws Exception;
-	/**
-	 * Notifies listeners to attempt to export a file of the appropriate type.  Exceptions must be handled by
-	 * the caller
-	 * 
-	 * @throws Exception
-	 */
-        public void onSegmentationFileOpen() throws Exception;
-	/**
-	 * Notifies listeners to attempt to export a file of the appropriate type.  Exceptions must be handled by
-	 * the caller
-	 * 
-	 * @throws Exception
-	 */
-        public void onSegmentationFileSave() throws Exception;
-	/**
-	 * Notifies listeners to attempt to export a file of the appropriate type.  Exceptions must be handled by
-	 * the caller
-	 * 
-	 * @throws Exception
-	 */
-	public void onFileExport() throws Exception;
-        
-        public void onLoadDatasets() throws Exception;
-	
-}
 
+    /**
+     * Notifies listeners to attempt to open a file of the appropriate type.
+     * Exceptions must be handled by the caller
+     *
+     * @throws Exception
+     */
+    public int onProccessingFileOpen() throws Exception;
+
+    /**
+     * Notifies listeners to attempt to save a file of the appropriate type.
+     * Exceptions must be handled by the caller
+     *
+     * @throws Exception
+     */
+    public void onProcessingFileSave() throws Exception;
+
+    /**
+     * Notifies listeners to attempt to export a file of the appropriate type.
+     * Exceptions must be handled by the caller
+     *
+     * @throws Exception
+     */
+    public void onSegmentationFileOpen() throws Exception;
+
+    /**
+     * Notifies listeners to attempt to export a file of the appropriate type.
+     * Exceptions must be handled by the caller
+     *
+     * @throws Exception
+     */
+    public void onSegmentationFileSave() throws Exception;
+
+    /**
+     * Notifies listeners to attempt to export a file of the appropriate type.
+     * Exceptions must be handled by the caller
+     *
+     * @throws Exception
+     */
+    public void onFileExport() throws Exception;
+
+    public void onLoadDatasets() throws Exception;
+
+}

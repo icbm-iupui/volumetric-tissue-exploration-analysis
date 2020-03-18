@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 package vtea.objects.measurements;
 
 import java.util.ArrayList;
-import java.util.ListIterator;
 import org.scijava.plugin.Plugin;
 
 /**
@@ -26,23 +25,23 @@ import org.scijava.plugin.Plugin;
  * @author sethwinfree
  */
 @Plugin(type = Measurements.class)
-public class Count extends AbstractMeasurement{
-    
-    public Count(){
-    VERSION = "1.0";
-    AUTHOR = "Seth Winfree";
-    COMMENT = "Calculate number of pixels";
-    NAME = "Count";
-    KEY = "Count";
-    TYPE = "Shape";
-    
+public class Count extends AbstractMeasurement {
+
+    public Count() {
+        VERSION = "1.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Calculate number of pixels";
+        NAME = "Count";
+        KEY = "Count";
+        TYPE = "Shape";
+
     }
-    
+
     @Override
-    public Number process(ArrayList al, ArrayList values)  {
-    
-    return values.size();
-};
-    
-   
+    public Number process(ArrayList al, ArrayList values) {
+
+        return values.size();
+    }
+;
+
 }

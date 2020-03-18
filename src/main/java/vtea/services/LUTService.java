@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,23 +17,19 @@
  */
 package vtea.services;
 
-
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
-import vtea.featureprocessing.FeatureProcessing;
 import vtea.lut.LUT;
-
 
 /**
  *
  * @author Drew
  */
 @Plugin(type = Service.class)
-public class LUTService extends AbstractService<LUT>{
-    
+public class LUTService extends AbstractService<LUT> {
+
     public LUTService(Context context) {
         super(LUT.class, context);
-    } 
+    }
 }
-

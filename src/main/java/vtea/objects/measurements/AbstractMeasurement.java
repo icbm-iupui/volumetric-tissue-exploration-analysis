@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,38 +17,32 @@
  */
 package vtea.objects.measurements;
 
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import net.imglib2.RealPoint;
 
 /**
  *
  * @author sethwinfree
  */
-
 public abstract class AbstractMeasurement implements Measurements {
-    
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
     protected String NAME = "ND";
     protected String KEY = "ND";
     protected String TYPE = "Abstract";
-    
-    
-    
+
     /**
      *
      * @param al
      * @param values
      * @return
      */
-    
     @Override
-    public Number process(ArrayList al, ArrayList values){
+    public Number process(ArrayList al, ArrayList values) {
         return 0;
     }
-    
+
     @Override
     public String getName() {
         return NAME;
@@ -59,24 +53,20 @@ public abstract class AbstractMeasurement implements Measurements {
         return KEY;
     }
 
-    
     public String getVersion() {
         return VERSION;
     }
 
-    
     public String getAuthor() {
         return AUTHOR;
     }
 
-   
     public String getComment() {
         return COMMENT;
     }
-    
+
     public String getType() {
         return TYPE;
     }
-    
-    
+
 }

@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2019 SciJava
+/* 
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,97 +32,96 @@ import vteaobjects.MicroObject;
  *
  * @author sethwinfree
  */
-    public class ExportCSV {
-        
-        JComponent Main;
+public class ExportCSV {
 
-        public ExportCSV(JComponent Main) {
-        }
+    JComponent Main;
 
-        public void export(ArrayList<MicroObject> objects, 
-                ArrayList<ArrayList<Number>> measurements, 
-                ArrayList<String> descriptions) {
-            File file;
-            int returnVal = JFileChooser.CANCEL_OPTION;
-            int choice = JOptionPane.OK_OPTION;
-            do{
-                JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+    public ExportCSV(JComponent Main) {
+    }
 
-                returnVal = jf.showSaveDialog(Main);
+    public void export(ArrayList<MicroObject> objects,
+            ArrayList<ArrayList<Number>> measurements,
+            ArrayList<String> descriptions) {
+        File file;
+        int returnVal = JFileChooser.CANCEL_OPTION;
+        int choice = JOptionPane.OK_OPTION;
+        do {
+            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
 
-                file = jf.getSelectedFile();
+            returnVal = jf.showSaveDialog(Main);
 
-                file = jf.getSelectedFile();
-                if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("csv")) {
+            file = jf.getSelectedFile();
 
-                } else {
-                    file = new File(file.toString() + ".csv");
-                }
-                
-                if(file.exists()){
-                    String message = String.format("%s already exists\nOverwrite it?", file.getName());
-                    choice = JOptionPane.showConfirmDialog(null, message ,"Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-                }
-            }while(choice != JOptionPane.OK_OPTION);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
+            file = jf.getSelectedFile();
+            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("csv")) {
+
+            } else {
+                file = new File(file.toString() + ".csv");
+            }
+
+            if (file.exists()) {
+                String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                choice = JOptionPane.showConfirmDialog(null, message, "Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+            }
+        } while (choice != JOptionPane.OK_OPTION);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+            try {
 
                 try {
 
-                    try {
+                    PrintWriter pw = new PrintWriter(file);
+                    StringBuilder sb = new StringBuilder();
 
-                        PrintWriter pw = new PrintWriter(file);
-                        StringBuilder sb = new StringBuilder();
+                    ListIterator itr = descriptions.listIterator();
 
-                        ListIterator itr = descriptions.listIterator();
-
-                        sb.append("Object");
-                        sb.append(',');
-                        sb.append("PosX,PosY,PosZ,");
-                        while (itr.hasNext()) {
-                            sb.append((String) itr.next());
-                            if (itr.hasNext()) {
-                                sb.append(',');
-                            }
+                    sb.append("Object");
+                    sb.append(',');
+                    sb.append("PosX,PosY,PosZ,");
+                    while (itr.hasNext()) {
+                        sb.append((String) itr.next());
+                        if (itr.hasNext()) {
+                            sb.append(',');
                         }
-
-                        sb.append('\n');
-
-                        for (int i = 0; i < objects.size(); i++) {
-
-                            MicroObject volume = objects.get(i);
-                            ArrayList<Number> measured = measurements.get(i);
-
-                            sb.append(volume.getSerialID());
-                            sb.append(',');
-                            sb.append(volume.getCentroidX());
-                            sb.append(',');
-                            sb.append(volume.getCentroidY());
-                            sb.append(',');
-                            sb.append(volume.getCentroidZ());
-
-                            ListIterator<Number> itr_mes = measured.listIterator();
-
-                            while (itr_mes.hasNext()) {
-
-                                sb.append(",");
-                                sb.append(itr_mes.next());
-                            }
-                            sb.append('\n');
-                        }
-
-                        pw.write(sb.toString());
-                        pw.close();
-
-                    } catch (FileNotFoundException e) {
                     }
 
-                } catch (NullPointerException ne) {
-                }
-                _vtea.LASTDIRECTORY =  file.getPath();
-            } else {
-            }
+                    sb.append('\n');
 
+                    for (int i = 0; i < objects.size(); i++) {
+
+                        MicroObject volume = objects.get(i);
+                        ArrayList<Number> measured = measurements.get(i);
+
+                        sb.append(volume.getSerialID());
+                        sb.append(',');
+                        sb.append(volume.getCentroidX());
+                        sb.append(',');
+                        sb.append(volume.getCentroidY());
+                        sb.append(',');
+                        sb.append(volume.getCentroidZ());
+
+                        ListIterator<Number> itr_mes = measured.listIterator();
+
+                        while (itr_mes.hasNext()) {
+
+                            sb.append(",");
+                            sb.append(itr_mes.next());
+                        }
+                        sb.append('\n');
+                    }
+
+                    pw.write(sb.toString());
+                    pw.close();
+
+                } catch (FileNotFoundException e) {
+                }
+
+            } catch (NullPointerException ne) {
+            }
+            _vtea.LASTDIRECTORY = file.getPath();
+        } else {
         }
 
     }
 
+}

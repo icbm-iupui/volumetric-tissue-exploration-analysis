@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,11 +18,8 @@
 package vtea.exploration.plotgatetools.gates;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Shape;
-import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import org.jfree.chart.ChartPanel;
 
@@ -32,9 +29,10 @@ import org.jfree.chart.ChartPanel;
  */
 public class RectangleGate extends PolygonGate implements Gate {
 
-    RectangleGate(ArrayList<Point2D.Double> points){
-    super(points);
+    RectangleGate(ArrayList<Point2D.Double> points) {
+        super(points);
     }
+
     ;   
 
     @Override
@@ -46,8 +44,6 @@ public class RectangleGate extends PolygonGate implements Gate {
     public ArrayList getGateAsPoints() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-
 
     @Override
     public boolean getSelected() {
@@ -79,8 +75,6 @@ public class RectangleGate extends PolygonGate implements Gate {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
-
     @Override
     public boolean getKeyStroke() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -95,7 +89,5 @@ public class RectangleGate extends PolygonGate implements Gate {
     public Color getColor() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-   
 
 }

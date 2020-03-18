@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,16 +23,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import static vtea._vtea.MORPHOLOGICALMAP;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MicroBlockSetupListener;
 import vtea.protocol.listeners.RebuildPanelListener;
@@ -42,10 +38,11 @@ import vtea.protocol.setup.MicroBlockSetup;
 
 /**
  * Block for Morphology Steps in MorphologyFrame.
+ *
  * @author drewmcnutt
  */
-public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements MicroBlockSetupListener{
-    
+public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements MicroBlockSetupListener {
+
     JPanel step = new JPanel();
     Font PositionFont = new Font("Arial", Font.PLAIN, 16);
     Font FeatureFont = new Font("Arial", Font.BOLD, 12);
@@ -56,31 +53,31 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
     boolean ProcessTypeSet = false;
     int position;
 
-
     JButton DeleteButton;
     JButton EditButton;
-    
+
     JPopupMenu Popup;
     JCheckBoxMenuItem ValidationSelector;
-    
+
     boolean performValidation;
 
     MicroBlockSetup mbs;
 
     private ArrayList<ArrayList> settings;
     ArrayList ad;
-    
+
     public ArrayList<RebuildPanelListener> rebuildpanelisteners = new ArrayList<>();
     public ArrayList<DeleteBlockListener> deleteblocklisteners = new ArrayList<>();
-    
+
     /**
      * Constructor. Empty
      */
     public MorphologyStepBlockGUI() {
     }
-    
+
     /**
      * Constructor. Creates block with specified features.
+     *
      * @param FeatureText text for title of block
      * @param CommentText text for subtitle of block
      * @param BlockColor color of the block
@@ -89,28 +86,27 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
      * @param nvol number of volumes
      */
     public MorphologyStepBlockGUI(String FeatureText, String CommentText, Color BlockColor, int position, ArrayList Channels) {
-            BuildStepBlock(FeatureText, CommentText, Color.GRAY, position, Channels);
+        BuildStepBlock(FeatureText, CommentText, Color.GRAY, position, Channels);
     }
-    
+
     private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, final int position, ArrayList Channels) {
         this.position = position;
         Feature.setText("");
-        
+
         Comment.setText("New morphological settings...");
         step.setBackground(BlockColor);
 
         //need max size set here
         Position.setText(position + ".");
         Position.setFont(PositionFont);
-        
-        //Comment.setText("");
 
+        //Comment.setText("");
         FeatureFont = new Font("Arial", Font.BOLD, 14);
         CommentFont = new Font("Arial", Font.ITALIC, 10);
-        
+
         Feature.setFont(FeatureFont);
         Comment.setFont(CommentFont);
-        
+
         mbs = new MicroBlockMorphologySetup(position, Channels);
 
         mbs.setVisible(false);
@@ -131,18 +127,18 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
                 mbs.setVisible(true);
             }
         });
-        
+
         Popup = new JPopupMenu();
         ValidationSelector = new JCheckBoxMenuItem("Perform Validation on this method");
         ValidationSelector.addItemListener(new java.awt.event.ItemListener() {
-           @Override
-           public void itemStateChanged(ItemEvent ae){
-                
-           }
+            @Override
+            public void itemStateChanged(ItemEvent ae) {
+
+            }
         });
         ValidationSelector.setEnabled(false);
         Popup.add(ValidationSelector);
-        
+
         performValidation = false;
 
         DeleteButton.setSize(20, 20);
@@ -152,7 +148,7 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
         EditButton.setSize(20, 20);
         EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
-        
+
         step.setSize(205, 20);
         step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -193,7 +189,7 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
         layoutConstraints.ipadx = -1;
         layoutConstraints.ipady = -1;
         step.add(DeleteButton, layoutConstraints);
-        
+
         layoutConstraints.fill = GridBagConstraints.BOTH;
         layoutConstraints.anchor = GridBagConstraints.EAST;
         layoutConstraints.gridx = 2;
@@ -203,33 +199,46 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
         layoutConstraints.ipadx = -1;
         layoutConstraints.ipady = -1;
         step.add(EditButton, layoutConstraints);
-        
+
         step.addMouseListener(new java.awt.event.MouseListener() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-            };
+            }
+
+            ;
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 //thumb.setVisible(false);
-            };
+            }
+
+            ;
             @Override
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 showPopup(evt);
-            };
+            }
+
+            ;
             @Override
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 showPopup(evt);
-            };
+            }
+
+            ;
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                
-            };
-            private void showPopup(java.awt.event.MouseEvent evt){
+
+            }
+
+            ;
+            private void showPopup(java.awt.event.MouseEvent evt) {
                 if (evt.isPopupTrigger()) {
                     Popup.show(evt.getComponent(), evt.getX(), evt.getY());
                 }
-            };
-        });
+            }
+        ;
+    }
+
+    );
     }    
     
     /**
@@ -244,7 +253,8 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
 
     /**
      * Retrieves GUI of the block.
-     * @return 
+     *
+     * @return
      */
     @Override
     public JPanel getPanel() {
@@ -260,46 +270,48 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
     public ArrayList getVariables() {
         return settings;
     }
-    
+
     /**
      * Retrieves the Setup class for the block
+     *
      * @return Setup for block
      */
-    public MicroBlockSetup getSetup(){
+    public MicroBlockSetup getSetup() {
         return mbs;
     }
-    
+
     /**
      * Updates the protocol to be the parameters selected in the Setup class.
      */
-    public void updateSetup(){
-        ((MicroBlockFeatureSetup)mbs).updateProtocol();
+    public void updateSetup() {
+        ((MicroBlockFeatureSetup) mbs).updateProtocol();
     }
-    
+
     /**
      * Rebuilds the block text when the parameters are changed in the Setup.
+     *
      * @param al the selected parameters
      */
     @Override
-    public void onChangeSetup(ArrayList al){
-        if(al.size() > 1){     
-           ArrayList morphology = (ArrayList)al.get(0);
-            Feature.setText(morphology.get(0).toString()); 
-            Comment.setText(Feature.getText() + ", " + " on all channels ");        
-    } else {        
-        ArrayList morphology = (ArrayList)al.get(0);
-        Feature.setText(morphology.get(0).toString()); 
-        Comment.setText(Feature.getText() + ", " + " on channel " + morphology.get(1));  
-    }   
+    public void onChangeSetup(ArrayList al) {
+        if (al.size() > 1) {
+            ArrayList morphology = (ArrayList) al.get(0);
+            Feature.setText(morphology.get(0).toString());
+            Comment.setText(Feature.getText() + ", " + " on all channels ");
+        } else {
+            ArrayList morphology = (ArrayList) al.get(0);
+            Feature.setText(morphology.get(0).toString());
+            Comment.setText(Feature.getText() + ", " + " on channel " + morphology.get(1));
+        }
         settings = al;
     }
-    
+
     @Override
     protected void deleteStep(int type) {
         notifyDeleteBlockListeners(type, this.position);
         mbs.setVisible(false);
     }
-    
+
     @Override
     public void addRebuildPanelListener(RebuildPanelListener listener) {
         rebuildpanelisteners.add(listener);
@@ -323,8 +335,8 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
             listener.deleteBlock(type, position);
         }
     }
-    
-    private void addToolTip(){
+
+    private void addToolTip() {
 //        String tt = "<html>";
 //        ArrayList data = (ArrayList)this.settings.get(1);
 //        String curline = "";

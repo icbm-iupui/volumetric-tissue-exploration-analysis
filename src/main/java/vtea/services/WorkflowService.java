@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,13 +22,12 @@ import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
 import vtea.workflow.Workflow;
 
-
 /**
  *
  * @author sethwinfree
  */
 @Plugin(type = Service.class)
-public class WorkflowService extends AbstractService< Workflow > {
+public class WorkflowService extends AbstractService< Workflow> {
 
     public WorkflowService(Context context) {
         super(Workflow.class, context);

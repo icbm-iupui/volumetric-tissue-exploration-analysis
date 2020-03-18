@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2016-2018 Indiana University
+ * Copyright (C) 2020 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,30 +29,30 @@ import net.imglib2.type.numeric.RealType;
  * @author sethwinfree
  * @param <T>
  * @param <A>
- * 
+ *
  * For saving, loading and copying of settings,
- * 
+ *
  * JComponent ArrayLists-only hold the GUI components for the class.
- * 
- * dComponent := ArrayList that is the destination for a copy action
- * sComponent := Arraylist that is the source for a copy action
- * 
- * fields := In save and load methods contains the field values for setting the 
+ *
+ * dComponent := ArrayList that is the destination for a copy action sComponent
+ * := Arraylist that is the source for a copy action
+ *
+ * fields := In save and load methods contains the field values for setting the
  * JComponent values.
- * 
+ *
  */
-public abstract class AbstractImageProcessing<T extends Component, A extends RealType>  implements ImageProcessing {
-    
+public abstract class AbstractImageProcessing<T extends Component, A extends RealType> implements ImageProcessing {
+
     protected String VERSION = "0.0";
     protected String AUTHOR = "VTEA Developer";
     protected String COMMENT = "New functionality";
     protected String NAME = "ABSTRACTIMAGEPROCESSING";
     protected String KEY = "ABSTRACTIMAGEPROCESSING";
 
-    protected ArrayList<T> protocol= new ArrayList();
-    
+    protected ArrayList<T> protocol = new ArrayList();
+
     protected Img imgResult;
-    
+
     @Override
     public boolean setOptions(ArrayList al) {
         protocol = al;
@@ -66,25 +66,25 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
 
     @Override
     public Img getResult() {
-        
-       return imgResult; 
-        
+
+        return imgResult;
+
     }
-    
-        @Override
+
+    @Override
     public ImagePlus getImpResult() {
-        
-       return ImageJFunctions.wrapUnsignedShort(imgResult, NAME); 
-        
+
+        return ImageJFunctions.wrapUnsignedShort(imgResult, NAME);
+
     }
 
     @Override
     public Img getPreview() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public String getImageJMacroCommand(){
+    public String getImageJMacroCommand() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -140,48 +140,45 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
 
     @Override
     public boolean copyComponentParameter(String version, ArrayList dComponents, ArrayList sComponents) {
-    
-        try{
-            
-        return true;
-        
-        } catch(Exception e){
-            
+
+        try {
+
+            return true;
+
+        } catch (Exception e) {
+
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
-            
+
             return false;
         }
     }
-    
+
     @Override
     public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
-             try{
-            
-        return true;
-        
-        } catch(Exception e){
-            
+        try {
+
+            return true;
+
+        } catch (Exception e) {
+
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
-            
+
             return false;
-        }   
+        }
     }
-    
+
     @Override
     public boolean saveComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
-             try{
-            
-        return true;
-        
-        } catch(Exception e){
-            
+        try {
+
+            return true;
+
+        } catch (Exception e) {
+
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
-            
+
             return false;
-        }   
+        }
     }
 
-    
-
-    
 }
