@@ -34,17 +34,17 @@ public class RedGray extends AbstractLUT {
         NAME = "RedGray";
         KEY = "RGLUT";
 
-        ZEROPERCENT = new Color(0x9e9191);
-        TENPERCENT = new Color(0xad7a7a);
-        TWENTYPERCENT = new Color(0xbd6363);
-        THIRTYPERCENT = new Color(0xc75454);
-        FORTYPERCENT = new Color(0xcc4c4c);
-        FIFTYPERCENT = new Color(0xd63d3d);
-        SIXTYPERCENT = new Color(0xd14545);
-        SEVENTYPERCENT = new Color(0xdb3636);
-        EIGHTYPERCENT = new Color(0xeb1f1f);
-        NINETYPERCENT = new Color(0xf50f0f);
-        ALLPERCENT = new Color(0xff0000);
+        ZEROPERCENT = new Color(0x969e9191, true);
+        TENPERCENT = new Color(0x96ad7a7a, true);
+        TWENTYPERCENT = new Color(0x96bd6363, true);
+        THIRTYPERCENT = new Color(0x96c75454, true);
+        FORTYPERCENT = new Color(0x96cc4c4c, true);
+        FIFTYPERCENT = new Color(0x96d63d3d, true);
+        SIXTYPERCENT = new Color(0x96d14545, true);
+        SEVENTYPERCENT = new Color(0x96db3636, true);
+        EIGHTYPERCENT = new Color(0x96eb1f1f, true);
+        NINETYPERCENT = new Color(0x96f50f0f, true);
+        ALLPERCENT = new Color(0x96ffffff, true);
 
     }
 

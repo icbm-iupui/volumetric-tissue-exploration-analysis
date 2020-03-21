@@ -46,7 +46,11 @@ public abstract class AbstractLUT implements LUT {
     static Color NINETYPERCENT = new Color(255, 190, 0);
     static Color ALLPERCENT = new Color(255, 250, 50);
     
+    protected int TRANSPARENCY = 150;
+    
     protected LookupPaintScale ps;
+    
+    
 
     @Override
     public HashMap getLUTMAP() {
@@ -128,6 +132,11 @@ public abstract class AbstractLUT implements LUT {
          
          return ps;
          
+     }
+     
+     @Override
+     public void setTransparency(int i){
+         TRANSPARENCY = i;
      }
     
 }

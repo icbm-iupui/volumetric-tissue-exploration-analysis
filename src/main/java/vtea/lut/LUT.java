@@ -34,4 +34,6 @@ public interface LUT extends VTEAModule{
     
     public LookupPaintScale getPaintScale(double min, double max);
     
+    public void setTransparency(int i);
+    
 }

@@ -31,11 +31,7 @@ import vteaexploration.LutCustomColorChooser;
  */
 @Plugin (type = LUT.class)
 public class CustomLUT extends AbstractLUT {
-    
-//    ArrayList clusterInfo;
-//    String[] clusterElements = {"Cluster1", "Cluster2"};
-//    HashMap<String, Color> customLutColors = new HashMap<String, Color>();
-    
+
     public CustomLUT(){
         VERSION = "0.1";
         AUTHOR = "Suraj Khochare";

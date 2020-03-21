@@ -34,17 +34,17 @@ public class Black extends AbstractLUT {
         NAME = "Black";
         KEY = "BLACK";
 
-        ZEROPERCENT = new Color(0x000000);
-        TENPERCENT = new Color(0x000000);
-        TWENTYPERCENT = new Color(0x000000);
-        THIRTYPERCENT = new Color(0x000000);
-        FORTYPERCENT = new Color(0x000000);
-        FIFTYPERCENT = new Color(0x000000);
-        SIXTYPERCENT = new Color(0x000000);
-        SEVENTYPERCENT = new Color(0x000000);
-        EIGHTYPERCENT = new Color(0x000000);
-        NINETYPERCENT = new Color(0x000000);
-        ALLPERCENT = new Color(0x000000);
+        ZEROPERCENT = new Color(0x80000000, true);
+        TENPERCENT = new Color(0x80000000, true);
+        TWENTYPERCENT = new Color(0x80000000, true);
+        THIRTYPERCENT = new Color(0x80000000, true);
+        FORTYPERCENT = new Color(0x80000000, true);
+        FIFTYPERCENT = new Color(0x80000000, true);
+        SIXTYPERCENT = new Color(0x80000000, true);
+        SEVENTYPERCENT = new Color(0x80000000, true);
+        EIGHTYPERCENT = new Color(0x80000000, true);
+        NINETYPERCENT = new Color(0x80000000, true);
+        ALLPERCENT = new Color(0x80000000, true);
 
     }
 

@@ -1742,8 +1742,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     @Override
     public void axesSetupExplorerPlotUpdate(int x, int y, int l, int pointsize) {
-        this.ExplorerSetupPlotChangerequest(x, y, l, pointsize);
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ExplorerSetupPlotChangerequest(x, y, l, pointsize);
     }
 
     class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {

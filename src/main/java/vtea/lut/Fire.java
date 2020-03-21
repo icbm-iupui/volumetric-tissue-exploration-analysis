@@ -34,17 +34,17 @@ public class Fire extends AbstractLUT {
         NAME = "Fire";
         KEY = "FIRELUT";
 
-        ZEROPERCENT = new Color(0, 0, 0);
-        TENPERCENT = new Color(0, 0, 82);
-        TWENTYPERCENT = new Color(61, 0, 178);
-        THIRTYPERCENT = new Color(122, 0, 227);
-        FORTYPERCENT = new Color(178, 0, 136);
-        FIFTYPERCENT = new Color(213, 27, 45);
-        SIXTYPERCENT = new Color(249, 95, 0);
-        SEVENTYPERCENT = new Color(255, 140, 0);
-        EIGHTYPERCENT = new Color(255, 175, 0);
-        NINETYPERCENT = new Color(255, 190, 0);
-        ALLPERCENT = new Color(255, 250, 50);
+        ZEROPERCENT = new Color(0, 0, 0, 100);
+        TENPERCENT = new Color(0, 0, 82,100);
+        TWENTYPERCENT = new Color(61, 0, 178, 100);
+        THIRTYPERCENT = new Color(122, 0, 227,100);
+        FORTYPERCENT = new Color(178, 0, 136,100);
+        FIFTYPERCENT = new Color(213, 27, 45,100);
+        SIXTYPERCENT = new Color(249, 95, 0, 100);
+        SEVENTYPERCENT = new Color(255, 140, 0, 100);
+        EIGHTYPERCENT = new Color(255, 175, 0, 100);
+        NINETYPERCENT = new Color(255, 190, 0, 100);
+        ALLPERCENT = new Color(255, 250, 50, 100);
     }
 
 }

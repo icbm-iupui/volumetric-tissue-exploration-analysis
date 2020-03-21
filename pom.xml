@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
     <groupId>icbm-iupui</groupId>
     <artifactId>vtea</artifactId>
-    <version>1.0alpha3-SNAPSHOT</version>
+    <version>1.0alpha4-SNAPSHOT</version>
 
 
     <name>VTEA master RengLUT</name>
@@ -47,6 +47,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     </properties>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.itk.simple/simpleitk -->
+<dependency>
+    <groupId>org.itk.simple</groupId>
+    <artifactId>simpleitk</artifactId>
+    <version>0.9.0</version>
+    <type>jar</type>
+</dependency>
         <dependency>
             <groupId>com.github.lejon.T-SNE-Java</groupId>
             <artifactId>tsne</artifactId>
@@ -56,19 +63,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         <dependency>
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-netlib</artifactId>
-            <version>1.5.1</version>
+            <version>1.5.3</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-core -->
-        <dependency>
+                <dependency>
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-core</artifactId>
-            <version>1.5.1</version>
-        </dependency>
+            <version>1.5.3</version>
+                        <type>jar</type>
+                </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-core -->
+
         <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-plot -->
         <dependency>
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-plot</artifactId>
-            <version>1.5.1</version>
+            <version>1.5.3</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
@@ -166,6 +177,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.5</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.github.haifengl</groupId>
+            <artifactId>smile-math</artifactId>
+            <version>1.5.3</version>
             <type>jar</type>
         </dependency>
     </dependencies>

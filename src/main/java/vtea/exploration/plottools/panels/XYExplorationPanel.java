@@ -71,6 +71,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.LogAxis;
+import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 
 import org.jfree.chart.renderer.LookupPaintScale;
@@ -198,8 +200,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
        if(MicroExplorer.LUTSTART >= 0){
             max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
             min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
-            System.out.println("max: " + max);
-            System.out.println("min: " + min);
+            //System.out.println("max: " + max);
+            //System.out.println("min: " + min);
             double range = max - min;
         if (max == 0) {
             max = 1;
@@ -208,6 +210,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         
         Black defaultLUT = new Black();
         lps = defaultLUT.getPaintScale(min, max);
+        
+        
 
         densityMaps3D = new densityMap3d();
 
@@ -636,6 +640,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 System.gc();
             }
         } else {
+            if(impoverlay.getOverlay() != null)
             impoverlay.getOverlay().clear();
             gm.setMeasurementsText("No gate selected...");
         }
@@ -937,17 +942,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         pointsize = size;
         CenterPanel.removeAll();
         this.LUT = LUT;
-        
-        //update the plotaxesmanager
-        
-        //LookupPaintScale lps = AxesManager.getLookupPaintScale();
-
-
         cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor, lps);
-
-//        cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText,
-//                pointsize, impoverlay, imageGate, imageGateColor);
-
 
         cpd.addUpdatePlotWindowListener(this);
 
@@ -961,82 +956,32 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             cpd.setChartPanelRanges(XYChartPanel.YAXIS, cpd.yMin, cpd.yMax);
 
             if (!XYChartPanel.xLinear) {
-                LogAxis xcLog = new LogAxis();
+                NumberAxis xcLog = new LogarithmicAxis("");
                 xcLog.setRange(cpd.xMin, cpd.xMax);
-                xcLog.setMinorTickCount(9);
                 plot.setDomainAxis(xcLog);
             }
             if (!XYChartPanel.yLinear) {
-                LogAxis ycLog = new LogAxis();
+                NumberAxis ycLog =  new LogarithmicAxis("");
                 ycLog.setRange(cpd.yMin, cpd.yMax);
-                ycLog.setMinorTickCount(9);
                 plot.setRangeAxis(ycLog);
             }
 
         }
 
         if (useCustom) {
-
-            cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0),
-                    AxesLimits.get(1));
-            cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2),
-                    AxesLimits.get(3));
+            
 
             if (!xScaleLinear) {
-                LogAxis xcLog = new LogAxis();
-
-                xcLog.setMinorTickCount(9);
+                NumberAxis xcLog = new LogarithmicAxis("");
+                xcLog.setRange(AxesLimits.get(0), AxesLimits.get(1));
                 plot.setDomainAxis(xcLog);
             }
             if (!yScaleLinear) {
-                LogAxis ycLog = new LogAxis();
-
-                ycLog.setMinorTickCount(9);
+                NumberAxis ycLog =  new LogarithmicAxis("");
+                ycLog.setRange(AxesLimits.get(2), AxesLimits.get(3));
                 plot.setRangeAxis(ycLog);
             }
-
         }
-
-        //setup LUTs
-
-//        try {
-//            Class<?> c;
-//
-//            String str = LUTMAP.get(LUTOPTIONS[this.LUT]);
-//
-//            //System.out.println("PROFILING: The loaded lut is: " + str);
-//            c = Class.forName(str);
-//            Constructor<?> con;
-//
-//            Object iImp = new Object();
-//
-//            try {
-//
-//                con = c.getConstructor();
-//                iImp = con.newInstance();
-//
-//                HashMap lutTable = ((AbstractLUT) iImp).getLUTMAP();
-//                
-//                XYChartPanel.ZEROPERCENT = ((AbstractLUT) iImp).getColor(0);
-//                XYChartPanel.TENPERCENT = ((AbstractLUT) iImp).getColor(10);
-//                XYChartPanel.TWENTYPERCENT = ((AbstractLUT) iImp).getColor(20);
-//                XYChartPanel.THIRTYPERCENT = ((AbstractLUT) iImp).getColor(30);
-//                XYChartPanel.FORTYPERCENT = ((AbstractLUT) iImp).getColor(40);
-//                XYChartPanel.FIFTYPERCENT = ((AbstractLUT) iImp).getColor(50);
-//                XYChartPanel.SIXTYPERCENT = ((AbstractLUT) iImp).getColor(60);
-//                XYChartPanel.SEVENTYPERCENT = ((AbstractLUT) iImp).getColor(70);
-//                XYChartPanel.EIGHTYPERCENT = ((AbstractLUT) iImp).getColor(80);
-//                XYChartPanel.NINETYPERCENT = ((AbstractLUT) iImp).getColor(90);
-//                XYChartPanel.ALLPERCENT = ((AbstractLUT) iImp).getColor(100);
-//
-////        
-//            } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-//                System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
-//            }
-//        } catch (NullPointerException | ClassNotFoundException ex) {
-//            System.out.println("EXCEPTION: new class decleration error... Class not found.");
-//        }
-
 
         //setup chart layer
         CenterPanel.setOpaque(false);
@@ -1054,19 +999,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addImageHighLightSelectionListener(this);
         gl.addDistanceMapListener(this);
         gl.addDensityMapListener(this);
-
         gl.msActive = false;
 
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates, hm.get(currentX), hm.get(currentY));
 
         gjlayer.setLocation(0, 0);
         CenterPanel.add(gjlayer);
-
         validate();
         repaint();
         pack();
-
-        //addExplorationGroup();
         return CenterPanel;
     }
 
@@ -1121,22 +1062,20 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void updatePlot(int x, int y, int l, int size) {
-
-//        if (!(isMade(currentX, currentY, currentL, size))) {
-//            addExplorationGroup();
-//        }
-
         this.explorerXaxisIndex = x;
         this.explorerYaxisIndex = y;
         this.explorerLutIndex = l;
         this.explorerPointSizeIndex = size;
         
-        // Inform PlotAxesSetup about change in xAxis and yAxis
+        if(!useCustom){
         HashMap<String, Integer> xAxisLimits = getLimits(x);
         cpd.setChartPanelRanges(XYChartPanel.XAXIS, xAxisLimits.get("min"), xAxisLimits.get("max"));
         HashMap<String, Integer> yAxisLimits = getLimits(y);
         cpd.setChartPanelRanges(XYChartPanel.YAXIS, yAxisLimits.get("min"), yAxisLimits.get("max"));
-        
+        } else {
+        cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0), AxesLimits.get(1));
+        cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2), AxesLimits.get(3));    
+        }
         AxesManager.setAxesSetupAxisLimits(this.getSettingsContent());
         AxesManager.shareExplorerLutSelectedIndex(explorerLutIndex);
         
@@ -1148,9 +1087,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             lText = hm.get(l);
         }
 
-        
         lps = AxesManager.getLookupPaintScale();
-        
 
         addPlot(x, y, l, size, LUT, hm.get(x), hm.get(y), lText);
     }
@@ -1472,7 +1409,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void onDeleteGate(ArrayList<PolygonGate> gt) {
         gates = gt;
-        //System.out.println("Deleting gate.");
         gm.updateTable(gates);
         gm.pack();
         gm.repaint();
@@ -1483,12 +1419,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void onPasteGate(ArrayList<PolygonGate> gt) {
         gates = gt;
-        //System.out.println("Paste gate.");
         gm.updateTable(gates);
         gm.pack();
         gm.repaint();
-//        this.getParent().validate();
-//        this.getParent().repaint();
         makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
     }
 
@@ -1527,10 +1460,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         }
         
         lps = AxesManager.getLookupPaintScale();
-        
-//        if (!(isMade(x, y, l, size))) {
-        addPlot(this.explorerXaxisIndex, this.explorerYaxisIndex, this.explorerLutIndex, this.explorerPointSizeIndex, LUT, 
-                hm.get(this.explorerXaxisIndex), hm.get(this.explorerYaxisIndex), lText);
+
+        updatePlot(this.explorerXaxisIndex, this.explorerYaxisIndex, this.explorerLutIndex, this.explorerPointSizeIndex);
         
         this.notifyAxesSetupExplorerPlotUpdateListener(this.explorerXaxisIndex, this.explorerYaxisIndex, 
                 this.explorerLutIndex, this.explorerPointSizeIndex);
@@ -1644,18 +1575,31 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         cOptions[0] = "Lin";
         cOptions[1] = "Log";
 
-        JComboBox j = new JComboBox(new DefaultComboBoxModel(cOptions));
+        JComboBox x = new JComboBox(new DefaultComboBoxModel(cOptions));
+        JComboBox y = new JComboBox(new DefaultComboBoxModel(cOptions));
+        
+        if(this.xScaleLinear){
+            x.setSelectedIndex(0);
+        }else{
+            x.setSelectedIndex(1);
+        }
+        
+        if(this.yScaleLinear){
+            y.setSelectedIndex(0);
+        }else{
+            y.setSelectedIndex(1);
+        }
 
         al.add(new JLabel("X min"));
         al.add(new JTextField(String.valueOf(Math.round(plot.getDomainAxis().getLowerBound()))));
         al.add(new JLabel("X max"));
         al.add(new JTextField(String.valueOf(Math.round(plot.getDomainAxis().getUpperBound()))));
-        al.add(new JComboBox(new DefaultComboBoxModel(cOptions)));
+        al.add(x);
         al.add(new JLabel("Y min"));
         al.add(new JTextField(String.valueOf(Math.round(plot.getRangeAxis().getLowerBound()))));
         al.add(new JLabel("Y max"));
         al.add(new JTextField(String.valueOf(Math.round(plot.getRangeAxis().getUpperBound()))));
-        al.add(new JComboBox(new DefaultComboBoxModel(cOptions)));
+        al.add(y);
 
         return al;
 

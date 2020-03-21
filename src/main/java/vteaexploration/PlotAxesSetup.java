@@ -230,7 +230,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
 
     private void BlockSetupOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BlockSetupOKActionPerformed
         // TODO add your handling code here:
-        this.setVisible(false);
+        this.setVisible(false); 
 
     }//GEN-LAST:event_BlockSetupOKActionPerformed
 
@@ -247,7 +247,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             lText = this.availableDataHM.get(explorerSelectedLutIndex);
         }
         
-        System.out.println("PROFILING:  LUT value: " + lText);
+        //System.out.println("PROFILING:  LUT value: " + lText);
         
         double max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
         double min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
@@ -285,18 +285,20 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
                     con = c.getConstructor();
                     iImp = con.newInstance();
                     
+                    ps = ((AbstractLUT) iImp).getPaintScale(min, max);
                     
-                    ps.add(min, ((AbstractLUT) iImp).getColor(0));
-                    ps.add(min + (1 * (range / 10)), ((AbstractLUT) iImp).getColor(10));
-                    ps.add(min + (2 * (range / 10)), ((AbstractLUT) iImp).getColor(20));
-                    ps.add(min + (3 * (range / 10)), ((AbstractLUT) iImp).getColor(30));
-                    ps.add(min + (4 * (range / 10)), ((AbstractLUT) iImp).getColor(40));
-                    ps.add(min + (5 * (range / 10)), ((AbstractLUT) iImp).getColor(50));
-                    ps.add(min + (6 * (range / 10)), ((AbstractLUT) iImp).getColor(60));
-                    ps.add(min + (7 * (range / 10)), ((AbstractLUT) iImp).getColor(70));
-                    ps.add(min + (8 * (range / 10)), ((AbstractLUT) iImp).getColor(80));
-                    ps.add(min + (9 * (range / 10)), ((AbstractLUT) iImp).getColor(90));
-                    ps.add(max, ((AbstractLUT) iImp).getColor(100));
+                    
+//                    ps.add(min, ((AbstractLUT) iImp).getColor(0));
+//                    ps.add(min + (1 * (range / 10)), ((AbstractLUT) iImp).getColor(10));
+//                    ps.add(min + (2 * (range / 10)), ((AbstractLUT) iImp).getColor(20));
+//                    ps.add(min + (3 * (range / 10)), ((AbstractLUT) iImp).getColor(30));
+//                    ps.add(min + (4 * (range / 10)), ((AbstractLUT) iImp).getColor(40));
+//                    ps.add(min + (5 * (range / 10)), ((AbstractLUT) iImp).getColor(50));
+//                    ps.add(min + (6 * (range / 10)), ((AbstractLUT) iImp).getColor(60));
+//                    ps.add(min + (7 * (range / 10)), ((AbstractLUT) iImp).getColor(70));
+//                    ps.add(min + (8 * (range / 10)), ((AbstractLUT) iImp).getColor(80));
+//                    ps.add(min + (9 * (range / 10)), ((AbstractLUT) iImp).getColor(90));
+//                    ps.add(max, ((AbstractLUT) iImp).getColor(100));
                     
 //
                 } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
@@ -561,46 +563,14 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     public void notifyAxesChangeListeners(ArrayList content, ArrayList LUT) {
         for (AxesChangeListener listener : AxesChangeListeners) {
             listener.onAxesSetting(content, LUT);
+             
         }
     }
 
     public void setDescriptor(String str) {
         this.jLabel1.setText(str);
     }
-    /**
-     * @param args the command line arguments
-     */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(PlotAxesSetup.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(PlotAxesSetup.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(PlotAxesSetup.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(PlotAxesSetup.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new PlotAxesSetup().setVisible(true);
-//            }
-//        });
-//    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JButton BlockSetupOK;

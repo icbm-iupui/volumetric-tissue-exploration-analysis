@@ -85,6 +85,9 @@ public class PlotAxesManager implements AxesChangeListener{
     public void notifyPlotAxesPreviewBtnListeners(ArrayList limits, 
             boolean xLinear, boolean yLinear, int lutTableSelectedIndex) {
         for (PlotAxesPreviewButtonListener listener : PlotAxesPreviewButtonListeners) {
+            
+            
+            
             listener.setAxesTo(limits, xLinear, yLinear, lutTableSelectedIndex);
         }
     }
