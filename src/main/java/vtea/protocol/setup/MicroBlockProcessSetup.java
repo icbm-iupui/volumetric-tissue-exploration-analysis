@@ -97,8 +97,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         ProcessText.setText("Method: ");
         ChannelSelection.setText("Channel: ");
         ProcessSelectComboBox.setModel(processComboBox);
-        tablePane.setVisible(false);
-        secondaryTable.setVisible(false);
         ProcessSelectComboBox.setVisible(true);
 
         JPanel imagePanel = new JPanel() {
@@ -461,7 +459,6 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         ArrayList ProcessComponents;
 
         notesPane.setVisible(true);
-        tablePane.setVisible(false);
 
         CurrentProcessItems.set(0, makeMethodComponentsArray(str, ProcessVariables));
         ProcessComponents = CurrentProcessItems.get(0);

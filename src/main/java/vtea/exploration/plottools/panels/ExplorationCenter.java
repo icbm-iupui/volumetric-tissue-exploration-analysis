@@ -97,7 +97,7 @@ public interface ExplorationCenter {
     
     //public void setAxesTo(ArrayList al, boolean x, boolean y, int lutTable);
     
-    public void setCustomRange(boolean state);
+    public void setCustomRange(int axis, boolean state);
     
     public void setGlobalAxes(boolean state);
     
@@ -130,7 +130,7 @@ public interface ExplorationCenter {
     public void importGates();
     
 
-    public void invokeAxesSettingsDialog();
+    public void invokeAxesSettingsDialog(int xPos, int yPos);
     
     public void addAxesSetpExplorerPlotUpdateListener(AxesSetupExplorerPlotUpdateListener listener);
     

@@ -137,7 +137,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         ProcessText.setText("Object building method ");
 
         comments.remove(notesPane);
-        comments.remove(tablePane);
 
         JButton MorphologyButton = new JButton("Morphology Settings");
         MorphologyButton.setActionCommand("morphology");
@@ -145,7 +144,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         MorphologyButton.setToolTipText("Morphology settings for measurements");
 
         comments.add(MorphologyButton);
-        tablePane.setVisible(true);
         PreviewButton.setVisible(true);
         PreviewButton.setEnabled(true);
 
@@ -189,8 +187,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         }
 
         ThresholdPreview.addImageListener(this);
-
-        tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
         makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());
@@ -273,8 +269,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
             ThresholdPreview.getWindow().setLocation(p);
             System.gc();
         }
-
-        tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
         makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());
@@ -525,7 +519,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
     @Override
     public void updateGui(String str, Double dbl) {
-        tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.revalidate();
         MethodDetails.repaint();

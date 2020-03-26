@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import vtea.exploration.listeners.AxesChangeListener;
 import java.awt.Color;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import java.lang.reflect.Constructor;
@@ -35,6 +37,11 @@ import java.util.ListIterator;
 import javax.swing.JButton;
 import vtea.lut.*;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.jfree.chart.renderer.LookupPaintScale;
 import static vtea._vtea.LUTMAP;
 import static vtea._vtea.LUTOPTIONS;
@@ -59,12 +66,17 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     int explorerSelectedLutIndex = 0;
     HashMap<String, Color> customLutColors = new HashMap<String, Color>();
      LutCustomColorChooser customLutChooser;
+     
+     JLabel messageLabel = new JLabel();
 
     /**
      * Creates new form PlotAxesSetup
+     * @param PosX
+     * @param PosY
      */
     public PlotAxesSetup() {
         initComponents();
+        setVisible(false);
     }
 
     /**
@@ -77,63 +89,31 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        TItleBar = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
         LUT = new javax.swing.JPanel();
         Content = new javax.swing.JPanel();
-        Decision = new javax.swing.JPanel();
-        buttonPanel = new javax.swing.JPanel();
-        PreviewProgress = new javax.swing.JLabel();
-        BlockSetupOK = new javax.swing.JButton();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 32), new java.awt.Dimension(10, 32), new java.awt.Dimension(10, 32));
-        PreviewButton1 = new javax.swing.JButton();
 
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Plot settings");
+        setMinimumSize(new java.awt.Dimension(690, 96));
+        setPreferredSize(new java.awt.Dimension(690, 96));
         setResizable(false);
+        setSize(new java.awt.Dimension(690, 96));
         setType(java.awt.Window.Type.UTILITY);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        TItleBar.setBackground(vtea._vtea.BACKGROUND);
-        TItleBar.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        TItleBar.setMinimumSize(new java.awt.Dimension(400, 50));
-        TItleBar.setPreferredSize(new java.awt.Dimension(400, 32));
-
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel1.setText("jLabel1");
-
-        javax.swing.GroupLayout TItleBarLayout = new javax.swing.GroupLayout(TItleBar);
-        TItleBar.setLayout(TItleBarLayout);
-        TItleBarLayout.setHorizontalGroup(
-            TItleBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(TItleBarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(26, Short.MAX_VALUE))
-        );
-        TItleBarLayout.setVerticalGroup(
-            TItleBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(TItleBarLayout.createSequentialGroup()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 14, Short.MAX_VALUE))
-        );
-
-        getContentPane().add(TItleBar, new java.awt.GridBagConstraints());
-
-        LUT.setBackground(vtea._vtea.BACKGROUND);
         LUT.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        LUT.setMinimumSize(new java.awt.Dimension(400, 50));
-        LUT.setPreferredSize(new java.awt.Dimension(400, 50));
+        LUT.setMinimumSize(new java.awt.Dimension(680, 30));
+        LUT.setPreferredSize(new java.awt.Dimension(680, 30));
 
         javax.swing.GroupLayout LUTLayout = new javax.swing.GroupLayout(LUT);
         LUT.setLayout(LUTLayout);
         LUTLayout.setHorizontalGroup(
             LUTLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 396, Short.MAX_VALUE)
+            .addGap(0, 676, Short.MAX_VALUE)
         );
         LUTLayout.setVerticalGroup(
             LUTLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 46, Short.MAX_VALUE)
+            .addGap(0, 26, Short.MAX_VALUE)
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -141,20 +121,21 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         gridBagConstraints.gridy = 2;
         getContentPane().add(LUT, gridBagConstraints);
 
-        Content.setBackground(vtea._vtea.BACKGROUND);
         Content.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        Content.setMinimumSize(new java.awt.Dimension(400, 50));
-        Content.setPreferredSize(new java.awt.Dimension(400, 50));
+        Content.setMinimumSize(new java.awt.Dimension(680, 30));
+        Content.setName(""); // NOI18N
+        Content.setOpaque(false);
+        Content.setPreferredSize(new java.awt.Dimension(680, 30));
 
         javax.swing.GroupLayout ContentLayout = new javax.swing.GroupLayout(Content);
         Content.setLayout(ContentLayout);
         ContentLayout.setHorizontalGroup(
             ContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 396, Short.MAX_VALUE)
+            .addGap(0, 676, Short.MAX_VALUE)
         );
         ContentLayout.setVerticalGroup(
             ContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 46, Short.MAX_VALUE)
+            .addGap(0, 26, Short.MAX_VALUE)
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -162,93 +143,18 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         gridBagConstraints.gridy = 1;
         getContentPane().add(Content, gridBagConstraints);
 
-        Decision.setMinimumSize(new java.awt.Dimension(400, 36));
-
-        buttonPanel.setMinimumSize(vtea._vtea.BLOCKSETUPPANEL);
-        buttonPanel.setLayout(new java.awt.GridBagLayout());
-        buttonPanel.add(PreviewProgress, new java.awt.GridBagConstraints());
-
-        BlockSetupOK.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/dialog-apply.png"))); // NOI18N
-        BlockSetupOK.setToolTipText("Accept changes");
-        BlockSetupOK.setMaximumSize(vtea._vtea.SMALLBUTTONSIZE);
-        BlockSetupOK.setMinimumSize(vtea._vtea.SMALLBUTTONSIZE);
-        BlockSetupOK.setPreferredSize(vtea._vtea.SMALLBUTTONSIZE);
-        BlockSetupOK.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BlockSetupOKActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        buttonPanel.add(BlockSetupOK, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        buttonPanel.add(filler1, gridBagConstraints);
-
-        PreviewButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/eye.png"))); // NOI18N
-        PreviewButton1.setToolTipText("Set ranges");
-        PreviewButton1.setMaximumSize(vtea._vtea.SMALLBUTTONSIZE);
-        PreviewButton1.setMinimumSize(vtea._vtea.SMALLBUTTONSIZE);
-        PreviewButton1.setPreferredSize(vtea._vtea.SMALLBUTTONSIZE);
-        PreviewButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                PreviewButton1ActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        buttonPanel.add(PreviewButton1, gridBagConstraints);
-
-        javax.swing.GroupLayout DecisionLayout = new javax.swing.GroupLayout(Decision);
-        Decision.setLayout(DecisionLayout);
-        DecisionLayout.setHorizontalGroup(
-            DecisionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, DecisionLayout.createSequentialGroup()
-                .addContainerGap(318, Short.MAX_VALUE)
-                .addComponent(buttonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        DecisionLayout.setVerticalGroup(
-            DecisionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(DecisionLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(buttonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        getContentPane().add(Decision, gridBagConstraints);
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void BlockSetupOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BlockSetupOKActionPerformed
-        // TODO add your handling code here:
-        this.setVisible(false); 
-
-    }//GEN-LAST:event_BlockSetupOKActionPerformed
-
-    private void PreviewButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreviewButton1ActionPerformed
-        notifyAxesChangeListeners(ContentList, LUTList);
-    }//GEN-LAST:event_PreviewButton1ActionPerformed
-
-    public LookupPaintScale getPaintScale(){
+    public LookupPaintScale getPaintScale(int l){
 
         String lText = "";
-        if (explorerSelectedLutIndex < 0) {
+        if (l < 0) {
             lText = "";
         } else {
-            lText = this.availableDataHM.get(explorerSelectedLutIndex);
+            lText = this.availableDataHM.get(l);
         }
-        
-        //System.out.println("PROFILING:  LUT value: " + lText);
-        
+
         double max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
         double min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
         double range = max - min;
@@ -257,10 +163,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         }
         
         LookupPaintScale ps = new LookupPaintScale(min, max+1, new Color(0x999999));
-        
-        //JComboBox lutTable = (JComboBox)LUTList.get(1);
-        
-        
+
         JComboBox lutTable = (JComboBox)LUTList.get(2);
         if("Custom LUT".equals((String)lutTable.getSelectedItem())){
             
@@ -271,10 +174,6 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         }else{
             try {
                 Class<?> c;
-                
-                //String str = (String)lutTable.getSelectedItem();
-                
-                //System.out.println("PROFILING: The loaded lut is: " + str);
                 c = Class.forName(LUTMAP.get(lutTable.getSelectedItem().toString()));
                 Constructor<?> con;
                 
@@ -286,21 +185,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
                     iImp = con.newInstance();
                     
                     ps = ((AbstractLUT) iImp).getPaintScale(min, max);
-                    
-                    
-//                    ps.add(min, ((AbstractLUT) iImp).getColor(0));
-//                    ps.add(min + (1 * (range / 10)), ((AbstractLUT) iImp).getColor(10));
-//                    ps.add(min + (2 * (range / 10)), ((AbstractLUT) iImp).getColor(20));
-//                    ps.add(min + (3 * (range / 10)), ((AbstractLUT) iImp).getColor(30));
-//                    ps.add(min + (4 * (range / 10)), ((AbstractLUT) iImp).getColor(40));
-//                    ps.add(min + (5 * (range / 10)), ((AbstractLUT) iImp).getColor(50));
-//                    ps.add(min + (6 * (range / 10)), ((AbstractLUT) iImp).getColor(60));
-//                    ps.add(min + (7 * (range / 10)), ((AbstractLUT) iImp).getColor(70));
-//                    ps.add(min + (8 * (range / 10)), ((AbstractLUT) iImp).getColor(80));
-//                    ps.add(min + (9 * (range / 10)), ((AbstractLUT) iImp).getColor(90));
-//                    ps.add(max, ((AbstractLUT) iImp).getColor(100));
-                    
-//
+
                 } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                     System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
                 }
@@ -340,7 +225,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             layoutConstraints.gridx = 0;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;
+            layoutConstraints.weighty = 1;          
             Content.add((Component) al.get(0), layoutConstraints);
         }
         if (al.size() > 1) {
@@ -349,6 +234,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
+            ((JTextField) al.get(1)).addActionListener(this);
             Content.add((Component) al.get(1), layoutConstraints);
         }
         if (al.size() > 2) {
@@ -365,6 +251,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
+            ((JTextField) al.get(3)).addActionListener(this);
             Content.add((Component) al.get(3), layoutConstraints);
         }
         if (al.size() > 4) {
@@ -373,54 +260,53 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
+            ((JComboBox) al.get(4)).addActionListener(this);
             Content.add((Component) al.get(4), layoutConstraints);
         }
         if (al.size() > 5) {
             layoutConstraints.fill = GridBagConstraints.EAST;
-            layoutConstraints.gridx = 0;
-            layoutConstraints.gridy = 1;
+            layoutConstraints.gridx = 5;
+            layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
             Content.add((Component) al.get(5), layoutConstraints);
         }
         if (al.size() > 6) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 1;
-            layoutConstraints.gridy = 1;
+            layoutConstraints.gridx = 6;
+            layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
+            ((JTextField) al.get(6)).addActionListener(this);
             Content.add((Component) al.get(6), layoutConstraints);
         }
         if (al.size() > 7) {
             layoutConstraints.fill = GridBagConstraints.EAST;
-            layoutConstraints.gridx = 2;
-            layoutConstraints.gridy = 1;
+            layoutConstraints.gridx = 7;
+            layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
             Content.add((Component) al.get(7), layoutConstraints);
         }
         if (al.size() > 8) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 3;
-            layoutConstraints.gridy = 1;
+            layoutConstraints.gridx = 8;
+            layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
+            ((JTextField) al.get(8)).addActionListener(this);
             Content.add((Component) al.get(8), layoutConstraints);
         }
         if (al.size() > 9) {
             layoutConstraints.fill = GridBagConstraints.WEST;
-            layoutConstraints.gridx = 4;
-            layoutConstraints.gridy = 1;
+            layoutConstraints.gridx = 9;
+            layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
+            ((JComboBox) al.get(9)).addActionListener(this);
             Content.add((Component) al.get(9), layoutConstraints);
         }
-//        if (al.size() > 10) {
-//            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-//            layoutConstraints.gridx = 5;
-//            layoutConstraints.gridy = 1;
-//            Content.add((Component) al.get(7), layoutConstraints);
-//        }
+
 
         Content.setVisible(true);
 
@@ -442,101 +328,45 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
 
         //MethodDetail
         if (al.size() > 0) {
-            //layoutConstraints.fill = GridBagConstraints.EAST;
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 0;
+            layoutConstraints.gridy = 0;
+            layoutConstraints.weightx = 1;
+            layoutConstraints.weighty = 1;
+            messageLabel = new JLabel();
+            messageLabel.setSize(new Dimension(300,40));
+            messageLabel.setPreferredSize(new Dimension(300,40));
+            messageLabel.setMinimumSize(new Dimension(300,40));
+           
+            
+            
+            LUT.add(messageLabel, layoutConstraints);
+            layoutConstraints.fill = GridBagConstraints.CENTER;
+            layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
             LUT.add((Component) al.get(0), layoutConstraints);
         }
         layoutConstraints.fill = GridBagConstraints.CENTER;
-        layoutConstraints.gridx = 1;
+        layoutConstraints.gridx = 2;
         layoutConstraints.gridy = 0;
         layoutConstraints.weightx = 1;
         layoutConstraints.weighty = 1;
         LUT.add((Component) al.get(1), layoutConstraints);
         if (al.size() > 1) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-            layoutConstraints.gridx = 2;
+            layoutConstraints.gridx = 3;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
+            ((JComboBox) al.get(2)).addActionListener(this);
             LUT.add((Component) al.get(2), layoutConstraints);
         }
-//        if (al.size() > 2) {
-//            layoutConstraints.fill = GridBagConstraints.EAST;
-//            layoutConstraints.gridx = 2;
-//            layoutConstraints.gridy = 0;
-//            layoutConstraints.weightx = 1;
-//            layoutConstraints.weighty = 1;
-//            LUT.add((Component) al.get(2), layoutConstraints);
-//        }
-//        if (al.size() > 3) {
-//            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-//            layoutConstraints.gridx = 3;
-//            layoutConstraints.gridy = 0;
-//            layoutConstraints.weightx = 1;
-//            layoutConstraints.weighty = 1;
-//            LUT.add((Component) al.get(3), layoutConstraints);
-//        }
-//        if (al.size() > 4) {
-//            layoutConstraints.fill = GridBagConstraints.WEST;
-//            layoutConstraints.gridx = 4;
-//            layoutConstraints.gridy = 0;
-//            layoutConstraints.weightx = 1;
-//            layoutConstraints.weighty = 1;
-//            LUT.add((Component) al.get(4), layoutConstraints);
-//        }
-//        if (al.size() > 5) {
-//            layoutConstraints.fill = GridBagConstraints.EAST;
-//            layoutConstraints.gridx = 0;
-//            layoutConstraints.gridy = 1;
-//            layoutConstraints.weightx = 1;
-//            layoutConstraints.weighty = 1;
-//            LUT.add((Component) al.get(5), layoutConstraints);
-//        }
-//        if (al.size() > 6) {
-//            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-//            layoutConstraints.gridx = 1;
-//            layoutConstraints.gridy = 1;
-//            layoutConstraints.weightx = 1;
-//            layoutConstraints.weighty = 1;
-//            LUT.add((Component) al.get(6), layoutConstraints);
-//        }
-//        if (al.size() > 7) {
-//            layoutConstraints.fill = GridBagConstraints.EAST;
-//            layoutConstraints.gridx = 2;
-//            layoutConstraints.gridy = 1;
-//            layoutConstraints.weightx = 1;
-//            layoutConstraints.weighty = 1;
-//            LUT.add((Component) al.get(7), layoutConstraints);
-//        }
-//        if (al.size() > 8) {
-//            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-//            layoutConstraints.gridx = 3;
-//            layoutConstraints.gridy = 1;
-//            layoutConstraints.weightx = 1;
-//            layoutConstraints.weighty = 1;
-//            LUT.add((Component) al.get(8), layoutConstraints);
-//        }
-//        if (al.size() > 9) {
-//            layoutConstraints.fill = GridBagConstraints.WEST;
-//            layoutConstraints.gridx = 4;
-//            layoutConstraints.gridy = 1;
-//            layoutConstraints.weightx = 1;
-//            layoutConstraints.weighty = 1;
-//            LUT.add((Component) al.get(9), layoutConstraints);
-//        }
-//        if (al.size() > 10) {
-//            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-//            layoutConstraints.gridx = 5;
-//            layoutConstraints.gridy = 1;
-//            Content.add((Component) al.get(7), layoutConstraints);
-//        }
+
         
         
-        ((JComboBox)LUT.getComponent(2)).setSelectedItem("Black");
+        ((JComboBox)LUT.getComponent(3)).setSelectedItem("Black");
         LUT.setVisible(true);
         
         pack();
@@ -553,7 +383,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             }
         });
         
-        ((JButton)LUT.getComponent(1)).setEnabled(FALSE);
+        ((JButton)LUT.getComponent(2)).setEnabled(FALSE);
     }
 
     public void addAxesChangeListener(AxesChangeListener listener) {
@@ -563,26 +393,19 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     public void notifyAxesChangeListeners(ArrayList content, ArrayList LUT) {
         for (AxesChangeListener listener : AxesChangeListeners) {
             listener.onAxesSetting(content, LUT);
-             
+            //System.out.println("PROFILING: notifyAxesChangeListeners");
         }
     }
 
     public void setDescriptor(String str) {
-        this.jLabel1.setText(str);
+        
+       // this.jLabel1.setText(str);
     }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    protected javax.swing.JButton BlockSetupOK;
     private javax.swing.JPanel Content;
-    private javax.swing.JPanel Decision;
     private javax.swing.JPanel LUT;
-    public javax.swing.JButton PreviewButton1;
-    public javax.swing.JLabel PreviewProgress;
-    private javax.swing.JPanel TItleBar;
-    public javax.swing.JPanel buttonPanel;
-    private javax.swing.Box.Filler filler1;
-    private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 
     private void jComboBoxLutActionPerformed(java.awt.event.ActionEvent evt){
@@ -591,10 +414,10 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         Object selectedItem = lutChoiceComboBox.getSelectedItem();
         
         if(selectedItem == "Custom LUT"){
-            ((JButton)LUT.getComponent(1)).setEnabled(TRUE);
+            ((JButton)LUT.getComponent(2)).setEnabled(TRUE);
         }
         else{
-            ((JButton)LUT.getComponent(1)).setEnabled(FALSE);
+            ((JButton)LUT.getComponent(2)).setEnabled(FALSE);
         }
     }
     
@@ -629,16 +452,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     }
     
     public void notifyAddFeatures(HashMap<Integer, String> availableDataHM){
-//        this.keySQLSafe = keySQLSafe;
         this.availableDataHM = availableDataHM;
-//        String lText = this.availableDataHM.get(2);
-        
-//        double max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
-//        double min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
-//        double range = max - min;
-//        if (max == 0) {
-//            max = 1;
-//        }
     }
     
     private double getMaximumOfData(ArrayList measurements, int l) {
@@ -699,6 +513,27 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        int xMin = Integer.parseInt(((JTextField)ContentList.get(1)).getText());
+        int xMax = Integer.parseInt(((JTextField)ContentList.get(3)).getText());
+        int yMin = Integer.parseInt(((JTextField)ContentList.get(6)).getText());
+        int yMax = Integer.parseInt(((JTextField)ContentList.get(8)).getText());
+        
+        if(xMin >= xMax){
+            ((JTextField)ContentList.get(1)).setBackground(Color.red);
+            ((JTextField)ContentList.get(3)).setBackground(Color.red);
+            messageLabel.setText("Range error: minimum >= maximum");
+        } else if (yMin >= yMax){
+            ((JTextField)ContentList.get(6)).setBackground(Color.red);
+            ((JTextField)ContentList.get(8)).setBackground(Color.red);
+            messageLabel.setText("Domain error: minimum >= maximum");
+        } else {
+             ((JTextField)ContentList.get(1)).setBackground(Color.white);
+            ((JTextField)ContentList.get(3)).setBackground(Color.white);
+             ((JTextField)ContentList.get(6)).setBackground(Color.white);
+            ((JTextField)ContentList.get(8)).setBackground(Color.white);
+            messageLabel.setText("");
+            notifyAxesChangeListeners(ContentList, LUTList);
+        }      
     }
 }

@@ -54,9 +54,10 @@ public class PlotAxesManager implements AxesChangeListener{
         
     }
     
-    public void createAxesSettingsDialog(ArrayList<Component> settingsContent){
+    public void createAxesSettingsDialog(ArrayList<Component> settingsContent, int xPos, int yPos){
         
-        AxesSetup.setVisible(true);
+        AxesSetup.setLocation(xPos, yPos);
+        AxesSetup.setVisible(true); 
         AxesSetup.setContent(settingsContent);
         
         ArrayList<Component> al = new ArrayList<Component>();
@@ -72,8 +73,8 @@ public class PlotAxesManager implements AxesChangeListener{
         
     }
     
-    public LookupPaintScale getLookupPaintScale(){
-        LookupPaintScale lps = AxesSetup.getPaintScale();
+    public LookupPaintScale getLookupPaintScale(int l){
+        LookupPaintScale lps = AxesSetup.getPaintScale(l);
         
         return lps;
     }
@@ -86,7 +87,7 @@ public class PlotAxesManager implements AxesChangeListener{
             boolean xLinear, boolean yLinear, int lutTableSelectedIndex) {
         for (PlotAxesPreviewButtonListener listener : PlotAxesPreviewButtonListeners) {
             
-            
+           //System.out.println("PROFILING: notifyPlotAxesPreviewBtnListeners"); 
             
             listener.setAxesTo(limits, xLinear, yLinear, lutTableSelectedIndex);
         }
@@ -94,6 +95,8 @@ public class PlotAxesManager implements AxesChangeListener{
 
     @Override
     public void onAxesSetting(ArrayList Content, ArrayList LUT) {
+        
+        //System.out.println("PROFILING: onAxesSetting");
         
         ArrayList<Double> limits = new ArrayList();
 
@@ -114,9 +117,7 @@ public class PlotAxesManager implements AxesChangeListener{
         
         JComboBox lutTable = (JComboBox)LUT.get(2);
 
-        this.notifyPlotAxesPreviewBtnListeners(limits, xLinear, yLinear, lutTable.getSelectedIndex());
-
-        //updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
+        notifyPlotAxesPreviewBtnListeners(limits, xLinear, yLinear, lutTable.getSelectedIndex());
 
     }
     

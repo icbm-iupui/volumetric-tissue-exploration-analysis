@@ -95,37 +95,6 @@ public class IJ1Projector {
 
     private ImagePlus impBuild;
 
-//    public void setup(String arg) {
-//        imp = IJ.getImage();
-//        ImageProcessor ip = imp.getProcessor();
-////        if (ip.isInvertedLut() && !IJ.isMacro()) {
-////            if (!IJ.showMessageWithCancel("3D Project", ZProjector.lutMessage))
-////                return;
-////        }
-////        if (!showDialog())
-////            return;
-//        imp.startTiming();
-//        isRGB = imp.getType()==ImagePlus.COLOR_RGB;
-//        if (imp.isHyperStack()) {
-//            if (imp.getNSlices()>1)
-//                doHyperstackProjections(imp);
-//            else
-//                IJ.error("Hyperstack Z dimension must be greater than 1");
-//            return;
-//        }
-//        if (interpolate && sliceInterval>1.0) {
-//            imp = zScale(imp, true);
-//            if (imp==null) return;
-//            sliceInterval = 1.0;
-//        }
-//        if (isRGB)
-//            doRGBProjections(imp);
-//        else {
-//            ImagePlus imp2 = doProjections(imp);
-//            if (imp2!=null)
-//                imp2.show();
-//        }
-//    }
     public IJ1Projector(ImagePlus imp) {
         this.imp = imp;
         doHyperstackProjections(imp);

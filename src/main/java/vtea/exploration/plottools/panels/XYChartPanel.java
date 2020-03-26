@@ -469,17 +469,30 @@ public class XYChartPanel implements RoiListener {
         return chartPanel;
     }
 
-    public void setChartPanelRanges(int axis, double low, double high) {
+    public void setChartPanelRanges(int axis, double low, double high, boolean linear) {
         XYPlot plot = (XYPlot) this.chartPanel.getChart().getPlot();
-        ValueAxis newaxis = new NumberAxis();
-
-        newaxis.setLowerBound(low);
-        newaxis.setUpperBound(high);
+ 
+        if(linear){
+            NumberAxis linearAxis = new NumberAxis();
+                    linearAxis.setLowerBound(low);
+        linearAxis.setUpperBound(high);
         if (axis == XYChartPanel.XAXIS) {
-            plot.setDomainAxis(newaxis);
+            plot.setDomainAxis(linearAxis);
         } else if (axis == XYChartPanel.YAXIS) {
-            plot.setRangeAxis(newaxis);
+            plot.setRangeAxis(linearAxis);
         }
+        } else {
+           NumberAxis logAxis = new LogarithmicAxis("");
+           logAxis.setLowerBound(low);
+           logAxis.setUpperBound(high);
+        if (axis == XYChartPanel.XAXIS) {
+            plot.setDomainAxis(logAxis);
+        } else if (axis == XYChartPanel.YAXIS) {
+            plot.setRangeAxis(logAxis);
+        } 
+        }
+        
+
     }
 
     @Override

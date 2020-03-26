@@ -107,8 +107,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private static final int RECTANGLEGATE = 11;
     private static final int QUADRANTGATE = 12;
 
-    private static final int XAXIS = 0;
-    private static final int YAXIS = 1;
+    public static final int XAXIS = 0;
+    public static final int YAXIS = 1;
     private static final int LUTAXIS = 2;
     private static final int POINTAXIS = 3;
 
@@ -151,10 +151,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     HashMap<Integer, JToggleButton> GateButtonsHM = new HashMap<Integer, JToggleButton>();
     HashMap<Integer, String> AvailableDataHM = new HashMap<Integer, String>();
-
-    ArrayList<ExplorationCenter> ExplorationPanels = new ArrayList<ExplorationCenter>();
-
-    //PlotAxesSetup AxesSetup = new PlotAxesSetup();
 
     ArrayList<AddFeaturesListener> FeatureListeners = new ArrayList<AddFeaturesListener>();
 
@@ -217,9 +213,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         addMenuItems();
 
         this.title = title;
-
-        //AxesSetup.setDescriptor(this.getTitle());
-
         get3DProjection.setEnabled(false);
 
         makeOverlayImage(new ArrayList<PolygonGate>(), aep.getSelectedObjects(), aep.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
@@ -337,10 +330,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
         aep.addFeatureListener(this);
         aep.setGatedOverlay(impoverlay);
         aep.addAxesSetpExplorerPlotUpdateListener(this);
-        ExplorationPanels.add(aep);
 
         //load default view
-        setPanels(plotvalues, ExplorationPanels.get(0), pap);
+        setPanels(plotvalues, aep, pap);
         this.addAxesLabels(AvailableData.get(this.XSTART).toString(), AvailableData.get(this.YSTART).toString(), AvailableData.get(this.LUTSTART).toString());
         this.displayXYView();
         this.repaint();
@@ -862,13 +854,12 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_formComponentAdded
 
     private void jComboBoxXaxisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxXaxisActionPerformed
-        ec.setCustomRange(false);
-
+        ec.setCustomRange(this.XAXIS, false);
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxXaxisActionPerformed
 
     private void jComboBoxYaxisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxYaxisActionPerformed
-        ec.setCustomRange(false);
+        ec.setCustomRange(this.YAXIS,false);
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxYaxisActionPerformed
 
@@ -910,12 +901,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_FlipAxesActionPerformed
 
     private void jComboBoxLUTPlotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxLUTPlotActionPerformed
-        ec.setCustomRange(false);
+        //ec.setCustomRange(this.XAXIS, false);
+        //ec.setCustomRange(this.YAXIS, false);
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxLUTPlotActionPerformed
 
     private void jComboBoxPointSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxPointSizeActionPerformed
-        //ec.setCustomRange(false);
+        //ec.setCustomRange(this.XAXIS, false);
+        //ec.setCustomRange(this.YAXIS, false);
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxPointSizeActionPerformed
 
@@ -943,7 +936,13 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void UseGlobalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UseGlobalActionPerformed
         ec.setGlobalAxes(!ec.getGlobalAxes());
-        updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
+        
+       // System.out.println("PROFILING: set global axes, " + ec.getGlobalAxes());
+        
+        updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), 
+                this.jComboBoxYaxis.getSelectedIndex(), 
+                this.jComboBoxLUTPlot.getSelectedIndex(), 
+                jComboBoxPointSize.getSelectedIndex());
 
     }//GEN-LAST:event_UseGlobalActionPerformed
 
@@ -974,24 +973,12 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_importOBJActionPerformed
 
     private void AxesSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AxesSettingsActionPerformed
-        ec.invokeAxesSettingsDialog();
-//        AxesSetup.setVisible(true);
-//        AxesSetup.setContent(ec.getSettingsContent());
-//        
-//        ArrayList<Component> al = new ArrayList<Component>();
-//        
-//        al.add(new JLabel("Graph LUT:"));
-//        JButton editCustomLut = new JButton();
-//        editCustomLut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4_small.png")));
-//        al.add(editCustomLut);
-//        al.add(new JComboBox(vtea._vtea.LUTOPTIONS));
-//
-//        AxesSetup.setLUT(al);
-//        AxesSetup.addAxesChangeListener(this);
+        ec.invokeAxesSettingsDialog(this.getX(), this.getY()+this.getHeight());
     }//GEN-LAST:event_AxesSettingsActionPerformed
 
     private void AutoScaleAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutoScaleAxesActionPerformed
-        ec.setCustomRange(false);
+        ec.setCustomRange(this.XAXIS, false);
+        ec.setCustomRange(this.YAXIS, false);
         updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
     }//GEN-LAST:event_AutoScaleAxesActionPerformed
 
@@ -1291,7 +1278,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
     
     public void ExplorerSetupPlotChangerequest(int x, int y, int z, int size){
         Main.removeAll();
-        //ec.updatePlot(x, y, z, size);
         ec.updatePlot(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), 
                 this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
         Main.add(ec.getPanel());
