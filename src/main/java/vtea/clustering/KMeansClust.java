@@ -21,21 +21,20 @@ import ij.IJ;
 import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import org.scijava.plugin.Plugin;
-import smile.clustering.XMeans;
+import smile.clustering.KMeans;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
 
 /**
- * X-Means Clustering by SMILE. An improvement upon K-Means clustering. For more
- * information see Pelleg & Moore. X-means: Extending K-means with Efficient
- * Estimation of the Number of Clusters. 2000.
- *
- * @author drewmcnutt
+ * K-Means Clustering by SMILE. 
+ * 
+ * @author winfrees
  */
 @Plugin(type = FeatureProcessing.class)
-public class XMeansClust extends AbstractFeatureProcessing {
+public class KMeansClust extends AbstractFeatureProcessing {
 
     public static boolean validate = false;
 
@@ -50,6 +49,8 @@ public class XMeansClust extends AbstractFeatureProcessing {
         String comment = "<html>";
         comment = comment.concat(((JLabel) comComponents.get(4)).getText() + ": ");
         comment = comment.concat(((JSpinner) comComponents.get(5)).getValue().toString());
+        comment = comment.concat(((JLabel) comComponents.get(6)).getText() + ": ");
+        comment = comment.concat(((JTextField) comComponents.get(7)).getText());
         comment = comment.concat("</html>");
         return comment;
     }
@@ -57,12 +58,12 @@ public class XMeansClust extends AbstractFeatureProcessing {
     /**
      * Basic Constructor. Sets all protected variables
      */
-    public XMeansClust() {
+    public KMeansClust() {
         VERSION = "0.1";
-        AUTHOR = "Andrew McNutt";
+        AUTHOR = "Seth WInfree";
         COMMENT = "Implements the plugin from SMILE";
-        NAME = "X-means Clustering";
-        KEY = "Xmeans";
+        NAME = "K-means Clustering";
+        KEY = "Kmeans";
         TYPE = "Cluster";
     }
 
@@ -72,13 +73,16 @@ public class XMeansClust extends AbstractFeatureProcessing {
      *
      * @param max the number of objects segmented in the volume
      */
-    public XMeansClust(int max) {
+    public KMeansClust(int max) {
         this();
 
         protocol = new ArrayList();
 
         protocol.add(new JLabel("Maximum number of clusters"));
         protocol.add(new JSpinner(new SpinnerNumberModel(5, 2, max, 1)));
+        
+        protocol.add(new JLabel("Iterations"));
+        protocol.add(new JTextField("10", 2));
     }
 
     @Override
@@ -96,6 +100,7 @@ public class XMeansClust extends AbstractFeatureProcessing {
     @Override
     public boolean process(ArrayList al, double[][] feature, boolean val) {
         int maxClust;
+        int numTrials;
         int[] membership;
 
         ArrayList selectData = (ArrayList) al.get(1);
@@ -106,10 +111,14 @@ public class XMeansClust extends AbstractFeatureProcessing {
 
         JSpinner clust = (JSpinner) al.get(5);
         maxClust = ((Integer) clust.getValue());
+        JTextField trial = (JTextField) al.get(7);
+        numTrials = (Integer.parseInt(trial.getText()));
+        
+        
 
-        IJ.log(String.format("PROFILING: Clustering using XMeans for a maximum of %d clusters", maxClust));
+        IJ.log(String.format("PROFILING: Clustering using "  + this.NAME + " for a maximum of %d clusters", maxClust));
         long start = System.currentTimeMillis();
-        XMeans xm = new XMeans(feature, maxClust);
+        KMeans xm = new KMeans(feature, maxClust, numTrials);
         membership = xm.getClusterLabel();
         IJ.log(String.format("PROFILING: Clustering completed in %d s, %d clusters found", (System.currentTimeMillis() - start) / 1000, xm.getNumClusters()));
 

@@ -210,7 +210,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART,
                 MicroExplorer.POINTSIZE, 0, hm.get(1), hm.get(4), hm.get(2));
 
-        invokeAxesSettingsDialog(MicroExplorer.XSTART+MicroExplorer.WIDTH, MicroExplorer.YSTART+MicroExplorer.HEIGHT);
+        invokeAxesSettingsDialog(this.getX(), this.getY()+this.getHeight());
 
     }
 

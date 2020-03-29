@@ -23,19 +23,18 @@ import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import org.scijava.plugin.Plugin;
-import smile.clustering.XMeans;
+import smile.clustering.GMeans;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
 
 /**
- * X-Means Clustering by SMILE. An improvement upon K-Means clustering. For more
- * information see Pelleg & Moore. X-means: Extending K-means with Efficient
- * Estimation of the Number of Clusters. 2000.
- *
- * @author drewmcnutt
+ * G-Means Clustering by SMILE. An improvement upon K-Means clustering. For more
+ * information see G. Hamerly and C. Elkan. Learning the k in k-means. NIPS, 2003.
+ * 
+ * @author winfrees
  */
 @Plugin(type = FeatureProcessing.class)
-public class XMeansClust extends AbstractFeatureProcessing {
+public class GMeansClust extends AbstractFeatureProcessing {
 
     public static boolean validate = false;
 
@@ -57,12 +56,12 @@ public class XMeansClust extends AbstractFeatureProcessing {
     /**
      * Basic Constructor. Sets all protected variables
      */
-    public XMeansClust() {
+    public GMeansClust() {
         VERSION = "0.1";
-        AUTHOR = "Andrew McNutt";
+        AUTHOR = "Seth WInfree";
         COMMENT = "Implements the plugin from SMILE";
-        NAME = "X-means Clustering";
-        KEY = "Xmeans";
+        NAME = "G-means Clustering";
+        KEY = "Gmeans";
         TYPE = "Cluster";
     }
 
@@ -72,7 +71,7 @@ public class XMeansClust extends AbstractFeatureProcessing {
      *
      * @param max the number of objects segmented in the volume
      */
-    public XMeansClust(int max) {
+    public GMeansClust(int max) {
         this();
 
         protocol = new ArrayList();
@@ -107,9 +106,9 @@ public class XMeansClust extends AbstractFeatureProcessing {
         JSpinner clust = (JSpinner) al.get(5);
         maxClust = ((Integer) clust.getValue());
 
-        IJ.log(String.format("PROFILING: Clustering using XMeans for a maximum of %d clusters", maxClust));
+        IJ.log(String.format("PROFILING: Clustering using "  + this.NAME + " for a maximum of %d clusters", maxClust));
         long start = System.currentTimeMillis();
-        XMeans xm = new XMeans(feature, maxClust);
+        GMeans xm = new GMeans(feature, maxClust);
         membership = xm.getClusterLabel();
         IJ.log(String.format("PROFILING: Clustering completed in %d s, %d clusters found", (System.currentTimeMillis() - start) / 1000, xm.getNumClusters()));
 

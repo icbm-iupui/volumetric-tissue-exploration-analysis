@@ -77,6 +77,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     public PlotAxesSetup() {
         initComponents();
         setVisible(false);
+        System.out.println("PROFILING, my current postion is: " + this.getLocation());
     }
 
     /**
@@ -207,7 +208,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     }
 
     public void setContent(ArrayList<Component> al) {
-
+        //System.out.println("PROFILING, my current postion is: " + this.getLocation());
         //Content = new JPanel();       
         Content.setSize(new Dimension(350, 350));
         Content.setLayout(new GridBagLayout());
@@ -307,7 +308,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             Content.add((Component) al.get(9), layoutConstraints);
         }
 
-
+        
         Content.setVisible(true);
 
         pack();
@@ -393,7 +394,6 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     public void notifyAxesChangeListeners(ArrayList content, ArrayList LUT) {
         for (AxesChangeListener listener : AxesChangeListeners) {
             listener.onAxesSetting(content, LUT);
-            //System.out.println("PROFILING: notifyAxesChangeListeners");
         }
     }
 
