@@ -663,9 +663,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 ArrayList<ArrayList> resultKey
                         = H2DatabaseEngine.getObjectsInRange2D(path,
                                 vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
-                                this.descriptions.get(xAxis), path.getBounds2D().getX(),
+                                gate.getXAxis(), path.getBounds2D().getX(),
                                 path.getBounds2D().getX() + path.getBounds2D().getWidth(),
-                                this.descriptions.get(yAxis), path.getBounds2D().getY(),
+                                gate.getYAxis(), path.getBounds2D().getY(),
                                 path.getBounds2D().getY() + path.getBounds2D().getHeight());
 
                 ListIterator<ArrayList> itr = resultKey.listIterator();
