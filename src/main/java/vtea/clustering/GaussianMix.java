@@ -39,6 +39,7 @@ import smile.stat.distribution.MultivariateGaussianMixture;
 import smile.stat.distribution.MultivariateMixture;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
+import smile.clustering.KMeans;
 
 /**
  * Gaussian Mixture Model Clustering. Clusters the data assuming the data is a
@@ -262,27 +263,28 @@ public class GaussianMix extends AbstractFeatureProcessing {
 
     private int[] getRandom(double[][] data, int n_clust, int seed) {
         int[] list = new int[n_clust];
-        int l = 0;
 
         int n = data.length;
         int d = data[0].length;
-
+        double [][] centroids = new double[n_clust][d];
         Random randGen = new Random(seed);
-        int val = randGen.nextInt(n);
-        double[] centroid = data[val];
-        list[l] = val;
-        l++;
+        for (int l = 0; l < n_clust; l++){
+            int val = randGen.nextInt(n);
+            centroids[l] = data[val];
+            list[l] = val;
+        }
         double[] D = new double[n];
         for (int i = 0; i < n; i++) {
             D[i] = Double.MAX_VALUE;
         }
 
-        for (int i = 1; i < n_clust; i++) {
+        //Loop over the cluster centers
+        for (int i = 0; i < n_clust; i++) {
             // Loop over the samples and compare them to the most recent center.  Store
             // the distance from each sample to its closest center in scores.
             for (int j = 0; j < n; j++) {
                 // compute the distance between this sample and the current center
-                double dist = Math.squaredDistance(data[j], centroid);
+                double dist = Math.squaredDistance(data[j], centroids[i]);
                 if (dist < D[j]) {
                     D[j] = dist;
                 }
@@ -298,8 +300,8 @@ public class GaussianMix extends AbstractFeatureProcessing {
                 }
             }
 
-            centroid = data[index];
-            list[l] = index;
+            centroids[i] = data[index];
+            list[i] = index;
         }
 
         return list;
