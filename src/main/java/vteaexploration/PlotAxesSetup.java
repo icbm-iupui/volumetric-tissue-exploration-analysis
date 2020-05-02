@@ -77,7 +77,6 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     public PlotAxesSetup() {
         initComponents();
         setVisible(false);
-        System.out.println("PROFILING, my current postion is: " + this.getLocation());
     }
 
     /**
@@ -493,7 +492,9 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             } catch (NullPointerException e) {
             }
         }
+        //System.out.println("PROFILING: The low value is: " + low);
         return low.longValue();
+        //return low.doubleValue();
     }
     
     public void shareConnection(Connection connection, String keySQLSafe, HashMap<Integer, String> hm){

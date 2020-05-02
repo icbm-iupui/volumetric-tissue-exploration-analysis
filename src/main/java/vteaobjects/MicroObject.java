@@ -474,10 +474,45 @@ public class MicroObject implements Serializable, MicroObjectModel {
     public void setThreshold(double threshold) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
 
     @Override
     public Rectangle getBoundingRectangle() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+    int x_max = 0;
+    for (int i = 0; i < x.length; i++) {
+        if (x[i] > x_max) {
+            x_max = x[i];
+        }
+    }
+    int y_max = 0;
+    for (int i = 0; i < y.length; i++) {
+        if (y[i] > y_max) {
+            y_max = y[i];
+        }
+    }
+    
+    int x_min = x_max;
+    for (int i = 0; i < x.length; i++) {
+        if (x[i] < x_min) {
+            x_min = x[i];
+        }
+    }
+    int y_min = y_max;
+    for (int i = 0; i < y.length; i++) {
+        if (y[i] < y_min) {
+            y_min = y[i];
+        }
+    }
+    
+    int width = x_max-x_min;
+    int height = y_max-y_min;
+    
+    int xStart = (int)this.getCentroidX()-(width/2);
+    int yStart = (int)this.getCentroidY()-(height/2);
+    
+    return new Rectangle(xStart,yStart,width,height);
+  
     }
 
 }

@@ -65,26 +65,26 @@ public class VTEA_LUT extends AbstractLUT {
         new Color(255, 0, 0, TRANSPARENCY), 
         new Color(0, 255, 0, TRANSPARENCY), 
         new Color(0, 0, 255, TRANSPARENCY),
-        new Color(255, 255, 0, TRANSPARENCY), 
+        //new Color(255, 255, 0, TRANSPARENCY), 
         new Color(255, 153, 51, TRANSPARENCY),
         new Color(153, 255, 51, TRANSPARENCY), 
         new Color(51, 255, 153, TRANSPARENCY),
         new Color(51, 255, 255, TRANSPARENCY), 
         new Color(102, 178, 255, TRANSPARENCY),
-        new Color(102, 102, 255, TRANSPARENCY), 
+        //new Color(102, 102, 255, TRANSPARENCY), 
         new Color(178, 102, 255, TRANSPARENCY),
         new Color(255, 102, 255, TRANSPARENCY), 
         new Color(255, 102, 178, TRANSPARENCY),
         new Color((int)(255*0.5), (int)(0*0.5), (int)(0*0.5), TRANSPARENCY), 
         new Color((int)(0*0.5), (int)(255*0.5), (int)(0*0.5), TRANSPARENCY), 
         new Color((int)(0*0.5), (int)(0*0.5), (int)(255*0.5), TRANSPARENCY),
-        new Color((int)(255*0.5), (int)(255*0.5), (int)(0*0.5), TRANSPARENCY), 
+        //new Color((int)(255*0.5), (int)(255*0.5), (int)(0*0.5), TRANSPARENCY), 
         new Color((int)(255*0.5), (int)(153*0.5), (int)(51*0.5), TRANSPARENCY),
         new Color((int)(153*0.5), (int)(255*0.5), (int)(51*0.5), TRANSPARENCY), 
         new Color((int)(51*0.5), (int)(255*0.5), (int)(153*0.5), TRANSPARENCY),
         new Color((int)(51*0.5), (int)(255*0.5), (int)(255*0.5), TRANSPARENCY), 
         new Color((int)(102*0.5), (int)(178*0.5), (int)(255*0.5), TRANSPARENCY),
-        new Color((int)(102*0.5), (int)(102*0.5), (int)(255*0.5), TRANSPARENCY), 
+        //new Color((int)(102*0.5), (int)(102*0.5), (int)(255*0.5), TRANSPARENCY), 
         new Color((int)(178*0.5), (int)(102*0.5), (int)(255*0.5), TRANSPARENCY),
         new Color((int)(255*0.5), (int)(102*0.5), (int)(255*0.5), TRANSPARENCY), 
         new Color((int)(255*0.5), (int)(102*0.5), (int)(178*0.5), TRANSPARENCY),
@@ -95,6 +95,9 @@ public class VTEA_LUT extends AbstractLUT {
      public LookupPaintScale getPaintScale(double min, double max){
          
          ps = new LookupPaintScale(min, max+1, new Color(0x999999));
+         
+         ps.add(-2, new Color(210, 210, 210, 60));
+         ps.add(-1, new Color(210, 210, 210, 60));
          
          for(int i = 0; i < colorsRGB.length; i++){      
             ps.add(i, colorsRGB[i]);      

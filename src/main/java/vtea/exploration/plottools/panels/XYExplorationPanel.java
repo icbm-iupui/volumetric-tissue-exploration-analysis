@@ -100,6 +100,7 @@ import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.colorUpdateListener;
 import vtea.exploration.listeners.remapOverlayListener;
 import vtea.exploration.plotgatetools.gates.GateLayer;
+import vtea.exploration.listeners.ManualClassListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
@@ -109,6 +110,7 @@ import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
+import vtea.exploration.plottools.panels.ManualClassification.ClassificationListener;
 import vtea.jdbc.H2DatabaseEngine;
 import vtea.lut.AbstractLUT;
 import vtea.spatial.densityMap3d;
@@ -127,9 +129,10 @@ import vtea.lut.Black;
 public class XYExplorationPanel extends AbstractExplorationPanel implements
         DensityMapListener, DistanceMapListener, WindowListener, RoiListener,
         PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener,
-        ImageHighlightSelectionListener, ChangePlotAxesListener,
+        ImageHighlightSelectionListener, ChangePlotAxesListener, AddFeaturesListener,
         UpdatePlotWindowListener, AddGateListener, DeleteGateListener, SaveGatedImagesListener,
-        SubGateListener, PlotAxesPreviewButtonListener, ImageListener, NameUpdateListener, colorUpdateListener, remapOverlayListener {
+        SubGateListener, PlotAxesPreviewButtonListener, ImageListener, NameUpdateListener, 
+        colorUpdateListener, remapOverlayListener, ManualClassListener {
 
     static String printResult = "";
 
@@ -142,7 +145,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     int gated = 0;
     String key = "";
     String keySQLSafe = "";
-
+    boolean updateimage = true;
     private Connection connection;
 
     PlotAxesManager AxesManager;
@@ -181,6 +184,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         densityMaps3D = new densityMap3d();
         
         AxesManager = new PlotAxesManager(key, connection, title, hm);
+        
 
         //set current LUT to LUTDefault.class
         String lText = "";
@@ -228,6 +232,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addImageHighLightSelectionListener(this);
         gl.addDistanceMapListener(this);
         gl.addDensityMapListener(this);
+        gl.addClassificationListener(this);
 
     }
 
@@ -463,6 +468,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     public void makeOverlayImageAndCalculate(ArrayList<PolygonGate> gates, int x, int y,
             int xAxis, int yAxis) {
 
+        this.updateimage = false;
+        
         //System.out.println("PROFILING: Mapping cells...");
         if (!gm.isVisible()) {
             gm.setVisible(true);
@@ -520,6 +527,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                     path.getBounds2D().getY() + path.getBounds2D().getHeight());
 
                     ListIterator<ArrayList> itr = resultKey.listIterator();
+                    
+                   // System.out.println("PROFILING: Returned object count: " + resultKey.size());
 
                     while (itr.hasNext()) {
                         ArrayList al = itr.next();
@@ -630,6 +639,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             }
             gm.setMeasurementsText("No gate selected...");
         }
+        this.updateimage = true;
     }
 
     public void makeOverlayVolume(ArrayList<PolygonGate> gates, int x, int y,
@@ -958,6 +968,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addImageHighLightSelectionListener(this);
         gl.addDistanceMapListener(this);
         gl.addDensityMapListener(this);
+        gl.addClassificationListener(this);
+
         gl.msActive = false;
 
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates, hm.get(currentX), hm.get(currentY));
@@ -1267,6 +1279,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addImageHighLightSelectionListener(this);
         gl.addDistanceMapListener(this);
         gl.addDensityMapListener(this);
+        gl.addClassificationListener(this);
+
 
         gl.msActive = false;
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates, hm.get(currentX), hm.get(currentY));
@@ -2132,7 +2146,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     public void notifyAxesSetupExplorerPlotUpdateListener(int x, int y, int l, int pointsize) {
         for (AxesSetupExplorerPlotUpdateListener listener : axesSetupExplorerUpdateListeners) {
             listener.axesSetupExplorerPlotUpdate(x, y, l, pointsize);
-            System.out.println("PROFILING: notifyPlotAxesPreviewBtnListeners");
+            //System.out.println("PROFILING: notifyPlotAxesPreviewBtnListeners");
         }
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -2185,15 +2199,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void imageUpdated(ImagePlus ip) {
-        if (ip.getID() == impoverlay.getID()) {
-            makeGateOverlayImage();
-            //makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
+        if (ip.getID() == impoverlay.getID() && updateimage) {
+            makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
         }
     }
 
     @Override
     public void onUpdateName(String st, int row) {
-        //System.out.println("PROFILING:  Name updated, " + st + " for row: " + row);
         gl.updateGateName(st, row);
     }
 
@@ -2209,12 +2221,25 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
     }
 
+    @Override
+    public void startManualClassListener() {
+       ManualClassification mc = 
+               new ManualClassification(impoverlay, objects, measurements, key);   
+       mc.addFeatureListener(this);
+       mc.process();
+    }
+
+    @Override
+    public void addFeatures(String name, ArrayList<ArrayList<Number>> al) {
+        this.notifyAddFeatureListener(name, al);
+    }
+
     class ExportGates {
 
         public ExportGates() {
         }
 
-        public void export(ArrayList<PolygonGate> al) {
+        public void export(ArrayList<PolygonGate> al) { 
             File file;
             int returnVal = JFileChooser.CANCEL_OPTION;
             int choice = JOptionPane.OK_OPTION;

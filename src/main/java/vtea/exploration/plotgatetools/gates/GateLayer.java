@@ -17,6 +17,7 @@
  */
 package vtea.exploration.plotgatetools.gates;
 
+import vtea.exploration.listeners.ManualClassListener;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -90,6 +91,7 @@ public class GateLayer implements ActionListener, ItemListener {
     private ArrayList<AddGateListener> addgatelisteners = new ArrayList<AddGateListener>();
     private ArrayList<DeleteGateListener> deletegatelisteners = new ArrayList<DeleteGateListener>();
     private ArrayList<SaveGatedImagesListener> saveImageListeners = new ArrayList<SaveGatedImagesListener>();
+    private ArrayList<ManualClassListener> manualClassListeners = new ArrayList<ManualClassListener>();
     private ArrayList<SubGateListener> subGateListeners = new ArrayList<SubGateListener>();
     private ArrayList<DistanceMapListener> distanceMapListeners = new ArrayList<>();
     private ArrayList<DensityMapListener> densityMapListeners = new ArrayList<>();
@@ -522,7 +524,11 @@ public class GateLayer implements ActionListener, ItemListener {
         ListIterator<PolygonGate> itr = gates.listIterator();
         PolygonGate gate;
         Point p = new Point(e.getX(), e.getY());
+        
+        //System.out.println("PROFILING:  gate count: " + gates.size());
+        
         while (itr.hasNext()) {
+            
             gate = itr.next();
             if (!(e.getModifiersEx() == MouseEvent.SHIFT_DOWN_MASK)) {
                 gate.setSelected(false);
@@ -531,12 +537,13 @@ public class GateLayer implements ActionListener, ItemListener {
             if (gate.getPath2D().contains(p) && (gate.getXAxis().equals(xAxis)
                     && gate.getYAxis().equals(yAxis))) {
                 gate.setSelected(true);
-                this.notifyImageHighLightSelectionListeners(gates);
                 e.consume();
+                this.notifyImageHighLightSelectionListeners(gates);
+               
             }
         }
         e.consume();
-        //System.out.println("PROFILING: GateLayer CheckForGateS.");
+       // System.out.println("PROFILING: GateLayer CheckForGates.");
 
     }
 
@@ -664,27 +671,24 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem = new JMenuItem("Make Ground Truth...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
+        
+        menuItem = new JMenuItem("Manual Classification...");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
 
-        //NucleiImageOutput_v2
-        // menuItem = new JMenuItem("Run CNN test");
-        //menuItem.addActionListener(this);
-        //menu.add(menuItem);
         menu.add(new JSeparator());
 
         menuItem = new JMenuItem("Subgate Selection...");
-
         menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menu.add(new JSeparator());
 
         menuItem = new JMenuItem("Add Distance Map...");
-
         menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menuItem = new JMenuItem("Add Density Map...");
-
         menuItem.addActionListener(this);
         menu.add(menuItem);
 
@@ -748,8 +752,11 @@ public class GateLayer implements ActionListener, ItemListener {
             if (path != null) {
                 notifyImageListeners(path);
             }
-
-        } else if (e.getActionCommand().equals("Subgate Selection...")) {
+        }else if (e.getActionCommand().equals("Manual Classification...")) {
+          
+            notifyClassificationListener();
+            
+        }else if (e.getActionCommand().equals("Subgate Selection...")) {
             //Used to subgate to a new MicroExplorer
 
             ListIterator<PolygonGate> gt = gates.listIterator();
@@ -872,11 +879,29 @@ public class GateLayer implements ActionListener, ItemListener {
             listener.saveGated(path);
         }
     }
-//<<<<<<< NucleiImageOutput_v2
-//    private void notifyImageListenersCNN(Path2D path){
-//        for (SaveGatedImagesListener listener : saveImageListeners) {
-//            listener.saveGatedCNN(path);
-//=======
+ /**
+     * 
+     *
+     * @param listener the listener to add to the ArrayList ManualClassListener
+     */
+    public void addClassificationListener(ManualClassListener listener) {
+        manualClassListeners.add(listener);
+        //System.out.println("PROFILING: Manual Classifcation Listener Added: " + listener.getClass());
+    }
+
+    /**
+     * 
+     *
+     * 
+     */
+    private void notifyClassificationListener() {
+        
+        System.out.println("PROFILING: Notifying Manual Classifcation Listeners Total: " + manualClassListeners.size());
+        for (ManualClassListener listener : manualClassListeners) {
+            
+            listener.startManualClassListener();
+        }
+    }
 
     /**
      * Adds a SaveGatedImagesListener

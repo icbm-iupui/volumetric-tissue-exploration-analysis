@@ -291,6 +291,8 @@ public class XYChartPanel implements RoiListener {
 
         xAxis.setAutoRangeIncludesZero(false);
         yAxis.setAutoRangeIncludesZero(false);
+        
+        
 
         XYPlot plot = new XYPlot(createXYZDataset(H2DatabaseEngine.getColumns3D(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, xText, yText, lText),
                 xText, yText, lText, l), xAxis, yAxis, renderer);
