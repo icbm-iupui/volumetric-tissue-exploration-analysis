@@ -145,7 +145,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     JLabel yLabel;
     JLabel lLabel;
 
-    GatePercentages ResultsWindow;
+    TableWindow ResultsWindow;
 
     double[][] ObjectIDs;
 
@@ -1170,6 +1170,29 @@ public class MicroExplorer extends javax.swing.JFrame implements
             }
         }).start();
 
+    }
+    
+    public ArrayList<ArrayList<String>> getFeatureDescriptions(){
+                        ArrayList<String> newDescriptions = new ArrayList<String>();
+                ArrayList<String> newDescriptionsLabels = new ArrayList<String>();
+                
+                ArrayList<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
+
+                ListIterator<String> itr = descriptions.listIterator();
+                while (itr.hasNext()) {
+                    String str = itr.next().toString();
+                    newDescriptions.add(str);
+                }
+
+                ListIterator<String> itr1 = descriptionsLabels.listIterator();
+                while (itr1.hasNext()) {
+                    String str1 = itr1.next().toString();
+                    newDescriptionsLabels.add(str1);
+                }
+                result.add(newDescriptions);
+                result.add(newDescriptionsLabels);
+                
+                return result;
     }
 
     private void setPanels(List plotvalues, ExplorationCenter ec, PlotAxesPanels pap) {

@@ -28,7 +28,7 @@ import vteaobjects.MicroObject;
 
 /**
  *
- * @author Seth
+ * @author Seth Winfree
  */
 public class distanceMaps2d {
 

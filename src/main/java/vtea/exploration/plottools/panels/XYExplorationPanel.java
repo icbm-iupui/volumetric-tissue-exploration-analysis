@@ -33,6 +33,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
@@ -65,9 +68,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.showOptionDialog;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import org.apache.commons.io.FilenameUtils;
+import org.jblas.util.Random;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.LogAxis;
@@ -76,6 +82,8 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 
 import org.jfree.chart.renderer.LookupPaintScale;
+import smile.neighbor.KDTree;
+import smile.neighbor.Neighbor;
 import vtea.ExportCSV;
 
 import vtea._vtea;
@@ -101,21 +109,24 @@ import vtea.exploration.listeners.colorUpdateListener;
 import vtea.exploration.listeners.remapOverlayListener;
 import vtea.exploration.plotgatetools.gates.GateLayer;
 import vtea.exploration.listeners.ManualClassListener;
+import vtea.exploration.listeners.NeighborhoodListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
 import vtea.exploration.plotgatetools.listeners.DeleteGateListener;
+import vtea.exploration.plotgatetools.listeners.GateColorListener;
 import vtea.exploration.plotgatetools.listeners.ImageHighlightSelectionListener;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vtea.exploration.plottools.panels.ManualClassification.ClassificationListener;
+import vtea.gui.ComboboxToolTipRenderer;
 import vtea.jdbc.H2DatabaseEngine;
 import vtea.lut.AbstractLUT;
 import vtea.spatial.densityMap3d;
 import vtea.spatial.distanceMaps2d;
-import vteaexploration.GatePercentages;
+import vteaexploration.TableWindow;
 import vteaexploration.MicroExplorer;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
@@ -127,17 +138,17 @@ import vtea.lut.Black;
  * @author vinfrais
  */
 public class XYExplorationPanel extends AbstractExplorationPanel implements
-        DensityMapListener, DistanceMapListener, WindowListener, RoiListener,
+        NeighborhoodListener, DensityMapListener, DistanceMapListener, WindowListener, RoiListener,
         PlotUpdateListener, PolygonSelectionListener, QuadrantSelectionListener,
         ImageHighlightSelectionListener, ChangePlotAxesListener, AddFeaturesListener,
-        UpdatePlotWindowListener, AddGateListener, DeleteGateListener, SaveGatedImagesListener,
+        UpdatePlotWindowListener, AddGateListener, DeleteGateListener, GateColorListener, SaveGatedImagesListener,
         SubGateListener, PlotAxesPreviewButtonListener, ImageListener, NameUpdateListener, 
         colorUpdateListener, remapOverlayListener, ManualClassListener {
 
     static String printResult = "";
 
     XYChartPanel cpd;
-    GatePercentages gm = new GatePercentages();
+    TableWindow gm = new TableWindow();
     private boolean useGlobal = false;
     private boolean useCustomX = false;
     private boolean useCustomY = false;
@@ -229,9 +240,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addPolygonSelectionListener(this);
         gl.addPasteGateListener(this);
         gl.addDeleteGateListener(this);
+        gl.addGateColorListener(this);
         gl.addImageHighLightSelectionListener(this);
         gl.addDistanceMapListener(this);
         gl.addDensityMapListener(this);
+        gl.addNeighborhoodListener(this);
         gl.addClassificationListener(this);
 
     }
@@ -630,8 +643,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 }
                 impoverlay.show();
                 gm.setMeasurementsText(printResult);
-                gm.updateTable(gates);
-                System.gc();
+                //gm.updateTable(gates);
+//                if(gates.size() > 0){
+//                gm.updateGateSelection(gates);
+//                } else {
+                    gm.updateTable(gates);
+//                }
+                //System.gc();
             }
         } else {
             if (impoverlay.getOverlay() != null) {
@@ -965,9 +983,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addPolygonSelectionListener(this);
         gl.addPasteGateListener(this);
         gl.addDeleteGateListener(this);
+        gl.addGateColorListener(this);
         gl.addImageHighLightSelectionListener(this);
         gl.addDistanceMapListener(this);
         gl.addDensityMapListener(this);
+        gl.addNeighborhoodListener(this);
         gl.addClassificationListener(this);
 
         gl.msActive = false;
@@ -1276,9 +1296,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addPolygonSelectionListener(this);
         gl.addPasteGateListener(this);
         gl.addDeleteGateListener(this);
+        gl.addGateColorListener(this);
         gl.addImageHighLightSelectionListener(this);
         gl.addDistanceMapListener(this);
         gl.addDensityMapListener(this);
+        gl.addNeighborhoodListener(this);
         gl.addClassificationListener(this);
 
 
@@ -1403,7 +1425,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void onPasteGate(ArrayList<PolygonGate> gt) {
         gates = gt;
-        gm.updateTable(gates);
+        //gm.updateTable(gates);
+        gm.addGateToTable(gates.get(gates.size()-1));
         gm.pack();
         gm.repaint();
         makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
@@ -1796,7 +1819,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 description.add(this.descriptions.get(currentY));
                 description.add(this.descriptions.get(currentL));
 
-                System.out.println("PROFILING: Measurements length, " + measurements.size());
+                //System.out.println("PROFILING: Measurements length, " + measurements.size());
 
                 //this is where we need to add logic for polygons...  this is tripping up things
                 ArrayList<ArrayList> resultKey
@@ -1881,8 +1904,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                             objectsFinal.add(object);
 
                             measurementsFinal.add(measurementsGated.get(i));
-
-                            //System.out.println("Added...");
                             position++;
                         }
 
@@ -2091,13 +2112,232 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         measurementsFinal = densityMaps3D.getDistance(objects, map);
 
-        System.out.println("PROFILING: number of features from density map: "
-                + measurementsFinal.size());
-        System.out.println("PROFILING: objects to add new features to: "
-                + measurementsFinal.get(0).size());
+        //System.out.println("PROFILING: number of features from density map: "
+        //        + measurementsFinal.size());
+        //System.out.println("PROFILING: objects to add new features to: "
+        //        + measurementsFinal.get(0).size());
 
         this.notifyAddFeatureListener(s, measurementsFinal);
     }
+    
+    @Override
+    public void addNeighborhoodFromGate(String name) {
+
+        NeighborhoodSettingsDialog settingsDialog = new NeighborhoodSettingsDialog();
+
+        if (settingsDialog.showDialog()) {
+
+            ArrayList<String> settings = settingsDialog.getSettings();
+
+            String feature = settings.get(0);
+            String method = settings.get(1);
+            String radius = settings.get(2);
+            String kNeighbors = settings.get(3);
+            String interval = settings.get(4);
+
+            ArrayList<ArrayList> al = cloneGatedObjectsMeasurements();
+            ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
+            ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
+            objectsTemp = al.get(0);
+            measurementsFinal = al.get(1);
+
+            ListIterator itrName = objectsTemp.listIterator();
+
+            double[][] key = new double[objectsTemp.size()][1];
+
+            double[][] data = new double[objectsTemp.size()][3];
+
+            int i = 0;
+
+            while (itrName.hasNext()) {
+                MicroObject obj = (MicroObject) itrName.next();
+                double[] k = new double[1];
+                k[0] = obj.getSerialID();
+                key[i] = k;
+
+                double[] d = new double[3];
+                d[0] = obj.getCentroidX();
+                d[1] = obj.getCentroidY();
+                d[2] = obj.getCentroidZ();
+
+                data[i] = d;
+                i++;
+            }
+
+            KDTree tree = new KDTree(data, key);
+
+            //int randomKey = Math.abs(Random.nextInt(objectsTemp.size()-1));
+            ArrayList<ArrayList<Neighbor>> neighborhoods = new ArrayList<ArrayList<Neighbor>>();
+
+            if (method.equals("Nearest-k")) {
+
+                for (int objectKey = 0; objectKey < objectsTemp.size(); objectKey++) {
+
+                    Neighbor n = tree.nearest(data[objectKey]);
+
+                    double[] d = data[objectKey];
+                    double[] k = (double[]) n.value;
+
+                    Neighbor[] neighborsArray = tree.knn(data[objectKey], Integer.parseInt(kNeighbors));
+
+                    ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
+                    for (int j = 0; j < neighborsArray.length; j++) {
+                        neighbors.add(neighborsArray[j]);
+                    }
+                    neighborhoods.add(neighbors);
+
+                    System.out.println("Query object : " + key[objectKey][0] + ", " + neighbors.size() + " objects.");
+                }
+            } else if (method.equals("Spatial by cell")) {
+
+                for (int objectKey = 0; objectKey < objectsTemp.size(); objectKey++) {
+
+                    Neighbor n = tree.nearest(data[objectKey]);
+
+                    double[] d = data[objectKey];
+                    double[] k = (double[]) n.value;
+
+                    ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
+                    tree.range(data[objectKey], Double.parseDouble(radius), neighbors);
+                    neighborhoods.add(neighbors);
+
+                    System.out.println("Query object : " + key[objectKey][0] + ", " + neighbors.size() + " objects within " + radius + " px");
+                }
+
+            } else { //stpatial by point
+                
+                
+
+                int width = impoverlay.getWidth();
+                int height = impoverlay.getHeight();
+                int depth = impoverlay.getNSlices();
+
+                int intervalInt = Integer.parseInt(interval);
+                //add pseudo points based on spacing.
+                int x;
+                int y;
+                int z;
+
+                int[] xPos = new int[1];
+                int[] yPos = new int[1];
+                int[] zPos = new int[1];
+
+                if (width > 2*intervalInt) {
+                    x = Math.round(width / intervalInt);
+                    xPos = new int[x - 1];
+                    xPos[0] = intervalInt;
+                    for (int k = 1; k < xPos.length; k++) {
+                        xPos[k] = xPos[k - 1] + intervalInt;
+                    }
+                } else {
+                    xPos = new int[1];
+                    xPos[0] = Math.round(width / 2);
+                }
+                if (height > 2*intervalInt) {
+                    y = Math.round(height / intervalInt);
+                    yPos = new int[y - 1];
+                    yPos[0] = intervalInt;
+                    for (int k = 1; k < yPos.length; k++) {
+                        yPos[k] = yPos[k - 1] + intervalInt;
+                    }
+                } else {
+                    yPos = new int[1];
+                    yPos[0] = Math.round(height / 2);
+                }
+                if (depth > 2*intervalInt) {
+                    z = Math.round(depth / intervalInt);
+                    zPos = new int[z - 1];
+                    zPos[0] = intervalInt;
+                    for (int k = 1; k < zPos.length; k++) {
+                        zPos[k] = zPos[k - 1] + intervalInt;
+                    }
+                } else {
+                    zPos = new int[1];
+                    zPos[0] = Math.round(depth / 2);
+                }
+
+                double[][] dataReference = new double[xPos.length * yPos.length * zPos.length + data.length][3];
+                key = new double[xPos.length * yPos.length * zPos.length + data.length][1];
+                
+                
+                int c = 0;
+                int referenceKey = objects.size()+1;
+                
+                
+                ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black", impoverlay.getWidth(), impoverlay.getHeight(), impoverlay.getNSlices());
+                ImageStack resultStack = resultImage.getStack();
+       
+                
+                
+                System.out.println("PROFILING: adding : " + xPos.length * yPos.length * zPos.length + " reference points.");
+
+                for (int l = 0; l < xPos.length; l++) {
+                    for (int m = 0; m < yPos.length; m++) {
+                        for (int n = 0; n < zPos.length; n++) {
+                            double[] d = new double[3];
+                            d[0] = xPos[l];
+                            d[1] = yPos[m];
+                            d[2] = zPos[n];
+
+                            resultStack.drawSphere(5, (int)d[0], (int)d[1], (int)d[2]);
+
+                            dataReference[c] = d;
+                            double[] k = new double[1];
+                            k[0] = referenceKey;
+                            key[c] = k;
+                            referenceKey++;
+                            c++;
+                        }
+                    }
+                }
+                
+                resultImage.show();
+                
+                double maxKey = 0;
+
+                while (itrName.hasNext()) {
+                    MicroObject obj = (MicroObject) itrName.next();
+                    double[] k = new double[1];
+                    k[0] = obj.getSerialID();
+                    key[c] = k;
+                    
+                    if(k[0] > maxKey){maxKey = k[0];}
+
+                    double[] d = new double[3];
+                    d[0] = obj.getCentroidX();
+                    d[1] = obj.getCentroidY();
+                    d[2] = obj.getCentroidZ();
+
+                    dataReference[c] = d;
+                    c++;
+                }
+                
+                System.out.println("PROFILING: key: " + key.length + " data length: " + dataReference.length);
+                
+               //key needs to be same length,  set a non
+                tree = new KDTree(dataReference, key);
+                
+                int refLength = xPos.length * yPos.length * zPos.length;
+                
+                for (int objectKey = 0; objectKey < refLength; objectKey++) {
+
+                    Neighbor n = tree.nearest(dataReference[objectKey]);
+
+                    double[] d = dataReference[objectKey];
+                    double[] k = (double[]) n.value;
+
+                    ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
+                    tree.range(dataReference[objectKey], Double.parseDouble(radius), neighbors);
+                    neighborhoods.add(neighbors);
+
+                    System.out.println("Query position : " + objectKey + ", " + neighbors.size() + " objects within " + radius + " px");
+                }
+                
+            }
+        }
+        }
+
+
 
     @Override
     public void addDistanceMapFromGate(String s) {
@@ -2115,10 +2355,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         measurementsFinal = distanceMaps2D.getDistance(objects, map);
 
-        System.out.println("PROFILING: number of features: "
-                + measurementsFinal.size());
-        System.out.println("PROFILING: objects to add new features to: "
-                + measurementsFinal.get(0).size());
+//        System.out.println("PROFILING: number of features: "
+//                + measurementsFinal.size());
+//        System.out.println("PROFILING: objects to add new features to: "
+//                + measurementsFinal.get(0).size());
 
         this.notifyAddFeatureListener(s, measurementsFinal);
     }
@@ -2211,8 +2451,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void onColorUpdate(Color color, int row) {
-        gl.updateGateColor(color, row);
-        makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
+//        gl
+//        makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
     }
 
     @Override
@@ -2233,6 +2473,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     public void addFeatures(String name, ArrayList<ArrayList<Number>> al) {
         this.notifyAddFeatureListener(name, al);
     }
+
+    @Override
+    public void onGateColor(ArrayList<PolygonGate> gt) {
+          gates = gt;
+        gm.updateTable(gates);
+        gm.pack();
+        gm.repaint();
+    }
+
+ 
 
     class ExportGates {
 
@@ -2284,6 +2534,170 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             }
         }
 
+    }
+    
+    class NeighborhoodSettingsDialog extends JOptionPane {
+
+        ArrayList<String> settings = new ArrayList<String>();
+
+
+        JComboBox classification = new JComboBox(descriptions.toArray());
+   
+        
+        String[] methods = {"Spatial by cell", "Spatial by position", "Nearest-k"};
+        
+        String[] methodsDetail = {"Uses a spatial kernel with a \n fixed radius centered on a cell", "Uses a spatial kernel with a fixed radius.",
+            "Selects the k-nearest neighbors."};
+        
+        JComboBox method = new JComboBox(methods);
+        
+        JLabel radiusLabel = new JLabel("Radius");
+        JTextField radius = new JTextField("30", 5);
+        JLabel kNeighborsLabel = new JLabel("Neighbors");
+        JTextField kNeighbors = new JTextField("10", 5);
+        JLabel intervalLabel = new JLabel("Interval");
+        JTextField interval = new JTextField(radius.getText(), 5);
+        
+      
+        JPanel menu = new JPanel();
+        JPanel submenu = new JPanel();
+
+        boolean result = false;
+
+        public NeighborhoodSettingsDialog() {
+
+            super();
+            
+            
+            
+            ArrayList<String> tips = new ArrayList<String>();
+            
+            tips.add(methodsDetail[0]);
+            tips.add(methodsDetail[1]);
+            tips.add(methodsDetail[2]);
+            
+            ComboboxToolTipRenderer renderer = new ComboboxToolTipRenderer();
+            renderer.setTooltips(tips);
+
+            classification.setSelectedIndex(descriptions.size()-1);
+            method.setRenderer(renderer);
+            
+            method.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ProcessSelectComboBoxActionPerformed(evt);
+            }
+        });
+
+            menu.setLayout(new GridBagLayout());
+
+            GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(new JLabel("Base classifcation on:"), gbc);
+            gbc = new GridBagConstraints(1, 0, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(classification, gbc);
+
+            gbc = new GridBagConstraints(0, 1, 1, 1, 0.2, 1.0,
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(new JLabel("CAUTION: Use a discrete feature."), gbc);
+            gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(method, gbc);
+            gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(submenu, gbc);
+            
+            method.setSelectedIndex(0);
+            
+
+
+        }
+        
+        private void ProcessSelectComboBoxActionPerformed(java.awt.event.ActionEvent evt){
+           
+        submenu.setVisible(false);
+        submenu.removeAll();
+
+        submenu.setLayout(new GridBagLayout());
+        
+            String methodString = (String) method.getSelectedItem();
+
+            if (methodString.equals("Spatial by cell")) {
+
+                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+
+                gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(radiusLabel);
+                gbc = new GridBagConstraints(1, 0, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(radius, gbc);
+
+
+            } else if (methodString.equals("Spatial by position")) {
+                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+
+                gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(radiusLabel);
+                gbc = new GridBagConstraints(1, 0, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(radius, gbc);
+                gbc = new GridBagConstraints(0, 1, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(intervalLabel, gbc);
+                gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(interval, gbc);
+            } else {
+                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+
+                gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(kNeighborsLabel, gbc);
+                gbc = new GridBagConstraints(1, 0, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(kNeighbors, gbc);
+
+                gbc = new GridBagConstraints(0, 1, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+
+            }
+
+        submenu.revalidate();
+        submenu.repaint();
+        submenu.setVisible(true);
+
+       
+        }
+
+        public boolean showDialog() {
+            int x = showOptionDialog(null, menu, "Setup Neighborhoods",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+                    null, null);
+
+            if (x == JOptionPane.OK_OPTION) {
+                //System.out.println("PROFILING: radius: " + size.getText() + " and weight:" + weight.getText());
+                result = true;
+                settings.clear();
+                settings.add(descriptions.get(classification.getSelectedIndex()));
+                settings.add(methods[method.getSelectedIndex()]);
+                settings.add(radius.getText());
+                settings.add(kNeighbors.getText());
+                settings.add(interval.getText());
+            } else {
+                return false;
+            }
+            return true;
+        }
+
+        public ArrayList<String> getSettings() {
+
+            return settings;
+        }
     }
 
     class ImportGates {
