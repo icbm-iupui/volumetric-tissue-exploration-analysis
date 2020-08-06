@@ -68,7 +68,7 @@ public class densityMap3d {
         int radius = Integer.parseInt((String) settings.get(0));
         int weight = Integer.parseInt((String) settings.get(1));
 
-        System.out.println("PROFILING: radius: " + radius + " and weight:" + weight);
+        System.out.println("PROFILING: Generating density map, radius: " + radius + " and weight:" + weight);
 
         ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black",
                 imp.getWidth(), imp.getHeight(), imp.getNSlices());

@@ -47,18 +47,20 @@ import vtea.exploration.plotgatetools.gates.PolygonGate;
  *
  * @author vinfrais
  */
-public class GatePercentages extends javax.swing.JFrame implements TableModelListener {
+public class TableWindow extends javax.swing.JFrame implements TableModelListener {
 
     private Object[][] DataTableArray = new Object[4][15];
 
     private ArrayList<NameUpdateListener> nameUpdateListeners = new ArrayList<>();
     private ArrayList<remapOverlayListener> remapOverlayListeners = new ArrayList<>();
     private ArrayList<colorUpdateListener> UpdateColorListeners = new ArrayList<>();
+    
+    private ArrayList<PolygonGate> gateList = new ArrayList();
 
     /**
      * Creates new form gatePercentages
      */
-    public GatePercentages() {
+    public TableWindow() {
         initComponents();
         GateDataTable.getModel().addTableModelListener(this);
 
@@ -269,8 +271,30 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
     }// </editor-fold>//GEN-END:initComponents
 
     private void addMeasurementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMeasurementActionPerformed
-        IJ.log(this.currentMeasure.getText());
-        System.out.println(this.currentMeasure.getText());
+       IJ.log(this.currentMeasure.getText());
+       System.out.println(this.currentMeasure.getText());
+       
+        ListIterator<PolygonGate> itr = gateList.listIterator();
+
+            while (itr.hasNext()) {
+                PolygonGate pg = (PolygonGate) itr.next();
+                if(pg.getSelected()){
+                 System.out.println("Gating results: Name: " + pg.getName() + ", " +
+                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
+                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
+                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects())); 
+                 
+                 IJ.log("Gating results: Name: " + pg.getName() + ", " +
+                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
+                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
+                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects()));
+                }
+            }
+        
+       
+        
+        
+        
     }//GEN-LAST:event_addMeasurementActionPerformed
 
     private void exportGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGatesActionPerformed
@@ -315,15 +339,46 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
         this.currentMeasure.setToolTipText(st);
         this.currentMeasure.setText(st);
     }
+    
+    public void addGateToTable(PolygonGate g){  
+        GateDataTable.getModel().setValueAt(g.getSelected(), gateList.size(), 0);
+        GateDataTable.getModel().setValueAt(g.getColor(), gateList.size(), 1);
+        GateDataTable.getModel().setValueAt(g.getName(), gateList.size(), 2);
+        GateDataTable.getModel().setValueAt(g.getXAxis(), gateList.size(), 3);
+        GateDataTable.getModel().setValueAt(g.getYAxis(),  gateList.size(), 4);
+        GateDataTable.getModel().setValueAt(g.getObjectsInGate(),  gateList.size(), 5);
+        GateDataTable.getModel().setValueAt(g.getTotalObjects(),  gateList.size(), 6);
+        GateDataTable.getModel().setValueAt((float) 100 * ((int) g.getObjectsInGate()) / ((int) g.getTotalObjects()),gateList.size(), 7);
+        pack();
+        repaint();
+    }
+    
+    public void updateGateSelection(ArrayList<PolygonGate> gates){
+        
+        ListIterator<PolygonGate> itr = gates.listIterator();
+        int i = 0;
+         while (itr.hasNext()) {
+             PolygonGate pg = (PolygonGate) itr.next();
+             boolean selected = pg.getSelected();
+             GateDataTable.getModel().setValueAt(selected, i, 0);
+             i++;
+         }
+            pack();
+        repaint();
+        
+    }
+    
+       
 
     public void updateTable(ArrayList<PolygonGate> gates) {
-
+        
+        gateList = gates;
         // System.out.println("PROFILING:  Rebuilding GM with gates: " + gates.size());
-        if (gates.size() > 0) {
+        if (gateList.size() > 0) {
 
-            ListIterator<PolygonGate> itr = gates.listIterator();
+            ListIterator<PolygonGate> itr = gateList.listIterator();
 
-            Object[][] gatesData = new Object[gates.size()][9];
+            Object[][] gatesData = new Object[gateList.size()][9];
             int i = 0;
             while (itr.hasNext()) {
                 Object[] gateData = new Object[9];
@@ -338,7 +393,7 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
                 gateData[5] = pg.getObjectsInGate();
                 gateData[6] = pg.getTotalObjects();
                 if (pg.getTotalObjects() > 0) {
-                    gateData[7] = (float) 100 * ((int) pg.getObjectsInGate() / (int) pg.getTotalObjects());
+                    gateData[7] = (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects());
                 }
 
                 gatesData[i] = gateData;
@@ -492,6 +547,7 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
         if (column == 1) {
             notifyUpdateColorListeners((Color) data, row);
         }
+        
         // System.out.println("DEBUGGING: Gate Percentages, tableChanged" + e.toString());
     }
 
