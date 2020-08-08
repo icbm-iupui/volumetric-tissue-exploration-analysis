@@ -18,6 +18,8 @@
 package vteaobjects;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.ListIterator;
 
 /**
  *
@@ -25,36 +27,100 @@ import java.util.ArrayList;
  */
 public class MicroNeighborhoodObject extends MicroObject {
     
-    int[] classes;
-    int neighborhoodSize;
+    double[] classes;
     ArrayList<MicroObject> objects;
-    double[] centroid;
+    double[] centroids;
+    int neighborhoodSize;
+    
+    String key;
     
     //calculated
     
-    double[][] meanDistances;
+    double[] meanDistances;
     double stDevDistances;
     double rangeDistances;
     
     
     
     
-public MicroNeighborhoodObject(ArrayList<MicroObject> o, double[] c){
+    
+    
+public MicroNeighborhoodObject(ArrayList<MicroObject> o, double[] c, String k){
     
     super();
     //make a combined x, y, z arrays
     //maintain sub arrays per object for reference
     //add the reference key for the dataset from which the objects originated
     //add an arraylist that references the original objectserial IDs
+    key = k;
+    objects = o;
+    centroids = c;
+    
+    neighborhoodSize = objects.size();
     
     
-    
+
 }
-    
+
+public double[] getClasses(){
+    return classes;
+    }
+
+public ArrayList<MicroObject> getObjects(){
+    return objects;
+    }
+
+public double[] getCentroids(){
+    return centroids;
+    }
+
+public int getNeighborhoodSize(){
+    return neighborhoodSize;
+}
+
+
+//method to get outline
+
+//method to get all pixels
+
 
 private void makeCombinedArrays(){
     
+    ListIterator<MicroObject> itrObj = objects.listIterator();
+    
 
+    
+    while(itrObj.hasNext()){
+       
+        MicroObject obj = itrObj.next();       
+        obj.getPixelsX();
+        obj.getPixelsY();
+        obj.getPixelsZ();
+    }
+    
+//    x = new int[xCombined.size()];
+//    y = new int[xCombined.size()];
+//    z = new int[xCombined.size()];
+//   
+//    for(int i = 0; i < xCombined.size(); i++){
+//        x[i] = xCombined.get(i);
+//    }
+    
+}
+
+//public static void arraycopy(Object source, int source_position,   
+//Object destination, int destination_position, int length)  
+
+private int[] concatenateArray(int[] start, int[] end){
+    
+    int length = start.length + end.length;
+    
+    int[] result = new int[length];
+    
+    System.arraycopy(start,0,result,0,start.length);
+    System.arraycopy(end,0,result,start.length,end.length);
+    
+    return result;
 }
 
 private void makeOutline(){

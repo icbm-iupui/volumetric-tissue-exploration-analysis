@@ -21,13 +21,16 @@ import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.ImageCanvas;
 import ij.gui.ImageRoi;
+import ij.gui.ImageWindow;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.gui.TextRoi;
 import ij.plugin.ChannelSplitter;
 import static ij.plugin.RGBStackMerge.mergeChannels;
+import ij.plugin.frame.RoiManager;
 import ij.process.StackConverter;
 import java.awt.Color;
 import java.awt.Component;
@@ -36,6 +39,8 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
@@ -59,7 +64,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -104,6 +112,7 @@ import vtea.exploration.listeners.SubGateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
+import vtea.exploration.listeners.LinkedKeyListener;
 
 import vtea.exploration.listeners.colorUpdateListener;
 import vtea.exploration.listeners.remapOverlayListener;
@@ -148,7 +157,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     static String printResult = "";
 
     XYChartPanel cpd;
-    TableWindow gm = new TableWindow();
+    TableWindow gm; 
     private boolean useGlobal = false;
     private boolean useCustomX = false;
     private boolean useCustomY = false;
@@ -173,6 +182,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         super();
 
+        gm = new TableWindow(title);
         configureListeners();
 
         this.key = key;
@@ -516,8 +526,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             while (gate_itr.hasNext()) {
                 gate = gate_itr.next();
 
-//if (gate.getSelected() && (gate.getXAxis().equals(hm.get(xAxis)) &&
-//                     gate.getYAxis().equals(hm.get(yAxis))))
                 if (gate.getSelected()) {
 
                     Path2D.Double path = gate.createPath2DInChartSpace();
@@ -643,13 +651,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 }
                 impoverlay.show();
                 gm.setMeasurementsText(printResult);
-                //gm.updateTable(gates);
-//                if(gates.size() > 0){
-//                gm.updateGateSelection(gates);
-//                } else {
+
                     gm.updateTable(gates);
-//                }
-                //System.gc();
+
             }
         } else {
             if (impoverlay.getOverlay() != null) {
@@ -1214,11 +1218,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         if (pg.getGateAsPoints().size() == 0) {
 
         }
+        //Need to do something about this
+        
         pg.setXAxis(hm.get(this.currentX));
         pg.setYAxis(hm.get(this.currentY));
         pg.setName("Untitled");
         gates.add(pg);
         notifyResetSelectionListeners();
+        
     }
 
     @Override
@@ -1259,6 +1266,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             ArrayList<ArrayList<Number>> measurements) {
         for (SubGateExplorerListener listener : SubGateListeners) {
             listener.makeSubGateExplorer(objects, measurements);
+        }
+    }
+    
+    @Override
+    public void addLinkedKeyListener(LinkedKeyListener listener) {
+        linkedKeyListeners.add(listener);
+    }
+
+    @Override
+    public void notifyLinkedKeyListener(String linkedKey) {
+        for (LinkedKeyListener listener : linkedKeyListeners) {
+            listener.addLinkedKey(linkedKey);
         }
     }
 
@@ -1693,13 +1712,24 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         ImportGates ig = new ImportGates();
         ArrayList<PolygonGate> al = ig.importGates();
         ListIterator itr = al.listIterator();
-
+        int c = 1;
         while (itr.hasNext()) {
             PolygonGate pg = (PolygonGate) itr.next();
-
-            gl.importGates(pg);
+            if (pg.getGateAsPoints().size() < 3) {
+            } else {
+                System.out.println("Gate " + c + ": " + pg.getGateAsPoints());
+                c++;
+                gl.importGate(pg);
+            }
+            
             //gl.notifyPolygonSelectionListeners(GateImporter.importGates(al1, chart));
         }
+        gm.updateTable(gates);
+        gm.setVisible(true);
+    }
+    
+    public void removeSinglePointGates() {
+        
     }
 
     @Override
@@ -1787,7 +1817,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         int gatedSelected = 0;
         int gatecount = gates.size();
 
-        ArrayList<ArrayList> result = new ArrayList<ArrayList>();
+        ArrayList<ArrayList> result = new ArrayList<>();
 
         while (gate_itr.hasNext()) {
             gate = gate_itr.next();
@@ -2334,10 +2364,39 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 }
                 
             }
+            
+            ListIterator neighborhoodIterator = neighborhoods.listIterator();
+            
+            while(neighborhoodIterator.hasNext()){
+                //convert neighborhoods to Microneighborhood
+                ArrayList<Neighbor> neighbors = 
+                        (ArrayList<Neighbor>)neighborhoodIterator.next();
+                
+                ListIterator neighborIterator = neighbors.listIterator();
+                    while(neighborIterator.hasNext()){
+                        
+                        
+                        
+                        
+                    }
+            }
+            
         }
+        
+        
+    }
+    
+    private MicroObject getObjectFromList(double ID, ArrayList<MicroObject> objects){
+        MicroObject obj = new MicroObject();
+        ListIterator itr = objects.listIterator();
+        while(itr.hasNext()){
+            obj = (MicroObject)itr.next();
+            if(obj.getSerialID() == ID){
+                return obj;
+            }
         }
-
-
+        return obj;
+    }
 
     @Override
     public void addDistanceMapFromGate(String s) {
@@ -2481,6 +2540,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gm.pack();
         gm.repaint();
     }
+
+    @Override
+    public void updateMenuPositions(int xPos, int yPos) {
+        AxesManager.updateMenuPosition(xPos, yPos);
+    }
+
+    @Override
+    public void closeMenu() {      
+        AxesManager.close();
+    }
+
+ 
 
  
 

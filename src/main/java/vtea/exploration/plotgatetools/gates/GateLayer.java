@@ -515,10 +515,12 @@ public class GateLayer implements ActionListener, ItemListener {
         Q4.add(new Point(42, 465));
 
         notifyPolygonSelectionListeners(Q1);
+        this.finalize();
         notifyPolygonSelectionListeners(Q2);
+        this.finalize();
         notifyPolygonSelectionListeners(Q3);
+        this.finalize();
         notifyPolygonSelectionListeners(Q4);
-
         this.points.clear();
         this.finalize();
     }
@@ -608,6 +610,16 @@ public class GateLayer implements ActionListener, ItemListener {
             listener.onPasteGate(gates);
         }
     }
+    
+//    public void addImportGateListener(AddGateListener listener) {
+//        addgatelisteners.add(listener);
+//    }
+//
+//    public void notifyPasteGateListeners() {
+//        for (AddGateListener listener : addgatelisteners) {
+//            listener.onPasteGate(gates);
+//        }
+//    }
     
     public void addGateColorListener(GateColorListener listener) {
         gatecolorlisteners.add(listener);
@@ -899,19 +911,19 @@ public class GateLayer implements ActionListener, ItemListener {
             }
         } else {
 
-        for (int i = 0; i < colors.length; i++) {
-            if (e.getActionCommand().equals(colors[i])) {
-                PolygonGate gp;
-                ListIterator<PolygonGate> itr = gates.listIterator();
-                while (itr.hasNext()) {
-                    gp = itr.next();
-                    if (gp.getUID() == selectedGate.getUID()) {
-                        gp.setSelectedColor(colorsRGB[i]);
+            for (int i = 0; i < colors.length; i++) {
+                if (e.getActionCommand().equals(colors[i])) {
+                    PolygonGate gp;
+                    ListIterator<PolygonGate> itr = gates.listIterator();
+                    while (itr.hasNext()) {
+                        gp = itr.next();
+                        if (gp.getUID() == selectedGate.getUID()) {
+                            gp.setSelectedColor(colorsRGB[i]);
+                        }
                     }
                 }
             }
-        }
-        notifyGateColorListeners();
+            notifyGateColorListeners();
         }
     }
 
@@ -1057,8 +1069,9 @@ public class GateLayer implements ActionListener, ItemListener {
         pg.setSelected(b);
     }
 
-    public void importGates(PolygonGate pg) {
+    public void importGate(PolygonGate pg) {
         gates.add(pg);
-        notifyPasteGateListeners();
+        //notifyPasteGateListeners();
+        
     }
 }

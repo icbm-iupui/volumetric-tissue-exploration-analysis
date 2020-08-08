@@ -17,7 +17,9 @@
  */
 package vteaexploration;
 
+import ij.IJ;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,16 +89,22 @@ public class PlotAxesManager implements AxesChangeListener{
             boolean xLinear, boolean yLinear, int lutTableSelectedIndex) {
         for (PlotAxesPreviewButtonListener listener : PlotAxesPreviewButtonListeners) {
             
-           //System.out.println("PROFILING: notifyPlotAxesPreviewBtnListeners"); 
+                  new Thread(() -> {
+            try {
+                  listener.setAxesTo(limits, xLinear, yLinear, lutTableSelectedIndex);
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+        }).start();
             
-            listener.setAxesTo(limits, xLinear, yLinear, lutTableSelectedIndex);
+          
         }
     }
 
     @Override
     public void onAxesSetting(ArrayList Content, ArrayList LUT) {
         
-        //System.out.println("PROFILING: onAxesSetting");
+        
         
         ArrayList<Double> limits = new ArrayList();
 
@@ -131,6 +139,15 @@ public class PlotAxesManager implements AxesChangeListener{
     
     public void updateFeatureSpace(HashMap<Integer, String> hm){
         AxesSetup.notifyAddFeatures(hm);
+    }
+    
+    public void updateMenuPosition(int xPos, int yPos){  
+        AxesSetup.setLocation(xPos, yPos);
+        AxesSetup.pack();
+    }
+    
+    public void close(){
+        AxesSetup.setVisible(false);
     }
     
 }

@@ -30,6 +30,7 @@ import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
+import vtea.exploration.listeners.LinkedKeyListener;
 
 import vtea.exploration.plotgatetools.gates.GateLayer;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
@@ -51,6 +52,8 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     ArrayList<ResetSelectionListener> resetselectionlisteners = new ArrayList<ResetSelectionListener>();
     
     ArrayList<SubGateExplorerListener> subgatelisteners = new ArrayList<SubGateExplorerListener>();
+    
+    ArrayList<LinkedKeyListener> linkedKeyListeners = new ArrayList<LinkedKeyListener>();
     
     ArrayList<AddFeaturesListener> addfeaturelisteners = new ArrayList<AddFeaturesListener>();
 

@@ -103,55 +103,11 @@ public class ExplorerProcessor extends AbstractProcessor {
 
             XYExplorationPanel XY = new XYExplorationPanel(key, connection, measurements, descriptions, hm, objects, title);
             DefaultPlotPanels DPP = new DefaultPlotPanels();
-
-            
-
             MicroExplorer explorer = new MicroExplorer();
-//            explorer.setTitle(impOriginal.getTitle().replace("DUP_", ""));
-//            explorer.setTitle(explorer.getTitle().replace(".tif", ""));
-//            explorer.setTitle(explorer.getTitle().concat("_" + title));
 
-//Get list of data in database
-            //Get table of available data... for future use of datasets across 
-            //Explorer windows.
-//            JPanel j = new JPanel();
-//            JTable t = new JTable();
-//            
-//             Object[] tableData1 = ((ArrayList)(H2DatabaseEngine.getListOfTables(connection))).toArray();
-//             Object[][] tableData = new Object[tableData1.length][3];
-//             for(int c = 0; c < tableData1.length; c++){
-//                 tableData[c][0] = tableData1[c];
-//                 tableData[c][1] = "Custom Name";
-//                 tableData[c][2] = false;
-//             }
-//
-//        LocalCustomTableModel ctm = new LocalCustomTableModel();
-//        ctm.setData(tableData);
-//
-//        t = new JTable(ctm);
-//
-//        t.setShowGrid(true);
-//
-//        TableColumn column = null;
-//        column = t.getColumnModel().getColumn(0);
-//        column.setPreferredWidth(50);
-//        column = t.getColumnModel().getColumn(1);
-//        column.setPreferredWidth(50);
-//        column = t.getColumnModel().getColumn(2);
-//        column.setPreferredWidth(10);
-//       
-//        JScrollPane scroll = new JScrollPane(t);
-//        scroll.createVerticalScrollBar();
-//        scroll.setPreferredSize(new Dimension(200, 180));
-//        JFrame frame = new JFrame("Avalaible Datasets");
-//        
-//        frame.getContentPane().add(scroll, BorderLayout.CENTER);
-//        frame.pack();
-//        frame.setVisible(true);
-//
-            explorer.setTitle(title);
+            explorer.setTitle("Explorer: " + title);
             explorer.process(key, impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels);
-
+            XY.updateMenuPositions(explorer.getX(), explorer.getY()+explorer.getHeight());
             setProgress(100);
             firePropertyChange("comment", "", "Done.");
         } catch (Exception e) {

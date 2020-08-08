@@ -141,9 +141,7 @@ public class LutCustomColorChooser extends JPanel implements ChangeListener {
         frame.setVisible(true);
     }
     
-//    public void setComboBoxDetails(ArrayList populateCustomLutComboBox){
-//        this.clusterInfo = populateCustomLutComboBox;
-//    }
+
     
     private void jComboBoxCustomLutActionPerformed(java.awt.event.ActionEvent evt){
         
@@ -151,19 +149,10 @@ public class LutCustomColorChooser extends JPanel implements ChangeListener {
         customLutClusterComboBox.setSelectedIndex(this.currentCluster);
     }
     
-//    public void getCustomLutColors(HashMap<String,Color> customLutColors){
-//        customLutColors = this.MapCustomLut2Clusters;
-//    }
+
     
     public void invokeCustomLUTWindow() {
-        //Schedule a job for the event-dispatching thread:
-        //creating and showing this application's GUI.
-//        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                createAndShowGUI();
-//            }
-//        });
+
         createAndShowGUI();
     }
     
