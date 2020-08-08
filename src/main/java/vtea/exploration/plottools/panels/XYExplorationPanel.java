@@ -104,6 +104,7 @@ import vtea.exploration.listeners.SubGateListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
+import vtea.exploration.listeners.LinkedKeyListener;
 
 import vtea.exploration.listeners.colorUpdateListener;
 import vtea.exploration.listeners.remapOverlayListener;
@@ -1261,6 +1262,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             listener.makeSubGateExplorer(objects, measurements);
         }
     }
+    
+    @Override
+    public void addLinkedKeyListener(LinkedKeyListener listener) {
+        linkedKeyListeners.add(listener);
+    }
+
+    @Override
+    public void notifyLinkedKeyListener(String linkedKey) {
+        for (LinkedKeyListener listener : linkedKeyListeners) {
+            listener.addLinkedKey(linkedKey);
+        }
+    }
 
     @Override
     public void stopGateSelection() {
@@ -1693,13 +1706,24 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         ImportGates ig = new ImportGates();
         ArrayList<PolygonGate> al = ig.importGates();
         ListIterator itr = al.listIterator();
-
+        int c = 1;
         while (itr.hasNext()) {
             PolygonGate pg = (PolygonGate) itr.next();
-
-            gl.importGates(pg);
+            if (pg.getGateAsPoints().size() < 3) {
+            } else {
+                System.out.println("Gate " + c + ": " + pg.getGateAsPoints());
+                c++;
+                gl.importGate(pg);
+            }
+            
             //gl.notifyPolygonSelectionListeners(GateImporter.importGates(al1, chart));
         }
+        gm.updateTable(gates);
+        gm.setVisible(true);
+    }
+    
+    public void removeSinglePointGates() {
+        
     }
 
     @Override
@@ -2334,8 +2358,17 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 }
                 
             }
+            
+            ListIterator neighborhoodIterator = neighborhoods.listIterator();
+            
+            while(neighborhoodIterator.hasNext()){
+                //convert neighborhoods to Microneighborhood
+            }
+            
         }
-        }
+        
+        
+    }
 
 
 

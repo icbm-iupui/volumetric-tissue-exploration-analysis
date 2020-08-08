@@ -69,6 +69,7 @@ import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
+import vtea.exploration.listeners.LinkedKeyListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
@@ -96,7 +97,7 @@ import vteaobjects.MicroObject;
 
 public class MicroExplorer extends javax.swing.JFrame implements 
         FeatureMapListener, SubGateExplorerListener, AddFeaturesListener, 
-        RoiListener, PlotUpdateListener, MakeImageOverlayListener, 
+        RoiListener, LinkedKeyListener, PlotUpdateListener, MakeImageOverlayListener, 
         ChangePlotAxesListener, ImageListener, ResetSelectionListener, 
         PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, 
         UpdatePlotWindowListener, AxesChangeListener, AxesSetupExplorerPlotUpdateListener, Runnable {
@@ -129,6 +130,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
     int impMode;
     String title;
     String key;
+    ArrayList<String> childKeys = new ArrayList<String>();
+    String parentKey;
     ArrayList descriptions;
     ArrayList<String> descriptionsLabels = new ArrayList<String>();
     ArrayList<MicroObject> Objects = new ArrayList<MicroObject>();
@@ -323,9 +326,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
         this.getContentPane().setBackground(new Color(255, 255, 255, 255));
         this.getContentPane().setPreferredSize(new Dimension(600, 600));
 
-        Main.setBackground(new Color(255, 255, 255, 255));
         aep.addResetSelectionListener(this);
         aep.addSubgateListener(this);
+        aep.addLinkedKeyListener(this);
         aep.getXYChartPanel().addUpdatePlotWindowListener(this);
         aep.addFeatureListener(this);
         aep.setGatedOverlay(impoverlay);
@@ -1194,6 +1197,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 
                 return result;
     }
+    
+    public void setParentKey(String str){
+        parentKey = str;
+    }
 
     private void setPanels(List plotvalues, ExplorationCenter ec, PlotAxesPanels pap) {
 
@@ -1752,6 +1759,11 @@ public class MicroExplorer extends javax.swing.JFrame implements
     @Override
     public void axesSetupExplorerPlotUpdate(int x, int y, int l, int pointsize) {
         ExplorerSetupPlotChangerequest(x, y, l, pointsize);
+    }
+
+    @Override
+    public void addLinkedKey(String linkedKey) {
+        this.childKeys.add(linkedKey);
     }
 
     class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {

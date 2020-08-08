@@ -34,6 +34,7 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -340,17 +341,38 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         this.currentMeasure.setText(st);
     }
     
-    public void addGateToTable(PolygonGate g){  
-        GateDataTable.getModel().setValueAt(g.getSelected(), gateList.size(), 0);
-        GateDataTable.getModel().setValueAt(g.getColor(), gateList.size(), 1);
-        GateDataTable.getModel().setValueAt(g.getName(), gateList.size(), 2);
-        GateDataTable.getModel().setValueAt(g.getXAxis(), gateList.size(), 3);
-        GateDataTable.getModel().setValueAt(g.getYAxis(),  gateList.size(), 4);
-        GateDataTable.getModel().setValueAt(g.getObjectsInGate(),  gateList.size(), 5);
-        GateDataTable.getModel().setValueAt(g.getTotalObjects(),  gateList.size(), 6);
-        GateDataTable.getModel().setValueAt((float) 100 * ((int) g.getObjectsInGate()) / ((int) g.getTotalObjects()),gateList.size(), 7);
-        pack();
-        repaint();
+    public void addGateToTable(PolygonGate g) {
+        //if (gateList.size() > 0) {
+            if (g.getGateAsPoints().size() > 2) {
+                ((DefaultTableModel) GateDataTable.getModel()).addRow(
+                        new Object[]{g.getSelected(),
+                            g.getColor(),
+                            g.getName(),
+                            g.getXAxis(),
+                            g.getYAxis(),
+                            g.getObjectsInGate(),
+                            g.getTotalObjects(),
+                            (float) 100 * ((int) g.getObjectsInGate()) / ((int) g.getTotalObjects())
+                        });
+//            } else {
+//                ArrayList<PolygonGate> gates = new ArrayList<>();
+//                gates.add(g);
+//                updateTable(gates);
+                
+          //  }
+//        GateDataTable.getModel().setValueAt(g.getSelected(), gateList.size(), 0);
+//        GateDataTable.getModel().setValueAt(g.getColor(), gateList.size(), 1);
+//        GateDataTable.getModel().setValueAt(g.getName(), gateList.size(), 2);
+//        GateDataTable.getModel().setValueAt(g.getXAxis(), gateList.size(), 3);
+//        GateDataTable.getModel().setValueAt(g.getYAxis(),  gateList.size(), 4);
+//        GateDataTable.getModel().setValueAt(g.getObjectsInGate(),  gateList.size(), 5);
+//        GateDataTable.getModel().setValueAt(g.getTotalObjects(),  gateList.size(), 6);
+//        GateDataTable.getModel().setValueAt((float) 100 * ((int) g.getObjectsInGate()) / ((int) g.getTotalObjects()),gateList.size(), 7);
+            
+        }
+            pack();
+            repaint();
+            
     }
     
     public void updateGateSelection(ArrayList<PolygonGate> gates){
@@ -368,11 +390,28 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         
     }
     
+    private ArrayList<PolygonGate> cleanGateList(ArrayList<PolygonGate> gates){
+        ListIterator<PolygonGate> itr = gates.listIterator();
+        
+        ArrayList<PolygonGate> result = new ArrayList<>();
+
+            int i = 0;
+            while (itr.hasNext()) {
+                PolygonGate g = itr.next();
+                if(g.getGateAsPoints().size() > 2){
+                    result.add(g);
+                }
+            }
+            return result;
+    }
+    
        
 
     public void updateTable(ArrayList<PolygonGate> gates) {
         
-        gateList = gates;
+        gateList = cleanGateList(gates);
+        
+
         // System.out.println("PROFILING:  Rebuilding GM with gates: " + gates.size());
         if (gateList.size() > 0) {
 
@@ -384,6 +423,8 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                 Object[] gateData = new Object[9];
 
                 PolygonGate pg = (PolygonGate) itr.next();
+                
+                
 
                 gateData[0] = pg.getSelected();
                 gateData[1] = pg.getColor();
@@ -399,6 +440,8 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                 gatesData[i] = gateData;
 
                 i++;
+   
+                
             }
 
             String[] columnNames = {"View",
@@ -528,6 +571,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
 
             jScrollPane1.setViewportView(GateDataTable);
         }
+        
 
     }
 
