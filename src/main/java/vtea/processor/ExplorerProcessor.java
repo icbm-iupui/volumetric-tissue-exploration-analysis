@@ -27,6 +27,7 @@ import vtea.exploration.plottools.panels.DefaultPlotPanels;
 import vtea.exploration.plottools.panels.XYExplorationPanel;
 import vtea.jdbc.H2DatabaseEngine;
 import vteaexploration.MicroExplorer;
+import vteaobjects.MicroObject;
 
 /**
  *
@@ -42,6 +43,8 @@ public class ExplorerProcessor extends AbstractProcessor {
     private ArrayList descriptionLabels;
     private ArrayList measurements;
     private ArrayList objects;
+    
+    private String parentKey;
 
     private ArrayList plotValues;
 
@@ -62,7 +65,7 @@ public class ExplorerProcessor extends AbstractProcessor {
     once SegmentationProcessor exists on its own.
     
      */
-    public ExplorerProcessor(String k, ImagePlus imp, ArrayList volumes, ArrayList measurements, ArrayList headers, ArrayList headerLabels) {
+    public <T extends MicroObject>ExplorerProcessor(String k, String parentk, ImagePlus imp, ArrayList<T> volumes, ArrayList measurements, ArrayList headers, ArrayList headerLabels) {
 
         VERSION = "0.0";
         AUTHOR = "Seth Winfree";
@@ -76,6 +79,7 @@ public class ExplorerProcessor extends AbstractProcessor {
         descriptions = headers;
         descriptionLabels = headerLabels;
         key = k;
+        parentKey = parentk;
 
     }
 
@@ -127,7 +131,7 @@ public class ExplorerProcessor extends AbstractProcessor {
     public String getChange() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+ 
 }
 
 /**

@@ -1230,7 +1230,7 @@ new Thread(() -> {
                     newDescriptionsLabels.add(str1);
                 }
 
-                ExplorerProcessor ep = new ExplorerProcessor("Subgate_" + subgateSerial + "_" + this.key, imp.duplicate(), objects,
+                ExplorerProcessor ep = new ExplorerProcessor("Subgate_" + subgateSerial + "_" + this.key, this.key, imp.duplicate(), objects,
                         measurements, newDescriptions, newDescriptionsLabels);
                 ep.execute();
 

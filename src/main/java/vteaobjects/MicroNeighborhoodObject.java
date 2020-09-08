@@ -45,7 +45,7 @@ public class MicroNeighborhoodObject extends MicroObject {
     
     
     
-public MicroNeighborhoodObject(ArrayList<MicroObject> o, double[] c, String k){
+public MicroNeighborhoodObject(ArrayList<MicroObject> o, String k){
     
     super();
     //make a combined x, y, z arrays
@@ -54,11 +54,13 @@ public MicroNeighborhoodObject(ArrayList<MicroObject> o, double[] c, String k){
     //add an arraylist that references the original objectserial IDs
     key = k;
     objects = o;
-    centroids = c;
+    //centroids = c;
     
     neighborhoodSize = objects.size();
     
-    
+    makeCombinedArrays();
+   
+    //System.out.println("PROFILING: new neighborhood made, of size: " + this.getPixelsX().length);
 
 }
 
@@ -80,32 +82,31 @@ public int getNeighborhoodSize(){
 
 
 //method to get outline
-
 //method to get all pixels
 
 
 private void makeCombinedArrays(){
     
-    ListIterator<MicroObject> itrObj = objects.listIterator();
+    MicroObject obj = objects.get(0);
     
-
+    x = obj.getPixelsX();
+    y = obj.getPixelsY();
+    z = obj.getPixelsZ();
     
-    while(itrObj.hasNext()){
-       
-        MicroObject obj = itrObj.next();       
-        obj.getPixelsX();
-        obj.getPixelsY();
-        obj.getPixelsZ();
+    ListIterator<MicroObject> itrObj = objects.listIterator(1);
+    
+    
+    
+    while(itrObj.hasNext()){     
+        obj = itrObj.next();    
+        
+        x = concatenateArray(x, obj.x);
+        y = concatenateArray(y, obj.y);
+        z = concatenateArray(z, obj.z);
     }
     
-//    x = new int[xCombined.size()];
-//    y = new int[xCombined.size()];
-//    z = new int[xCombined.size()];
-//   
-//    for(int i = 0; i < xCombined.size(); i++){
-//        x[i] = xCombined.get(i);
-//    }
     
+
 }
 
 //public static void arraycopy(Object source, int source_position,   
@@ -127,9 +128,14 @@ private void makeOutline(){
     
 }
 
+//String k, ImagePlus imp, ArrayList volumes, ArrayList measurements, ArrayList headers, ArrayList headerLabels) {
+
+
 private void calculateNeighborhoodValues(){
+    
+    //
+    
+}
     
 }
 
-
-}

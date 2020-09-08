@@ -57,6 +57,7 @@ import vtea.exploration.plotgatetools.listeners.GateColorListener;
 import vtea.exploration.plotgatetools.listeners.ImageHighlightSelectionListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
+import vtea.exploration.plottools.panels.XYExplorationPanel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -637,6 +638,7 @@ public class GateLayer implements ActionListener, ItemListener {
 
     public void notifyImageHighLightSelectionListeners(ArrayList<PolygonGate> gates) {
         for (ImageHighlightSelectionListener listener : highlightlisteners) {
+            XYExplorationPanel.testCounter++;
             listener.imageHighLightSelection(gates);
         }
     }
