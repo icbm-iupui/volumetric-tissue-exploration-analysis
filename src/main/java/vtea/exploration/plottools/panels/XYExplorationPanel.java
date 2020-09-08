@@ -1245,7 +1245,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     public void imageHighLightSelection(ArrayList gates) {
         this.gates = gates;
         testCounter++;
-        System.out.println("PROFILING: highlightlistener called by image highlight: " + testCounter);
+        //System.out.println("PROFILING: highlightlistener called by image highlight: " + testCounter);
         makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
     }
 
@@ -2765,7 +2765,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         String[] methods = {"Spatial by cell", "Spatial by position", "Nearest-k"};
 
-        String[] methodsDetail = {"Uses a spatial kernel with a fixed radius centered on a cell.", "Uses a regular spatial kernel with a fixed radius.",
+        String[] methodsDetail = {"Uses a spatial kernel with a fixed radius centered on a cell.", "Uses a spherical spatial kernel with a fixed radius.",
             "Selects the k-nearest neighbors of a cell."};
 
         JComboBox method = new JComboBox(methods);
