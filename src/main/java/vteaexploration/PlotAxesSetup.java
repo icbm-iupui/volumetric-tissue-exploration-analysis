@@ -94,10 +94,10 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Plot settings");
-        setMinimumSize(new java.awt.Dimension(690, 96));
-        setPreferredSize(new java.awt.Dimension(690, 96));
+        setMinimumSize(new java.awt.Dimension(725, 96));
+        setPreferredSize(new java.awt.Dimension(725, 96));
         setResizable(false);
-        setSize(new java.awt.Dimension(690, 96));
+        setSize(new java.awt.Dimension(725, 96));
         setType(java.awt.Window.Type.UTILITY);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 

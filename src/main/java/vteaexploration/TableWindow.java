@@ -34,6 +34,7 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -47,21 +48,23 @@ import vtea.exploration.plotgatetools.gates.PolygonGate;
  *
  * @author vinfrais
  */
-public class GatePercentages extends javax.swing.JFrame implements TableModelListener {
+public class TableWindow extends javax.swing.JFrame implements TableModelListener {
 
     private Object[][] DataTableArray = new Object[4][15];
 
     private ArrayList<NameUpdateListener> nameUpdateListeners = new ArrayList<>();
     private ArrayList<remapOverlayListener> remapOverlayListeners = new ArrayList<>();
     private ArrayList<colorUpdateListener> UpdateColorListeners = new ArrayList<>();
+    
+    private ArrayList<PolygonGate> gateList = new ArrayList();
 
     /**
      * Creates new form gatePercentages
      */
-    public GatePercentages() {
+    public TableWindow(String name) {
         initComponents();
         GateDataTable.getModel().addTableModelListener(this);
-
+        setTitle(getTitle()+": "+name);
     }
 
     private void notifyUpdateNameListeners(String name, int row) {
@@ -120,11 +123,11 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
         jRadioButton1.setText("jRadioButton1");
 
         setTitle("Gate Management");
+        setFocusTraversalPolicyProvider(true);
         setMinimumSize(new java.awt.Dimension(700, 148));
         setPreferredSize(new java.awt.Dimension(700, 250));
         setResizable(false);
         setSize(new java.awt.Dimension(700, 148));
-        setType(java.awt.Window.Type.UTILITY);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jPanel1.setMaximumSize(new java.awt.Dimension(700, 60));
@@ -269,8 +272,30 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
     }// </editor-fold>//GEN-END:initComponents
 
     private void addMeasurementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMeasurementActionPerformed
-        IJ.log(this.currentMeasure.getText());
-        System.out.println(this.currentMeasure.getText());
+       IJ.log(this.currentMeasure.getText());
+       System.out.println(this.currentMeasure.getText());
+       
+        ListIterator<PolygonGate> itr = gateList.listIterator();
+
+            while (itr.hasNext()) {
+                PolygonGate pg = (PolygonGate) itr.next();
+                if(pg.getSelected()){
+                 System.out.println("Gating results: Name: " + pg.getName() + ", " +
+                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
+                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
+                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects())); 
+                 
+                 IJ.log("Gating results: Name: " + pg.getName() + ", " +
+                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
+                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
+                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects()));
+                }
+            }
+        
+       
+        
+        
+        
     }//GEN-LAST:event_addMeasurementActionPerformed
 
     private void exportGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGatesActionPerformed
@@ -315,20 +340,91 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
         this.currentMeasure.setToolTipText(st);
         this.currentMeasure.setText(st);
     }
+    
+    public void addGateToTable(PolygonGate g) {
+        //if (gateList.size() > 0) {
+            if (g.getGateAsPoints().size() > 2) {
+                ((DefaultTableModel) GateDataTable.getModel()).addRow(
+                        new Object[]{g.getSelected(),
+                            g.getColor(),
+                            g.getName(),
+                            g.getXAxis(),
+                            g.getYAxis(),
+                            g.getObjectsInGate(),
+                            g.getTotalObjects(),
+                            (float) 100 * ((int) g.getObjectsInGate()) / ((int) g.getTotalObjects())
+                        });
+//            } else {
+//                ArrayList<PolygonGate> gates = new ArrayList<>();
+//                gates.add(g);
+//                updateTable(gates);
+                
+          //  }
+//        GateDataTable.getModel().setValueAt(g.getSelected(), gateList.size(), 0);
+//        GateDataTable.getModel().setValueAt(g.getColor(), gateList.size(), 1);
+//        GateDataTable.getModel().setValueAt(g.getName(), gateList.size(), 2);
+//        GateDataTable.getModel().setValueAt(g.getXAxis(), gateList.size(), 3);
+//        GateDataTable.getModel().setValueAt(g.getYAxis(),  gateList.size(), 4);
+//        GateDataTable.getModel().setValueAt(g.getObjectsInGate(),  gateList.size(), 5);
+//        GateDataTable.getModel().setValueAt(g.getTotalObjects(),  gateList.size(), 6);
+//        GateDataTable.getModel().setValueAt((float) 100 * ((int) g.getObjectsInGate()) / ((int) g.getTotalObjects()),gateList.size(), 7);
+            
+        }
+            pack();
+            repaint();
+            
+    }
+    
+    public void updateGateSelection(ArrayList<PolygonGate> gates){
+        
+        ListIterator<PolygonGate> itr = gates.listIterator();
+        int i = 0;
+         while (itr.hasNext()) {
+             PolygonGate pg = (PolygonGate) itr.next();
+             boolean selected = pg.getSelected();
+             GateDataTable.getModel().setValueAt(selected, i, 0);
+             i++;
+         }
+            pack();
+        repaint();
+        
+    }
+    
+    private ArrayList<PolygonGate> cleanGateList(ArrayList<PolygonGate> gates){
+        ListIterator<PolygonGate> itr = gates.listIterator();
+        
+        ArrayList<PolygonGate> result = new ArrayList<>();
+
+            int i = 0;
+            while (itr.hasNext()) {
+                PolygonGate g = itr.next();
+                if(g.getGateAsPoints().size() > 2){
+                    result.add(g);
+                }
+            }
+            return result;
+    }
+    
+       
 
     public void updateTable(ArrayList<PolygonGate> gates) {
+        
+        gateList = cleanGateList(gates);
+        
 
         // System.out.println("PROFILING:  Rebuilding GM with gates: " + gates.size());
-        if (gates.size() > 0) {
+        if (gateList.size() > 0) {
 
-            ListIterator<PolygonGate> itr = gates.listIterator();
+            ListIterator<PolygonGate> itr = gateList.listIterator();
 
-            Object[][] gatesData = new Object[gates.size()][9];
+            Object[][] gatesData = new Object[gateList.size()][9];
             int i = 0;
             while (itr.hasNext()) {
                 Object[] gateData = new Object[9];
 
                 PolygonGate pg = (PolygonGate) itr.next();
+                
+                
 
                 gateData[0] = pg.getSelected();
                 gateData[1] = pg.getColor();
@@ -338,12 +434,14 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
                 gateData[5] = pg.getObjectsInGate();
                 gateData[6] = pg.getTotalObjects();
                 if (pg.getTotalObjects() > 0) {
-                    gateData[7] = (float) 100 * ((int) pg.getObjectsInGate() / (int) pg.getTotalObjects());
+                    gateData[7] = (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects());
                 }
 
                 gatesData[i] = gateData;
 
                 i++;
+   
+                
             }
 
             String[] columnNames = {"View",
@@ -397,9 +495,9 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
             GateDataTable.getModel().addTableModelListener(this);
 
             GateDataTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-            GateDataTable.setMaximumSize(new java.awt.Dimension(680, 200));
-            GateDataTable.setMinimumSize(new java.awt.Dimension(630, 200));
-            GateDataTable.setPreferredSize(new java.awt.Dimension(680, 200));
+            GateDataTable.setMaximumSize(new java.awt.Dimension(680, 1400));
+            GateDataTable.setMinimumSize(new java.awt.Dimension(630, 1400));
+            GateDataTable.setPreferredSize(new java.awt.Dimension(680, 1400));
             GateDataTable.setShowGrid(true);
 
             TableColumn column = null;
@@ -427,6 +525,20 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
             GateDataTable = new JTable();
             GateDataTable.setModel(new javax.swing.table.DefaultTableModel(
                     new Object[][]{
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
+                        {null, null, null, null, null, null, null, null},
                         {null, null, null, null, null, null, null, null},
                         {null, null, null, null, null, null, null, null},
                         {null, null, null, null, null, null, null, null},
@@ -473,6 +585,7 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
 
             jScrollPane1.setViewportView(GateDataTable);
         }
+        
 
     }
 
@@ -492,6 +605,7 @@ public class GatePercentages extends javax.swing.JFrame implements TableModelLis
         if (column == 1) {
             notifyUpdateColorListeners((Color) data, row);
         }
+        
         // System.out.println("DEBUGGING: Gate Percentages, tableChanged" + e.toString());
     }
 

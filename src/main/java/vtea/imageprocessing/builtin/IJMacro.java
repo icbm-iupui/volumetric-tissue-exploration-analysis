@@ -21,15 +21,13 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-import org.scijava.plugin.Plugin;
 import vtea.imageprocessing.AbstractImageProcessing;
-import vtea.imageprocessing.ImageProcessing;
 
 /**
  *
  * @author sethwinfree
  */
-@Plugin(type = ImageProcessing.class)
+//@Plugin(type = ImageProcessing.class)
 public class IJMacro extends AbstractImageProcessing {
 
     public IJMacro() {

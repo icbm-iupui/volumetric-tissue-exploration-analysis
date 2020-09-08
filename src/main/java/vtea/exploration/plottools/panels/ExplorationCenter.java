@@ -30,6 +30,7 @@ import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vteaobjects.MicroObject;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
+import vtea.exploration.listeners.LinkedKeyListener;
 
 /**
  *
@@ -118,7 +119,11 @@ public interface ExplorationCenter {
     public void addSubgateListener(SubGateExplorerListener listener);
     
     public void notifySubgateListener(ArrayList<MicroObject> objects, ArrayList<ArrayList<Number>> measurements);
-    
+
+    public void addLinkedKeyListener(LinkedKeyListener listener) ;
+
+    public void notifyLinkedKeyListener(String linkedKey) ;
+ 
     public void addFeatureListener(AddFeaturesListener listener);
     
     public void notifyAddFeatureListener(String name, ArrayList<ArrayList<Number>> feature);
@@ -131,6 +136,10 @@ public interface ExplorationCenter {
     
 
     public void invokeAxesSettingsDialog(int xPos, int yPos);
+    
+    public void updateMenuPositions(int xPos, int yPos);
+    
+    public void closeMenu();
     
     public void addAxesSetpExplorerPlotUpdateListener(AxesSetupExplorerPlotUpdateListener listener);
     

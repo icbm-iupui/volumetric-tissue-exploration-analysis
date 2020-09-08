@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.ListIterator;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import org.scijava.plugin.Plugin;
 import vtea.objects.floodfill3D.FloodFill3D;
 import vteaobjects.MicroObject;
 

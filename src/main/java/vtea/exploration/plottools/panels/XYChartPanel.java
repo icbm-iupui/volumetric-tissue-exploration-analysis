@@ -305,6 +305,9 @@ public class XYChartPanel implements RoiListener {
 
         plot.setRenderer(0, renderer);
         plot.setRenderer(1, rendererGate);
+        
+
+       
 
         //if image gated plot a ring at every object as a second dataset
         if (imageGate) {

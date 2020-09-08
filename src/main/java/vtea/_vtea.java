@@ -44,6 +44,7 @@ import vtea.services.FileTypeService;
 import vtea.services.ImageProcessingService;
 import vtea.services.LUTService;
 import vtea.services.MorphologicalFilterService;
+import vtea.services.NeighborhoodMeasurementService;
 import vtea.services.ObjectMeasurementService;
 import vtea.services.ProcessorService;
 import vtea.services.SegmentationService;
@@ -92,6 +93,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static String[] PROCESSOROPTIONS;
     public static String[] FILETYPEOPTIONS;
     public static String[] OBJECTMEASUREMENTOPTIONS;
+    public static String[] NEIGHBORHOODEASUREMENTOPTIONS;
     public static String[] MORPHOLOGICALOPTIONS;
     public static String[] FEATUREOPTIONS;
     public static String[] LUTOPTIONS;
@@ -102,6 +104,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static ConcurrentHashMap<String, String> PROCESSORMAP;
     public static ConcurrentHashMap<String, String> FILETYPEMAP;
     public static ConcurrentHashMap<String, String> OBJECTMEASUREMENTMAP;
+    public static ConcurrentHashMap<String, String> NEIGHBORHOODMEASUREMENTMAP;
     public static ConcurrentHashMap<String, String> MORPHOLOGICALMAP;
     public static ConcurrentHashMap<String, String> FEATUREMAP;
     public static ConcurrentHashMap<String, String> LUTMAP;
@@ -214,6 +217,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         WORKFLOWMAP = new ConcurrentHashMap<String, String>();
         PROCESSORMAP = new ConcurrentHashMap<String, String>();
         OBJECTMEASUREMENTMAP = new ConcurrentHashMap<String, String>();
+        NEIGHBORHOODMEASUREMENTMAP = new ConcurrentHashMap<String, String>();
         MORPHOLOGICALMAP = new ConcurrentHashMap<String, String>();
         FEATUREMAP = new ConcurrentHashMap<String, String>();
         LUTMAP = new ConcurrentHashMap<String, String>();
@@ -231,16 +235,17 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         ImageProcessingService ips = new ImageProcessingService(context);
 
         ObjectMeasurementService oms = new ObjectMeasurementService(context);
+        
+        NeighborhoodMeasurementService nms = new NeighborhoodMeasurementService(context);
 
         MorphologicalFilterService mfs = new MorphologicalFilterService(context);
 
         LUTService lfs = new LUTService(context);
 
-        //ObjectAnalysisService oas = new ObjectAnalysisService();
-        //ObjectMeasurementService oms = new ObjectMeasurementService();                
+        //ObjectAnalysisService oas = new ObjectAnalysisService();             
         //GroupAnalysisService gas = new GroupAnalysisService();
         //VisualizationService vs = new VisualizationService();
-        //ExplorationService es = new ExplorationService();  
+        
         List<String> fts_names = fts.getNames();
         List<String> fts_qualifiedNames = fts.getQualifiedName();
 
@@ -255,6 +260,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
         List<String> oms_names = oms.getNames();
         List<String> oms_qualifiedNames = oms.getQualifiedName();
+        
+        List<String> nms_names = nms.getNames();
+        List<String> nms_qualifiedNames = nms.getQualifiedName();
 
         List<String> ss_names = ss.getNames();
         List<String> ss_qualifiedNames = ss.getQualifiedName();
@@ -375,6 +383,23 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        
+        System.out.println("Loading Neighborhood Measurement Plugins: ");
+        //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
+
+        NEIGHBORHOODEASUREMENTOPTIONS = nms_names.toArray(new String[nms_names.size()]);
+
+        for (int i = 0; i < nms_names.size(); i++) {
+            try {
+                Object o = Class.forName(nms_qualifiedNames.get(i)).newInstance();
+                System.out.println("Loaded: " + o.getClass().getName());
+                //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
+                NEIGHBORHOODMEASUREMENTMAP.put(NEIGHBORHOODEASUREMENTOPTIONS[i], o.getClass().getName());
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
 
         System.out.println("Loading Segmentation Plugins: ");
         //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
