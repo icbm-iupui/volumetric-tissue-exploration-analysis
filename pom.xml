@@ -137,7 +137,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2-ij</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
@@ -165,6 +164,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.6.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ijpb</groupId>
+            <artifactId>MorphoLibJ</artifactId>
+            <version>v1.4.0</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 

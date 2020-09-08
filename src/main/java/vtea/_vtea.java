@@ -53,6 +53,11 @@ import vtea.services.WorkflowService;
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
     public static String VERSION = new String("1.0 alpha r4");
+    
+    public ProtocolManagerMulti protocolWindow;
+
+    public static Context context;
+    public double priority;
 
     public static Color BACKGROUND = new Color(204, 204, 204);
     public static Color BUTTONBACKGROUND = new Color(200, 200, 200);
@@ -172,10 +177,6 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         return stacks;
     }
 
-    public ProtocolManagerMulti protocolWindow;
-
-    public Context context;
-    public double priority;
 
     @Override
     public void run(String str) {
