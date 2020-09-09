@@ -495,7 +495,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 //    
     public void makeOverlayImageAndCalculate(ArrayList<PolygonGate> gates, int x, int y,
             int xAxis, int yAxis) {
-
+        new Thread(() -> {
         this.updateimage = false;
 
         //System.out.println("PROFILING: Mapping cells...");
@@ -668,6 +668,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             gm.setMeasurementsText("No gate selected...");
         }
         this.updateimage = true;
+        }).start();
     }
 
     public void makeOverlayVolume(ArrayList<PolygonGate> gates, int x, int y,
