@@ -46,6 +46,7 @@ import javax.swing.SwingUtilities;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI;
 import org.jfree.chart.ChartPanel;
+import vtea.exploration.listeners.AssignmentListener;
 import vtea.exploration.listeners.DensityMapListener;
 import vtea.exploration.listeners.DistanceMapListener;
 import vtea.exploration.listeners.NeighborhoodListener;
@@ -96,6 +97,7 @@ public class GateLayer implements ActionListener, ItemListener {
     private ArrayList<GateColorListener> gatecolorlisteners = new ArrayList<GateColorListener>();
     private ArrayList<SaveGatedImagesListener> saveImageListeners = new ArrayList<SaveGatedImagesListener>();
     private ArrayList<ManualClassListener> manualClassListeners = new ArrayList<ManualClassListener>();
+    private ArrayList<AssignmentListener> assignmentListeners = new ArrayList<AssignmentListener>();
     private ArrayList<SubGateListener> subGateListeners = new ArrayList<SubGateListener>();
     private ArrayList<DistanceMapListener> distanceMapListeners = new ArrayList<>();
     private ArrayList<DensityMapListener> densityMapListeners = new ArrayList<>();
@@ -696,10 +698,16 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
-        menuItem = new JMenuItem("Manual Classification...");
+        menu.add(new JSeparator());
+        
+        menuItem = new JMenuItem("Classify by Image...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
-
+        
+        menuItem = new JMenuItem("Classify by Gate...");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+        
         menu.add(new JSeparator());
 
         menuItem = new JMenuItem("Subgate Selection...");
@@ -784,7 +792,7 @@ public class GateLayer implements ActionListener, ItemListener {
             if (path != null) {
                 notifyImageListeners(path);
             }
-        }else if (e.getActionCommand().equals("Manual Classification...")) {
+        }else if (e.getActionCommand().equals("Classify by Image...")) {
           
             notifyClassificationListener();
             
@@ -802,6 +810,12 @@ public class GateLayer implements ActionListener, ItemListener {
             }
 
             notifySubgateListeners();
+            
+        }else if (e.getActionCommand().equals("Classify by Gate...")) {
+          
+            notifyAssignmentListeners();
+            
+        
         } else if (e.getActionCommand().equals("Add Distance Map...")) {
             //Used to subgate to a new MicroExplorer
 
@@ -970,10 +984,34 @@ public class GateLayer implements ActionListener, ItemListener {
      */
     private void notifyClassificationListener() {
         
-        System.out.println("PROFILING: Notifying Manual Classifcation Listeners Total: " + manualClassListeners.size());
+        //System.out.println("PROFILING: Notifying Manual Classifcation Listeners Total: " + manualClassListeners.size());
         for (ManualClassListener listener : manualClassListeners) {
             
             listener.startManualClassListener();
+        }
+    }
+    
+     /**
+     * 
+     *
+     * @param listener the listener to add to the ArrayList ManualClassListener
+     */
+    public void addAssignmentListener(AssignmentListener listener) {
+        assignmentListeners.add(listener);
+        //System.out.println("PROFILING: Manual Classifcation Listener Added: " + listener.getClass());
+    }
+
+    /**
+     * 
+     *
+     * 
+     */
+    private void notifyAssignmentListeners() {
+        
+        //System.out.println("PROFILING: Notifying Manual Classifcation Listeners Total: " + manualClassListeners.size());
+        for (AssignmentListener listener : assignmentListeners) {
+            
+            listener.assignClassification();
         }
     }
 

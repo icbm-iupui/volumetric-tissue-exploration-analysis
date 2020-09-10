@@ -1626,16 +1626,15 @@ new Thread(() -> {
 
     }
 
-    private void checkMeasurementsArray() {
-
-        //System.out.println("Checking Feature Array" );
-        for (int i = 0; i < ObjectIDs.length; i++) {
-            for (int j = 0; j < descriptions.size() + 4; j++) {
-                //System.out.println("PROFILING: " + ObjectIDs[i][j]);
-            }
-        }
-
-    }
+//    private void checkMeasurementsArray() {
+//
+//        //System.out.println("Checking Feature Array" );
+//        for (int i = 0; i < ObjectIDs.length; i++) {
+//            for (int j = 0; j < descriptions.size() + 4; j++) {
+//                //System.out.println("PROFILING: " + ObjectIDs[i][j]);
+//            }
+//        }
+//    }
 
     /**
      * Creates 2D feature array. The first column is the unique SerialID and the
@@ -1676,6 +1675,19 @@ new Thread(() -> {
             System.out.println(ex);
         }
     }
+    
+    private int hasColumn(String test){
+
+        int c = 0;
+        ListIterator<String> itr = descriptions.listIterator();
+        
+        while(itr.hasNext()){        
+            String str = itr.next();
+            if(str.equalsIgnoreCase(test)){return c;}
+            c++;
+        }
+        return -1;
+    }
 
     @Override
     public void addFeatures(String name, ArrayList<ArrayList<Number>> results) {
@@ -1683,6 +1695,25 @@ new Thread(() -> {
         int xsel = jComboBoxXaxis.getSelectedIndex();
         int ysel = jComboBoxYaxis.getSelectedIndex();
         int zsel = jComboBoxLUTPlot.getSelectedIndex();
+        int ssel = jComboBoxPointSize.getSelectedIndex();
+        
+        int hasColumn = hasColumn(name);
+        
+        if(hasColumn > -1){
+            
+            ListIterator<ArrayList<Number>> itr = measurements.listIterator();
+            
+            while(itr.hasNext()){
+                ArrayList<Number> data = itr.next();
+                data.remove(hasColumn);
+            }
+
+            descriptions.remove(hasColumn);
+            descriptionsLabels.remove(hasColumn);
+            
+            featureCount--;
+            
+        }
 
         int newFeatures = results.size();
         int startSize = featureCount;
@@ -1702,7 +1733,6 @@ new Thread(() -> {
             }
 
             if (descr.length() > 10) {
-
                 String truncated = name.substring(0, 8) + "__" + name.substring(name.length() - 5, name.length());
                 descr = truncated + "_" + (i - startSize);
             }
@@ -1846,6 +1876,8 @@ new Thread(() -> {
         //rebuild FeatureFrame columns
         makeDataTable();
         ff.updateColumns(ObjectIDs, descriptions);
+        this.pack();
+        //this.updatePlotByPopUpMenu(xsel, ysel, zsel, ssel);
     }
 
     @Override
