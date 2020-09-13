@@ -1909,9 +1909,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                         MicroObject object = ((MicroObject) objectsGated.get(i));
 
-                        if (renumber) {
-                            object.setSerialID(i);
-                        }
+                        
 
                         ArrayList<Number> sorted = (ArrayList<Number>) sortTemp.get(i);
 
@@ -1920,10 +1918,36 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                         if (path.contains(xValue, yValue)) {
 
-                            objectsFinal.add(object);
+                            if (this.imageGate) {
 
-                            measurementsFinal.add(measurementsGated.get(i));
-                            position++;
+                                float PosX = object.getCentroidX();
+                                float PosY = object.getCentroidY();
+
+                                Roi r = impoverlay.getRoi();
+
+                                if (r.containsPoint((double) PosX, (double) PosY)) {
+                                    
+                                    if (renumber) {
+                                        object.setSerialID(objectsFinal.size());
+                                    }
+                                    
+                                    objectsFinal.add(object);
+
+                                    measurementsFinal.add(measurementsGated.get(i));
+                                    position++;
+                                }
+
+                            } else {
+                                
+                                    if (renumber) {
+                                        object.setSerialID(objectsFinal.size());
+                                    }
+
+                                objectsFinal.add(object);
+
+                                measurementsFinal.add(measurementsGated.get(i));
+                                position++;
+                            }
                         }
 
                     }
