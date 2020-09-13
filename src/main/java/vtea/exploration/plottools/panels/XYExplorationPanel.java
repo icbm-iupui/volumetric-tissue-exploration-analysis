@@ -1920,10 +1920,27 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                         if (path.contains(xValue, yValue)) {
 
-                            objectsFinal.add(object);
+                            if (this.imageGate) {
 
-                            measurementsFinal.add(measurementsGated.get(i));
-                            position++;
+                                float PosX = object.getCentroidX();
+                                float PosY = object.getCentroidY();
+
+                                Roi r = impoverlay.getRoi();
+
+                                if (r.containsPoint((double) PosX, (double) PosY)) {
+                                    objectsFinal.add(object);
+
+                                    measurementsFinal.add(measurementsGated.get(i));
+                                    position++;
+                                }
+
+                            } else {
+
+                                objectsFinal.add(object);
+
+                                measurementsFinal.add(measurementsGated.get(i));
+                                position++;
+                            }
                         }
 
                     }
