@@ -272,8 +272,8 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     }// </editor-fold>//GEN-END:initComponents
 
     private void addMeasurementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMeasurementActionPerformed
-       IJ.log(this.currentMeasure.getText());
-       System.out.println(this.currentMeasure.getText());
+       IJ.log(this.getTitle());
+       System.out.println(this.getTitle());
        
         ListIterator<PolygonGate> itr = gateList.listIterator();
 

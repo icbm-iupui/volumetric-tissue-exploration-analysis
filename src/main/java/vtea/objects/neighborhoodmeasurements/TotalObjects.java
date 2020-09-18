@@ -26,7 +26,7 @@ import vteaobjects.MicroObject;
  *
  * @author sethwinfree
  */
-@Plugin(type = NeighborhoodMeasurements.class)
+//@Plugin(type = NeighborhoodMeasurements.class)
 public class TotalObjects extends AbstractNeighborhoodMeasurement {
 
     public TotalObjects() {

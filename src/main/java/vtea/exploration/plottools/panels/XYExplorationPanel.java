@@ -21,27 +21,21 @@ import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.gui.ImageCanvas;
 import ij.gui.ImageRoi;
-import ij.gui.ImageWindow;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.gui.TextRoi;
 import ij.plugin.ChannelSplitter;
 import static ij.plugin.RGBStackMerge.mergeChannels;
-import ij.plugin.frame.RoiManager;
 import ij.process.StackConverter;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
@@ -56,71 +50,51 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.showOptionDialog;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import org.apache.commons.io.FilenameUtils;
-import org.jblas.util.Random;
 import org.jdesktop.jxlayer.JXLayer;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.LogAxis;
-import org.jfree.chart.axis.LogarithmicAxis;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
-
 import org.jfree.chart.renderer.LookupPaintScale;
 import smile.neighbor.KDTree;
 import smile.neighbor.Neighbor;
-import vtea.ExportCSV;
-
 import vtea._vtea;
-import static vtea._vtea.LUTMAP;
-import static vtea._vtea.LUTOPTIONS;
 import vtea.exploration.listeners.AddFeaturesListener;
+import vtea.exploration.listeners.AssignmentListener;
+import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.DensityMapListener;
 import vtea.exploration.listeners.DistanceMapListener;
-import vtea.exploration.listeners.FeatureMapListener;
-import vtea.exploration.listeners.PlotAxesPreviewButtonListener;
-
+import vtea.exploration.listeners.LinkedKeyListener;
+import vtea.exploration.listeners.ManualClassListener;
 import vtea.exploration.listeners.NameUpdateListener;
-
+import vtea.exploration.listeners.NeighborhoodListener;
+import vtea.exploration.listeners.PlotAxesPreviewButtonListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SaveGatedImagesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.SubGateListener;
+import vtea.exploration.listeners.UpdateFeaturesListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
-
-import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
-import vtea.exploration.listeners.LinkedKeyListener;
-
 import vtea.exploration.listeners.colorUpdateListener;
 import vtea.exploration.listeners.remapOverlayListener;
 import vtea.exploration.plotgatetools.gates.GateLayer;
-import vtea.exploration.listeners.ManualClassListener;
-import vtea.exploration.listeners.NeighborhoodListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
@@ -131,20 +105,18 @@ import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
-import vtea.exploration.plottools.panels.ManualClassification.ClassificationListener;
 import vtea.gui.ComboboxToolTipRenderer;
 import vtea.jdbc.H2DatabaseEngine;
-import vtea.lut.AbstractLUT;
-import vtea.spatial.densityMap3d;
-import vtea.spatial.distanceMaps2d;
-import vteaexploration.TableWindow;
-import vteaexploration.MicroExplorer;
-import vteaobjects.MicroObject;
-import vteaobjects.MicroObjectModel;
-import vteaexploration.PlotAxesManager;
 import vtea.lut.Black;
 import vtea.neighbors.NeighborhoodFactory;
+import vtea.spatial.densityMap3d;
+import vtea.spatial.distanceMaps2d;
+import vteaexploration.MicroExplorer;
+import vteaexploration.PlotAxesManager;
+import vteaexploration.TableWindow;
 import vteaobjects.MicroNeighborhoodObject;
+import vteaobjects.MicroObject;
+import vteaobjects.MicroObjectModel;
 
 /**
  *
@@ -156,7 +128,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         ImageHighlightSelectionListener, ChangePlotAxesListener, AddFeaturesListener,
         UpdatePlotWindowListener, AddGateListener, DeleteGateListener, GateColorListener, SaveGatedImagesListener,
         SubGateListener, PlotAxesPreviewButtonListener, ImageListener, NameUpdateListener,
-        colorUpdateListener, remapOverlayListener, ManualClassListener {
+        colorUpdateListener, remapOverlayListener, ManualClassListener, AssignmentListener, UpdateFeaturesListener {
 
     static String printResult = "";
 
@@ -171,7 +143,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     String keySQLSafe = "";
     boolean updateimage = true;
     private Connection connection;
-    
+
     static public int testCounter = 0;
 
     PlotAxesManager AxesManager;
@@ -261,6 +233,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addDensityMapListener(this);
         gl.addNeighborhoodListener(this);
         gl.addClassificationListener(this);
+        gl.addAssignmentListener(this);
 
     }
 
@@ -495,7 +468,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 //    
     public void makeOverlayImageAndCalculate(ArrayList<PolygonGate> gates, int x, int y,
             int xAxis, int yAxis) {
-        new Thread(() -> {
+
         this.updateimage = false;
 
         //System.out.println("PROFILING: Mapping cells...");
@@ -528,11 +501,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
             int i = impoverlay.getZ() - 1;
 
+            //
             while (gate_itr.hasNext()) {
                 gate = gate_itr.next();
 
                 if (gate.getSelected()) {
-                    
+
                     gate.getXAxis().equals(descriptions.get(this.currentX));
 
                     Path2D.Double path = gate.createPath2DInChartSpace();
@@ -546,6 +520,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     double xValue = 0;
                     double yValue = 0;
 
+                    gated = getGatedObjects(impoverlay);
+                    gatedSelected = getGatedSelected(impoverlay);
+
                     ArrayList<ArrayList> resultKey
                             = H2DatabaseEngine.getObjectsInRange2D(path,
                                     vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
@@ -556,7 +533,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                     ListIterator<ArrayList> itr = resultKey.listIterator();
 
-                   //System.out.println("PROFILING: Returned object count: " + resultKey.size());
+                    //System.out.println("PROFILING: Returned object count: " + resultKey.size());
                     while (itr.hasNext()) {
                         ArrayList al = itr.next();
                         int object = ((Number) (al.get(0))).intValue();
@@ -579,9 +556,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     selected = result.size();
 
                     total = volumes.size();
-
-                    gated = getGatedObjects(impoverlay);
-                    gatedSelected = getGatedSelected(impoverlay);
 
                     Collections.sort(result, new ZComparator());
 
@@ -642,6 +616,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     gate.setObjectsInGate(selected);
                     gate.setTotalObjects(total);
                 }
+
                 ir.setPosition(0, i + 1, 0);
 
                 //old setPosition not functional as of imageJ 1.5m
@@ -668,7 +643,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             gm.setMeasurementsText("No gate selected...");
         }
         this.updateimage = true;
-        }).start();
+
     }
 
     public void makeOverlayVolume(ArrayList<PolygonGate> gates, int x, int y,
@@ -1002,6 +977,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addDensityMapListener(this);
         gl.addNeighborhoodListener(this);
         gl.addClassificationListener(this);
+        gl.addAssignmentListener(this);
 
         gl.msActive = false;
 
@@ -1015,7 +991,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         return CenterPanel;
     }
 
-    private double getMaximumOfData(ArrayList measurements, int l) {
+    public static double getMaximumOfData(ArrayList measurements, int l) {
 
         ListIterator<ArrayList> litr = measurements.listIterator();
 
@@ -1036,7 +1012,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     }
 
-    private double getMinimumOfData(ArrayList measurements, int l) {
+    public static double getMinimumOfData(ArrayList measurements, int l) {
 
         ListIterator<ArrayList> litr = measurements.listIterator();
 
@@ -1332,6 +1308,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addDensityMapListener(this);
         gl.addNeighborhoodListener(this);
         gl.addClassificationListener(this);
+        gl.addAssignmentListener(this);
 
         gl.msActive = false;
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates, hm.get(currentX), hm.get(currentY));
@@ -1932,9 +1909,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                         MicroObject object = ((MicroObject) objectsGated.get(i));
 
-                        if (renumber) {
-                            object.setSerialID(i);
-                        }
+                        
 
                         ArrayList<Number> sorted = (ArrayList<Number>) sortTemp.get(i);
 
@@ -1943,10 +1918,36 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                         if (path.contains(xValue, yValue)) {
 
-                            objectsFinal.add(object);
+                            if (this.imageGate) {
 
-                            measurementsFinal.add(measurementsGated.get(i));
-                            position++;
+                                float PosX = object.getCentroidX();
+                                float PosY = object.getCentroidY();
+
+                                Roi r = impoverlay.getRoi();
+
+                                if (r.containsPoint((double) PosX, (double) PosY)) {
+                                    
+                                    if (renumber) {
+                                        object.setSerialID(objectsFinal.size());
+                                    }
+                                    
+                                    objectsFinal.add(object);
+
+                                    measurementsFinal.add(measurementsGated.get(i));
+                                    position++;
+                                }
+
+                            } else {
+                                
+                                    if (renumber) {
+                                        object.setSerialID(objectsFinal.size());
+                                    }
+
+                                objectsFinal.add(object);
+
+                                measurementsFinal.add(measurementsGated.get(i));
+                                position++;
+                            }
                         }
 
                     }
@@ -2149,16 +2150,19 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         objectsTemp = al.get(0);
 
         ImagePlus map = densityMaps3D.makeMap(impoverlay, objectsTemp);
+        ImagePlus mapRandom = densityMaps3D.makeRandomMap(impoverlay, objectsTemp);
 
         densityMaps3D.addMap(map, s);
 
         measurementsFinal = densityMaps3D.getDistance(objects, map);
 
-        //System.out.println("PROFILING: number of features from density map: "
-        //        + measurementsFinal.size());
-        //System.out.println("PROFILING: objects to add new features to: "
-        //        + measurementsFinal.get(0).size());
         this.notifyAddFeatureListener(s, measurementsFinal);
+
+        densityMaps3D.addMap(mapRandom, s + "_Random");
+
+        measurementsFinal = densityMaps3D.getDistance(objects, mapRandom);
+
+        this.notifyAddFeatureListener(s + "_Random", measurementsFinal);
     }
 
     @Override
@@ -2188,7 +2192,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
             for (int i = (int) minClass; i <= (int) maxClass; i++) {
                 classes.add(i);
-               // System.out.println("PROFILING: Adding class: " + i);
+                // System.out.println("PROFILING: Adding class: " + i);
             }
 
             HashMap<String, String> objFeature = new HashMap<>();
@@ -2233,12 +2237,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             }
 
             KDTree tree = new KDTree(data, key);
-            
-            
-            
 
             //String str = "";
-
             //int randomKey = Math.abs(Random.nextInt(objectsTemp.size()-1));
             ArrayList<ArrayList<Neighbor>> neighborhoods = new ArrayList<ArrayList<Neighbor>>();
 
@@ -2276,13 +2276,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                     for (int l = 0; l < neighbors.size(); l++) {
                         double[] id = (double[]) ((Neighbor) neighbors.get(l)).value;
-                       // str = str + "," + id[0];
+                        // str = str + "," + id[0];
                         neighborhoodObjects.add(id[0]);
                         MicroObject objectAdd = (objects.get((int) id[0]));
                         localObjects.add(objectAdd);
-                       // str = str + "(" + ((objectAdd.getPixelsX()).length) + ")";
+                        // str = str + "(" + ((objectAdd.getPixelsX()).length) + ")";
                     }
-                   // System.out.println(str);
+                    // System.out.println(str);
                     MicroNeighborhoodObject mno = new MicroNeighborhoodObject(localObjects, this.key);
                     mno.setCentroid();
                     mno.setSerialID(objectKey);
@@ -2328,9 +2328,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 //convert neighborhood into list of microobjects
                 //add center object
             } else { //spatial by point
-                
-            HashMap<Double,Integer>  objectPosition = this.getSerialIDHashMap(objects);
-            double maxSerialID = this.getSerialIDMax(objects);
+
+                HashMap<Double, Integer> objectPosition = this.getSerialIDHashMap(objects);
+                double maxSerialID = this.getSerialIDMax(objects);
 
                 int width = impoverlay.getWidth();
                 int height = impoverlay.getHeight();
@@ -2384,15 +2384,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 key = new double[xPos.length * yPos.length * zPos.length + data.length][1];
 
                 int c = 0;
-                int referenceKey = (int)this.getSerialIDMax(objects) + 1;
-                
-                //int maxObjectID = (int) this.getMaxSerialID(objects);
+                int referenceKey = (int) this.getSerialIDMax(objects) + 1;
 
+                //int maxObjectID = (int) this.getMaxSerialID(objects);
                 ImagePlus resultImage = IJ.createImage("Sampling Volumes", "8-bit black", impoverlay.getWidth(), impoverlay.getHeight(), impoverlay.getNSlices());
                 ImageStack resultStack = resultImage.getStack();
 
                 //System.out.println("PROFILING: Neighborhood Analysis Adding : " + xPos.length * yPos.length * zPos.length + " reference points.");
-
                 for (int l = 0; l < xPos.length; l++) {
                     for (int m = 0; m < yPos.length; m++) {
                         for (int n = 0; n < zPos.length; n++) {
@@ -2408,7 +2406,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                             k[0] = referenceKey;
                             key[c] = k;
                             //System.out.println("PROFILING: Adding reference of: " + k[0] + " at position: " + d[0] +","+ d[1] +"," + d[2]);
-                 
+
                             referenceKey++;
                             c++;
                         }
@@ -2417,10 +2415,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                 resultImage.show();
 
-           //add segmented objects to end of references
-           
-           ListIterator itrObject = objectsTemp.listIterator();
-           
+                //add segmented objects to end of references
+                ListIterator itrObject = objectsTemp.listIterator();
+
                 while (itrObject.hasNext()) {
                     MicroObject obj = (MicroObject) itrObject.next();
                     double[] k = new double[1];
@@ -2428,17 +2425,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     k[0] = obj.getSerialID();
                     key[c] = k;
 
-
-
                     double[] d = new double[3];
                     d[0] = obj.getCentroidX();
                     d[1] = obj.getCentroidY();
                     d[2] = obj.getCentroidZ();
 
                     dataReference[c] = d;
-                    
+
                     //System.out.println("PROFILING: Adding object: " + k[0] + " at position: " + d[0] +","+ d[1] +"," + d[2]);
-                 //
+                    //
                     c++;
                 }
 
@@ -2446,11 +2441,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 tree = new KDTree(dataReference, key);
 
                 int refLength = xPos.length * yPos.length * zPos.length;
-                
 
                 for (int objectKey = 0; objectKey < refLength; objectKey++) {
 
- 
                     double[] d = dataReference[objectKey];
 
                     ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
@@ -2464,83 +2457,74 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                     for (int l = 0; l < neighbors.size(); l++) {
                         double[] id = (double[]) ((Neighbor) neighbors.get(l)).value;
-                           // System.out.println("PROFILING: Is testing object: " + (int)id[0] + " at postion: " + objectPosition.get(id[0]));
-                            
-                        if ((int)id[0] <= maxSerialID) {
-                            
-                            
-                            MicroObject objectAdd = objects.get((int)id[0]);
-                            
+                        // System.out.println("PROFILING: Is testing object: " + (int)id[0] + " at postion: " + objectPosition.get(id[0]));
 
+                        if ((int) id[0] <= maxSerialID) {
+
+                            MicroObject objectAdd = objects.get((int) id[0]);
 
 //System.out.println("PROFILING: Adding object: " + objectAdd.getSerialID());
-                            
                             //str = str +(id[0] - refLength - 1) + ",";
-                            
                             // System.out.println( + objectAdd.getPixelsX().length);
-                          
                             localObjects.add(objectAdd);
-                   
+
                         }
                     }
-                   //System.out.println(str);
+                    //System.out.println(str);
                     if (localObjects.size() > 0) {
                         MicroNeighborhoodObject mno = new MicroNeighborhoodObject(localObjects, this.key);
                         mno.setCentroid();
                         mno.setSerialID(n_objs.size());
-                        
-                       // System.out.println("PROFILING: Adding neighborhood of size: " + mno.getPixelsX().length);
+
+                        // System.out.println("PROFILING: Adding neighborhood of size: " + mno.getPixelsX().length);
                         n_objs.add(mno);
                     }
                 }
             }
-            if(n_objs.size() > 0){
+            if (n_objs.size() > 0) {
                 String newKey = this.key + "_" + System.currentTimeMillis();
                 NeighborhoodFactory nf = new NeighborhoodFactory();
                 nf.makeNeighborhoodAnalysis(impoverlay, newKey, this.key, n_objs, classes, objFeature);
             }
         }
-    
+
     }
 
-    private HashMap<Double,Integer> getSerialIDHashMap(ArrayList<MicroObject> objs){
-        
-        HashMap<Double,Integer> lookup = new HashMap();
-        
+    private HashMap<Double, Integer> getSerialIDHashMap(ArrayList<MicroObject> objs) {
+
+        HashMap<Double, Integer> lookup = new HashMap();
+
         int position = 0;
-        
+
         ListIterator<MicroObject> itr = objs.listIterator();
-        
-        while(itr.hasNext()){
-           MicroObject obj =  itr.next();
-           lookup.put(obj.getSerialID(), position);      
-           position++;
+
+        while (itr.hasNext()) {
+            MicroObject obj = itr.next();
+            lookup.put(obj.getSerialID(), position);
+            position++;
         }
-        
+
         return lookup;
-        
+
     }
-    
-       private double getSerialIDMax(ArrayList<MicroObject> objs){
-        
-        
-        
+
+    private double getSerialIDMax(ArrayList<MicroObject> objs) {
+
         double max = 0;
-        
+
         ListIterator<MicroObject> itr = objs.listIterator();
-        
-        while(itr.hasNext()){
-           MicroObject obj =  itr.next();
-           if(obj.getSerialID()> max){
-               max = obj.getSerialID();
-           }
-         
+
+        while (itr.hasNext()) {
+            MicroObject obj = itr.next();
+            if (obj.getSerialID() > max) {
+                max = obj.getSerialID();
+            }
+
         }
-        
+
         return max;
-        
+
     }
-    
 
     private MicroObject getObjectFromList(double ID, ArrayList<MicroObject> objects) {
         MicroObject obj = new MicroObject();
@@ -2565,16 +2549,21 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         objectsTemp = al.get(0);
 
         ImagePlus map = distanceMaps2D.makeMap(impoverlay, objectsTemp);
+        ImagePlus mapRandom = distanceMaps2D.makeRandomMap(impoverlay, objectsTemp);
 
         distanceMaps2D.addMap(map, s);
+        distanceMaps2D.addMap(mapRandom, s + "_Random");
 
         measurementsFinal = distanceMaps2D.getDistance(objects, map);
 
-//        System.out.println("PROFILING: number of features: "
-//                + measurementsFinal.size());
-//        System.out.println("PROFILING: objects to add new features to: "
-//                + measurementsFinal.get(0).size());
         this.notifyAddFeatureListener(s, measurementsFinal);
+
+        measurementsFinal
+                = new ArrayList<ArrayList<Number>>();
+
+        measurementsFinal = distanceMaps2D.getDistance(objects, mapRandom);
+
+        this.notifyAddFeatureListener(s + "_Random", measurementsFinal);
     }
 
     @Override
@@ -2705,6 +2694,20 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         AxesManager.close();
     }
 
+    @Override
+    public void assignClassification() {
+        ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
+        AssignClassification ac
+                = new AssignClassification(al.get(0), objects, keySQLSafe, descriptions);
+        ac.addFeatureListener(this);
+        ac.process();
+    }
+
+    @Override
+    public void updateFeatures(String name, ArrayList<ArrayList<Number>> al) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     class ExportGates {
 
         public ExportGates() {
@@ -2760,7 +2763,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     class NeighborhoodSettingsDialog extends JOptionPane {
 
         ArrayList<String> settings = new ArrayList<String>();
-        
 
         JComboBox classification = new JComboBox(descriptions.toArray());
 
@@ -2787,28 +2789,24 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         public NeighborhoodSettingsDialog() {
 
             super();
-            
+
             classification.setSelectedIndex(descriptions.size() - 1);
-            
+
             classification.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     CheckRangeOfValues(classification.getSelectedIndex());
                 }
             });
-            
 
             ArrayList<String> tips = new ArrayList<String>();
 
             tips.add(methodsDetail[0]);
             tips.add(methodsDetail[1]);
             tips.add(methodsDetail[2]);
-            
-            
 
             ComboboxToolTipRenderer renderer = new ComboboxToolTipRenderer();
             renderer.setTooltips(tips);
 
-            
             method.setRenderer(renderer);
 
             method.addActionListener(new java.awt.event.ActionListener() {
@@ -2839,13 +2837,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             method.setSelectedIndex(0);
 
         }
-        
+
         private void CheckRangeOfValues(int selectedIndex) {
-            
-           
-            
-            
+
         }
+
         private void ProcessSelectComboBoxActionPerformed(java.awt.event.ActionEvent evt) {
 
             submenu.setVisible(false);
@@ -2873,7 +2869,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(new JLabel("     "), gbc);
 
-              
             } else if (methodString.equals("Spatial by position")) {
                 GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
                         GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
@@ -2887,7 +2882,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(interval, gbc);
-               
+
             } else {
                 GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
                         GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
@@ -2901,7 +2896,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(new JLabel("     "), gbc);
-              
 
             }
 
