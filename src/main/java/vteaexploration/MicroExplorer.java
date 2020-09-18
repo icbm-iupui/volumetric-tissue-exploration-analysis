@@ -57,6 +57,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
@@ -1119,6 +1120,7 @@ new Thread(() -> {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
        ec.closeMenu();
+       
     }//GEN-LAST:event_formWindowClosing
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
@@ -1500,7 +1502,7 @@ new Thread(() -> {
 
     @Override
     public void imageClosed(ImagePlus ip) {
-
+        if(this.isVisible()){
         if (ip.getID() == impoverlay.getID()) {
             JFrame frame = new JFrame();
             frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
@@ -1521,6 +1523,7 @@ new Thread(() -> {
             } else {
             }
 
+        }
         }
     }
 
@@ -2080,7 +2083,7 @@ new Thread(() -> {
 //
 //    }
 //
-//    
+
 //    
     class ExportCSV {
 
