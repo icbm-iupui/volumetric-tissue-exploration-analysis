@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.ListIterator;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -58,7 +57,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
@@ -97,12 +95,11 @@ import vteaobjects.MicroObject;
  * @author vinfrais
  *
  */
-
-public class MicroExplorer extends javax.swing.JFrame implements 
-        FeatureMapListener, SubGateExplorerListener, AddFeaturesListener, 
-        RoiListener, LinkedKeyListener, PlotUpdateListener, MakeImageOverlayListener, 
-        ChangePlotAxesListener, ImageListener, ResetSelectionListener, 
-        PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener, 
+public class MicroExplorer extends javax.swing.JFrame implements
+        FeatureMapListener, SubGateExplorerListener, AddFeaturesListener,
+        RoiListener, LinkedKeyListener, PlotUpdateListener, MakeImageOverlayListener,
+        ChangePlotAxesListener, ImageListener, ResetSelectionListener,
+        PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener,
         UpdatePlotWindowListener, AxesChangeListener, AxesSetupExplorerPlotUpdateListener, Runnable {
 
     private XYPanels DefaultXYPanels;
@@ -895,15 +892,17 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_formComponentAdded
 
     private void jComboBoxXaxisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxXaxisActionPerformed
-        if(updatePlot){
-        ec.setCustomRange(this.XAXIS, false);
-        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);}
+        if (updatePlot) {
+            ec.setCustomRange(this.XAXIS, false);
+            onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        }
     }//GEN-LAST:event_jComboBoxXaxisActionPerformed
 
     private void jComboBoxYaxisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxYaxisActionPerformed
-        if(updatePlot){
-        ec.setCustomRange(this.YAXIS,false);
-        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);}
+        if (updatePlot) {
+            ec.setCustomRange(this.YAXIS, false);
+            onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        }
     }//GEN-LAST:event_jComboBoxYaxisActionPerformed
 
     private void addQuadrantGateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addQuadrantGateActionPerformed
@@ -944,12 +943,12 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_FlipAxesActionPerformed
 
     private void jComboBoxLUTPlotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxLUTPlotActionPerformed
-    
+
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxLUTPlotActionPerformed
 
     private void jComboBoxPointSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxPointSizeActionPerformed
-      
+
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
     }//GEN-LAST:event_jComboBoxPointSizeActionPerformed
 
@@ -969,8 +968,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
-        
-      
+
+
     }//GEN-LAST:event_get3DProjectionActionPerformed
 
     private void SetGlobalToLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SetGlobalToLocalActionPerformed
@@ -979,12 +978,11 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void UseGlobalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UseGlobalActionPerformed
         ec.setGlobalAxes(!ec.getGlobalAxes());
-        
-       // System.out.println("PROFILING: set global axes, " + ec.getGlobalAxes());
-        
-        updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), 
-                this.jComboBoxYaxis.getSelectedIndex(), 
-                this.jComboBoxLUTPlot.getSelectedIndex(), 
+
+        // System.out.println("PROFILING: set global axes, " + ec.getGlobalAxes());
+        updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(),
+                this.jComboBoxYaxis.getSelectedIndex(),
+                this.jComboBoxLUTPlot.getSelectedIndex(),
                 jComboBoxPointSize.getSelectedIndex());
 
     }//GEN-LAST:event_UseGlobalActionPerformed
@@ -1016,7 +1014,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_importOBJActionPerformed
 
     private void AxesSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AxesSettingsActionPerformed
-        ec.invokeAxesSettingsDialog(this.getX(), this.getY()+this.getHeight());
+        ec.invokeAxesSettingsDialog(this.getX(), this.getY() + this.getHeight());
         //System.out.println("PROFILING: Axes setup at: " + this.getX() + " and " + (this.getY()+this.getHeight()));
     }//GEN-LAST:event_AxesSettingsActionPerformed
 
@@ -1099,12 +1097,12 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_NorthMouseClicked
 
     private void getMaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getMaskActionPerformed
-new Thread(() -> {
+        new Thread(() -> {
             try {
                 ec.getZProjection();
                 java.lang.Thread.sleep(100);
                 String image = "Gates_" + impoverlay.getTitle();
-               
+
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
@@ -1112,21 +1110,21 @@ new Thread(() -> {
     }//GEN-LAST:event_getMaskActionPerformed
 
     private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
-        if(this.isVisible()){
+        if (this.isVisible()) {
             Point position = evt.getComponent().getLocationOnScreen();
             ec.updateMenuPositions(position.x, position.y + this.getHeight());
         }
     }//GEN-LAST:event_formComponentMoved
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-       ec.closeMenu();
-       ff.setVisible(false);
-       
+        ec.closeMenu();
+        ff.setVisible(false);
+
     }//GEN-LAST:event_formWindowClosing
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-        ec.closeMenu(); 
-          ff.setVisible(false);
+        ec.closeMenu();
+        ff.setVisible(false);
     }//GEN-LAST:event_formWindowClosed
 
     /**
@@ -1246,31 +1244,31 @@ new Thread(() -> {
         }).start();
 
     }
-    
-    public ArrayList<ArrayList<String>> getFeatureDescriptions(){
-                        ArrayList<String> newDescriptions = new ArrayList<String>();
-                ArrayList<String> newDescriptionsLabels = new ArrayList<String>();
-                
-                ArrayList<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
 
-                ListIterator<String> itr = descriptions.listIterator();
-                while (itr.hasNext()) {
-                    String str = itr.next().toString();
-                    newDescriptions.add(str);
-                }
+    public ArrayList<ArrayList<String>> getFeatureDescriptions() {
+        ArrayList<String> newDescriptions = new ArrayList<String>();
+        ArrayList<String> newDescriptionsLabels = new ArrayList<String>();
 
-                ListIterator<String> itr1 = descriptionsLabels.listIterator();
-                while (itr1.hasNext()) {
-                    String str1 = itr1.next().toString();
-                    newDescriptionsLabels.add(str1);
-                }
-                result.add(newDescriptions);
-                result.add(newDescriptionsLabels);
-                
-                return result;
+        ArrayList<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
+
+        ListIterator<String> itr = descriptions.listIterator();
+        while (itr.hasNext()) {
+            String str = itr.next().toString();
+            newDescriptions.add(str);
+        }
+
+        ListIterator<String> itr1 = descriptionsLabels.listIterator();
+        while (itr1.hasNext()) {
+            String str1 = itr1.next().toString();
+            newDescriptionsLabels.add(str1);
+        }
+        result.add(newDescriptions);
+        result.add(newDescriptionsLabels);
+
+        return result;
     }
-    
-    public void setParentKey(String str){
+
+    public void setParentKey(String str) {
         parentKey = str;
     }
 
@@ -1339,9 +1337,9 @@ new Thread(() -> {
     }
 
     private void flipAxes() {
-       
+
         updatePlotByPopUpMenu(this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
-       
+
     }
 
     private void activationGateTools(int activeGate) {
@@ -1367,44 +1365,44 @@ new Thread(() -> {
     public void onPlotChangeRequest(int x, int y, int z, int size, boolean imagegate) {
         new Thread(() -> {
             try {
-            Main.removeAll();
-            ec.updatePlot(x, y, z, size);
-            Main.add(ec.getPanel());
-            updateBorderPanels(DefaultXYPanels);
-            updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
-            pack();
+                Main.removeAll();
+                ec.updatePlot(x, y, z, size);
+                Main.add(ec.getPanel());
+                updateBorderPanels(DefaultXYPanels);
+                updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+                pack();
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
     }
-    
-    public void ExplorerSetupPlotChangerequest(int x, int y, int z, int size){
-         new Thread(() -> {
+
+    public void ExplorerSetupPlotChangerequest(int x, int y, int z, int size) {
+        new Thread(() -> {
             try {
-        Main.removeAll();
-        ec.updatePlot(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), 
-                this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
-        Main.add(ec.getPanel());
-        updateBorderPanels(DefaultXYPanels);
-        updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
-        pack();
-                    } catch (Exception e) {
+                Main.removeAll();
+                ec.updatePlot(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(),
+                        this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
+                Main.add(ec.getPanel());
+                updateBorderPanels(DefaultXYPanels);
+                updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+                pack();
+            } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
     }
 
     public void onRemoveLUTChangeRequest(int x, int y, int z, int size, boolean imagegate) {
-    new Thread(() -> {
+        new Thread(() -> {
             try {
-        Main.removeAll();
-        ec.updatePlot(x, y, -1, size);
-        Main.add(ec.getPanel());
-        updateBorderPanels(DefaultXYPanels);
-        updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), "");
-        pack();
-                      } catch (Exception e) {
+                Main.removeAll();
+                ec.updatePlot(x, y, -1, size);
+                Main.add(ec.getPanel());
+                updateBorderPanels(DefaultXYPanels);
+                updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), "");
+                pack();
+            } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
@@ -1437,34 +1435,32 @@ new Thread(() -> {
     }
 
     private void updatePlotByPopUpMenu(int x, int y, int l, int size) {
-             
+
         new Thread(() -> {
             try {
-        Main.removeAll();
-        ec.updatePlot(x, y, l, size);
-        Main.add(ec.getPanel());
-        
-        updatePlot = false;
-        
-        jComboBoxXaxis.setSelectedIndex(x);
-        jComboBoxYaxis.setSelectedIndex(y);
-        jComboBoxLUTPlot.setSelectedIndex(l);
-        jComboBoxPointSize.setSelectedIndex(size);
-        
-        updatePlot = true;
+                Main.removeAll();
+                ec.updatePlot(x, y, l, size);
+                Main.add(ec.getPanel());
 
-        updateBorderPanels(DefaultXYPanels);
-        updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+                updatePlot = false;
 
-        pack();
-                              } catch (Exception e) {
+                jComboBoxXaxis.setSelectedIndex(x);
+                jComboBoxYaxis.setSelectedIndex(y);
+                jComboBoxLUTPlot.setSelectedIndex(l);
+                jComboBoxPointSize.setSelectedIndex(size);
+
+                updatePlot = true;
+
+                updateBorderPanels(DefaultXYPanels);
+                updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+
+                pack();
+            } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
 
     }
-
-
 
     public void addMenuItems() {
         this.jMenuBar.removeAll();
@@ -1502,28 +1498,28 @@ new Thread(() -> {
 
     @Override
     public void imageClosed(ImagePlus ip) {
-        if(this.isVisible()){
-        if (ip.getID() == impoverlay.getID()) {
-            JFrame frame = new JFrame();
-            frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
-            Object[] options = {"Yes", "No"};
-            int n = JOptionPane.showOptionDialog(frame,
-                    "The overlay image has been closed.  Reload?",
-                    "Image closed.",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    options,
-                    options[0]);
-            if (n == JOptionPane.YES_OPTION) {
-                this.impoverlay = imp.duplicate();
-                ec.setGatedOverlay(impoverlay);
-                impoverlay.setTitle("Mapping: " + title);
-                impoverlay.show();
-            } else {
-            }
+        if (this.isVisible()) {
+            if (ip.getID() == impoverlay.getID()) {
+                JFrame frame = new JFrame();
+                frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+                Object[] options = {"Yes", "No"};
+                int n = JOptionPane.showOptionDialog(frame,
+                        "The overlay image has been closed.  Reload?",
+                        "Image closed.",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+                if (n == JOptionPane.YES_OPTION) {
+                    this.impoverlay = imp.duplicate();
+                    ec.setGatedOverlay(impoverlay);
+                    impoverlay.setTitle("Mapping: " + title);
+                    impoverlay.show();
+                } else {
+                }
 
-        }
+            }
         }
     }
 
@@ -1584,7 +1580,7 @@ new Thread(() -> {
                     validate();
                     repaint();
                 }
-            } 
+            }
         } catch (NullPointerException e) {
         }
     }
@@ -1610,7 +1606,6 @@ new Thread(() -> {
         }
 
         //ec.setAxesTo(limits, xLinear, yLinear,lutTable.getSelectedIndex());
-
         updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex());
     }
 
@@ -1638,7 +1633,6 @@ new Thread(() -> {
 //            }
 //        }
 //    }
-
     /**
      * Creates 2D feature array. The first column is the unique SerialID and the
      * subsequent columns are different computed features.
@@ -1678,15 +1672,17 @@ new Thread(() -> {
             System.out.println(ex);
         }
     }
-    
-    private int hasColumn(String test){
+
+    private int hasColumn(String test) {
 
         int c = 0;
         ListIterator<String> itr = descriptions.listIterator();
-        
-        while(itr.hasNext()){        
+
+        while (itr.hasNext()) {
             String str = itr.next();
-            if(str.equalsIgnoreCase(test)){return c;}
+            if (str.equalsIgnoreCase(test)) {
+                return c;
+            }
             c++;
         }
         return -1;
@@ -1699,23 +1695,23 @@ new Thread(() -> {
         int ysel = jComboBoxYaxis.getSelectedIndex();
         int zsel = jComboBoxLUTPlot.getSelectedIndex();
         int ssel = jComboBoxPointSize.getSelectedIndex();
-        
+
         int hasColumn = hasColumn(name);
-        
-        if(hasColumn > -1){
-            
+
+        if (hasColumn > -1) {
+
             ListIterator<ArrayList<Number>> itr = measurements.listIterator();
-            
-            while(itr.hasNext()){
+
+            while (itr.hasNext()) {
                 ArrayList<Number> data = itr.next();
                 data.remove(hasColumn);
             }
 
             descriptions.remove(hasColumn);
             descriptionsLabels.remove(hasColumn);
-            
+
             featureCount--;
-            
+
         }
 
         int newFeatures = results.size();
@@ -1872,18 +1868,16 @@ new Thread(() -> {
             public void mouseExited(MouseEvent me) {
             }
         });
-         
 
         //rebuild FeatureFrame columns
         makeDataTable();
         ff.updateColumns(ObjectIDs, descriptions);
         ff.pack();
-        
+
         pack();
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
-       pack();
-        
-      
+        pack();
+
     }
 
     @Override
@@ -2119,7 +2113,6 @@ new Thread(() -> {
 //
 //    }
 //
-
 //    
     class ExportCSV {
 
