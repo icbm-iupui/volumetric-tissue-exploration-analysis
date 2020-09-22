@@ -19,6 +19,7 @@ package vtea;
 
 import ij.ImagePlus;
 import ij.io.Opener;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -58,8 +59,11 @@ public class OpenObxFormat {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 try {
+                    
                     FileInputStream fis = new FileInputStream(file);
-                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    BufferedInputStream bis = new BufferedInputStream(fis);
+                    ObjectInputStream ois = new ObjectInputStream(bis);
+                    //ObjectInputStream ois = new ObjectInputStream(fis);
 
 //                    ProgressMonitorInputStream pm
 //                            = new ProgressMonitorInputStream(parent, "Reading" + file.getName(), fis);
