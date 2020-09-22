@@ -2780,6 +2780,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void closeMenu() {
         AxesManager.close();
+        gm.setVisible(false);
     }
 
     @Override

@@ -66,6 +66,10 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         GateDataTable.getModel().addTableModelListener(this);
         setTitle(getTitle()+": "+name);
     }
+    
+    public void setVisible() {
+        this.setVisible(false);
+    }
 
     private void notifyUpdateNameListeners(String name, int row) {
         for (NameUpdateListener listener : nameUpdateListeners) {

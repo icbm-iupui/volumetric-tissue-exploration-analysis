@@ -134,7 +134,7 @@ public class NeighborhoodMeasurementsProcessor extends AbstractProcessor {
                        description.add("Class_" + classes.get(j) + "_" + ((AbstractNeighborhoodMeasurement) iImp).getKey());
                        descriptionLabels.add("Class: " + classes.get(j) + ", Measurement:" + ((AbstractNeighborhoodMeasurement) iImp).getName());
 
-                        System.out.println("PROFILING: Adding measurement: " + "Class_" + classes.get(j) + "_" + ((AbstractNeighborhoodMeasurement) iImp).getKey());
+                        //System.out.println("PROFILING: Adding measurement: " + "Class_" + classes.get(j) + "_" + ((AbstractNeighborhoodMeasurement) iImp).getKey());
                     } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                         System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
                     }
