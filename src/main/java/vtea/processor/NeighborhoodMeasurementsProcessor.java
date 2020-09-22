@@ -27,6 +27,7 @@ import java.util.Iterator;
 import net.imglib2.RealPoint;
 import static vtea._vtea.NEIGHBORHOODMEASUREMENTMAP;
 import vtea.objects.neighborhoodmeasurements.AbstractNeighborhoodMeasurement;
+import vteaexploration.ProgressTracker;
 import vteaobjects.MicroNeighborhoodObject;
 import vteaobjects.MicroObject;
 
@@ -71,6 +72,8 @@ public class NeighborhoodMeasurementsProcessor extends AbstractProcessor {
         key = k;
         objectClasses = v;
         classes = c;
+        
+       
 
         description = new ArrayList<>();
         descriptionLabels = new ArrayList<>();
@@ -165,6 +168,7 @@ public class NeighborhoodMeasurementsProcessor extends AbstractProcessor {
 
             //loop through measurements
             while (itr_features.hasNext()) {
+  
                 try {
                     Class<?> c;
 

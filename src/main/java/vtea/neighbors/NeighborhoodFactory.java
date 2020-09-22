@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import vtea.processor.ExplorerProcessor;
 import vtea.processor.NeighborhoodMeasurementsProcessor;
+import vteaexploration.ProgressTracker;
 import vteaobjects.MicroNeighborhoodObject;
 import vteaobjects.MicroObject;
 
@@ -40,10 +41,11 @@ ArrayList<MicroNeighborhoodObject> objects;
 ArrayList<Integer> classes;
 HashMap<String, String> objectClasses;
 ImagePlus image;
+ProgressTracker progress;
 
     
 public void makeNeighborhoodAnalysis(ImagePlus imp, String k, String parentk, 
-        ArrayList<MicroNeighborhoodObject> obj, ArrayList<Integer> c, HashMap<String, String> v){
+        ArrayList<MicroNeighborhoodObject> obj, ArrayList<Integer> c, HashMap<String, String> v, ProgressTracker pt){
    
    image = imp;
    key = k;
@@ -51,6 +53,9 @@ public void makeNeighborhoodAnalysis(ImagePlus imp, String k, String parentk,
    objects = obj;
    classes = c;
    objectClasses = v;
+   progress = pt;
+   
+   
    
    NeighborhoodMeasurementsProcessor nmp = new NeighborhoodMeasurementsProcessor(k,obj,c,v);
    neighborhoodProcessors.add(nmp);
@@ -69,6 +74,12 @@ public void makeNeighborhoodAnalysis(ImagePlus imp, String k, String parentk,
            nmp.getDescriptions(), nmp.getDescriptionLabels());
            ep.execute();
         }
-        if(evt.getNewValue().equals("Progress")){}
+        if (evt.getPropertyName().equals("progress")) {
+            int p = (Integer) evt.getNewValue();
+            progress.setPercentProgress(p);
+             progress.setTextProgress(String.format(
+                    "Completed %d%%...\n", p));
+
+        }
     }
 }

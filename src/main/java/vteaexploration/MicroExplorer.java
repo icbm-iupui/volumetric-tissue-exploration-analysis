@@ -420,7 +420,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
         setMaximumSize(getPreferredSize());
         setMinimumSize(getPreferredSize());
-        setPreferredSize(new java.awt.Dimension(725, 630));
+        setPreferredSize(new java.awt.Dimension(725, 650));
         setSize(new java.awt.Dimension(725, 650));
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
@@ -1029,7 +1029,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         new Thread(() -> {
             try {
                 ec.exportGates();
-
             } catch (Exception e) {
 
             }
@@ -1435,12 +1434,10 @@ new Thread(() -> {
     }
 
     private void updatePlotByPopUpMenu(int x, int y, int l, int size) {
-        
-         Main.removeAll();
-        
+             
         new Thread(() -> {
             try {
-       
+        Main.removeAll();
         ec.updatePlot(x, y, l, size);
         Main.add(ec.getPanel());
         
@@ -1449,13 +1446,13 @@ new Thread(() -> {
         jComboBoxXaxis.setSelectedIndex(x);
         jComboBoxYaxis.setSelectedIndex(y);
         jComboBoxLUTPlot.setSelectedIndex(l);
-        updateBorderPanels(DefaultXYPanels);
+        jComboBoxPointSize.setSelectedIndex(size);
         
         updatePlot = true;
-        
-        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
 
-        
+        updateBorderPanels(DefaultXYPanels);
+        updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+
         pack();
                               } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
@@ -1775,6 +1772,7 @@ new Thread(() -> {
         jComboBoxXaxis.setSelectedIndex(xsel);
         jComboBoxYaxis.setSelectedIndex(ysel);
         jComboBoxLUTPlot.setSelectedIndex(zsel);
+        jComboBoxPointSize.setSelectedIndex(ssel);
 
         //x, y, l Labels
         final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
@@ -1871,16 +1869,18 @@ new Thread(() -> {
             public void mouseExited(MouseEvent me) {
             }
         });
-
-        updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
-
-        pack();
+         
 
         //rebuild FeatureFrame columns
         makeDataTable();
         ff.updateColumns(ObjectIDs, descriptions);
-        this.pack();
-        //this.updatePlotByPopUpMenu(xsel, ysel, zsel, ssel);
+        ff.pack();
+        
+        pack();
+        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+       
+        
+      
     }
 
     @Override

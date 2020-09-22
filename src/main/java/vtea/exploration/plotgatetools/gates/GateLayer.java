@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -173,10 +174,15 @@ public class GateLayer implements ActionListener, ItemListener {
                             && ((PolygonGate) gp).getYAxis().equals(yAxis)) {
                         //if a selected gate is found change paint
                         rescaleGates(chart);
+                             Stroke thick = new BasicStroke(2);
+                            Stroke thin = new BasicStroke(1); 
+                            Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
                         if (gp.getHovering()) {
+
                             Path2D polygon = gp.getPath2D();
                             PathIterator pi = polygon.getPathIterator(null);
-                            g2.setPaint(Color.red);
+                            g2.setPaint(gp.getColor());
+                            g2.setStroke(dashed);
                             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                     RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -197,23 +203,25 @@ public class GateLayer implements ActionListener, ItemListener {
                                 if (pli.nextIndex() == 0) {
                                     p0 = pli.next();
 
-                                    g2.fill(new Ellipse2D.Double(p0.getX() - 4, p0.getY() - 4, 8, 8));
+                                    //g2.fill(new Ellipse2D.Double(p0.getX() - 4, p0.getY() - 4, 8, 8));
                                     pPrevious = p0;
                                 } else {
                                     pCurrent = pli.next();
-                                    g2.fill(new Ellipse2D.Double(pCurrent.getX() - 4, pCurrent.getY() - 4, 8, 8));
+                                    //g2.fill(new Ellipse2D.Double(pCurrent.getX() - 4, pCurrent.getY() - 4, 8, 8));
                                     g2.draw(new Line2D.Double(pPrevious, pCurrent));
                                     pPrevious = pCurrent;
                                 }
                             }
                             g2.draw(new Line2D.Double(pCurrent, p0));
                         } else if (gp.getSelected()) {
-                            g2.setPaint(Color.red);
+                            g2.setPaint(gp.getColor());
+                            g2.setStroke(thick);
                             g2.draw(gp.getGateAsShape());
                         } else {
                             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                     RenderingHints.VALUE_ANTIALIAS_ON);
                             g2.setPaint(gp.getColor());
+                            g2.setStroke(thin);
                             g2.draw(gp.getGateAsShape());
                         }
                     }
@@ -1105,6 +1113,7 @@ public class GateLayer implements ActionListener, ItemListener {
     }
 
     public void setGateOverlay(boolean b, int row) {
+        //System.out.println("PROFILING:  row: " + row + ", " + b);
         PolygonGate pg = gates.get(row);
         pg.setSelected(b);
     }
