@@ -56,6 +56,7 @@ public class SingleThreshold extends AbstractSegmentation {
         COMMENT = "Simple threshold for large regions by intensity.";
         NAME = "Single Threshold 3D";
         KEY = "SingleThreshold3D";
+        TYPE = "Calculated";
 
         protocol = new ArrayList();
 

@@ -26,6 +26,7 @@ import ij.plugin.PlugIn;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -38,6 +39,7 @@ import org.scijava.log.LogService;
 import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
 import org.scijava.plugin.RichPlugin;
+import vtea.objects.layercake.microRegion;
 import vtea.protocol.ProtocolManagerMulti;
 import vtea.services.FeatureService;
 import vtea.services.FileTypeService;
@@ -512,5 +514,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public void setInfo(PluginInfo<?> pi) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+       
+
+    
 
 }

@@ -17,39 +17,19 @@
  */
 package vtea.objects.Segmentation;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
-import ij.plugin.frame.RoiManager;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
-import static java.util.concurrent.ForkJoinTask.invokeAll;
-import java.util.concurrent.RecursiveAction;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
 import vtea.objects.layercake.microRegion;
-import vtea.objects.layercake.microVolume;
-import vtea.protocol.listeners.ChangeThresholdListener;
+import vtea.protocol.setup.IJRoiManagerClone;
 import vtea.protocol.setup.MicroThresholdAdjuster;
 import vteaobjects.MicroObject;
-import smile.neighbor.KDTree;
-import smile.neighbor.Neighbor;
-import vtea.protocol.setup.IJRoiManagerClone;
-
 
 /**
  *
@@ -73,13 +53,10 @@ public class ImageJROIBased extends AbstractSegmentation {
     private List<microRegion> alRegions = Collections.synchronizedList(new ArrayList<microRegion>());
     private List<microRegion> alRegionsProcessed = Collections.synchronizedList(new ArrayList<microRegion>());
 
-
-
     Roi[] f1;
 
-
-    MicroThresholdAdjuster mta;
     
+
     IJRoiManagerClone r;
 
     public ImageJROIBased() {
@@ -88,12 +65,13 @@ public class ImageJROIBased extends AbstractSegmentation {
         COMMENT = "Import existing 2D ImageJ ROI";
         NAME = "ImageJ ROIs";
         KEY = "ImageJROI";
+        TYPE = "Import";
+        
 
         protocol = new ArrayList();
         r = new IJRoiManagerClone();
         r.makeWindow();
         protocol.add(r);
-        
 
     }
 
@@ -105,7 +83,7 @@ public class ImageJROIBased extends AbstractSegmentation {
     @Override
     public void updateImage(ImagePlus thresholdPreview) {
         imagePreview = thresholdPreview;
-        mta = new MicroThresholdAdjuster(imagePreview);
+      
     }
 
     @Override
@@ -119,8 +97,8 @@ public class ImageJROIBased extends AbstractSegmentation {
     }
 
     @Override
-    public JPanel getSegmentationTool() {    
- 
+    public JPanel getSegmentationTool() {
+
         return r.getPanel();
     }
 
@@ -145,7 +123,6 @@ public class ImageJROIBased extends AbstractSegmentation {
             IJRoiManagerClone f1 = (IJRoiManagerClone) sComponents.get(0);
             dComponents.add(f1);
 
-
             return true;
         } catch (Exception e) {
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
@@ -162,7 +139,6 @@ public class ImageJROIBased extends AbstractSegmentation {
      * @param fields
      * @return
      */
-
     @Override
     public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
         try {
@@ -170,7 +146,7 @@ public class ImageJROIBased extends AbstractSegmentation {
             dComponents.clear();
             IJRoiManagerClone n1 = (IJRoiManagerClone) fields.get(0);
             dComponents.add(n1);
-            
+
             return true;
         } catch (Exception e) {
             System.out.println("ERROR: Could not copy parameter(s) for " + NAME);
@@ -192,7 +168,7 @@ public class ImageJROIBased extends AbstractSegmentation {
 
         try {
 
-            fields.add(((IJRoiManagerClone)sComponents.get(0)));
+            fields.add(((IJRoiManagerClone) sComponents.get(0)));
 
             return true;
         } catch (Exception e) {
@@ -226,7 +202,7 @@ public class ImageJROIBased extends AbstractSegmentation {
     @Override
     public boolean process(ImageStack[] is, List protocol, boolean count) {
 
-                /**
+        /**
          * segmentation and measurement protocol redefining. 0: title text, 1:
          * method (as String), 2: channel, 3: ArrayList of JComponents used for
          * analysis 3: ArrayList of Arraylist for morphology determination
@@ -237,22 +213,22 @@ public class ImageJROIBased extends AbstractSegmentation {
         /**
          * PLugin JComponents starts at 1
          */
-        IJRoiManagerClone man = (IJRoiManagerClone)al.get(0);
-        Roi[] ijRois = man.getRoisAsArray();    
-        
-        for(int i = 0; i < ijRois.length; i++){
+        IJRoiManagerClone man = (IJRoiManagerClone) al.get(0);
+        Roi[] ijRois = man.getRoisAsArray();
+
+        for (int i = 0; i < ijRois.length; i++) {
             Roi r = ijRois[i];
             MicroObject obj = new MicroObject();
             Point[] p = r.getContainedPoints();
             int[] x = new int[p.length];
             int[] y = new int[p.length];
             int[] z = new int[p.length];
-            for(int j = 0; j < p.length; j++){
+            for (int j = 0; j < p.length; j++) {
                 x[j] = p[j].x;
                 y[j] = p[j].y;
                 z[j] = r.getZPosition();
             }
-            
+
             obj.setPixelsX(x);
             obj.setPixelsY(y);
             obj.setPixelsZ(z);
@@ -260,14 +236,11 @@ public class ImageJROIBased extends AbstractSegmentation {
             //System.out.println("PROFILING:  Found a anothe object, size: " +  obj.getPixelCount());
             obj.setSerialID(alVolumes.size());
             alVolumes.add(obj);
-            
+
         }
-        
+
         System.out.println("PROFILING:  Found " + alVolumes.size() + " volumes.");
         return true;
     }
 
-
-    
-    
 }
