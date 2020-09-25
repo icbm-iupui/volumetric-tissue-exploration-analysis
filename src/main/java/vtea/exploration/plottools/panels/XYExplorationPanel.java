@@ -132,6 +132,45 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         colorUpdateListener, remapOverlayListener, ManualClassListener, AssignmentListener, UpdateFeaturesListener {
 
     static String printResult = "";
+    static public int testCounter = 0;
+    public static double getMaximumOfData(ArrayList measurements, int l) {
+        
+        ListIterator<ArrayList> litr = measurements.listIterator();
+        
+        Number high = 0;
+        
+        while (litr.hasNext()) {
+            try {
+                
+                ArrayList<Number> al = litr.next();
+                
+                if (al.get(l).floatValue() > high.floatValue()) {
+                    high = al.get(l).floatValue();
+                }
+            } catch (NullPointerException e) {
+            }
+        }
+        return high.longValue();
+        
+    }
+    public static double getMinimumOfData(ArrayList measurements, int l) {
+        
+        ListIterator<ArrayList> litr = measurements.listIterator();
+        
+        //ArrayList<Number> al = new ArrayList<Number>();
+        Number low = getMaximumOfData(measurements, l);
+        
+        while (litr.hasNext()) {
+            try {
+                ArrayList<Number> al = litr.next();
+                if (al.get(l).floatValue() < low.floatValue()) {
+                    low = al.get(l).floatValue();
+                }
+            } catch (NullPointerException e) {
+            }
+        }
+        return low.longValue();
+    }
 
     XYChartPanel cpd;
     TableWindow gm;
@@ -145,7 +184,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     boolean updateimage = true;
     private Connection connection;
 
-    static public int testCounter = 0;
 
     PlotAxesManager AxesManager;
     int explorerXaxisIndex = 0;
@@ -940,11 +978,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         pointsize = size;
         CenterPanel.removeAll();
         this.LUT = LUT;
-        
-        if(imageGate){
+
+        if (imageGate) {
             imageGateColor = impoverlay.getRoi().getStrokeColor();
         }
-        
+
         cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor, lps);
 
         cpd.addUpdatePlotWindowListener(this);
@@ -999,45 +1037,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         return CenterPanel;
     }
 
-    public static double getMaximumOfData(ArrayList measurements, int l) {
-
-        ListIterator<ArrayList> litr = measurements.listIterator();
-
-        Number high = 0;
-
-        while (litr.hasNext()) {
-            try {
-
-                ArrayList<Number> al = litr.next();
-
-                if (al.get(l).floatValue() > high.floatValue()) {
-                    high = al.get(l).floatValue();
-                }
-            } catch (NullPointerException e) {
-            }
-        }
-        return high.longValue();
-
-    }
-
-    public static double getMinimumOfData(ArrayList measurements, int l) {
-
-        ListIterator<ArrayList> litr = measurements.listIterator();
-
-        //ArrayList<Number> al = new ArrayList<Number>();
-        Number low = getMaximumOfData(measurements, l);
-
-        while (litr.hasNext()) {
-            try {
-                ArrayList<Number> al = litr.next();
-                if (al.get(l).floatValue() < low.floatValue()) {
-                    low = al.get(l).floatValue();
-                }
-            } catch (NullPointerException e) {
-            }
-        }
-        return low.longValue();
-    }
 
     @Override
     public void addExplorationGroup() {
@@ -1119,11 +1118,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 }
             }
         }
-        
-        if(imageGate){
+
+        if (imageGate) {
             imageGateColor = impoverlay.getRoi().getStrokeColor();
         }
-        
+
         return createChartPanel(x, y, l, xText, yText, lText, pointsize,
                 impoverlay, imageGate, imageGateColor);
     }
@@ -1922,8 +1921,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                         MicroObject object = ((MicroObject) objectsGated.get(i));
 
-                        
-
                         ArrayList<Number> sorted = (ArrayList<Number>) sortTemp.get(i);
 
                         xValue = sorted.get(1).doubleValue();
@@ -1939,11 +1936,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                 Roi r = impoverlay.getRoi();
 
                                 if (r.containsPoint((double) PosX, (double) PosY)) {
-                                    
+
                                     if (renumber) {
                                         object.setSerialID(objectsFinal.size());
                                     }
-                                    
+
                                     objectsFinal.add(object);
 
                                     measurementsFinal.add(measurementsGated.get(i));
@@ -1951,10 +1948,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                 }
 
                             } else {
-                                
-                                    if (renumber) {
-                                        object.setSerialID(objectsFinal.size());
-                                    }
+
+                                if (renumber) {
+                                    object.setSerialID(objectsFinal.size());
+                                }
 
                                 objectsFinal.add(object);
 
@@ -2182,12 +2179,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     public void addNeighborhoodFromGate(String name) {
 
         NeighborhoodSettingsDialog settingsDialog = new NeighborhoodSettingsDialog();
-        
-        
 
         if (settingsDialog.showDialog()) {
-            
-
 
             ArrayList<String> settings = settingsDialog.getSettings();
 
@@ -2196,12 +2189,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             String radius = settings.get(2);
             String kNeighbors = settings.get(3);
             String interval = settings.get(4);
-            
+
             ProgressTracker pt = new ProgressTracker();
             pt.createandshowGUI("Neighborhood Analysis", explorerXposition, explorerYposition);
             addPropertyChangeListener(pt);
             firePropertyChange("method", "", method);
-            
+
             firePropertyChange("indeterminant", " setup", "");
 
             //determine classes
@@ -2259,11 +2252,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 data[i] = d;
                 i++;
             }
-            
-           
-            
-
-           
 
             //String str = "";
             //int randomKey = Math.abs(Random.nextInt(objectsTemp.size()-1));
@@ -2273,11 +2261,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             ArrayList<MicroNeighborhoodObject> n_objs = new ArrayList<>();
 
             if (method.equals("Nearest-k")) {
-                
+
                 firePropertyChange("method", "Nearest-k.", "Nearest-k.");
                 firePropertyChange("indeterminant", "Making kD tree...", "");
-                
-                 KDTree tree = new KDTree(data, key);
+
+                KDTree tree = new KDTree(data, key);
 
                 for (int objectKey = 0; objectKey < objectsTemp.size(); objectKey++) {
 
@@ -2319,22 +2307,22 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     mno.setCentroid();
                     mno.setSerialID(objectKey);
                     n_objs.add(mno);
-                    
+
                     double progress = 100 * ((double) objectKey / (double) objectsTemp.size());
-                    
+
                     firePropertyChange("comment", "", "Building neighborhood:");
-                    firePropertyChange("progress", "Building neighborhood:", (int)progress);
+                    firePropertyChange("progress", "Building neighborhood:", (int) progress);
 
                 }
 
                 //convert neighborhood into list of microobjects
                 //add center object
             } else if (method.equals("Spatial by cell")) {
-                             
+
                 firePropertyChange("method", "Spatial by cell.", "Spatial by cell.");
                 //firePropertyChange("progress", "Making kD tree...", 5);
                 firePropertyChange("indeterminant", " setup", "");
-                        
+
                 KDTree tree = new KDTree(data, key);
 
                 for (int objectKey = 0; objectKey < objectsTemp.size(); objectKey++) {
@@ -2367,18 +2355,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     mno.setCentroid();
                     mno.setSerialID(objectKey);
                     n_objs.add(mno);
-                    
+
                     double progress = 100 * ((double) objectKey / (double) objectsTemp.size());
-                    
+
                     firePropertyChange("comment", "", "Building neighborhood:");
-                    firePropertyChange("progress", "Building neighborhood:", (int)progress);
-                 
+                    firePropertyChange("progress", "Building neighborhood:", (int) progress);
+
                 }
 
                 //convert neighborhood into list of microobjects
                 //add center object
             } else { //spatial by point
-                
+
                 firePropertyChange("method", "Spatial by point.", "Spatial by point.");
                 firePropertyChange("indeterminant", " setup", "");
 
@@ -2398,10 +2386,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 int[] xPos = new int[1];
                 int[] yPos = new int[1];
                 int[] zPos = new int[1];
-                
+
                 //firePropertyChange("comment", "", "Making kD tree...");
                 //firePropertyChange("progress", "Making kD tree...", 5);
-
                 if (width > 2 * intervalInt) {
                     x = Math.round(width / intervalInt);
                     xPos = new int[x - 1];
@@ -2442,49 +2429,47 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 int c = 0;
                 int referenceKey = (int) this.getSerialIDMax(objects) + 1;
 
-                
                 ImagePlus resultImage = IJ.createImage("Sampling Volumes", "8-bit black", impoverlay.getWidth(), impoverlay.getHeight(), impoverlay.getNSlices());
                 ImageStack resultStack = resultImage.getStack();
 
-
                 //System.out.println("PROFILING: Neighborhood Analysis Adding : " + xPos.length * yPos.length * zPos.length + " reference points.");
                 boolean makeImage = true;
-                if(makeImage){
-                //firePropertyChange("comment", "", "Making image...");
-                firePropertyChange("progress", "Making image...", 30);
-                for (int l = 0; l < xPos.length; l++) {
-                    for (int m = 0; m < yPos.length; m++) {
-                        for (int n = 0; n < zPos.length; n++) {
-                            double[] d = new double[3];
-                            d[0] = xPos[l];
-                            d[1] = yPos[m];
-                            d[2] = zPos[n];
+                if (makeImage) {
+                    //firePropertyChange("comment", "", "Making image...");
+                    firePropertyChange("progress", "Making image...", 30);
+                    for (int l = 0; l < xPos.length; l++) {
+                        for (int m = 0; m < yPos.length; m++) {
+                            for (int n = 0; n < zPos.length; n++) {
+                                double[] d = new double[3];
+                                d[0] = xPos[l];
+                                d[1] = yPos[m];
+                                d[2] = zPos[n];
 
-                            resultStack.drawSphere(5, (int) d[0], (int) d[1], (int) d[2]);
+                                resultStack.drawSphere(5, (int) d[0], (int) d[1], (int) d[2]);
 
-                            dataReference[c] = d;
-                            double[] k = new double[1];
-                            k[0] = referenceKey;
-                            key[c] = k;
-                            //System.out.println("PROFILING: Adding reference of: " + k[0] + " at position: " + d[0] +","+ d[1] +"," + d[2]);
+                                dataReference[c] = d;
+                                double[] k = new double[1];
+                                k[0] = referenceKey;
+                                key[c] = k;
+                                //System.out.println("PROFILING: Adding reference of: " + k[0] + " at position: " + d[0] +","+ d[1] +"," + d[2]);
 
-                            referenceKey++;
-                            c++;
-                             
-                            double length = xPos.length*yPos.length*zPos.length;
-                            double position = l+m+n;
-                            //firePropertyChange("comment", "", "Making image...");
-                            firePropertyChange("progress","Making image...", (int)(100*position/length));
-                            
+                                referenceKey++;
+                                c++;
+
+                                double length = xPos.length * yPos.length * zPos.length;
+                                double position = l + m + n;
+                                //firePropertyChange("comment", "", "Making image...");
+                                firePropertyChange("progress", "Making image...", (int) (100 * position / length));
+
+                            }
                         }
                     }
-                }
 
-                resultImage.show();
+                    resultImage.show();
                 }
                 //add segmented objects to end of references
                 ListIterator itrObject = objectsTemp.listIterator();
-               
+
                 while (itrObject.hasNext()) {
                     MicroObject obj = (MicroObject) itrObject.next();
                     double[] k = new double[1];
@@ -2505,17 +2490,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 }
 
                 //key needs to be same length,  set a non
-                
                 firePropertyChange("method", "", "Spatial by point..");
                 //firePropertyChange("comment", "", "Making kD tree...");
                 firePropertyChange("indeterminant", " setup", "");
-                
-                KDTree tree = new KDTree(dataReference, key);
-                
-                //firePropertyChange("comment", "", "Generating neighborhoods...");
 
+                KDTree tree = new KDTree(dataReference, key);
+
+                //firePropertyChange("comment", "", "Generating neighborhoods...");
                 int refLength = xPos.length * yPos.length * zPos.length;
-          
+
                 for (int objectKey = 0; objectKey < refLength; objectKey++) {
 
                     double[] d = dataReference[objectKey];
@@ -2553,14 +2536,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                         // System.out.println("PROFILING: Adding neighborhood of size: " + mno.getPixelsX().length);
                         n_objs.add(mno);
                     }
-                
-                double progress = 100 * ((double) objectKey / (double) refLength);
-                
-                
-                firePropertyChange("method", "", "Spatial by position");
-                firePropertyChange("progress", "Generating neighborhoods...", (int)progress);
-                
-   
+
+                    double progress = 100 * ((double) objectKey / (double) refLength);
+
+                    firePropertyChange("method", "", "Spatial by position");
+                    firePropertyChange("progress", "Generating neighborhoods...", (int) progress);
 
                 }
             }
@@ -2571,7 +2551,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 nf.makeNeighborhoodAnalysis(impoverlay, newKey, this.key, n_objs, classes, objFeature, pt);
             }
             pt.setVisible(false);
-            
+
         }
 
     }

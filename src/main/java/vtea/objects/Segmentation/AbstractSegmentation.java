@@ -42,6 +42,7 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     protected String NAME = "ND";
     protected String KEY = "ND";
     protected String COMPATIBILITY = "3D";
+    protected String TYPE = "Calculated";
 
     ArrayList<SegmentationListener> segmentationlisteners = new ArrayList();
 

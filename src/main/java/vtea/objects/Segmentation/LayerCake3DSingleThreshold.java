@@ -79,6 +79,7 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
         COMMENT = "Connected components object segmentation.";
         NAME = "Connect 3D";
         KEY = "Connect3DSingleThreshold";
+        TYPE = "Calculated";
 
         protocol = new ArrayList();
 

@@ -780,6 +780,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         if (evt.getPropertyName().equals("escape") && !(Boolean) evt.getNewValue()) {
 
             System.out.println("PROFILING: Error in processing, thread terminated early...");
+           
 
         }
     }
