@@ -39,18 +39,25 @@ public class SegmentationPreviewer implements Runnable, PropertyChangeListener {
 
     static private void makeImage(ImagePlus imp, ArrayList<MicroObject> objects) {
 
-        ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
+       //ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
+         ImagePlus resultImage = IJ.createImage("Segmentation", "32-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
         ImageStack resultStack = resultImage.getStack();
-        int value = 1;
+        //int value = 1;
         ListIterator<MicroObject> citr = objects.listIterator();
+        
+        int maxValue = 0;
 
         while (citr.hasNext()) {
             MicroObject vol = (MicroObject) citr.next();
-            vol.setColor(value);
-            value++;
-            if (value > 255) {
-                value = 1;
+            vol.setColor(((int)vol.getSerialID()+1));
+            if((int)vol.getSerialID() > maxValue){
+                maxValue = (int)vol.getSerialID();
             }
+//            vol.setColor(value);
+//            value++
+//            if (value > 255) {
+//                value = 1;
+//            }
         }
 
         for (int i = 0; i <= imp.getNSlices(); i++) {
@@ -69,6 +76,7 @@ public class SegmentationPreviewer implements Runnable, PropertyChangeListener {
             }
         }
         IJ.run(resultImage, "3-3-2 RGB", "");
+        resultImage.setDisplayRange(0, maxValue);
         resultImage.show();
 
     }

@@ -25,10 +25,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.ListIterator;
+import java.util.Random;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+
 import vtea.exploration.listeners.AddFeaturesListener;
 import vteaobjects.MicroObject;
 
@@ -68,9 +70,9 @@ public class densityMap3d {
         int radius = Integer.parseInt((String) settings.get(0));
         int weight = Integer.parseInt((String) settings.get(1));
 
-        System.out.println("PROFILING: radius: " + radius + " and weight:" + weight);
+        System.out.println("PROFILING: Generating density map, radius: " + radius + " and weight:" + weight);
 
-        ImagePlus resultImage = IJ.createImage("Segmentation", "8-bit black",
+        ImagePlus resultImage = IJ.createImage("Density Map_Real", "8-bit black",
                 imp.getWidth(), imp.getHeight(), imp.getNSlices());
         ImageStack resultStack = resultImage.getStack();
 
@@ -129,7 +131,98 @@ public class densityMap3d {
         //IJ.run(resultImage,"Invert", "stack");
         IJ.run(resultImage, "Gaussian Blur 3D...", "x=2 y=2 z=2");
 
-        //resultImage.show();
+        resultImage.show();
+        //IJ.run(resultImage, "Fire", "");
+        return resultImage;
+    }
+    
+    public ImagePlus makeRandomMap(ImagePlus imp, ArrayList<MicroObject> al) {
+
+        ArrayList<String> settings = new ArrayList<String>();
+
+        //settings = sd.getSettings();
+        //sd.showDialog();
+
+        settings = sd.getSettings();
+
+        int radius = Integer.parseInt((String) settings.get(0));
+        int weight = Integer.parseInt((String) settings.get(1));
+
+        System.out.println("PROFILING: Generating random density map, radius: " + radius + " and weight:" + weight);
+
+        ImagePlus resultImage = IJ.createImage("Density Map_Random", "8-bit black",
+                imp.getWidth(), imp.getHeight(), imp.getNSlices());
+        ImageStack resultStack = resultImage.getStack();
+
+        //ArrayList<Integer> xPos = new ArrayList<Integer>();
+        //ArrayList<Integer> yPos = new ArrayList<Integer>();
+        //ArrayList<Integer> zPos = new ArrayList<Integer>();
+        int R = (int) Math.pow(radius, 2);
+
+        int total = al.size();
+        int step = 1;
+        
+        Random random = new Random();
+        int offsetX;
+        int offsetY;
+        int offsetZ;
+
+        ListIterator<MicroObject> itr = al.listIterator();
+        while (itr.hasNext()) {
+            MicroObject vol = (MicroObject) itr.next();
+            IJ.showStatus("Calculating distance map on random...");
+            IJ.showProgress(step, total);
+            step++;
+            try {
+                
+                offsetX = random.nextInt(imp.getWidth());
+                offsetY = random.nextInt(imp.getHeight());
+                offsetZ = random.nextInt(imp.getNSlices());
+
+                int x0 = (int) vol.getCentroidX();
+                int y0 = (int) vol.getCentroidY();
+                int z0 = (int) vol.getCentroidZ();
+                
+                x0 = offsetX;
+                y0 = offsetY;
+                z0 = offsetZ;
+
+                int xStart = x0 - R - 1;
+                int xStop = x0 + R + 1;
+
+                xStart = lowBounds(xStart, 0);
+                xStop = highBounds(xStop, imp.getWidth());
+
+                int yStart = y0 - R - 1;
+                int yStop = y0 + R + 1;
+
+                yStart = lowBounds(yStart, 0);
+                yStop = highBounds(yStop, imp.getHeight());
+
+                int zStart = z0 - R - 1;
+                int zStop = z0 + R + 1;
+
+                zStart = lowBounds(zStart, 0);
+                zStop = highBounds(zStop, imp.getNSlices());
+
+                for (int x = xStart; x < xStop; x++) {
+                    for (int y = yStart; y < yStop; y++) {
+                        for (int z = zStart; z < zStop; z++) {
+                            if (Math.pow(x - x0, 2) + Math.pow(y - y0, 2) + Math.pow(z - z0, 2) <= R) {
+                                resultStack.setVoxel(x, y, z, resultStack.getVoxel(x, y, z) + weight);
+                            }
+                        }
+                    }
+                }
+
+            } catch (NullPointerException e) {
+            }
+        }
+
+        //IJ.run(resultImage,"Invert", "stack");
+        IJ.run(resultImage, "Gaussian Blur 3D...", "x=2 y=2 z=2");
+
+        resultImage.show();
         //IJ.run(resultImage, "Fire", "");
         return resultImage;
     }

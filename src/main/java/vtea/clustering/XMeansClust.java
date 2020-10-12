@@ -28,7 +28,7 @@ import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
 
 /**
- * X-Means Clustering. An improvement upon K-Means clustering. For more
+ * X-Means Clustering by SMILE. An improvement upon K-Means clustering. For more
  * information see Pelleg & Moore. X-means: Extending K-means with Efficient
  * Estimation of the Number of Clusters. 2000.
  *

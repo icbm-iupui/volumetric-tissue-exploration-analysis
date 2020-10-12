@@ -69,8 +69,8 @@ public class KMeans extends AbstractFeatureProcessing {
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implementation of K-means";
-        NAME = "K-means Clustering";
-        KEY = "Kmeans";
+        NAME = "K-means Clustering (VTEA)";
+        KEY = "KmeansVTEA";
         TYPE = "Cluster";
     }
 
@@ -197,7 +197,7 @@ public class KMeans extends AbstractFeatureProcessing {
     }
 
     private Centroids performClustering(double[][] feature, int nClust, int nTrials) {
-        int[][] list = new int[10][5];
+        int[][] list = new int[nTrials][nClust];
         for (int i = 0; i < list.length; i++) {
             for (int j = 0; j < list[i].length; j++) {
                 list[i][j] = rand.nextInt(feature.length);
@@ -286,7 +286,7 @@ public class KMeans extends AbstractFeatureProcessing {
                 clusters.set(i, newCentroid);
 
             }
-            if (clustDif == 0) {
+            if (Math.abs(clustDif) == 0 || Double.isNaN(clustDif)) {
                 break;
             }
             iterCount++;

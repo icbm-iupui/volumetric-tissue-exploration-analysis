@@ -159,8 +159,9 @@ public class H2DatabaseEngine {
 
         try {
 
-            String SelectQuery = "select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS"
-                    + " WHERE TABLE_NAME =" + table;
+            String SelectQuery = "select COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = " + table;
+            
+            
 
             Connection cn = H2DatabaseEngine.getDBConnection();
 
@@ -206,6 +207,32 @@ public class H2DatabaseEngine {
             System.out.println("getColumn Exception Message " + e.getLocalizedMessage());
         }
         return measurements;
+    }
+    
+    
+    
+    //H2 SQL to drop a column, for use with Manual Assignment of Classes
+    
+    public static boolean dropColumn(String table,
+            String column1) {
+        Connection cn = getDBConnection();
+
+        PreparedStatement dropPreparedStatement = null;
+
+
+        try {
+
+            String DropStatement = "alter table " + table
+                    + " drop column " + column1 ;
+
+            dropPreparedStatement = cn.prepareStatement(DropStatement);
+  
+
+        } catch (SQLException e) {
+            System.out.println("PROFILING: dropColumn Exception Message " + e.getLocalizedMessage());
+            return false;
+        }
+        return true;
     }
 
     //H2 SQL for returning ArrayList of all records for the desired columns

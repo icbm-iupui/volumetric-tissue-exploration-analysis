@@ -70,7 +70,6 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
         ProcessText.setText("Morphology method ");
 
         comments.remove(notesPane);
-        comments.remove(tablePane);
 
         repaint();
         pack();
@@ -89,7 +88,6 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
 
         }
 
-        tablePane.setVisible(true);
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
         makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());

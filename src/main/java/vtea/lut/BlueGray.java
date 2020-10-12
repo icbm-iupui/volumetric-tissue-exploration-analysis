@@ -33,18 +33,21 @@ public class BlueGray extends AbstractLUT {
         COMMENT = "Implements LUTs for VTEA";
         NAME = "BlueGray";
         KEY = "BGLUT";
+        TRANSPARENCY = 50;
+        
+        
 
-        ZEROPERCENT = new Color(0x999999);
-        TENPERCENT = new Color(0x8a8aa3);
-        TWENTYPERCENT = new Color(0x7b7bad);
-        THIRTYPERCENT = new Color(0x6666bb);
-        FORTYPERCENT = new Color(0x5050ca);
-        FIFTYPERCENT = new Color(0x4c4ccc);
-        SIXTYPERCENT = new Color(0x3d3dd6);
-        SEVENTYPERCENT = new Color(0x2e2ee0);
-        EIGHTYPERCENT = new Color(0x1f1feb);
-        NINETYPERCENT = new Color(0x0f0ff5);
-        ALLPERCENT = new Color(0x0000ff);
+        ZEROPERCENT = new Color(0x96999999, true);
+        TENPERCENT = new Color(0x968a8aa3, true);
+        TWENTYPERCENT = new Color(0x967b7bad, true);
+        THIRTYPERCENT = new Color(0x966666bb, true);
+        FORTYPERCENT = new Color(0x965050ca, true);
+        FIFTYPERCENT = new Color(0x964c4ccc, true);
+        SIXTYPERCENT = new Color(0x963d3dd6, true);
+        SEVENTYPERCENT = new Color(0x962e2ee0, true);
+        EIGHTYPERCENT = new Color(0x961f1feb, true);
+        NINETYPERCENT = new Color(0x960f0ff5, true);
+        ALLPERCENT = new Color(0x960000ff, true);
 
     }
 

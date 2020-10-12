@@ -125,10 +125,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         jLabel3 = new javax.swing.JLabel();
         ProcessNotes = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
-        tablePane = new javax.swing.JLayeredPane();
-        secondaryObjects = new javax.swing.JLabel();
-        tableScrollPane = new javax.swing.JScrollPane();
-        secondaryTable = new javax.swing.JTable();
         buttonPanel = new javax.swing.JPanel();
         PreviewProgress = new javax.swing.JLabel();
         PreviewButton = new javax.swing.JButton();
@@ -228,87 +224,39 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         comments.setMaximumSize(new java.awt.Dimension(359, 100));
         comments.setMinimumSize(new java.awt.Dimension(359, 50));
         comments.setPreferredSize(new java.awt.Dimension(359, 50));
-        comments.setLayout(new javax.swing.BoxLayout(comments, javax.swing.BoxLayout.LINE_AXIS));
 
         notesPane.setBackground(vtea._vtea.BACKGROUND);
-        notesPane.setMaximumSize(new java.awt.Dimension(340, 300));
-        notesPane.setMinimumSize(new java.awt.Dimension(340, 200));
-        notesPane.setPreferredSize(new java.awt.Dimension(340, 200));
-        notesPane.setLayout(new java.awt.BorderLayout(10, 0));
+        notesPane.setMaximumSize(new java.awt.Dimension(50, 50));
+        notesPane.setMinimumSize(new java.awt.Dimension(330, 50));
+        notesPane.setPreferredSize(new java.awt.Dimension(330, 50));
+        notesPane.setLayout(new java.awt.GridBagLayout());
 
         jLabel3.setText("Notes");
         jLabel3.setAlignmentX(0.5F);
-        notesPane.add(jLabel3, java.awt.BorderLayout.CENTER);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        notesPane.add(jLabel3, gridBagConstraints);
 
-        ProcessNotes.setMaximumSize(new java.awt.Dimension(150, 50));
-        ProcessNotes.setMinimumSize(new java.awt.Dimension(150, 50));
-        ProcessNotes.setPreferredSize(new java.awt.Dimension(340, 90));
+        ProcessNotes.setMaximumSize(new java.awt.Dimension(330, 100));
+        ProcessNotes.setMinimumSize(new java.awt.Dimension(330, 100));
+        ProcessNotes.setName(""); // NOI18N
+        ProcessNotes.setPreferredSize(new java.awt.Dimension(330, 100));
         ProcessNotes.setRequestFocusEnabled(false);
 
-        jTextPane1.setMaximumSize(new java.awt.Dimension(150, 50));
-        jTextPane1.setMinimumSize(new java.awt.Dimension(150, 50));
-        jTextPane1.setPreferredSize(new java.awt.Dimension(150, 50));
+        jTextPane1.setMaximumSize(new java.awt.Dimension(300, 100));
+        jTextPane1.setMinimumSize(new java.awt.Dimension(300, 100));
+        jTextPane1.setPreferredSize(new java.awt.Dimension(300, 100));
         ProcessNotes.setViewportView(jTextPane1);
-
-        notesPane.add(ProcessNotes, java.awt.BorderLayout.PAGE_END);
-
-        comments.add(notesPane);
-
-        tablePane.setMaximumSize(new java.awt.Dimension(360, 90));
-        tablePane.setMinimumSize(new java.awt.Dimension(360, 90));
-        tablePane.setLayout(new java.awt.GridBagLayout());
-
-        secondaryObjects.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
-        secondaryObjects.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        secondaryObjects.setText("Object measurements");
-        secondaryObjects.setMinimumSize(new java.awt.Dimension(180, 30));
-        secondaryObjects.setPreferredSize(new java.awt.Dimension(180, 20));
-        secondaryObjects.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                secondaryObjectsMousePressed(evt);
-            }
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                secondaryObjectsMouseClicked(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        tablePane.add(secondaryObjects, gridBagConstraints);
-
-        tableScrollPane.setMaximumSize(new java.awt.Dimension(360, 220));
-        tableScrollPane.setMinimumSize(new java.awt.Dimension(360, 220));
-        tableScrollPane.setPreferredSize(new java.awt.Dimension(360, 220));
-
-        secondaryTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        secondaryTable.setMaximumSize(new java.awt.Dimension(2147483647, 1000));
-        secondaryTable.setMinimumSize(new java.awt.Dimension(340, 70));
-        secondaryTable.setPreferredSize(new java.awt.Dimension(340, 220));
-        secondaryTable.setRequestFocusEnabled(false);
-        tableScrollPane.setViewportView(secondaryTable);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        tablePane.add(tableScrollPane, gridBagConstraints);
+        gridBagConstraints.gridwidth = 2;
+        notesPane.add(ProcessNotes, gridBagConstraints);
 
-        comments.add(tablePane);
+        comments.add(notesPane);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -399,10 +347,10 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         ProcessSelectComboBox.setMinimumSize(new java.awt.Dimension(150, 27));
         ProcessSelectComboBox.setPreferredSize(new java.awt.Dimension(200, 27));
         ProcessSelectComboBox.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-            }
             public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
                 ProcessSelectComboBoxCaretPositionChanged(evt);
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         ProcessSelectComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -510,16 +458,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         updateTitles();
         pack();
     }//GEN-LAST:event_TitleTextFocusLost
-
-    private void secondaryObjectsMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_secondaryObjectsMousePressed
-
-// TODO add your handling code here:
-    }//GEN-LAST:event_secondaryObjectsMousePressed
-
-    private void secondaryObjectsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_secondaryObjectsMouseClicked
-        this.secondaryTable.setEnabled(!(this.secondaryTable.isEnabled()));
-
-    }//GEN-LAST:event_secondaryObjectsMouseClicked
 
     private void TitleTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TitleTextActionPerformed
         this.updateProtocolPanel(evt);
@@ -907,10 +845,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     protected javax.swing.JPanel methodMorphology;
     protected javax.swing.JPanel methodSelection;
     protected javax.swing.JPanel notesPane;
-    private javax.swing.JLabel secondaryObjects;
-    protected javax.swing.JTable secondaryTable;
-    protected javax.swing.JLayeredPane tablePane;
-    private javax.swing.JScrollPane tableScrollPane;
     // End of variables declaration//GEN-END:variables
 
 }

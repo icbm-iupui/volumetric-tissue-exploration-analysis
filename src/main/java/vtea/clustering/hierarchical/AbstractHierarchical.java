@@ -30,6 +30,7 @@ import smile.plot.Dendrogram;
 import smile.plot.PlotCanvas;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 
+
 /**
  * Clusters using Hierarchical clustering with ambiguous linkage method.
  *

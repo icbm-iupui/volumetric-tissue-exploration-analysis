@@ -33,18 +33,20 @@ public class Fire extends AbstractLUT {
         COMMENT = "Implements LUTs for VTEA";
         NAME = "Fire";
         KEY = "FIRELUT";
+        
+         
 
-        ZEROPERCENT = new Color(0, 0, 0);
-        TENPERCENT = new Color(0, 0, 82);
-        TWENTYPERCENT = new Color(61, 0, 178);
-        THIRTYPERCENT = new Color(122, 0, 227);
-        FORTYPERCENT = new Color(178, 0, 136);
-        FIFTYPERCENT = new Color(213, 27, 45);
-        SIXTYPERCENT = new Color(249, 95, 0);
-        SEVENTYPERCENT = new Color(255, 140, 0);
-        EIGHTYPERCENT = new Color(255, 175, 0);
-        NINETYPERCENT = new Color(255, 190, 0);
-        ALLPERCENT = new Color(255, 250, 50);
+        ZEROPERCENT = new Color(0, 0, 0, 150);
+        TENPERCENT = new Color(0, 0, 82,150);
+        TWENTYPERCENT = new Color(61, 0, 178, 150);
+        THIRTYPERCENT = new Color(122, 0, 227,150);
+        FORTYPERCENT = new Color(178, 0, 136,150);
+        FIFTYPERCENT = new Color(213, 27, 45,150);
+        SIXTYPERCENT = new Color(249, 95, 0, 150);
+        SEVENTYPERCENT = new Color(255, 140, 0, 150);
+        EIGHTYPERCENT = new Color(255, 175, 0, 150);
+        NINETYPERCENT = new Color(255, 190, 0, 150);
+        ALLPERCENT = new Color(255, 250, 50, 150);
     }
 
 }

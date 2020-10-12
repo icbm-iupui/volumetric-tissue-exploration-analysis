@@ -90,6 +90,7 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
         COMMENT = "Connected components object segmentation for large-scale images.";
         NAME = "LS Connect 3D";
         KEY = "Connect3DSingleThresholdLS";
+        TYPE = "Calculated";
 
         protocol = new ArrayList();
 

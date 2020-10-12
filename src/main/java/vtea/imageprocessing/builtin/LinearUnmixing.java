@@ -32,7 +32,7 @@ import vtea.imageprocessing.ImageProcessing;
  *
  * @author sethwinfree
  */
-@Plugin(type = ImageProcessing.class)
+//@Plugin(type = ImageProcessing.class)
 public class LinearUnmixing extends AbstractImageProcessing {
 
     public LinearUnmixing() {

@@ -42,6 +42,7 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     protected String NAME = "ND";
     protected String KEY = "ND";
     protected String COMPATIBILITY = "3D";
+    protected String TYPE = "Calculated";
 
     ArrayList<SegmentationListener> segmentationlisteners = new ArrayList();
 
@@ -66,12 +67,12 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
 
     @Override
     public ImagePlus getSegmentation() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("getSegmentation, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public ArrayList<MicroObject> getObjects() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("getObjects, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -101,27 +102,27 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
 
     @Override
     public String runImageJMacroCommand(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("runImageJMacroCommand, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void sendProgressComment() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("sendProgressComment, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public String getProgressComment() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("getProgressComment, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public boolean process(ImageStack[] is, List details, boolean calculate) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("process1, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public boolean process(ImagePlus imp, List details, boolean calculate) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("process2, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     private <K> void propertyChange(String name, K previousValue, K lastChange) {
@@ -147,12 +148,12 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
 
     @Override
     public JPanel getSegmentationTool() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("getSegmentationTool, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public ArrayList getSegmentationToolOptions() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("getSegmentationToolOptions, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -176,7 +177,7 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
     }
 
     public JPanel getVisualization() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("getVisualization,Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -236,7 +237,7 @@ public class AbstractSegmentation<T extends Component, K extends Object> impleme
 
     @Override
     public void doUpdateOfTool() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("doUpdateOfTool, Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

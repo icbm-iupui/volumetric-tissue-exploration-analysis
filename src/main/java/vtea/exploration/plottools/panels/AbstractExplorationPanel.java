@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2020 Indiana University
+ * Copyright (C) 2016-2018 Indiana University
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,8 +28,13 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
+
+import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
+import vtea.exploration.listeners.LinkedKeyListener;
+
 import vtea.exploration.plotgatetools.gates.GateLayer;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
+
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vtea.spatial.densityMap3d;
@@ -42,17 +47,19 @@ import vteaobjects.MicroObject;
  */
 public abstract class AbstractExplorationPanel extends JFrame implements ExplorationCenter {
 
-    protected static Color imageGateColor = new Color(0, 177, 76);
-
     ArrayList<MakeImageOverlayListener> overlaylisteners = new ArrayList<MakeImageOverlayListener>();
-
+    
     ArrayList<ResetSelectionListener> resetselectionlisteners = new ArrayList<ResetSelectionListener>();
-
+    
     ArrayList<SubGateExplorerListener> subgatelisteners = new ArrayList<SubGateExplorerListener>();
-
+    
+    ArrayList<LinkedKeyListener> linkedKeyListeners = new ArrayList<LinkedKeyListener>();
+    
     ArrayList<AddFeaturesListener> addfeaturelisteners = new ArrayList<AddFeaturesListener>();
 
-    //ArrayList<ArrayList<ArrayList<Number>>> measurementList = new ArrayList<ArrayList<ArrayList<Number>>>();
+    ArrayList<AxesSetupExplorerPlotUpdateListener> axesSetupExplorerUpdateListeners = new ArrayList<AxesSetupExplorerPlotUpdateListener>();
+
+    
     protected JPanel CenterPanel = new JPanel();
     protected ArrayList<PolygonGate> gates = new ArrayList<>();
     protected ArrayList<ArrayList<Number>> measurements = new ArrayList();
@@ -71,23 +78,25 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected HashMap<Integer, String> hm = new HashMap<>();
     protected ImagePlus impoverlay;
     protected boolean imageGate = false;
-
+    
     protected ArrayList<Double> AxesLimits;
-
+    
     protected boolean xScaleLinear = true;
     protected boolean yScaleLinear = true;
-
+    
     protected int LUT = 0;
 
     protected int currentX;
     protected int currentY;
-    protected int currentL;
+    protected int currentL; 
     protected int pointsize;
+    protected static Color imageGateColor = new Color(0,177,76);   
 
     public AbstractExplorationPanel() {
         CenterPanel.setOpaque(false);
         CenterPanel.setBackground(new Color(255, 255, 255, 255));
-
+        
+        
     }
 
     protected int keyLookUp(int x, int y, int l) {
@@ -104,11 +113,11 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
         }
         return 0;
     }
-
+    
     @Override
-    public ArrayList<Component> getSettingsContent() {
+    public ArrayList<Component>  getSettingsContent() {
         ArrayList<Component> al = new ArrayList();
-
+        
 //        al.add(new JLabel("X axis minimum: "));
 //        al.add(new JTextField());
 //        al.add(new JLabel("X axis maximum: "));
@@ -118,21 +127,23 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
 //        al.add(new JTextField());
 //        al.add(new JLabel("Y axis maximum: "));
 //        al.add(new JTextField());
+        
+        
         return al;
     }
+    
+    @Override 
+      public ArrayList<MicroObject> getObjects(){
+          return objects;
+      }
+      
+    @Override 
+      public ArrayList<ArrayList<Number>> getMeasurments(){
+          return measurements;
+      }
+      
+      @Override
+       public void addFromCSV(String s){}
 
-    @Override
-    public ArrayList<MicroObject> getObjects() {
-        return objects;
-    }
-
-    @Override
-    public ArrayList<ArrayList<Number>> getMeasurments() {
-        return measurements;
-    }
-
-    @Override
-    public void addFromCSV(String s) {
-    }
 
 }

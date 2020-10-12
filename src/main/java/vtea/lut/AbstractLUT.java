@@ -1,5 +1,5 @@
-/* 
- * Copyright (C) 2020 Indiana University
+/*
+ * Copyright (C) 2018 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,13 +19,22 @@ package vtea.lut;
 
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import org.jfree.chart.renderer.LookupPaintScale;
 
 /**
  *
  * @author sethwinfree
  */
 public abstract class AbstractLUT implements LUT {
-
+    
+    protected String VERSION = "0.1";
+    protected String AUTHOR = "VTEA Developer";
+    protected String COMMENT = "Abstract LUT";
+    protected String NAME = "ABSTRACT LUT";
+    protected String KEY = "ABSTRACT LUT";
+    
+    static Color ZEROPERCENT = new Color(0, 0, 0);
     static Color TENPERCENT = new Color(0, 0, 82);
     static Color TWENTYPERCENT = new Color(61, 0, 178);
     static Color THIRTYPERCENT = new Color(122, 0, 227);
@@ -36,17 +45,17 @@ public abstract class AbstractLUT implements LUT {
     static Color EIGHTYPERCENT = new Color(255, 175, 0);
     static Color NINETYPERCENT = new Color(255, 190, 0);
     static Color ALLPERCENT = new Color(255, 250, 50);
-    protected String VERSION = "0.1";
-    protected String AUTHOR = "VTEA Developer";
-    protected String COMMENT = "Abstract LUT";
-    protected String NAME = "ABSTRACT LUT";
-    protected String KEY = "ABSTRACT LUT";
-    Color ZEROPERCENT = new Color(0, 0, 0);
+    
+    protected int TRANSPARENCY = 150;
+    
+    protected LookupPaintScale ps;
+    
+    
 
     @Override
     public HashMap getLUTMAP() {
         HashMap<String, Color> hm = new HashMap<String, Color>();
-
+        
         hm.put("0", ZEROPERCENT);
         hm.put("10", TENPERCENT);
         hm.put("20", TWENTYPERCENT);
@@ -58,9 +67,9 @@ public abstract class AbstractLUT implements LUT {
         hm.put("80", EIGHTYPERCENT);
         hm.put("90", NINETYPERCENT);
         hm.put("100", ALLPERCENT);
-
+        
         return hm;
-    }
+      }
 
     @Override
     public String getName() {
@@ -71,10 +80,10 @@ public abstract class AbstractLUT implements LUT {
     public String getKey() {
         return KEY;
     }
-
+    
     @Override
     public Color getColor(int i) {
-        switch (i) {
+        switch(i){
             case 0:
                 return ZEROPERCENT;
             case 10:
@@ -88,7 +97,7 @@ public abstract class AbstractLUT implements LUT {
             case 50:
                 return FIFTYPERCENT;
             case 60:
-                return SIXTYPERCENT;
+                return SIXTYPERCENT;          
             case 70:
                 return SEVENTYPERCENT;
             case 80:
@@ -100,5 +109,34 @@ public abstract class AbstractLUT implements LUT {
         }
         return ZEROPERCENT;
     }
-
+    
+    @Override
+     public LookupPaintScale getPaintScale(double min, double max){
+         
+         ps = new LookupPaintScale(min, max+1, new Color(0x999999));
+         
+         double range = max - min;
+         
+        ps.add(min, ZEROPERCENT);      
+        ps.add(min + (1 * (range / 10)), TENPERCENT);
+        ps.add(min + (2 * (range / 10)), TWENTYPERCENT);
+        ps.add(min + (3 * (range / 10)), THIRTYPERCENT);
+        ps.add(min + (4 * (range / 10)), FORTYPERCENT);
+        ps.add(min + (5 * (range / 10)), FIFTYPERCENT);
+        ps.add(min + (6 * (range / 10)), SIXTYPERCENT);
+        ps.add(min + (7 * (range / 10)), SEVENTYPERCENT);
+        ps.add(min + (8 * (range / 10)), EIGHTYPERCENT);
+        ps.add(min + (9 * (range / 10)), NINETYPERCENT);
+        ps.add(max, ALLPERCENT);
+         
+         
+         return ps;
+         
+     }
+     
+     @Override
+     public void setTransparency(int i){
+         TRANSPARENCY = i;
+     }
+    
 }

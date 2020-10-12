@@ -83,28 +83,15 @@ public class MicroBlockMeasurementSetup extends MicroBlockSetup implements Actio
 
         TitleText.setText("Measurement_" + step);
         TitleText.setEditable(true);
-
-        //ChannelSelection.setText("Type of measurements");
-        //channelsComboBox = new DefaultComboBoxModel(MEASUREMENTSGROUPS);
-        //ChannelComboBox.setModel(channelsComboBox);
-        //getContentPane().remove(comments);
-        //getContentPane().remove(this.methodSelection);
         comments.remove(notesPane);
-        comments.remove(tablePane);
-
         buttonPanel.remove(PreviewButton);
 
         ApproachPanel.setVisible(false);
         channelSelection.setVisible(false);
         methodMorphology.setVisible(false);
 
-        //methodMorphology.setMaximumSize(new Dimension(359, 500));
-        //methodMorphology.setPreferredSize(new Dimension(359,150));
-        //this.MethodDetails.setPreferredSize(new Dimension(340,125));
         repaint();
         pack();
-
-        //setupGroups();
         setupDataBox();
 
         JButton MorphologyButton = new JButton("Morphology Settings");

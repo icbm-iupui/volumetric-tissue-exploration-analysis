@@ -780,6 +780,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         if (evt.getPropertyName().equals("escape") && !(Boolean) evt.getNewValue()) {
 
             System.out.println("PROFILING: Error in processing, thread terminated early...");
+           
 
         }
     }
@@ -1255,7 +1256,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     private void executeExploring(String key, ArrayList<MicroObject> vols, ArrayList measurements, ArrayList headers, ArrayList headerLabels) {
 
         //ij.ImageStack[] test = vols.get(0).exportObjImage(); for debugging
-        ExplorerProcessor ep = new ExplorerProcessor(key, ProcessedImage, vols, measurements, headers, headerLabels);
+        ExplorerProcessor ep = new ExplorerProcessor(key, key, ProcessedImage, vols, measurements, headers, headerLabels);
         ep.addPropertyChangeListener(this);
         explorerProcessors.add(ep);
         ep.execute();

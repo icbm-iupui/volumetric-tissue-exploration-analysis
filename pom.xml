@@ -26,16 +26,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>2.17</version>
+        <version>27.0.1</version>
         <relativePath/>
     </parent>
 
     <groupId>icbm-iupui</groupId>
     <artifactId>vtea</artifactId>
-    <version>1.0alpha3-SNAPSHOT</version>
+    <version>1.0alpha5-SNAPSHOT</version>
 
-
-    <name>VTEA master</name>
+    <name>VTEA master RengLUT</name>
     <description>Volumetric analysis</description>
     
     <properties>
@@ -47,6 +46,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     </properties>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.itk.simple/simpleitk -->
+        <dependency>
+            <groupId>org.itk.simple</groupId>
+            <artifactId>simpleitk</artifactId>
+            <version>0.9.0</version>
+            <type>jar</type>
+        </dependency>
         <dependency>
             <groupId>com.github.lejon.T-SNE-Java</groupId>
             <artifactId>tsne</artifactId>
@@ -56,19 +62,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         <dependency>
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-netlib</artifactId>
-            <version>1.5.1</version>
+            <version>1.5.3</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-core -->
         <dependency>
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-core</artifactId>
-            <version>1.5.1</version>
+            <version>1.5.3</version>
+            <type>jar</type>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-core -->
+
         <!-- https://mvnrepository.com/artifact/com.github.haifengl/smile-plot -->
         <dependency>
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-plot</artifactId>
-            <version>1.5.1</version>
+            <version>1.5.3</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
@@ -88,9 +98,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>4.1</version>
         </dependency>
         <dependency>
-             <groupId>org.jfree</groupId>
-             <artifactId>jfreechart</artifactId>
-             <version>1.5.0</version>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.jfree</groupId>
@@ -114,43 +124,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>2.1</version>
         </dependency>
         <dependency>
-            <groupId>com.github.quickhull3d</groupId>
-            <artifactId>quickhull3d</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <!--
-        <dependency>
             <groupId>net.imglib2</groupId>
             <artifactId>imglib2</artifactId>
-            <version>3.2.1</version>
+            <version>5.8.0</version>
             <type>jar</type>
-        </dependency>
-        -->
-        <dependency>
-            <groupId>net.imglib2</groupId>
-            <artifactId>imglib2</artifactId>
-            <version>5.6.3</version>
         </dependency>
         <dependency>
             <groupId>org.scijava</groupId>
             <artifactId>scijava-common</artifactId>
         </dependency>
-<!-- https://mvnrepository.com/artifact/net.imglib2/imglib2-ij -->
-<dependency>
-    <groupId>net.imglib2</groupId>
-    <artifactId>imglib2-ij</artifactId>
-    <version>2.0.0-beta-45</version>
-</dependency>
-        <!--dependency>
-            <groupId>net.imagej</groupId>
-            <artifactId>ij-ui-swing</artifactId>
-            <version>2</version>
-            <type>jar</type>
-        </dependency-->
+        <!-- https://mvnrepository.com/artifact/net.imglib2/imglib2-ij -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.6.4</version>
+            <groupId>net.imglib2</groupId>
+            <artifactId>imglib2-ij</artifactId>          
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
@@ -166,6 +152,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.5</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.github.haifengl</groupId>
+            <artifactId>smile-math</artifactId>
+            <version>1.5.3</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ijpb</groupId>
+            <artifactId>MorphoLibJ</artifactId>
+            <version>v1.4.0</version>
             <type>jar</type>
         </dependency>
     </dependencies>
@@ -234,17 +237,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             </plugin>
         </plugins>
     </build>  
-    <pluginRepositories>
-        <pluginRepository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-clearcontrol-ClearControl</id>
-            <name>bintray-plugins</name>
-            <url>http://dl.bintray.com/clearcontrol/ClearControl</url>
-        </pluginRepository>
-
-    </pluginRepositories>  
     <developers>
         <developer>
             <id>swin</id>

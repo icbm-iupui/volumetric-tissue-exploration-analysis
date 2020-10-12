@@ -1,5 +1,5 @@
-/* 
- * Copyright (C) 2020 Indiana University
+/*
+ * Copyright (C) 2018 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,16 +19,21 @@ package vtea.lut;
 
 import java.awt.Color;
 import java.util.HashMap;
+import org.jfree.chart.renderer.LookupPaintScale;
 import vtea.VTEAModule;
 
 /**
  *
  * @author sethwinfree
  */
-public interface LUT extends VTEAModule {
-
+public interface LUT extends VTEAModule{
+    
     public HashMap getLUTMAP();
-
+    
     public Color getColor(int i);
-
+    
+    public LookupPaintScale getPaintScale(double min, double max);
+    
+    public void setTransparency(int i);
+    
 }

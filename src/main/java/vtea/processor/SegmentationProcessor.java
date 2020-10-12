@@ -106,52 +106,56 @@ public class SegmentationProcessor extends AbstractProcessor {
         //pass protocol and imageplus to segmentation
         Object iImp = new Object();
 
-        try {
-            Class<?> c;
 
-            c = Class.forName(SEGMENTATIONMAP.get(protocol.get(1)));
-            Constructor<?> con;
             try {
-                con = c.getConstructor();
-                iImp = con.newInstance();
+                Class<?> c;
 
-                //System.out.println("PROFILING: Instance of " + SEGMENTATIONMAP.get(protocol.get(1)) + ", created.");
-            } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                System.out.println("EXCEPTION: new instance decleration error... ");
+                c = Class.forName(SEGMENTATIONMAP.get(protocol.get(1)));
+                Constructor<?> con;
+                try {
+                    con = c.getConstructor();
+                    iImp = con.newInstance();
+
+                    //System.out.println("PROFILING: Instance of " + SEGMENTATIONMAP.get(protocol.get(1)) + ", created.");
+                } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    System.out.println("EXCEPTION: new instance decleration error... ");
+                }
+
+            } catch (NullPointerException | ClassNotFoundException ex) {
+                System.out.println("EXCEPTION: new class decleration error... ");
             }
 
-        } catch (NullPointerException | ClassNotFoundException ex) {
-            System.out.println("EXCEPTION: new class decleration error... ");
-        }
+            ((AbstractSegmentation) iImp).addListener(this);
 
-        ((AbstractSegmentation) iImp).addListener(this);
+            try {
+                if (impOriginal.getNSlices() > 1) {
+                    ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false);
+                } else {
+                    ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false);
+                }
 
-        try {
-            if (impOriginal.getNSlices() > 1) {
-                ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false);
-            } else {
-                ((AbstractSegmentation) iImp).process(getInterleavedStacks(impOriginal), protocol, false);
+                volumes = ((AbstractSegmentation) iImp).getObjects();
+                
+            } catch (Exception ex) {
+                System.out.println("EXCEPTION: Error in object segmentation... " + ex.getLocalizedMessage());
+                StackTraceElement[] ele = ex.getStackTrace();
+                for (int i = 0; i < ex.getStackTrace().length; i++) {
+                    System.out.println("trace: " + ele[i].toString());
+                }
             }
 
-            volumes = ((AbstractSegmentation) iImp).getObjects();
+            long start_time = System.currentTimeMillis();
 
-        } catch (Exception ex) {
-            System.out.println("EXCEPTION: Error in object segmentation... ");
+            ProcessorForkPool pfp = new ProcessorForkPool(protocol, 0, volumes.size());
+            ForkJoinPool pool = new ForkJoinPool();
+            pool.invoke(pfp);
 
-        }
+            long end_time = System.currentTimeMillis();
 
-        long start_time = System.currentTimeMillis();
-
-        ProcessorForkPool pfp = new ProcessorForkPool(protocol, 0, volumes.size());
-        ForkJoinPool pool = new ForkJoinPool();
-        pool.invoke(pfp);
-
-        long end_time = System.currentTimeMillis();
-
-        System.out.println("PROFILING: Segmentation time: " + (end_time - start_time) + " ms.");
-
-        firePropertyChange("progress", 0, 100);
-        firePropertyChange("segmentationDone", key, "Segmentation done...  ");
+            System.out.println("PROFILING: Segmentation time: " + (end_time - start_time) + " ms.");
+           
+            firePropertyChange("progress", 0, 100);
+            firePropertyChange("segmentationDone", key, "Segmentation done...  ");
     }
 
     @Override
@@ -224,8 +228,8 @@ public class SegmentationProcessor extends AbstractProcessor {
              * used for analysis 4: ArrayList of Arraylist for morphology
              * determination
              *
-             * // ArrayList for morphology: 0: method(as String), 1: channel, //
-             * 2: ArrayList of JComponents for method
+             * // ArrayList for morphology: 0: method(as String), 1: channel,
+             * // 2: ArrayList of JComponents for method
              */
             //descriptors for derived volumes
             firePropertyChange("reset", 0, 0);

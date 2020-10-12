@@ -131,6 +131,9 @@ public class XYChartPanel implements RoiListener {
 
     private String keySQLSafe;
 
+    LookupPaintScale PS;
+
+
     public XYChartPanel() {
 
     }
@@ -153,7 +156,11 @@ public class XYChartPanel implements RoiListener {
         // process(xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
     }
 
-    public XYChartPanel(String key, ArrayList objects, int x, int y, int l, String xText, String yText, String lText, int size, ImagePlus ip, boolean imageGate, Color imageGateColor) {
+    
+    public XYChartPanel(String key, ArrayList objects, int x, int y, int l, 
+            String xText, String yText, String lText, int size, ImagePlus ip, 
+            boolean imageGate, Color imageGateColor, LookupPaintScale lps) {
+
 
         impoverlay = ip;
         this.imageGate = imageGate;
@@ -168,6 +175,7 @@ public class XYChartPanel implements RoiListener {
         xValuesText = xText;
         yValuesText = yText;
         lValuesText = lText;
+        PS = lps;
 
         //process(xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
         process(connection, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
@@ -253,70 +261,24 @@ public class XYChartPanel implements RoiListener {
 
         PaintScaleLegend psl = new PaintScaleLegend(new LookupPaintScale(0, 100, new Color(0, 0, 0)), new NumberAxis(""));
 
-        if (l >= 0) {
-            double max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
-            double min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, lText), 0));
-            double range = max - min;
-            if (max == 0) {
-                max = 1;
-            }
 
-            LookupPaintScale ps = new LookupPaintScale(min, max + 1, new Color(0x999999));
 
-            renderer.setPaintScale(ps);
+        renderer.setPaintScale(PS);
+           
+        NumberAxis lAxis = new NumberAxis();
+        
+        lAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-            if (range <= 21) {
+        psl = new PaintScaleLegend(PS, lAxis);
 
-                ps.add(0, new Color(255, 51, 51));
-                ps.add(1, new Color(255, 153, 51));
-                ps.add(2, new Color(153, 255, 51));
-                ps.add(3, new Color(51, 255, 153));
-                ps.add(4, new Color(51, 255, 255));
-                ps.add(5, new Color(102, 178, 255));
-                ps.add(6, new Color(102, 102, 255));
-                ps.add(7, new Color(178, 102, 255));
-                ps.add(8, new Color(255, 102, 255));
-                ps.add(9, new Color(255, 102, 178));
-
-                ps.add(10, new Color(255, 51, 153));
-                ps.add(11, new Color(255, 153, 153));
-                ps.add(12, new Color(153, 255, 153));
-                ps.add(13, new Color(51, 255, 51));
-                ps.add(14, new Color(51, 255, 178));
-                ps.add(15, new Color(102, 178, 178));
-                ps.add(16, new Color(178, 102, 178));
-                ps.add(17, new Color(255, 102, 153));
-                ps.add(18, new Color(255, 102, 51));
-                ps.add(19, new Color(178, 153, 51));
-                ps.add(20, new Color(153, 178, 51));
-
-            } else {
-                ps.add(min, XYChartPanel.ZEROPERCENT);
-                ps.add(min + (1 * (range / 10)), XYChartPanel.TENPERCENT);
-                ps.add(min + (2 * (range / 10)), XYChartPanel.TWENTYPERCENT);
-                ps.add(min + (3 * (range / 10)), XYChartPanel.THIRTYPERCENT);
-                ps.add(min + (4 * (range / 10)), XYChartPanel.FORTYPERCENT);
-                ps.add(min + (5 * (range / 10)), XYChartPanel.FIFTYPERCENT);
-                ps.add(min + (6 * (range / 10)), XYChartPanel.SIXTYPERCENT);
-                ps.add(min + (7 * (range / 10)), XYChartPanel.SEVENTYPERCENT);
-                ps.add(min + (8 * (range / 10)), XYChartPanel.EIGHTYPERCENT);
-                ps.add(min + (9 * (range / 10)), XYChartPanel.NINETYPERCENT);
-                ps.add(max, XYChartPanel.ALLPERCENT);
-            }
-
-            NumberAxis lAxis = new NumberAxis();
-
-            lAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-            psl = new PaintScaleLegend(ps, lAxis);
-
-            psl.setBackgroundPaint(new Color(255, 255, 255, 255));
-
-            psl.setPosition(RectangleEdge.RIGHT);
-            psl.setMargin(4, 4, 40, 4);
-            psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
-
-        }
+        psl.setBackgroundPaint(new Color(255, 255, 255, 255));
+        
+        psl.setPosition(RectangleEdge.RIGHT);
+        psl.setMargin(4, 4, 40, 4);
+        psl.setAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+        
+        
+       //}
 
         Ellipse2D shape = new Ellipse2D.Double(0, 0, size, size);
         Ellipse2D shapeGate = new Ellipse2D.Double(-2, -2, size + 4, size + 4);
@@ -329,6 +291,8 @@ public class XYChartPanel implements RoiListener {
 
         xAxis.setAutoRangeIncludesZero(false);
         yAxis.setAutoRangeIncludesZero(false);
+        
+        
 
         XYPlot plot = new XYPlot(createXYZDataset(H2DatabaseEngine.getColumns3D(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, xText, yText, lText),
                 xText, yText, lText, l), xAxis, yAxis, renderer);
@@ -341,6 +305,9 @@ public class XYChartPanel implements RoiListener {
 
         plot.setRenderer(0, renderer);
         plot.setRenderer(1, rendererGate);
+        
+
+       
 
         //if image gated plot a ring at every object as a second dataset
         if (imageGate) {
@@ -364,13 +331,16 @@ public class XYChartPanel implements RoiListener {
             if (getRangeofData((ArrayList) measurements, x) > Math.pow(impoverlay.getBitDepth(), 2)) {
                 LogarithmicAxis logAxisX = new LogarithmicAxis("X");
                 logAxisX.setAutoRange(true);
+                logAxisX.setStandardTickUnits(NumberAxis.createStandardTickUnits());
                 plot.setDomainAxis(logAxisX);
             }
 
             if (getRangeofData((ArrayList) measurements, y) > Math.pow(impoverlay.getBitDepth(), 2)) {
                 LogarithmicAxis logAxisY = new LogarithmicAxis("Y");
                 logAxisY.setAutoRange(true);
+                logAxisY.setStandardTickUnits(NumberAxis.createStandardTickUnits());
                 plot.setRangeAxis(logAxisY);
+                
             }
 
         } catch (NullPointerException e) {
@@ -504,16 +474,30 @@ public class XYChartPanel implements RoiListener {
         return chartPanel;
     }
 
-    public void setChartPanelRanges(int axis, double low, double high) {
+    public void setChartPanelRanges(int axis, double low, double high, boolean linear) {
         XYPlot plot = (XYPlot) this.chartPanel.getChart().getPlot();
-        ValueAxis newaxis = new NumberAxis();
-        newaxis.setLowerBound(low);
-        newaxis.setUpperBound(high);
+ 
+        if(linear){
+            NumberAxis linearAxis = new NumberAxis();
+                    linearAxis.setLowerBound(low);
+        linearAxis.setUpperBound(high);
         if (axis == XYChartPanel.XAXIS) {
-            plot.setDomainAxis(newaxis);
+            plot.setDomainAxis(linearAxis);
         } else if (axis == XYChartPanel.YAXIS) {
-            plot.setRangeAxis(newaxis);
+            plot.setRangeAxis(linearAxis);
         }
+        } else {
+           NumberAxis logAxis = new LogarithmicAxis("");
+           logAxis.setLowerBound(low);
+           logAxis.setUpperBound(high);
+        if (axis == XYChartPanel.XAXIS) {
+            plot.setDomainAxis(logAxis);
+        } else if (axis == XYChartPanel.YAXIS) {
+            plot.setRangeAxis(logAxis);
+        } 
+        }
+        
+
     }
 
     @Override
