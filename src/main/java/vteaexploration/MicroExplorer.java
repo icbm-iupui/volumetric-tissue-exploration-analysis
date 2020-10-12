@@ -752,6 +752,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
         jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
         jButtonFeature.setToolTipText("Add features...");
+        jButtonFeature.setEnabled(false);
         jButtonFeature.setFocusable(false);
         jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));

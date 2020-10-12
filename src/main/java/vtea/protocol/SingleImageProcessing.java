@@ -766,8 +766,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         if (evt.getPropertyName().equals("escape")
                 && (Boolean) evt.getNewValue()) {
 
-            ImagePlus ProcessedShow = new ImagePlus("Processed");
-            ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
+            //new ImagePlus("Processed"); IJ 1.52c triggers error with empty ImagePlus
+            ImagePlus ProcessedShow =  UtilityMethods.makeThumbnail(ProcessedImage);
             ProcessedShow.setTitle(this.getName() + "_Processed");
 
             ProgressComment.setText("Processing complete...");
@@ -1211,8 +1211,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             ProcessedImage = OriginalImage.duplicate();
             OriginalImage.restoreRoi();
 
-            ImagePlus ProcessedShow = new ImagePlus("Processed");
-            ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
+             //ProcessedShow = new ImagePlus("Processed");
+            ImagePlus ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
             ProcessedShow.setTitle(this.getName() + "_Processed");
 
             ProgressComment.setText("Processing complete...");
