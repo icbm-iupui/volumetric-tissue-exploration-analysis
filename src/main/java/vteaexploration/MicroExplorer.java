@@ -736,6 +736,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jButtonMeas.setBackground(new java.awt.Color(102, 255, 102));
         jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/FeaturesAdd_2.png"))); // NOI18N
         jButtonMeas.setToolTipText("Import features from CSV...");
+        jButtonMeas.setEnabled(false);
         jButtonMeas.setFocusable(false);
         jButtonMeas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonMeas.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -752,6 +753,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
         jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
         jButtonFeature.setToolTipText("Add features...");
+        jButtonFeature.setEnabled(false);
         jButtonFeature.setFocusable(false);
         jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));

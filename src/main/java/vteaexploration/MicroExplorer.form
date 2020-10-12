@@ -602,6 +602,7 @@
                   <Image iconType="3" name="/icons/FeaturesAdd_2.png"/>
                 </Property>
                 <Property name="toolTipText" type="java.lang.String" value="Import features from CSV..."/>
+                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="horizontalTextPosition" type="int" value="0"/>
                 <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -628,6 +629,7 @@
                   <Image iconType="3" name="/icons/Features.png"/>
                 </Property>
                 <Property name="toolTipText" type="java.lang.String" value="Add features..."/>
+                <Property name="enabled" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="horizontalTextPosition" type="int" value="0"/>
                 <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
