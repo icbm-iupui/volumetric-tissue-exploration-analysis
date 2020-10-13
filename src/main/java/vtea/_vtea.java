@@ -221,12 +221,12 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         OBJECTMEASUREMENTMAP = new ConcurrentHashMap<String, String>();
         NEIGHBORHOODMEASUREMENTMAP = new ConcurrentHashMap<String, String>();
         MORPHOLOGICALMAP = new ConcurrentHashMap<String, String>();
-        FEATUREMAP = new ConcurrentHashMap<String, String>();
+//        FEATUREMAP = new ConcurrentHashMap<String, String>();
         LUTMAP = new ConcurrentHashMap<String, String>();
 
         FileTypeService fts = new FileTypeService(context);
 
-        FeatureService fs = new FeatureService(context);
+//        FeatureService fs = new FeatureService(context);
 
         WorkflowService ws = new WorkflowService(context);
 
@@ -272,8 +272,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         List<String> mfs_names = mfs.getNames();
         List<String> mfs_qualifiedNames = mfs.getQualifiedName();
 
-        List<String> fs_names = fs.getNames();
-        List<String> fs_qualifiedNames = fs.getQualifiedName();
+//        List<String> fs_names = fs.getNames();
+//        List<String> fs_qualifiedNames = fs.getQualifiedName();
 
         List<String> lfs_names = lfs.getNames();
         List<String> lfs_qualifiedNames = lfs.getQualifiedName();
@@ -435,21 +435,21 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
             }
         }
 
-        System.out.println("Loading Feature Plugins: ");
+//        System.out.println("Loading Feature Plugins: ");
         //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
 
-        FEATUREOPTIONS = fs_names.toArray(new String[fs_names.size()]);
-
-        for (int i = 0; i < fs_names.size(); i++) {
-            try {
-                Object o = Class.forName(fs_qualifiedNames.get(i)).newInstance();
-                System.out.println("Loaded: " + o.getClass().getName());
-                //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
-                FEATUREMAP.put(FEATUREOPTIONS[i], o.getClass().getName());
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+//        FEATUREOPTIONS = fs_names.toArray(new String[fs_names.size()]);
+//
+//        for (int i = 0; i < fs_names.size(); i++) {
+//            try {
+//                Object o = Class.forName(fs_qualifiedNames.get(i)).newInstance();
+//                System.out.println("Loaded: " + o.getClass().getName());
+//                //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
+//                FEATUREMAP.put(FEATUREOPTIONS[i], o.getClass().getName());
+//            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+//                Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
 
         System.out.println("-------------------------------- ");
 
