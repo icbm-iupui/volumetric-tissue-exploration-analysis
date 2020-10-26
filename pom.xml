@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <artifactId>vtea</artifactId>
     <version>1.0alpha5-SNAPSHOT</version>
 
-    <name>VTEA master RengLUT</name>
+    <name>VTEA image processing</name>
     <description>Volumetric analysis</description>
     
     <properties>
