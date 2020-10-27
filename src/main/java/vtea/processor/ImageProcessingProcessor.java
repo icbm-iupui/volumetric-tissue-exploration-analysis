@@ -115,6 +115,9 @@ public class ImageProcessingProcessor extends AbstractProcessor {
                 con = c.getConstructor();
                 iImp = con.newInstance();
                 ((AbstractImageProcessing) iImp).getVersion();
+//                if(((AbstractImageProcessing) iImp).getCrossChannel()){  //add cross channel support
+//                    ((AbstractImageProcessing) iImp).
+//                }
 
             } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(ImageProcessingProcessor.class.getName()).log(Level.SEVERE, null, ex);

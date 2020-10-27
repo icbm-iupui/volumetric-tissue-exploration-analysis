@@ -33,6 +33,8 @@ public interface ImageProcessing<T extends Component, A extends RealType> extend
     public boolean setOptions(ArrayList<T> al);
 
     public ArrayList<T> getOptions();
+    
+    public boolean getCrossChannel();
 
     public boolean process(ArrayList al, ImagePlus imp);
 

@@ -52,6 +52,15 @@ public abstract class AbstractImageProcessing<T extends Component, A extends Rea
     protected ArrayList<T> protocol = new ArrayList();
 
     protected Img imgResult;
+    
+    //Flags
+    
+
+    
+    @Override
+    public boolean getCrossChannel() {
+        return false;
+    }
 
     @Override
     public boolean setOptions(ArrayList al) {
