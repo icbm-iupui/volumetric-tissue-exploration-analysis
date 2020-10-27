@@ -194,7 +194,6 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
      * @param fields
      * @return
      */
-
     @Override
     public boolean loadComponentParameter(String version, ArrayList dComponents, ArrayList fields) {
         try {
@@ -347,41 +346,62 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
 
         int db = 0;
 
-        for (int i = 0; i < alRegions.size(); i++) {
-
-            db = (100 * (i + 1)) / alRegions.size();
-
-            notifyProgressListeners("Building volumes...", (double) db);
-
-            test = alRegions.get(i);
-
-            if (!test.isAMember()) {
-                nVolumesLocal++;
-                startRegion[0] = test.getBoundCenterX();
-                startRegion[1] = test.getBoundCenterY();
-                test.setMembership(nVolumesLocal);
-                test.setAMember(true);
-                z = test.getZPosition();
-                alRegionsProcessed.add(test);
-                findConnectedRegions(nVolumesLocal, startRegion, z);
-            }
-        }
-        for (int j = 1; j <= nVolumesLocal; j++) {
+        if (imageOriginal.getNSlices() < 2) {
             volume = new microVolume();
-            Iterator<microRegion> vol = alRegionsProcessed.listIterator();
+            int index = 0;
+            Iterator<microRegion> vol = alRegions.listIterator();
             microRegion region = new microRegion();
             while (vol.hasNext()) {
                 region = vol.next();
-                if (j == region.getMembership()) {
-                    volume.addRegion(region);
-                }
-            }
-            if (volume.getNRegions() > 0) {
+                region.setMembership(index);
+                volume.addRegion(region);
                 volume.makePixelArrays();
                 volume.setCentroid();
                 volume.setSerialID(alVolumes.size());
                 if ((volume.getPixelsX()).length >= minConstants[0] && (volume.getPixelsX()).length <= minConstants[1]) {
                     alVolumes.add(volume);
+                }
+            }
+
+        } else {
+
+            for (int i = 0; i < alRegions.size(); i++) {
+
+                db = (100 * (i + 1)) / alRegions.size();
+
+                notifyProgressListeners("Building volumes...", (double) db);
+
+                test = alRegions.get(i);
+
+                if (!test.isAMember()) {
+                    nVolumesLocal++;
+                    startRegion[0] = test.getBoundCenterX();
+                    startRegion[1] = test.getBoundCenterY();
+                    test.setMembership(nVolumesLocal);
+                    test.setAMember(true);
+                    z = test.getZPosition();
+                    alRegionsProcessed.add(test);
+                    findConnectedRegions(nVolumesLocal, startRegion, z);
+                }
+            }
+
+            for (int j = 1; j <= nVolumesLocal; j++) {
+                volume = new microVolume();
+                Iterator<microRegion> vol = alRegionsProcessed.listIterator();
+                microRegion region = new microRegion();
+                while (vol.hasNext()) {
+                    region = vol.next();
+                    if (j == region.getMembership()) {
+                        volume.addRegion(region);
+                    }
+                }
+                if (volume.getNRegions() > 0) {
+                    volume.makePixelArrays();
+                    volume.setCentroid();
+                    volume.setSerialID(alVolumes.size());
+                    if ((volume.getPixelsX()).length >= minConstants[0] && (volume.getPixelsX()).length <= minConstants[1]) {
+                        alVolumes.add(volume);
+                    }
                 }
             }
         }
