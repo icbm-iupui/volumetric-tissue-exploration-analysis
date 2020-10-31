@@ -71,6 +71,7 @@ import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.LinkedKeyListener;
+import vtea.exploration.listeners.UpdateExplorerGuiListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
@@ -100,7 +101,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         RoiListener, LinkedKeyListener, PlotUpdateListener, MakeImageOverlayListener,
         ChangePlotAxesListener, ImageListener, ResetSelectionListener,
         PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener,
-        UpdatePlotWindowListener, AxesChangeListener, AxesSetupExplorerPlotUpdateListener, Runnable {
+        UpdatePlotWindowListener, AxesChangeListener, AxesSetupExplorerPlotUpdateListener, UpdateExplorerGuiListener, Runnable {
 
     private XYPanels DefaultXYPanels;
     private static final Dimension MAINPANELSIZE = new Dimension(630, 640);
@@ -333,6 +334,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         aep.addFeatureListener(this);
         aep.setGatedOverlay(impoverlay);
         aep.addAxesSetpExplorerPlotUpdateListener(this);
+        aep.addupdateExplorerGUIListener(this);
 
         //load default view
         setPanels(plotvalues, aep, pap);
@@ -957,7 +959,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_jComboBoxPointSizePropertyChange
 
     private void get3DProjectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_get3DProjectionActionPerformed
-
+         
         new Thread(() -> {
             try {
                 ec.getZProjection();
@@ -967,6 +969,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
+            
         }).start();
 
 
@@ -1363,34 +1366,42 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }
 
     public void onPlotChangeRequest(int x, int y, int z, int size, boolean imagegate) {
+        
+        //System.out.println("MicroExplorer, change plot request start:" + System.currentTimeMillis());
+        
         new Thread(() -> {
             try {
-                Main.removeAll();
-                ec.updatePlot(x, y, z, size);
-                Main.add(ec.getPanel());
-                updateBorderPanels(DefaultXYPanels);
-                updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
-                pack();
+                ec.updatePlot(x, y, z, size);            
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
+        
+         
     }
 
     public void ExplorerSetupPlotChangerequest(int x, int y, int z, int size) {
         new Thread(() -> {
             try {
-                Main.removeAll();
+                
                 ec.updatePlot(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(),
                         this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
-                Main.add(ec.getPanel());
-                updateBorderPanels(DefaultXYPanels);
-                updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
-                pack();
+                
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
+    }
+    
+    @Override
+    public void rebuildExplorerGUI(){
+        
+        Main.removeAll();
+        Main.add(ec.getPanel());
+        updateBorderPanels(DefaultXYPanels);
+        updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+        pack();
+        //System.out.println("MicroExplorer, plot updated:" + System.currentTimeMillis());
     }
 
     public void onRemoveLUTChangeRequest(int x, int y, int z, int size, boolean imagegate) {
@@ -1399,7 +1410,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 Main.removeAll();
                 ec.updatePlot(x, y, -1, size);
                 Main.add(ec.getPanel());
-                updateBorderPanels(DefaultXYPanels);
+                //updateBorderPanels(DefaultXYPanels);
                 updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), "");
                 pack();
             } catch (Exception e) {
@@ -1552,8 +1563,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     @Override
     public void onUpdatePlotWindow() {
-        validate();
-        repaint();
+        //validate();
+        //repaint();
     }
 
     @Override

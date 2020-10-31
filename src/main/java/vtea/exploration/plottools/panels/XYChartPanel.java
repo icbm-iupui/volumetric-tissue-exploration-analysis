@@ -76,6 +76,7 @@ public class XYChartPanel implements RoiListener {
 
     public static int XAXIS = 1;
     public static int YAXIS = 2;
+    
 
     static Color ZEROPERCENT = new Color(0x999999);
     static Color TENPERCENT = new Color(0x8a8aa3);
@@ -88,6 +89,8 @@ public class XYChartPanel implements RoiListener {
     static Color EIGHTYPERCENT = new Color(0x1f1feb);
     static Color NINETYPERCENT = new Color(0x0f0ff5);
     static Color ALLPERCENT = new Color(0x0000ff);
+    
+    
 
     //
 //    //test class for H2 database with canned data
@@ -184,11 +187,12 @@ public class XYChartPanel implements RoiListener {
     public void process(Connection cn, int x, int y, int l, String xText, String yText, String lText) {
 
         chartPanel = createChart(connection, x, y, l, xText, yText, lText, imageGateOutline);
-        JFrame f = new JFrame(title);
-        f.setTitle(title);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.setLayout(new BorderLayout(0, 5));
-        f.add(chartPanel, BorderLayout.CENTER);
+        
+//        JFrame f = new JFrame(title);
+//        f.setTitle(title);
+//        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        f.setLayout(new BorderLayout(0, 5));
+//        f.add(chartPanel, BorderLayout.CENTER);
 
         chartPanel.setOpaque(false);
         chartPanel.setMouseWheelEnabled(false);
@@ -251,11 +255,12 @@ public class XYChartPanel implements RoiListener {
             }
 
         });
-        f.pack();
+//        f.pack();
     }
 
     private ChartPanel createChart(Connection connection, int x, int y, int l, String xText, String yText, String lText, Color imageGateColor) {
-
+      
+        
         XYShapeRenderer renderer = new XYShapeRenderer();
         XYShapeRenderer rendererGate = new XYShapeRenderer();
 
@@ -292,10 +297,13 @@ public class XYChartPanel implements RoiListener {
         xAxis.setAutoRangeIncludesZero(false);
         yAxis.setAutoRangeIncludesZero(false);
         
-        
+        //System.out.println("XYExplorationPanel, start XYPlot:" + System.currentTimeMillis());
 
         XYPlot plot = new XYPlot(createXYZDataset(H2DatabaseEngine.getColumns3D(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, xText, yText, lText),
                 xText, yText, lText, l), xAxis, yAxis, renderer);
+        
+        //System.out.println("XYExplorationPanel, finish XYPlot:" + System.currentTimeMillis());
+        
 
         plot.getDomainAxis();
         plot.getRangeAxis();
@@ -359,6 +367,8 @@ public class XYChartPanel implements RoiListener {
 
         //notifiyUpdatePlotWindowListeners();
         return new ChartPanel(chart, true, true, false, false, true);
+        
+    
     }
 
     private double getRangeofData(ArrayList measurements, int x) {

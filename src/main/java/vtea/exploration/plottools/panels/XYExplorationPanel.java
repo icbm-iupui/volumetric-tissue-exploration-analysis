@@ -90,6 +90,7 @@ import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SaveGatedImagesListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.SubGateListener;
+import vtea.exploration.listeners.UpdateExplorerGuiListener;
 import vtea.exploration.listeners.UpdateFeaturesListener;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.listeners.colorUpdateListener;
@@ -133,6 +134,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     static String printResult = "";
     static public int testCounter = 0;
+    int impZ;
+    
+    
     public static double getMaximumOfData(ArrayList measurements, int l) {
         
         ListIterator<ArrayList> litr = measurements.listIterator();
@@ -982,15 +986,22 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         if (imageGate) {
             imageGateColor = impoverlay.getRoi().getStrokeColor();
         }
+        
+        //System.out.println("XYExplorationPanel, addplot:" + System.currentTimeMillis());
 
         cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor, lps);
 
         cpd.addUpdatePlotWindowListener(this);
-
+        
+        
+        
+        
         chart = cpd.getChartPanel();
         chart.setOpaque(false);
 
-        XYPlot plot = (XYPlot) cpd.getChartPanel().getChart().getPlot();
+        //XYPlot plot = (XYPlot) cpd.getChartPanel().getChart().getPlot();
+        
+
 
         if (useGlobal) {
             cpd.setChartPanelRanges(XYChartPanel.XAXIS, XYChartPanel.xMin, XYChartPanel.xMax, xScaleLinear);
@@ -1052,6 +1063,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         this.explorerXaxisIndex = x;
         this.explorerYaxisIndex = y;
         this.explorerLutIndex = l;
+        
         this.explorerPointSizeIndex = size;
 
         String lText = "";
@@ -1060,33 +1072,43 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         } else {
             lText = hm.get(l);
         }
-
+        
         lps = AxesManager.getLookupPaintScale(l);
 
         addPlot(x, y, l, size, LUT, hm.get(x), hm.get(y), lText);
 
-        if (this.useGlobal) {
-            cpd.setChartPanelRanges(XYChartPanel.XAXIS, XYChartPanel.xMin, XYChartPanel.xMax, xScaleLinear);
-            cpd.setChartPanelRanges(XYChartPanel.YAXIS, XYChartPanel.yMin, XYChartPanel.yMax, yScaleLinear);
+//                if (this.useGlobal) {
+//            cpd.setChartPanelRanges(XYChartPanel.XAXIS, XYChartPanel.xMin, XYChartPanel.xMax, xScaleLinear);
+//            cpd.setChartPanelRanges(XYChartPanel.YAXIS, XYChartPanel.yMin, XYChartPanel.yMax, yScaleLinear);
+//        } else {
+//
+//            if (useCustomX) {
+//                cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0), AxesLimits.get(1), xScaleLinear);
+//            } else {
+//                HashMap<String, Integer> xAxisLimits = getLimits(x);
+//                cpd.setChartPanelRanges(XYChartPanel.XAXIS, xAxisLimits.get("min"), xAxisLimits.get("max"), xScaleLinear);
+//            }
+//            if (useCustomY) {
+//                cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2), AxesLimits.get(3), yScaleLinear);
+//            } else {
+//                HashMap<String, Integer> yAxisLimits = getLimits(y);
+//                cpd.setChartPanelRanges(XYChartPanel.YAXIS, yAxisLimits.get("min"), yAxisLimits.get("max"), yScaleLinear);
+//
+//            }
+//        }
+        
+//        if(explorerLutIndex == l){
+//
+//        } else {
+            
+            
+      //  }
 
-        } else {
-
-            if (useCustomX) {
-                cpd.setChartPanelRanges(XYChartPanel.XAXIS, AxesLimits.get(0), AxesLimits.get(1), xScaleLinear);
-            } else {
-                HashMap<String, Integer> xAxisLimits = getLimits(x);
-                cpd.setChartPanelRanges(XYChartPanel.XAXIS, xAxisLimits.get("min"), xAxisLimits.get("max"), xScaleLinear);
-            }
-            if (useCustomY) {
-                cpd.setChartPanelRanges(XYChartPanel.YAXIS, AxesLimits.get(2), AxesLimits.get(3), yScaleLinear);
-            } else {
-                HashMap<String, Integer> yAxisLimits = getLimits(y);
-                cpd.setChartPanelRanges(XYChartPanel.YAXIS, yAxisLimits.get("min"), yAxisLimits.get("max"), yScaleLinear);
-
-            }
-        }
         AxesManager.setAxesSetupAxisLimits(this.getSettingsContent());
-        //AxesManager.shareExplorerLutSelectedIndex(explorerLutIndex);
+        
+        
+        
+        this.notifyUpdateExplorerGUIListener();
 
     }
 
@@ -1633,6 +1655,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         al.add(new JLabel("Y max"));
         al.add(new JTextField(String.valueOf(Math.round(plot.getRangeAxis().getUpperBound()))));
         al.add(y);
+
+
 
         return al;
 
@@ -2644,6 +2668,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             listener.addFeatures(name, feature);
         }
     }
+    
+    @Override
+    public void addupdateExplorerGUIListener(UpdateExplorerGuiListener listener) {
+        updateexlporerguilisteners.add(listener);
+    }
+
+    @Override
+    public void notifyUpdateExplorerGUIListener() {
+        for (UpdateExplorerGuiListener listener : updateexlporerguilisteners) {
+            listener.rebuildExplorerGUI();
+        }
+    }
 
     @Override
     public void addAxesSetpExplorerPlotUpdateListener(AxesSetupExplorerPlotUpdateListener listener) {
@@ -2698,7 +2734,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void imageOpened(ImagePlus ip) {
-        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                if (ip.getID() == impoverlay.getID() && updateimage) {
+                     impZ = impoverlay.getCurrentSlice();
+        }
     }
 
     @Override
@@ -2708,7 +2746,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void imageUpdated(ImagePlus ip) {
-        if (ip.getID() == impoverlay.getID() && updateimage) {
+        
+        if (ip.getID() == impoverlay.getID() && updateimage && impZ != impoverlay.getCurrentSlice()) {
+             impZ = impoverlay.getCurrentSlice();
             makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
         }
     }

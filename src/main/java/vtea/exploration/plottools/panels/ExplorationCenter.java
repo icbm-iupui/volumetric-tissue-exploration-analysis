@@ -31,6 +31,7 @@ import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vteaobjects.MicroObject;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.LinkedKeyListener;
+import vtea.exploration.listeners.UpdateExplorerGuiListener;
 
 /**
  *
@@ -145,7 +146,10 @@ public interface ExplorationCenter {
     
     public void notifyAxesSetupExplorerPlotUpdateListener(int x, int y, int l, int pointsize);
 
-     
+    public void addupdateExplorerGUIListener(UpdateExplorerGuiListener listener) ;
+
+    public void notifyUpdateExplorerGUIListener();
+
     public void addFromCSV(String s);
 
 }

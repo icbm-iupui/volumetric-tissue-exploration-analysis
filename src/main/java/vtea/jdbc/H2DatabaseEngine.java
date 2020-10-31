@@ -39,7 +39,8 @@ public class H2DatabaseEngine {
 
 //derived from https://www.javatips.net/blog/h2-database-example
     private static final String DB_DRIVER = "org.h2.Driver";
-    private static final String DB_CONNECTION = "jdbc:h2:" + ij.Prefs.getImageJDir() + vtea._vtea.H2_DATABASE + ";AUTO_SERVER=TRUE";
+    //private static final String DB_CONNECTION = "jdbc:h2:" + ij.Prefs.getImageJDir() + vtea._vtea.H2_DATABASE + ";AUTO_SERVER=TRUE";
+    private static final String DB_CONNECTION = "jdbc:h2:mem:"  + vtea._vtea.H2_DATABASE;
     private static final String DB_USER = "";
     private static final String DB_PASSWORD = "";
 
