@@ -40,6 +40,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -1813,6 +1815,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void subGate() {
+        
+         new Thread(() -> {
+            try {
 
         ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(true);
         if (al.size() > 0) {
@@ -1826,6 +1831,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     + " measurements.");
             notifySubgateListener(objectsTemp, measurementsFinal);
         }
+        } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+            
+        }).start();
 
     }
 
@@ -1855,7 +1865,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                 ArrayList<ArrayList<Number>> sortTemp
                         = new ArrayList<ArrayList<Number>>();
-
+  
                 ArrayList<ArrayList<Number>> measurementsTemp
                         = new ArrayList<ArrayList<Number>>();
                 ArrayList<ArrayList<Number>> measurementsFinal
@@ -1896,13 +1906,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 try {
                     FileOutputStream fos = new FileOutputStream(ij.Prefs.getImageJDir()
                             + vtea._vtea.MEASUREMENTS_TEMP);
-                    ObjectOutputStream oos = new ObjectOutputStream(fos);
+                    BufferedOutputStream bos = new BufferedOutputStream(fos);
+                    ObjectOutputStream oos = new ObjectOutputStream(bos);
 
                     oos.writeObject(objectsTemp);
 
                     FileInputStream fis = new FileInputStream(ij.Prefs.getImageJDir()
                             + vtea._vtea.MEASUREMENTS_TEMP);
-                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    BufferedInputStream bis = new BufferedInputStream(fis);
+                    ObjectInputStream ois = new ObjectInputStream(bis);
 
                     try {
                         objectsGated = (ArrayList<MicroObject>) ois.readObject();
@@ -1919,13 +1931,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 try {
                     FileOutputStream fos1 = new FileOutputStream(ij.Prefs.getImageJDir()
                             + vtea._vtea.OBJECTS_TEMP);
-                    ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
+                    BufferedOutputStream bos1 = new BufferedOutputStream(fos1);
+                    ObjectOutputStream oos1 = new ObjectOutputStream(bos1);
 
                     oos1.writeObject(measurementsTemp);
 
                     FileInputStream fis1 = new FileInputStream(ij.Prefs.getImageJDir()
                             + vtea._vtea.OBJECTS_TEMP);
-                    ObjectInputStream ois1 = new ObjectInputStream(fis1);
+                    BufferedInputStream bis1 = new BufferedInputStream(fis1);
+                    ObjectInputStream ois1 = new ObjectInputStream(bis1);
 
                     try {
                         measurementsGated = (ArrayList<ArrayList<Number>>) ois1.readObject();
