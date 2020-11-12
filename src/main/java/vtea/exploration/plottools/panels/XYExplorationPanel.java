@@ -3074,7 +3074,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     try {
                         FileInputStream fis = new FileInputStream(file);
                         ObjectInputStream ois = new ObjectInputStream(fis);
-                        obj = ois.readObject();
+                        result = (ArrayList)ois.readObject();
                         ois.close();
                     } catch (IOException e) {
                         System.out.println("ERROR: Could not open the file.");
@@ -3085,7 +3085,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 }
             } else {
             }
-            return (ArrayList)obj;
+            return result;
         }
 
     }
