@@ -3066,23 +3066,26 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             File file = jf.getSelectedFile();
 
             ArrayList<PolygonGate> result = new ArrayList();
+            
+            Object obj = new Object();
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
                     try {
                         FileInputStream fis = new FileInputStream(file);
                         ObjectInputStream ois = new ObjectInputStream(fis);
-                        result = (ArrayList<PolygonGate>) ois.readObject();
+                        obj = ois.readObject();
                         ois.close();
                     } catch (IOException e) {
                         System.out.println("ERROR: Could not open the file.");
+                        System.out.println(e.getMessage());
                     }
                 } catch (ClassNotFoundException ne) {
                     System.out.println("ERROR: Not Found in Gate Export");
                 }
             } else {
             }
-            return result;
+            return (ArrayList)obj;
         }
 
     }
