@@ -1906,15 +1906,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 try {
                     FileOutputStream fos = new FileOutputStream(ij.Prefs.getImageJDir()
                             + vtea._vtea.MEASUREMENTS_TEMP);
-                    BufferedOutputStream bos = new BufferedOutputStream(fos);
-                    ObjectOutputStream oos = new ObjectOutputStream(bos);
+                    //BufferedOutputStream bos = new BufferedOutputStream(fos);
+                    ObjectOutputStream oos = new ObjectOutputStream(fos);
 
                     oos.writeObject(objectsTemp);
 
                     FileInputStream fis = new FileInputStream(ij.Prefs.getImageJDir()
                             + vtea._vtea.MEASUREMENTS_TEMP);
-                    BufferedInputStream bis = new BufferedInputStream(fis);
-                    ObjectInputStream ois = new ObjectInputStream(bis);
+                    //BufferedInputStream bis = new BufferedInputStream(fis);
+                    ObjectInputStream ois = new ObjectInputStream(fis);
 
                     try {
                         objectsGated = (ArrayList<MicroObject>) ois.readObject();
@@ -1931,15 +1931,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 try {
                     FileOutputStream fos1 = new FileOutputStream(ij.Prefs.getImageJDir()
                             + vtea._vtea.OBJECTS_TEMP);
-                    BufferedOutputStream bos1 = new BufferedOutputStream(fos1);
-                    ObjectOutputStream oos1 = new ObjectOutputStream(bos1);
+                    //BufferedOutputStream bos1 = new BufferedOutputStream(fos1);
+                    ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
 
                     oos1.writeObject(measurementsTemp);
 
                     FileInputStream fis1 = new FileInputStream(ij.Prefs.getImageJDir()
                             + vtea._vtea.OBJECTS_TEMP);
-                    BufferedInputStream bis1 = new BufferedInputStream(fis1);
-                    ObjectInputStream ois1 = new ObjectInputStream(bis1);
+                    //BufferedInputStream bis1 = new BufferedInputStream(fis1);
+                    ObjectInputStream ois1 = new ObjectInputStream(fis1);
 
                     try {
                         measurementsGated = (ArrayList<ArrayList<Number>>) ois1.readObject();
@@ -2247,14 +2247,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
             for (int i = (int) minClass; i <= (int) maxClass; i++) {
                 classes.add(i);
-                // System.out.println("PROFILING: Adding class: " + i);
+                 //System.out.println("PROFILING: Adding class: " + i);
             }
 
             HashMap<String, String> objFeature = new HashMap<>();
 
             for (int c = 0; c < this.objects.size(); c++) {
-                // System.out.println("PROFILING: Adding hash: " + (objects.get(c)).getSerialID() +
-                //         ", " + features.get(c).get(0));
+                 //System.out.println("PROFILING: Adding hash: " + (objects.get(c)).getSerialID() +
+                 //        ", " + features.get(c).get(0));
                 objFeature.put(String.valueOf((objects.get(c)).getSerialID()), String.valueOf(features.get(c).get(0)));
 
             }
@@ -2279,7 +2279,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 MicroObject obj = (MicroObject) itrName.next();
                 double[] k = new double[1];
                 k[0] = obj.getSerialID();
-                //System.out.println("PROFILING: object: " + k[0]);
+                //System.out.println("PROFILING: Adding object(node): " + k[0]);
                 key[i] = k;
 
                 double[] d = new double[3];
