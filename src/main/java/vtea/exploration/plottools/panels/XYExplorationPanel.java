@@ -2106,12 +2106,103 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         return result;
     }
 
-    @Override
+ @Override
+//    
     public void addFromCSV(String s) {
+        
+         int countObjects = this.objects.size();
+        int dataColumns = 0;
+        
+        JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+        int returnVal = jf.showOpenDialog(CenterPanel);
+        File file = jf.getSelectedFile();
+
+        ArrayList<ArrayList<Number>> csvData = new ArrayList();
+        ArrayList<ArrayList<Number>> paddedTable = new ArrayList();
+
+        ArrayList<Number> blank = new ArrayList<Number>();
+        
+         String header = "";
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                BufferedReader csvReader = new BufferedReader(new FileReader(file));
+                String row;
+                boolean firstRow = true;
+                while ((row = csvReader.readLine()) != null) {
+                    if(firstRow){
+                        header = row;
+                        firstRow = false; 
+                    }else{
+                    String[] data = row.split(",");
+
+                    dataColumns = data.length;
+                    
+                    ArrayList<Number> dataList = new ArrayList<Number>();
+
+                    for (int j = 0; j < data.length; j++) {
+                        dataList.add(Float.parseFloat(data[j]));
+                    }
+
+                    csvData.add(dataList);
+
+                    }}
+                csvReader.close();
+
+            } catch (IOException e) {
+                System.out.println("ERROR: Could not open the file.");
+            }
+            
+            //get first row as headers
+            
+            
+            for (int k = 0; k < dataColumns; k++) {
+                blank.add(-1);
+            }
+
+            for (int i = 1; i < dataColumns; i++) {
+                ArrayList<Number> data = getData(i, csvData);
+
+                if (data.size() > 0) {
+                    paddedTable.add(data);
+                } else {
+                    paddedTable.add(blank);
+                }
+            }
+            
+//            String name = file.getName();
+//            name = name.replace(".", "_");
+            ArrayList<Number> paddedTableColumn = paddedTable.get(0);
+            dataColumns = paddedTableColumn.size();
+             String[] columnTitles = header.split(",");
+
+            //setup a loop here to go through each column and add with name
+            
+            for(int m = 0; m < paddedTable.size(); m++){
+                 //ArrayList<Number> data = new ArrayList<Number>();
+//                    for(int n = 0; n < objects.size(); n++){
+//                       paddedTableColumn = paddedTable.get(m);
+//                        data.add(paddedTableRow.get(n));
+//                    }
+                 ArrayList<ArrayList<Number>> result = new ArrayList<ArrayList<Number>>();
+                 result.add(paddedTable.get(m));
+                this.notifyAddFeatureListener((columnTitles[m+1].replace(".", "_")).replace("/", "_"), result);
+            
+            }
+            
+            
+                    
+            
+            
+    }
+    }
+    //*Original addFromCSV used in NephNet work DO NOT delete//
+    //@Override
+    public void addFromCSV_old(String s) {
 //        //this method does not assume that all objects get a value
         int countObjects = this.objects.size();
         int dataColumns = 0;
-
+        
         JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
         int returnVal = jf.showOpenDialog(CenterPanel);
         File file = jf.getSelectedFile();
@@ -2130,7 +2221,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     String[] data = row.split(",");
 
                     dataColumns = data.length;
-
+                    
                     ArrayList<Number> dataList = new ArrayList<Number>();
 
                     for (int j = 0; j < data.length; j++) {
@@ -2139,7 +2230,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                     csvData.add(dataList);
 
-                }
+                    }
                 csvReader.close();
 
             } catch (IOException e) {
@@ -2159,13 +2250,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     paddedTable.add(blank);
                 }
             }
-
+            
             String name = file.getName();
             name = name.replace(".", "_");
             this.notifyAddFeatureListener(name, paddedTable);
-        }
-    }
-
+            }
+}
+            
     private ArrayList<Number> getData(int columnIndex,
             ArrayList<ArrayList<Number>> data) {
         ArrayList<Number> result = new ArrayList<Number>();

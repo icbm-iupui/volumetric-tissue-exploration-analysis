@@ -945,13 +945,15 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_FlipAxesActionPerformed
 
     private void jComboBoxLUTPlotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxLUTPlotActionPerformed
-
+        if (updatePlot) {
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        }
     }//GEN-LAST:event_jComboBoxLUTPlotActionPerformed
 
     private void jComboBoxPointSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxPointSizeActionPerformed
-
-        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        if (updatePlot) {   
+            onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+            }
     }//GEN-LAST:event_jComboBoxPointSizeActionPerformed
 
     private void jComboBoxPointSizePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jComboBoxPointSizePropertyChange
@@ -1701,7 +1703,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     @Override
     public void addFeatures(String name, ArrayList<ArrayList<Number>> results) {
-
+        
+           
+        
         int xsel = jComboBoxXaxis.getSelectedIndex();
         int ysel = jComboBoxYaxis.getSelectedIndex();
         int zsel = jComboBoxLUTPlot.getSelectedIndex();
@@ -1765,8 +1769,12 @@ public class MicroExplorer extends javax.swing.JFrame implements
             }
         }
 
+        
+        
         AvailableDataHM = makeAvailableDataHM(descriptions);
         ec.updateFeatureSpace(AvailableDataHM, measurements);
+        
+         updatePlot = false; 
 
         jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
@@ -1778,11 +1786,15 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jComboBoxXaxis.setRenderer(renderer);
         jComboBoxYaxis.setRenderer(renderer);
         jComboBoxLUTPlot.setRenderer(renderer);
+        
+       
 
         jComboBoxXaxis.setSelectedIndex(xsel);
         jComboBoxYaxis.setSelectedIndex(ysel);
         jComboBoxLUTPlot.setSelectedIndex(zsel);
         jComboBoxPointSize.setSelectedIndex(ssel);
+        
+        
 
         //x, y, l Labels
         final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
@@ -1885,8 +1897,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
         ff.updateColumns(ObjectIDs, descriptions);
         ff.pack();
 
-        pack();
-        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+updatePlot = true; 
+        //onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
         pack();
 
     }

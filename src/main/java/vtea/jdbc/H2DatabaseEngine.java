@@ -205,7 +205,12 @@ public class H2DatabaseEngine {
             }
 
         } catch (SQLException e) {
-            System.out.println("getColumn Exception Message " + e.getLocalizedMessage());
+            System.out.println("PROFILING: getColumn Exception Message: " + e.getLocalizedMessage());
+            StackTraceElement[] st = e.getStackTrace();
+            System.out.println("PROFILING:, stack trace:");
+            for(int i = 0; i < st.length; i++){
+            System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
+            }
         }
         return measurements;
     }
@@ -264,7 +269,12 @@ public class H2DatabaseEngine {
             }
 
         } catch (SQLException e) {
-            System.out.println("getColumns3D Exception Message " + e.getLocalizedMessage());
+            System.out.println("PROFILING: getColumns3D Exception Message: " + e.getLocalizedMessage());
+            StackTraceElement[] st = e.getStackTrace();
+            System.out.println("PROFILING:, stack trace:");
+            for(int i = 0; i < st.length; i++){
+            System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
+            }
         }
         return measurements;
     }
