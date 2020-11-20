@@ -1902,55 +1902,68 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     measurementsTemp.add(this.measurements.get(object));
                     sortTemp.add(al);
                 }
-
-                try {
-                    FileOutputStream fos = new FileOutputStream(ij.Prefs.getImageJDir()
-                            + vtea._vtea.MEASUREMENTS_TEMP);
-                    //BufferedOutputStream bos = new BufferedOutputStream(fos);
-                    ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-                    oos.writeObject(objectsTemp);
-
-                    FileInputStream fis = new FileInputStream(ij.Prefs.getImageJDir()
-                            + vtea._vtea.MEASUREMENTS_TEMP);
-                    //BufferedInputStream bis = new BufferedInputStream(fis);
-                    ObjectInputStream ois = new ObjectInputStream(fis);
-
-                    try {
-                        objectsGated = (ArrayList<MicroObject>) ois.readObject();
-                    } catch (ClassNotFoundException ex) {
-                    }
-
-                    oos.close();
-                    ois.close();
-
-                } catch (IOException ex) {
-
-                }
-
-                try {
-                    FileOutputStream fos1 = new FileOutputStream(ij.Prefs.getImageJDir()
-                            + vtea._vtea.OBJECTS_TEMP);
-                    //BufferedOutputStream bos1 = new BufferedOutputStream(fos1);
-                    ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
-
-                    oos1.writeObject(measurementsTemp);
-
-                    FileInputStream fis1 = new FileInputStream(ij.Prefs.getImageJDir()
-                            + vtea._vtea.OBJECTS_TEMP);
-                    //BufferedInputStream bis1 = new BufferedInputStream(fis1);
-                    ObjectInputStream ois1 = new ObjectInputStream(fis1);
-
-                    try {
-                        measurementsGated = (ArrayList<ArrayList<Number>>) ois1.readObject();
-                    } catch (ClassNotFoundException ex) {
-
-                    }
-                    oos1.close();
-                    ois1.close();
-                } catch (IOException ex) {
-
-                }
+                
+                measurementsGated = measurementsTemp;
+                objectsGated = objectsTemp;
+//                
+//                int bufferSize = 8 * 1024;
+//
+//                try {
+//                    System.out.println("ERROR: Subgating...");
+//                    FileOutputStream fos = new FileOutputStream(ij.Prefs.getImageJDir()
+//                            + vtea._vtea.MEASUREMENTS_TEMP);
+//                    //BufferedOutputStream bos = new BufferedOutputStream(fos, bufferSize);
+//                    ObjectOutputStream oos = new ObjectOutputStream(fos);
+//
+//                    oos.writeObject(objectsTemp);
+//                    
+//                    
+//
+//                    FileInputStream fis = new FileInputStream(ij.Prefs.getImageJDir()
+//                            + vtea._vtea.MEASUREMENTS_TEMP);
+//                    BufferedInputStream bis = new BufferedInputStream(fis, bufferSize);
+//                    ObjectInputStream ois = new ObjectInputStream(bis);
+//
+//                    try {
+//                        objectsGated = (ArrayList<MicroObject>) ois.readObject();
+//                    } catch (ClassNotFoundException ex) {
+//                        System.out.println("ERROR: Subgating failure.  Temporary files could not be created");
+//                    }
+//
+//                    oos.close();
+//                    ois.close();
+//                   // bis.close();
+//                   // bos.close();
+//                    fos.close();
+//                    fis.close();
+//
+//                } catch (IOException ex) {
+//
+//                }
+//
+//                try {
+//                    FileOutputStream fos1 = new FileOutputStream(ij.Prefs.getImageJDir()
+//                            + vtea._vtea.OBJECTS_TEMP);
+//                    //BufferedOutputStream bos1 = new BufferedOutputStream(fos1);
+//                    ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
+//
+//                    oos1.writeObject(measurementsTemp);
+//
+//                    FileInputStream fis1 = new FileInputStream(ij.Prefs.getImageJDir()
+//                            + vtea._vtea.OBJECTS_TEMP);
+//                    //BufferedInputStream bis1 = new BufferedInputStream(fis1);
+//                    ObjectInputStream ois1 = new ObjectInputStream(fis1);
+//
+//                    try {
+//                        measurementsGated = (ArrayList<ArrayList<Number>>) ois1.readObject();
+//                    } catch (ClassNotFoundException ex) {
+//
+//                    }
+//                    oos1.close();
+//                    ois1.close();
+//                } catch (IOException ex) {
+//
+//                }
 
 //////////////////////////////////////
                 try {
