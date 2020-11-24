@@ -144,7 +144,8 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         setBounds(new java.awt.Rectangle(110, 160, 378, 282));
         setMinimumSize(vtea._vtea.BLOCKSETUP);
         setName("BlockOptionFrame"); // NOI18N
-        setSize(new java.awt.Dimension(378, 282));
+        setPreferredSize(new java.awt.Dimension(380, 690));
+        setSize(new java.awt.Dimension(380, 690));
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
         layout.columnWidths = new int[] {0, 1, 0};
         layout.rowHeights = new int[] {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};

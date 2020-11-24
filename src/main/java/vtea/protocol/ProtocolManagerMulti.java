@@ -178,7 +178,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
         setTitle("VTEA Protocols v." + vtea._vtea.VERSION);
         setAutoRequestFocus(false);
         setBackground(new java.awt.Color(204, 204, 204));
-        setBounds(new java.awt.Rectangle(30, 100, 890, 400));
+        setBounds(new java.awt.Rectangle(0, 100, 890, 400));
         setMaximumSize(new java.awt.Dimension(760, 480));
         setMinimumSize(new java.awt.Dimension(760, 480));
         setName("ProcessingFrame"); // NOI18N

@@ -127,11 +127,14 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         jRadioButton1.setText("jRadioButton1");
 
         setTitle("Gate Management");
+        setAlwaysOnTop(true);
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setFocusTraversalPolicyProvider(true);
-        setMinimumSize(new java.awt.Dimension(700, 148));
-        setPreferredSize(new java.awt.Dimension(700, 250));
+        setMaximumSize(new java.awt.Dimension(725, 250));
+        setMinimumSize(new java.awt.Dimension(725, 250));
+        setPreferredSize(new java.awt.Dimension(725, 250));
         setResizable(false);
-        setSize(new java.awt.Dimension(700, 148));
+        setSize(new java.awt.Dimension(725, 250));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jPanel1.setMaximumSize(new java.awt.Dimension(700, 60));
@@ -284,11 +287,11 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
             while (itr.hasNext()) {
                 PolygonGate pg = (PolygonGate) itr.next();
                 if(pg.getSelected()){
-                 System.out.println("Gating results: Name: " + pg.getName() + ", " +
-                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
-                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
-                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects())); 
-                 
+//                 System.out.println("Gating results: Name: " + pg.getName() + ", " +
+//                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
+//                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
+//                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects())); 
+//                 
                  IJ.log("Gating results: Name: " + pg.getName() + ", " +
                   pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
                   pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +

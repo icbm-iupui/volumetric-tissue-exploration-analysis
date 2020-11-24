@@ -416,11 +416,13 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         setTitle(getTitle());
+        setAlwaysOnTop(true);
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
         setMaximumSize(getPreferredSize());
         setMinimumSize(getPreferredSize());
         setPreferredSize(new java.awt.Dimension(725, 650));
+        setResizable(false);
         setSize(new java.awt.Dimension(725, 650));
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
@@ -1058,7 +1060,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_ExportGraphActionPerformed
 
     private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
+        ff.setLocation(760,100);
         ff.setVisible(true);
+        
         if (!ffchecked) {
             ffchecked = true;
         }

@@ -2913,6 +2913,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         explorerXposition = xPos;
         explorerYposition = yPos;
         AxesManager.updateMenuPosition(xPos, yPos);
+        gm.setLocation(xPos, yPos+96);
+        gm.pack();
     }
 
     @Override
