@@ -17,6 +17,7 @@
  */
 package vtea.protocol;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import ij.ImagePlus;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -51,6 +52,9 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AbstractDocument;
 import vtea.ImageSelectionListener;
@@ -76,6 +80,7 @@ import vtea.protocol.menus.JMenuProtocol;
 import vtea.protocol.menus.LengthFilter;
 import vtea.protocol.setup.MicroBlockObjectSetup;
 import vteaexploration.GateManager;
+import vteaexploration.MicroExplorer;
 
 /**
  *
@@ -101,7 +106,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
     public AvailableWorkflowsMenu awf = new AvailableWorkflowsMenu();
 
-    private ArrayList<TransferProtocolStepsListener> listeners = new ArrayList<TransferProtocolStepsListener>();
+    private ArrayList<TransferProtocolStepsListener> listeners = new ArrayList<>();
 
     public JMenuProtocol ProcessingMenu;
     public JMenuProtocol ObjectMenu;
@@ -119,13 +124,21 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
     private MicroExperiment me = new MicroExperiment();
 
-    private ArrayList<JPanel> Tabs = new ArrayList<JPanel>();
+    private ArrayList<JPanel> Tabs = new ArrayList<>();
 
     //static ResultsTable rt;
     /**
      * Creates new form protocolManager
      */
     public ProtocolManagerMulti() {
+
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (UnsupportedLookAndFeelException ex) {
+            Logger.getLogger(MicroExplorer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        SwingUtilities.updateComponentTreeUI(this);
+        this.pack();
 
         openerWindow.addImageSelectionListener(this);
         GuiSetup();
@@ -179,11 +192,11 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
         setAutoRequestFocus(false);
         setBackground(new java.awt.Color(204, 204, 204));
         setBounds(new java.awt.Rectangle(0, 100, 890, 400));
-        setMaximumSize(new java.awt.Dimension(760, 480));
-        setMinimumSize(new java.awt.Dimension(760, 480));
+        setMaximumSize(new java.awt.Dimension(760, 460));
+        setMinimumSize(new java.awt.Dimension(760, 460));
         setName("ProcessingFrame"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(760, 480));
-        setSize(new java.awt.Dimension(782, 482));
+        setPreferredSize(new java.awt.Dimension(760, 460));
+        setSize(new java.awt.Dimension(760, 460));
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 formMousePressed(evt);

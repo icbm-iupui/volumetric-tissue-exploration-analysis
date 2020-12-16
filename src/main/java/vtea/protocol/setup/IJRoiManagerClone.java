@@ -226,6 +226,7 @@ public class IJRoiManagerClone extends JPanel implements ActionListener, ItemLis
 
 	void addButton(String label) {
 		Button b = new Button(label);
+                b.setBackground(new Color(255,255,255));
 		b.addActionListener(this);
 		b.addKeyListener(IJ.getInstance());
 		b.addMouseListener(this);

@@ -102,7 +102,6 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         setType(java.awt.Window.Type.UTILITY);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        LUT.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         LUT.setMinimumSize(new java.awt.Dimension(680, 30));
         LUT.setPreferredSize(new java.awt.Dimension(680, 30));
 
@@ -110,11 +109,11 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         LUT.setLayout(LUTLayout);
         LUTLayout.setHorizontalGroup(
             LUTLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 676, Short.MAX_VALUE)
+            .addGap(0, 680, Short.MAX_VALUE)
         );
         LUTLayout.setVerticalGroup(
             LUTLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 26, Short.MAX_VALUE)
+            .addGap(0, 30, Short.MAX_VALUE)
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -122,7 +121,6 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         gridBagConstraints.gridy = 2;
         getContentPane().add(LUT, gridBagConstraints);
 
-        Content.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         Content.setMinimumSize(new java.awt.Dimension(680, 30));
         Content.setName(""); // NOI18N
         Content.setOpaque(false);
@@ -132,11 +130,11 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         Content.setLayout(ContentLayout);
         ContentLayout.setHorizontalGroup(
             ContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 676, Short.MAX_VALUE)
+            .addGap(0, 680, Short.MAX_VALUE)
         );
         ContentLayout.setVerticalGroup(
             ContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 26, Short.MAX_VALUE)
+            .addGap(0, 30, Short.MAX_VALUE)
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();

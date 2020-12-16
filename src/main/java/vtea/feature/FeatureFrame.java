@@ -75,6 +75,9 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
 
         initComponents();
         FeatureStepsPanel.setLayout(FeatureLayout);
+        
+
+        FeatureGo.setToolTipText("Calculate Features.");
 
     }
 
@@ -91,12 +94,10 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         jPanel1 = new javax.swing.JPanel();
         FeatureAnalysis = new javax.swing.JPanel();
         Feature_Header = new javax.swing.JPanel();
-        AnalyzeDataText = new javax.swing.JLabel();
         FeatureLabel = new javax.swing.JLabel();
         AddStep = new javax.swing.JButton();
         DeleteAllSteps = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
-        exploreText = new javax.swing.JLabel();
         Feature_Panel = new javax.swing.JPanel();
         FeatureStepsPanel = new javax.swing.JPanel();
         FeatureGo = new javax.swing.JButton();
@@ -133,21 +134,14 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         Feature_Header.setPreferredSize(new java.awt.Dimension(440, 36));
         Feature_Header.setLayout(new java.awt.GridBagLayout());
 
-        AnalyzeDataText.setText("Analyze Data...");
-        AnalyzeDataText.setMaximumSize(new java.awt.Dimension(120, 16));
-        AnalyzeDataText.setMinimumSize(new java.awt.Dimension(100, 16));
-        AnalyzeDataText.setPreferredSize(new java.awt.Dimension(100, 16));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        Feature_Header.add(AnalyzeDataText, gridBagConstraints);
-
         FeatureLabel.setBackground(new java.awt.Color(0, 0, 0));
         FeatureLabel.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        FeatureLabel.setText("Feature");
+        FeatureLabel.setText("Add Feature");
         FeatureLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        FeatureLabel.setMaximumSize(new java.awt.Dimension(150, 28));
-        FeatureLabel.setMinimumSize(new java.awt.Dimension(150, 28));
-        FeatureLabel.setPreferredSize(new java.awt.Dimension(90, 28));
+        FeatureLabel.setMaximumSize(new java.awt.Dimension(280, 28));
+        FeatureLabel.setMinimumSize(new java.awt.Dimension(280, 28));
+        FeatureLabel.setPreferredSize(new java.awt.Dimension(280, 28));
+        FeatureLabel.setSize(new java.awt.Dimension(280, 28));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -180,11 +174,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
                 DeleteAllStepsActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        Feature_Header.add(DeleteAllSteps, gridBagConstraints);
+        Feature_Header.add(DeleteAllSteps, new java.awt.GridBagConstraints());
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -199,15 +189,6 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
 
         Feature_Header.add(jPanel2, new java.awt.GridBagConstraints());
 
-        exploreText.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        exploreText.setForeground(new java.awt.Color(153, 153, 153));
-        exploreText.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        exploreText.setText("...explore");
-        exploreText.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        exploreText.setPreferredSize(new java.awt.Dimension(85, 40));
-        exploreText.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        Feature_Header.add(exploreText, new java.awt.GridBagConstraints());
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -216,7 +197,6 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         FeatureAnalysis.add(Feature_Header, gridBagConstraints);
 
-        Feature_Panel.setBackground(new java.awt.Color(204, 204, 204));
         Feature_Panel.setForeground(new java.awt.Color(102, 102, 102));
         Feature_Panel.setAlignmentX(0.0F);
         Feature_Panel.setAlignmentY(0.0F);
@@ -240,6 +220,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         );
 
         FeatureGo.setBackground(vtea._vtea.BUTTONBACKGROUND);
+        FeatureGo.setFont(new java.awt.Font("Helvetica", 0, 14)); // NOI18N
         FeatureGo.setText("Find Features");
         FeatureGo.setToolTipText("Find segmented objects.");
         FeatureGo.setEnabled(false);
@@ -256,11 +237,11 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
             .addGroup(Feature_PanelLayout.createSequentialGroup()
                 .addGroup(Feature_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(Feature_PanelLayout.createSequentialGroup()
-                        .addGap(44, 44, 44)
-                        .addComponent(FeatureGo, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(Feature_PanelLayout.createSequentialGroup()
                         .addGap(36, 36, 36)
-                        .addComponent(FeatureStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(FeatureStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(Feature_PanelLayout.createSequentialGroup()
+                        .addGap(44, 44, 44)
+                        .addComponent(FeatureGo)))
                 .addContainerGap(44, Short.MAX_VALUE))
         );
         Feature_PanelLayout.setVerticalGroup(
@@ -310,7 +291,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
      */
     private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
         //this.setVisible(false);
-        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY, FeatureStepsList.size() + 1, descriptions, nvol);
+        FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "",  new Color(204,204,204), FeatureStepsList.size() + 1, descriptions, nvol);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
         //this.notifyRepaintFeatureListeners();
@@ -438,7 +419,6 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddStep;
-    private javax.swing.JLabel AnalyzeDataText;
     private javax.swing.JButton DeleteAllSteps;
     private javax.swing.JPanel FeatureAnalysis;
     public javax.swing.JLabel FeatureComment;
@@ -449,7 +429,6 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
     private javax.swing.JPanel Feature_Panel;
     private javax.swing.JPanel ProgressPanel;
     public javax.swing.JProgressBar VTEAProgressBar;
-    private javax.swing.JLabel exploreText;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables

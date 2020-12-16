@@ -138,8 +138,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
         SingleImageProcessing = new javax.swing.JPanel();
         Preprocessing_Header = new javax.swing.JPanel();
-        OpenImage = new javax.swing.JButton();
         PreProcessingLabel = new javax.swing.JLabel();
+        OpenImage = new javax.swing.JButton();
         AddStep_Preprocessing = new javax.swing.JButton();
         DeleteAllSteps_PreProcessing = new javax.swing.JButton();
         PreProcessing_Panel = new javax.swing.JPanel();
@@ -147,12 +147,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         PreProcessingStepsScrollPanel = new javax.swing.JScrollPane();
         PreProcessingStepsPanel = new javax.swing.JPanel();
         Object_Header = new javax.swing.JPanel();
-        FindObjectText = new javax.swing.JLabel();
         ObjectsLabel = new javax.swing.JLabel();
         AddStep_Object = new javax.swing.JButton();
         DeleteAllSteps_Object = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        exploreText = new javax.swing.JLabel();
         Object_Panel = new javax.swing.JPanel();
         ObjectStepsPanel = new javax.swing.JPanel();
         ObjectGo = new javax.swing.JButton();
@@ -185,14 +183,22 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         Preprocessing_Header.setPreferredSize(new java.awt.Dimension(300, 36));
         Preprocessing_Header.setLayout(new java.awt.GridBagLayout());
 
+        PreProcessingLabel.setBackground(new java.awt.Color(204, 204, 204));
+        PreProcessingLabel.setFont(new java.awt.Font("Helvetica", 0, 24)); // NOI18N
+        PreProcessingLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        PreProcessingLabel.setText("Process");
+        PreProcessingLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        PreProcessingLabel.setRequestFocusEnabled(false);
+        Preprocessing_Header.add(PreProcessingLabel, new java.awt.GridBagConstraints());
+
         OpenImage.setBackground(vtea._vtea.BUTTONBACKGROUND);
-        OpenImage.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        OpenImage.setFont(new java.awt.Font("Helvetica", 0, 14)); // NOI18N
+        OpenImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/go-down-7.png"))); // NOI18N
         OpenImage.setText("Load Image");
         OpenImage.setToolTipText("Load image for processing.");
-        OpenImage.setBorder(null);
         OpenImage.setMargin(new java.awt.Insets(2, 5, 2, 5));
-        OpenImage.setMaximumSize(new java.awt.Dimension(80, 33));
-        OpenImage.setMinimumSize(new java.awt.Dimension(80, 23));
+        OpenImage.setMaximumSize(new java.awt.Dimension(80, 34));
+        OpenImage.setMinimumSize(new java.awt.Dimension(80, 34));
         OpenImage.setPreferredSize(new java.awt.Dimension(120, 34));
         OpenImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -200,16 +206,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             }
         });
         Preprocessing_Header.add(OpenImage, new java.awt.GridBagConstraints());
-
-        PreProcessingLabel.setBackground(new java.awt.Color(204, 204, 204));
-        PreProcessingLabel.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        PreProcessingLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        PreProcessingLabel.setText("Process");
-        PreProcessingLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        PreProcessingLabel.setRequestFocusEnabled(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.ipadx = 11;
-        Preprocessing_Header.add(PreProcessingLabel, gridBagConstraints);
 
         AddStep_Preprocessing.setBackground(vtea._vtea.BUTTONBACKGROUND);
         AddStep_Preprocessing.setForeground(new java.awt.Color(102, 102, 102));
@@ -253,8 +249,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         SingleImageProcessing.add(Preprocessing_Header, gridBagConstraints);
 
-        PreProcessing_Panel.setBackground(new java.awt.Color(204, 204, 204));
         PreProcessing_Panel.setForeground(new java.awt.Color(102, 102, 102));
+        PreProcessing_Panel.setToolTipText("");
         PreProcessing_Panel.setAlignmentX(0.0F);
         PreProcessing_Panel.setAlignmentY(0.0F);
         PreProcessing_Panel.setMaximumSize(new java.awt.Dimension(300, 300));
@@ -262,9 +258,12 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         PreProcessing_Panel.setPreferredSize(new java.awt.Dimension(300, 300));
 
         PreProcessingGo.setBackground(vtea._vtea.BUTTONBACKGROUND);
+        PreProcessingGo.setFont(new java.awt.Font("Helvetica", 0, 14)); // NOI18N
         PreProcessingGo.setText("Process");
         PreProcessingGo.setToolTipText("Process the loaded image.");
         PreProcessingGo.setEnabled(false);
+        PreProcessingGo.setPreferredSize(new java.awt.Dimension(92, 34));
+        PreProcessingGo.setSize(new java.awt.Dimension(92, 34));
         PreProcessingGo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 PreProcessingGoActionPerformed(evt);
@@ -296,8 +295,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             PreProcessing_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PreProcessing_PanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(PreProcessingGo, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(193, Short.MAX_VALUE))
+                .addComponent(PreProcessingGo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(202, Short.MAX_VALUE))
             .addGroup(PreProcessing_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(PreProcessing_PanelLayout.createSequentialGroup()
                     .addContainerGap()
@@ -308,8 +307,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             PreProcessing_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PreProcessing_PanelLayout.createSequentialGroup()
                 .addGap(263, 263, 263)
-                .addComponent(PreProcessingGo)
-                .addContainerGap(8, Short.MAX_VALUE))
+                .addComponent(PreProcessingGo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(PreProcessing_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(PreProcessing_PanelLayout.createSequentialGroup()
                     .addContainerGap()
@@ -333,22 +332,14 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         Object_Header.setPreferredSize(new java.awt.Dimension(440, 36));
         Object_Header.setLayout(new java.awt.GridBagLayout());
 
-        FindObjectText.setForeground(new java.awt.Color(153, 153, 153));
-        FindObjectText.setText("Find Objects...");
-        FindObjectText.setMaximumSize(new java.awt.Dimension(120, 16));
-        FindObjectText.setMinimumSize(new java.awt.Dimension(100, 16));
-        FindObjectText.setPreferredSize(new java.awt.Dimension(100, 16));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        Object_Header.add(FindObjectText, gridBagConstraints);
-
         ObjectsLabel.setBackground(new java.awt.Color(0, 0, 0));
-        ObjectsLabel.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        ObjectsLabel.setText("Segment");
+        ObjectsLabel.setFont(new java.awt.Font("Helvetica", 0, 24)); // NOI18N
+        ObjectsLabel.setText("Segment Objects");
         ObjectsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        ObjectsLabel.setMaximumSize(new java.awt.Dimension(150, 28));
-        ObjectsLabel.setMinimumSize(new java.awt.Dimension(150, 28));
-        ObjectsLabel.setPreferredSize(new java.awt.Dimension(150, 28));
+        ObjectsLabel.setMaximumSize(new java.awt.Dimension(360, 28));
+        ObjectsLabel.setMinimumSize(new java.awt.Dimension(360, 28));
+        ObjectsLabel.setPreferredSize(new java.awt.Dimension(360, 28));
+        ObjectsLabel.setSize(new java.awt.Dimension(360, 28));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -404,11 +395,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
 
         Object_Header.add(jPanel1, new java.awt.GridBagConstraints());
 
-        exploreText.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
-        exploreText.setForeground(new java.awt.Color(153, 153, 153));
-        exploreText.setText("     ...explore");
-        Object_Header.add(exploreText, new java.awt.GridBagConstraints());
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -417,7 +403,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         SingleImageProcessing.add(Object_Header, gridBagConstraints);
 
-        Object_Panel.setBackground(new java.awt.Color(204, 204, 204));
         Object_Panel.setForeground(new java.awt.Color(102, 102, 102));
         Object_Panel.setAlignmentX(0.0F);
         Object_Panel.setAlignmentY(0.0F);
@@ -427,7 +412,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         Object_Panel.setRequestFocusEnabled(false);
 
         ObjectStepsPanel.setBackground(vtea._vtea.ACTIONPANELBACKGROUND);
-        ObjectStepsPanel.setPreferredSize(new java.awt.Dimension(160, 245));
+        ObjectStepsPanel.setMaximumSize(new java.awt.Dimension(420, 245));
+        ObjectStepsPanel.setMinimumSize(new java.awt.Dimension(420, 245));
+        ObjectStepsPanel.setPreferredSize(new java.awt.Dimension(420, 245));
+        ObjectStepsPanel.setSize(new java.awt.Dimension(420, 245));
 
         javax.swing.GroupLayout ObjectStepsPanelLayout = new javax.swing.GroupLayout(ObjectStepsPanel);
         ObjectStepsPanel.setLayout(ObjectStepsPanelLayout);
@@ -441,9 +429,14 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         );
 
         ObjectGo.setBackground(vtea._vtea.BUTTONBACKGROUND);
+        ObjectGo.setFont(new java.awt.Font("Helvetica", 0, 14)); // NOI18N
         ObjectGo.setText("Find Objects");
         ObjectGo.setToolTipText("Find segmented objects.");
+        ObjectGo.setBounds(new java.awt.Rectangle(0, 0, 130, 34));
         ObjectGo.setEnabled(false);
+        ObjectGo.setMaximumSize(new java.awt.Dimension(130, 34));
+        ObjectGo.setMinimumSize(new java.awt.Dimension(130, 34));
+        ObjectGo.setPreferredSize(new java.awt.Dimension(130, 34));
         ObjectGo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ObjectGoActionPerformed(evt);
@@ -456,12 +449,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             Object_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Object_PanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(Object_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE)
-                    .addGroup(Object_PanelLayout.createSequentialGroup()
-                        .addComponent(ObjectGo, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 316, Short.MAX_VALUE)))
-                .addContainerGap())
+                .addComponent(ObjectGo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(304, Short.MAX_VALUE))
+            .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
         );
         Object_PanelLayout.setVerticalGroup(
             Object_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -469,8 +459,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
                 .addContainerGap()
                 .addComponent(ObjectStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(ObjectGo)
-                .addContainerGap(68, Short.MAX_VALUE))
+                .addComponent(ObjectGo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(63, Short.MAX_VALUE))
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -490,10 +480,12 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         flowLayout2.setAlignOnBaseline(true);
         ProgressPanel.setLayout(flowLayout2);
 
+        ProgressComment.setFont(new java.awt.Font("Helvetica", 0, 13)); // NOI18N
         ProgressComment.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         ProgressComment.setText("Load an image to begin...");
         ProgressPanel.add(ProgressComment);
 
+        VTEAProgressBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
         VTEAProgressBar.setPreferredSize(new java.awt.Dimension(200, 20));
         ProgressPanel.add(VTEAProgressBar);
 
@@ -529,7 +521,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
         this.firePropertyChange("comment", "", "Processing image data...");
         executeProcessing();
         VTEAProgressBar.setValue(0);
-        FindObjectText.setForeground(vtea._vtea.ACTIVETEXT);
         AddStep_Object.setEnabled(true);
         if (ObjectStepsList.size() > 0) {
             ObjectGo.setEnabled(true);
@@ -580,7 +571,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     public javax.swing.JButton AddStep_Preprocessing;
     private javax.swing.JButton DeleteAllSteps_Object;
     private javax.swing.JButton DeleteAllSteps_PreProcessing;
-    private javax.swing.JLabel FindObjectText;
     public javax.swing.JButton ObjectGo;
     public javax.swing.JPanel ObjectStepsPanel;
     private javax.swing.JPanel Object_Header;
@@ -597,7 +587,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
     private javax.swing.JPanel ProgressPanel;
     private javax.swing.JPanel SingleImageProcessing;
     public javax.swing.JProgressBar VTEAProgressBar;
-    private javax.swing.JLabel exploreText;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 
@@ -884,12 +873,12 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             });
             UpdateExplorer.setEnabled(false);
 
-            DeleteButton.setSize(20, 20);
+            DeleteButton.setSize(19, 19);
             DeleteButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
             DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
             DeleteButton.setToolTipText("Delete protocol...");
 
-            EditButton.setSize(20, 20);
+            EditButton.setSize(19, 19);
             EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
             EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
             EditButton.setToolTipText("Edit segmentation protocol...");
@@ -898,7 +887,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements Propert
             fill.setPreferredSize(new Dimension(20, 20));
 
             step.setSize(205, 20);
-            step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+            //step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
             step.setLayout(new GridBagLayout());
             GridBagConstraints layoutConstraints = new GridBagConstraints();

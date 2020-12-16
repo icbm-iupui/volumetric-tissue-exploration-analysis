@@ -67,6 +67,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         this.channels = channels;
         initComponents();
         MorphologicalStepsPanel.setLayout(MorphologyLayout);
+        FeatureGo.setToolTipText("Set Morphology");
     }
 
     /**
@@ -82,7 +83,6 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         jPanel1 = new javax.swing.JPanel();
         FeatureAnalysis = new javax.swing.JPanel();
         Feature_Header = new javax.swing.JPanel();
-        AnalyzeDataText = new javax.swing.JLabel();
         FeatureLabel = new javax.swing.JLabel();
         AddStep = new javax.swing.JButton();
         DeleteAllSteps = new javax.swing.JButton();
@@ -124,20 +124,14 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         Feature_Header.setPreferredSize(new java.awt.Dimension(440, 36));
         Feature_Header.setLayout(new java.awt.GridBagLayout());
 
-        AnalyzeDataText.setText("Process...");
-        AnalyzeDataText.setMinimumSize(new java.awt.Dimension(40, 16));
-        AnalyzeDataText.setRequestFocusEnabled(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        Feature_Header.add(AnalyzeDataText, gridBagConstraints);
-
         FeatureLabel.setBackground(new java.awt.Color(0, 0, 0));
         FeatureLabel.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
         FeatureLabel.setText("Morphology");
         FeatureLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        FeatureLabel.setMaximumSize(new java.awt.Dimension(200, 28));
-        FeatureLabel.setMinimumSize(new java.awt.Dimension(120, 28));
-        FeatureLabel.setPreferredSize(new java.awt.Dimension(140, 28));
+        FeatureLabel.setMaximumSize(new java.awt.Dimension(290, 28));
+        FeatureLabel.setMinimumSize(new java.awt.Dimension(290, 28));
+        FeatureLabel.setPreferredSize(new java.awt.Dimension(290, 28));
+        FeatureLabel.setSize(new java.awt.Dimension(290, 28));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -205,7 +199,6 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
         FeatureAnalysis.add(Feature_Header, gridBagConstraints);
 
-        Feature_Panel.setBackground(new java.awt.Color(204, 204, 204));
         Feature_Panel.setForeground(new java.awt.Color(102, 102, 102));
         Feature_Panel.setAlignmentX(0.0F);
         Feature_Panel.setAlignmentY(0.0F);
@@ -221,7 +214,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         MorphologicalStepsPanel.setLayout(MorphologicalStepsPanelLayout);
         MorphologicalStepsPanelLayout.setHorizontalGroup(
             MorphologicalStepsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 360, Short.MAX_VALUE)
+            .addGap(0, 379, Short.MAX_VALUE)
         );
         MorphologicalStepsPanelLayout.setVerticalGroup(
             MorphologicalStepsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -248,9 +241,9 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
                         .addGap(44, 44, 44)
                         .addComponent(FeatureGo, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(Feature_PanelLayout.createSequentialGroup()
-                        .addGap(36, 36, 36)
-                        .addComponent(MorphologicalStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(44, Short.MAX_VALUE))
+                        .addGap(28, 28, 28)
+                        .addComponent(MorphologicalStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
         Feature_PanelLayout.setVerticalGroup(
             Feature_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -301,7 +294,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
 
         MorphologicalStepsPanel.repaint();
 
-        MorphologyStepBlockGUI block = new MorphologyStepBlockGUI("Feature Step", "", Color.LIGHT_GRAY, MorphologicalStepsList.size() + 1, channels);
+        MorphologyStepBlockGUI block = new MorphologyStepBlockGUI("Feature Step", "", new Color(204,204,204), MorphologicalStepsList.size() + 1, channels);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
         //this.notifyRepaintFeatureListeners();
@@ -428,7 +421,6 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddStep;
-    private javax.swing.JLabel AnalyzeDataText;
     private javax.swing.JButton DeleteAllSteps;
     private javax.swing.JPanel FeatureAnalysis;
     public javax.swing.JLabel FeatureComment;

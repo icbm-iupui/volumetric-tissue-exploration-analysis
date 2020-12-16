@@ -119,11 +119,11 @@ public final class ObjectStepBlockGUI extends AbstractMicroBlockStepGUI implemen
             }
         });
 
-        DeleteButton.setPreferredSize(new Dimension(20, 20));
+        DeleteButton.setPreferredSize(new Dimension(19, 19));
         DeleteButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
 
-        EditButton.setPreferredSize(new Dimension(20, 20));
+        EditButton.setPreferredSize(new Dimension(19, 19));
         EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
 
@@ -138,7 +138,7 @@ public final class ObjectStepBlockGUI extends AbstractMicroBlockStepGUI implemen
         }
 
         step.setSize(205, 40);
-        step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        //step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         step.setLayout(new GridBagLayout());
         GridBagConstraints layoutConstraints = new GridBagConstraints();

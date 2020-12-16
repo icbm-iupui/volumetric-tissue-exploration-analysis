@@ -115,22 +115,21 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        methodBuild = new javax.swing.JPanel();
-        AlgorithmStyle = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
         methodSelection = new javax.swing.JPanel();
         TitleText = new javax.swing.JTextField();
         PositionText = new javax.swing.JLabel();
+        methodBuild = new javax.swing.JPanel();
+        AlgorithmStyle = new javax.swing.JPanel();
         comments = new javax.swing.JPanel();
         notesPane = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
         ProcessNotes = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
         buttonPanel = new javax.swing.JPanel();
         PreviewProgress = new javax.swing.JLabel();
         PreviewButton = new javax.swing.JButton();
-        BlockSetupOK = new javax.swing.JButton();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 32), new java.awt.Dimension(10, 32), new java.awt.Dimension(10, 32));
         BlockSetupCancel = new javax.swing.JButton();
+        BlockSetupOK = new javax.swing.JButton();
         channelSelection = new javax.swing.JPanel();
         ProcessText = new javax.swing.JLabel();
         ProcessSelectComboBox = new javax.swing.JComboBox();
@@ -140,40 +139,31 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         methodMorphology = new javax.swing.JPanel();
         MethodDetails = new javax.swing.JPanel();
 
+        jLabel3.setText("Notes");
+        jLabel3.setAlignmentX(0.5F);
+
+        setTitle("Setup");
         setBackground(vtea._vtea.BACKGROUND);
-        setBounds(new java.awt.Rectangle(110, 160, 378, 282));
-        setMinimumSize(vtea._vtea.BLOCKSETUP);
+        setBounds(new java.awt.Rectangle(110, 160, 800, 400));
+        setMaximumSize(new java.awt.Dimension(390, 730));
+        setMinimumSize(new java.awt.Dimension(390, 730));
         setName("BlockOptionFrame"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(380, 690));
-        setSize(new java.awt.Dimension(380, 690));
+        setPreferredSize(new java.awt.Dimension(390, 730));
+        setSize(new java.awt.Dimension(390, 720));
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
-        layout.columnWidths = new int[] {0, 1, 0};
-        layout.rowHeights = new int[] {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
+        layout.columnWidths = new int[] {0};
+        layout.rowHeights = new int[] {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
         getContentPane().setLayout(layout);
 
-        methodBuild.setBackground(vtea._vtea.BACKGROUND);
-        methodBuild.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        methodBuild.setMaximumSize(new java.awt.Dimension(359, 350));
-        methodBuild.setMinimumSize(new java.awt.Dimension(359, 300));
-        methodBuild.setPreferredSize(new java.awt.Dimension(359, 330));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        getContentPane().add(methodBuild, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        getContentPane().add(AlgorithmStyle, gridBagConstraints);
-
         methodSelection.setBackground(vtea._vtea.BACKGROUND);
-        methodSelection.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        methodSelection.setMaximumSize(new java.awt.Dimension(359, 40));
+        methodSelection.setMinimumSize(new java.awt.Dimension(359, 40));
         methodSelection.setPreferredSize(new java.awt.Dimension(359, 40));
         methodSelection.setLayout(new java.awt.GridBagLayout());
 
         TitleText.setEditable(false);
         TitleText.setBackground(vtea._vtea.BACKGROUND);
-        TitleText.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        TitleText.setFont(new java.awt.Font("Helvetica", 0, 18)); // NOI18N
         TitleText.setText("Processing");
         TitleText.setBorder(null);
         TitleText.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -201,7 +191,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints.gridy = 0;
         methodSelection.add(TitleText, gridBagConstraints);
 
-        PositionText.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        PositionText.setFont(new java.awt.Font("Helvetica", 0, 18)); // NOI18N
         PositionText.setText(" ");
         PositionText.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -216,66 +206,87 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_START;
         getContentPane().add(methodSelection, gridBagConstraints);
 
-        comments.setBackground(vtea._vtea.BACKGROUND);
-        comments.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        comments.setMaximumSize(new java.awt.Dimension(359, 100));
+        methodBuild.setMaximumSize(new java.awt.Dimension(370, 330));
+        methodBuild.setMinimumSize(new java.awt.Dimension(370, 330));
+        methodBuild.setPreferredSize(new java.awt.Dimension(370, 330));
+        methodBuild.setSize(new java.awt.Dimension(370, 330));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        getContentPane().add(methodBuild, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        getContentPane().add(AlgorithmStyle, gridBagConstraints);
+
+        comments.setMaximumSize(new java.awt.Dimension(359, 50));
         comments.setMinimumSize(new java.awt.Dimension(359, 50));
         comments.setPreferredSize(new java.awt.Dimension(359, 50));
 
         notesPane.setBackground(vtea._vtea.BACKGROUND);
-        notesPane.setMaximumSize(new java.awt.Dimension(50, 50));
-        notesPane.setMinimumSize(new java.awt.Dimension(330, 50));
-        notesPane.setPreferredSize(new java.awt.Dimension(330, 50));
+        notesPane.setMaximumSize(new java.awt.Dimension(360, 50));
+        notesPane.setMinimumSize(new java.awt.Dimension(360, 50));
+        notesPane.setPreferredSize(new java.awt.Dimension(360, 50));
         notesPane.setLayout(new java.awt.GridBagLayout());
 
-        jLabel3.setText("Notes");
-        jLabel3.setAlignmentX(0.5F);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
-        notesPane.add(jLabel3, gridBagConstraints);
-
-        ProcessNotes.setMaximumSize(new java.awt.Dimension(330, 100));
-        ProcessNotes.setMinimumSize(new java.awt.Dimension(330, 100));
+        ProcessNotes.setBorder(null);
+        ProcessNotes.setMaximumSize(new java.awt.Dimension(358, 45));
+        ProcessNotes.setMinimumSize(new java.awt.Dimension(358, 45));
         ProcessNotes.setName(""); // NOI18N
-        ProcessNotes.setPreferredSize(new java.awt.Dimension(330, 100));
-        ProcessNotes.setRequestFocusEnabled(false);
+        ProcessNotes.setPreferredSize(new java.awt.Dimension(358, 45));
+        ProcessNotes.setViewportView(null);
 
-        jTextPane1.setMaximumSize(new java.awt.Dimension(300, 100));
-        jTextPane1.setMinimumSize(new java.awt.Dimension(300, 100));
-        jTextPane1.setPreferredSize(new java.awt.Dimension(300, 100));
+        jTextPane1.setBorder(null);
+        jTextPane1.setText("Enter notes here...");
+        jTextPane1.setToolTipText("Enter notes here...");
+        jTextPane1.setMaximumSize(new java.awt.Dimension(358, 300));
+        jTextPane1.setMinimumSize(new java.awt.Dimension(358, 300));
+        jTextPane1.setPreferredSize(new java.awt.Dimension(358, 300));
         ProcessNotes.setViewportView(jTextPane1);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE;
         notesPane.add(ProcessNotes, gridBagConstraints);
 
         comments.add(notesPane);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 19;
         gridBagConstraints.ipady = 13;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         getContentPane().add(comments, gridBagConstraints);
 
-        buttonPanel.setMinimumSize(vtea._vtea.BLOCKSETUPPANEL);
+        buttonPanel.setMaximumSize(new java.awt.Dimension(359, 50));
+        buttonPanel.setMinimumSize(new java.awt.Dimension(359, 50));
+        buttonPanel.setPreferredSize(new java.awt.Dimension(359, 50));
         buttonPanel.setLayout(new java.awt.GridBagLayout());
-        buttonPanel.add(PreviewProgress, new java.awt.GridBagConstraints());
+
+        PreviewProgress.setBackground(vtea._vtea.BACKGROUND);
+        PreviewProgress.setMaximumSize(new java.awt.Dimension(250, 30));
+        PreviewProgress.setMinimumSize(new java.awt.Dimension(250, 30));
+        PreviewProgress.setPreferredSize(new java.awt.Dimension(250, 30));
+        PreviewProgress.setRequestFocusEnabled(false);
+        PreviewProgress.setSize(new java.awt.Dimension(250, 30));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        buttonPanel.add(PreviewProgress, gridBagConstraints);
 
         PreviewButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/eye.png"))); // NOI18N
         PreviewButton.setToolTipText("Preview Segmentation");
         PreviewButton.setMaximumSize(vtea._vtea.SMALLBUTTONSIZE);
         PreviewButton.setMinimumSize(vtea._vtea.SMALLBUTTONSIZE);
         PreviewButton.setPreferredSize(vtea._vtea.SMALLBUTTONSIZE);
+        PreviewButton.setSize(vtea._vtea.SMALLBUTTONSIZE);
         PreviewButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 PreviewButtonActionPerformed(evt);
@@ -284,26 +295,8 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_END;
         buttonPanel.add(PreviewButton, gridBagConstraints);
-
-        BlockSetupOK.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/dialog-apply.png"))); // NOI18N
-        BlockSetupOK.setToolTipText("Accept changes");
-        BlockSetupOK.setMaximumSize(vtea._vtea.SMALLBUTTONSIZE);
-        BlockSetupOK.setMinimumSize(vtea._vtea.SMALLBUTTONSIZE);
-        BlockSetupOK.setPreferredSize(vtea._vtea.SMALLBUTTONSIZE);
-        BlockSetupOK.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BlockSetupOKActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        buttonPanel.add(BlockSetupOK, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        buttonPanel.add(filler1, gridBagConstraints);
 
         BlockSetupCancel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_24.png"))); // NOI18N
         BlockSetupCancel.setToolTipText("Cancel changes");
@@ -318,22 +311,42 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_END;
         buttonPanel.add(BlockSetupCancel, gridBagConstraints);
+
+        BlockSetupOK.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/dialog-apply.png"))); // NOI18N
+        BlockSetupOK.setToolTipText("Accept changes");
+        BlockSetupOK.setMaximumSize(vtea._vtea.SMALLBUTTONSIZE);
+        BlockSetupOK.setMinimumSize(vtea._vtea.SMALLBUTTONSIZE);
+        BlockSetupOK.setPreferredSize(vtea._vtea.SMALLBUTTONSIZE);
+        BlockSetupOK.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BlockSetupOKActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_END;
+        buttonPanel.add(BlockSetupOK, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 21;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_END;
         getContentPane().add(buttonPanel, gridBagConstraints);
 
         channelSelection.setBackground(vtea._vtea.BACKGROUND);
-        channelSelection.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        channelSelection.setMinimumSize(new java.awt.Dimension(359, 31));
-        channelSelection.setPreferredSize(new java.awt.Dimension(359, 33));
+        channelSelection.setMaximumSize(new java.awt.Dimension(359, 41));
+        channelSelection.setMinimumSize(new java.awt.Dimension(359, 41));
+        channelSelection.setPreferredSize(new java.awt.Dimension(359, 41));
+        channelSelection.setRequestFocusEnabled(false);
+        channelSelection.setSize(new java.awt.Dimension(359, 41));
         channelSelection.setLayout(new java.awt.GridBagLayout());
 
-        ProcessText.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
+        ProcessText.setFont(new java.awt.Font("Helvetica", 0, 18)); // NOI18N
         ProcessText.setText("Object formation ");
         ProcessText.setToolTipText("");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -343,15 +356,15 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 0);
         channelSelection.add(ProcessText, gridBagConstraints);
 
-        ProcessSelectComboBox.setBackground(vtea._vtea.BACKGROUND);
-        ProcessSelectComboBox.setMaximumSize(new java.awt.Dimension(150, 27));
-        ProcessSelectComboBox.setMinimumSize(new java.awt.Dimension(150, 27));
+        ProcessSelectComboBox.setMaximumSize(new java.awt.Dimension(200, 27));
+        ProcessSelectComboBox.setMinimumSize(new java.awt.Dimension(200, 27));
         ProcessSelectComboBox.setPreferredSize(new java.awt.Dimension(200, 27));
+        ProcessSelectComboBox.setSize(new java.awt.Dimension(200, 27));
         ProcessSelectComboBox.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+            }
             public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
                 ProcessSelectComboBoxCaretPositionChanged(evt);
-            }
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
             }
         });
         ProcessSelectComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -368,15 +381,18 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         getContentPane().add(channelSelection, gridBagConstraints);
 
         ApproachPanel.setBackground(vtea._vtea.BACKGROUND);
-        ApproachPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        ApproachPanel.setMaximumSize(new java.awt.Dimension(359, 41));
         ApproachPanel.setMinimumSize(new java.awt.Dimension(359, 41));
         ApproachPanel.setPreferredSize(new java.awt.Dimension(359, 41));
+        ApproachPanel.setSize(new java.awt.Dimension(359, 41));
 
-        ChannelSelection.setFont(new java.awt.Font("Lucida Grande", 0, 12)); // NOI18N
+        ChannelSelection.setFont(new java.awt.Font("Helvetica", 0, 18)); // NOI18N
         ChannelSelection.setText("Segment on Channel");
         ApproachPanel.add(ChannelSelection);
 
         ChannelComboBox.setModel(channelsComboBox);
+        ChannelComboBox.setMaximumSize(new java.awt.Dimension(52, 27));
+        ChannelComboBox.setSize(new java.awt.Dimension(52, 27));
         ChannelComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ChannelComboBoxActionPerformed(evt);
@@ -388,18 +404,15 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridheight = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         getContentPane().add(ApproachPanel, gridBagConstraints);
 
-        methodMorphology.setBackground(vtea._vtea.BACKGROUND);
-        methodMorphology.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         methodMorphology.setMaximumSize(new java.awt.Dimension(359, 500));
         methodMorphology.setMinimumSize(new java.awt.Dimension(359, 150));
         methodMorphology.setPreferredSize(new java.awt.Dimension(359, 150));
         methodMorphology.setRequestFocusEnabled(false);
 
         defaultProtocolPanel();
-        MethodDetails.setBackground(vtea._vtea.BACKGROUND);
         MethodDetails.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         MethodDetails.setMaximumSize(new java.awt.Dimension(340, 500));
         MethodDetails.setMinimumSize(new java.awt.Dimension(340, 120));
@@ -411,7 +424,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 8;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         getContentPane().add(methodMorphology, gridBagConstraints);
 
         pack();
@@ -839,7 +852,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
     public javax.swing.JPanel buttonPanel;
     protected javax.swing.JPanel channelSelection;
     protected javax.swing.JPanel comments;
-    private javax.swing.Box.Filler filler1;
     protected javax.swing.JLabel jLabel3;
     protected javax.swing.JTextPane jTextPane1;
     protected javax.swing.JPanel methodBuild;

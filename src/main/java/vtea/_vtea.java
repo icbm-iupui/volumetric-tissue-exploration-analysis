@@ -17,6 +17,7 @@
  */
 package vtea;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImageListener;
@@ -124,15 +125,24 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Date STARTUPTIME;
 
     public static void main(String[] args) {
+
+        
         //set the plugins.dir property to make the plugin appear in the Plugins menu
         Class<?> clazz = _vtea.class;
         String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
         String pluginsDir = url.substring(5, url.length() - clazz.getName().length() - 6);
         System.setProperty("plugins.dir", pluginsDir);
+        
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
+                        
+//                           try {
+//    UIManager.setLookAndFeel( new FlatLightLaf() );
+//} catch( Exception ex ) {
+//    System.err.println( "Failed to initialize LaF" );
+//}
                 new ImageJ();
             }
         });
@@ -197,6 +207,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
     @Override
     public void run(String str) {
+        
+
 
         //getUIValues();
         context = new Context(LogService.class, PluginService.class, UIService.class);
@@ -209,8 +221,12 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
            LogStream.redirectSystemOut("");
            LogStream.redirectSystemErr("");          
            Frame log = WindowManager.getFrame("Log");
-           log.setSize(new Dimension(760,466));
-           log.setLocation(0,570);
+           log.setSize(new Dimension(760,350));
+           log.setLocation(0,560);
+           
+
+
+
            
 
         System.out.println("Starting up VTEA... ");

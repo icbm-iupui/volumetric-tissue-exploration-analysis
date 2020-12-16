@@ -171,6 +171,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>v1.4.0</version>
             <type>jar</type>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.formdev/flatlaf -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>0.44</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <build>
