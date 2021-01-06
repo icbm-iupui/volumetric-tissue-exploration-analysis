@@ -40,6 +40,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -60,6 +62,7 @@ import java.util.HashMap;
 import java.util.ListIterator;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -81,6 +84,7 @@ import vtea.exploration.listeners.AssignmentListener;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.DensityMapListener;
 import vtea.exploration.listeners.DistanceMapListener;
+import vtea.exploration.listeners.GateManagerActionListener;
 import vtea.exploration.listeners.LinkedKeyListener;
 import vtea.exploration.listeners.ManualClassListener;
 import vtea.exploration.listeners.NameUpdateListener;
@@ -130,24 +134,23 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         ImageHighlightSelectionListener, ChangePlotAxesListener, AddFeaturesListener,
         UpdatePlotWindowListener, AddGateListener, DeleteGateListener, GateColorListener, SaveGatedImagesListener,
         SubGateListener, PlotAxesPreviewButtonListener, ImageListener, NameUpdateListener,
-        colorUpdateListener, remapOverlayListener, ManualClassListener, AssignmentListener, UpdateFeaturesListener {
+        colorUpdateListener, remapOverlayListener, ManualClassListener, AssignmentListener, UpdateFeaturesListener, GateManagerActionListener {
 
     static String printResult = "";
     static public int testCounter = 0;
     int impZ;
-    
-    
+
     public static double getMaximumOfData(ArrayList measurements, int l) {
-        
+
         ListIterator<ArrayList> litr = measurements.listIterator();
-        
+
         Number high = 0;
-        
+
         while (litr.hasNext()) {
             try {
-                
+
                 ArrayList<Number> al = litr.next();
-                
+
                 if (al.get(l).floatValue() > high.floatValue()) {
                     high = al.get(l).floatValue();
                 }
@@ -155,15 +158,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             }
         }
         return high.longValue();
-        
+
     }
+
     public static double getMinimumOfData(ArrayList measurements, int l) {
-        
+
         ListIterator<ArrayList> litr = measurements.listIterator();
-        
+
         //ArrayList<Number> al = new ArrayList<Number>();
         Number low = getMaximumOfData(measurements, l);
-        
+
         while (litr.hasNext()) {
             try {
                 ArrayList<Number> al = litr.next();
@@ -188,7 +192,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     boolean updateimage = true;
     private Connection connection;
 
-
     PlotAxesManager AxesManager;
     int explorerXaxisIndex = 0;
     int explorerYaxisIndex = 0;
@@ -206,6 +209,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         super();
 
         gm = new TableWindow(title);
+
         configureListeners();
 
         this.key = key;
@@ -268,6 +272,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gm.addUpdateNameListener(this);
         gm.addUpdateColorListener(this);
         gm.addRemapOverlayListener(this);
+        gm.addGateActionListener(this);
 
         gl.addPolygonSelectionListener(this);
         gl.addPasteGateListener(this);
@@ -986,23 +991,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         if (imageGate) {
             imageGateColor = impoverlay.getRoi().getStrokeColor();
         }
-        
-        //System.out.println("XYExplorationPanel, addplot:" + System.currentTimeMillis());
 
+        //System.out.println("XYExplorationPanel, addplot:" + System.currentTimeMillis());
         cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor, lps);
 
         cpd.addUpdatePlotWindowListener(this);
-        
-        
-        
-        
+
         chart = cpd.getChartPanel();
         chart.setOpaque(false);
 
         //XYPlot plot = (XYPlot) cpd.getChartPanel().getChart().getPlot();
-        
-
-
         if (useGlobal) {
             cpd.setChartPanelRanges(XYChartPanel.XAXIS, XYChartPanel.xMin, XYChartPanel.xMax, xScaleLinear);
             cpd.setChartPanelRanges(XYChartPanel.YAXIS, XYChartPanel.yMin, XYChartPanel.yMax, yScaleLinear);
@@ -1048,7 +1046,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         return CenterPanel;
     }
 
-
     @Override
     public void addExplorationGroup() {
         ArrayList al = new ArrayList();
@@ -1063,7 +1060,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         this.explorerXaxisIndex = x;
         this.explorerYaxisIndex = y;
         this.explorerLutIndex = l;
-        
+
         this.explorerPointSizeIndex = size;
 
         String lText = "";
@@ -1072,7 +1069,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         } else {
             lText = hm.get(l);
         }
-        
+
         lps = AxesManager.getLookupPaintScale(l);
 
         addPlot(x, y, l, size, LUT, hm.get(x), hm.get(y), lText);
@@ -1096,18 +1093,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 //
 //            }
 //        }
-        
 //        if(explorerLutIndex == l){
 //
 //        } else {
-            
-            
-      //  }
-
+        //  }
         AxesManager.setAxesSetupAxisLimits(this.getSettingsContent());
-        
-        
-        
+
         this.notifyUpdateExplorerGUIListener();
 
     }
@@ -1656,8 +1647,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         al.add(new JTextField(String.valueOf(Math.round(plot.getRangeAxis().getUpperBound()))));
         al.add(y);
 
-
-
         return al;
 
     }
@@ -1723,10 +1712,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void exportGates() {
         ExportGates eg = new ExportGates();
-//        ArrayList<ArrayList<Point2D.Double>> al = new ArrayList();
-//        for (int i = 0; i < gates.size(); i++) {
-//            al.add(gates.get(i).getGateAsPointsInChart());
-//        }
         eg.export(gates);
     }
 
@@ -1744,8 +1729,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 c++;
                 gl.importGate(pg);
             }
-
-            //gl.notifyPolygonSelectionListeners(GateImporter.importGates(al1, chart));
         }
         gm.updateTable(gates);
         gm.setVisible(true);
@@ -1814,18 +1797,26 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void subGate() {
 
-        ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(true);
-        if (al.size() > 0) {
-            ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
-            ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
+        new Thread(() -> {
+            try {
 
-            objectsTemp = al.get(0);
-            measurementsFinal = al.get(1);
-            System.out.println("Launching new explorer window... \n with "
-                    + objectsTemp.size() + " objects and " + measurementsFinal.size()
-                    + " measurements.");
-            notifySubgateListener(objectsTemp, measurementsFinal);
-        }
+                ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(true);
+                if (al.size() > 0) {
+                    ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
+                    ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
+
+                    objectsTemp = al.get(0);
+                    measurementsFinal = al.get(1);
+                    System.out.println("Launching new explorer window... \n with "
+                            + objectsTemp.size() + " objects and " + measurementsFinal.size()
+                            + " measurements.");
+                    notifySubgateListener(objectsTemp, measurementsFinal);
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getLocalizedMessage());
+            }
+
+        }).start();
 
     }
 
@@ -1893,50 +1884,67 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     sortTemp.add(al);
                 }
 
-                try {
-                    FileOutputStream fos = new FileOutputStream(ij.Prefs.getImageJDir()
-                            + vtea._vtea.MEASUREMENTS_TEMP);
-                    ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-                    oos.writeObject(objectsTemp);
-
-                    FileInputStream fis = new FileInputStream(ij.Prefs.getImageJDir()
-                            + vtea._vtea.MEASUREMENTS_TEMP);
-                    ObjectInputStream ois = new ObjectInputStream(fis);
-
-                    try {
-                        objectsGated = (ArrayList<MicroObject>) ois.readObject();
-                    } catch (ClassNotFoundException ex) {
-                    }
-
-                    oos.close();
-                    ois.close();
-
-                } catch (IOException ex) {
-
-                }
-
-                try {
-                    FileOutputStream fos1 = new FileOutputStream(ij.Prefs.getImageJDir()
-                            + vtea._vtea.OBJECTS_TEMP);
-                    ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
-
-                    oos1.writeObject(measurementsTemp);
-
-                    FileInputStream fis1 = new FileInputStream(ij.Prefs.getImageJDir()
-                            + vtea._vtea.OBJECTS_TEMP);
-                    ObjectInputStream ois1 = new ObjectInputStream(fis1);
-
-                    try {
-                        measurementsGated = (ArrayList<ArrayList<Number>>) ois1.readObject();
-                    } catch (ClassNotFoundException ex) {
-
-                    }
-                    oos1.close();
-                    ois1.close();
-                } catch (IOException ex) {
-
-                }
+                measurementsGated = measurementsTemp;
+                objectsGated = objectsTemp;
+//                
+//                int bufferSize = 8 * 1024;
+//
+//                try {
+//                    System.out.println("ERROR: Subgating...");
+//                    FileOutputStream fos = new FileOutputStream(ij.Prefs.getImageJDir()
+//                            + vtea._vtea.MEASUREMENTS_TEMP);
+//                    //BufferedOutputStream bos = new BufferedOutputStream(fos, bufferSize);
+//                    ObjectOutputStream oos = new ObjectOutputStream(fos);
+//
+//                    oos.writeObject(objectsTemp);
+//                    
+//                    
+//
+//                    FileInputStream fis = new FileInputStream(ij.Prefs.getImageJDir()
+//                            + vtea._vtea.MEASUREMENTS_TEMP);
+//                    BufferedInputStream bis = new BufferedInputStream(fis, bufferSize);
+//                    ObjectInputStream ois = new ObjectInputStream(bis);
+//
+//                    try {
+//                        objectsGated = (ArrayList<MicroObject>) ois.readObject();
+//                    } catch (ClassNotFoundException ex) {
+//                        System.out.println("ERROR: Subgating failure.  Temporary files could not be created");
+//                    }
+//
+//                    oos.close();
+//                    ois.close();
+//                   // bis.close();
+//                   // bos.close();
+//                    fos.close();
+//                    fis.close();
+//
+//                } catch (IOException ex) {
+//
+//                }
+//
+//                try {
+//                    FileOutputStream fos1 = new FileOutputStream(ij.Prefs.getImageJDir()
+//                            + vtea._vtea.OBJECTS_TEMP);
+//                    //BufferedOutputStream bos1 = new BufferedOutputStream(fos1);
+//                    ObjectOutputStream oos1 = new ObjectOutputStream(fos1);
+//
+//                    oos1.writeObject(measurementsTemp);
+//
+//                    FileInputStream fis1 = new FileInputStream(ij.Prefs.getImageJDir()
+//                            + vtea._vtea.OBJECTS_TEMP);
+//                    //BufferedInputStream bis1 = new BufferedInputStream(fis1);
+//                    ObjectInputStream ois1 = new ObjectInputStream(fis1);
+//
+//                    try {
+//                        measurementsGated = (ArrayList<ArrayList<Number>>) ois1.readObject();
+//                    } catch (ClassNotFoundException ex) {
+//
+//                    }
+//                    oos1.close();
+//                    ois1.close();
+//                } catch (IOException ex) {
+//
+//                }
 
 //////////////////////////////////////
                 try {
@@ -2094,6 +2102,230 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void addFromCSV(String s) {
+
+        int dataColumns = 0;
+
+        JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+        JCheckBox zero = new JCheckBox("Zero Order", true);
+
+        ProgressTracker tracker = new ProgressTracker();
+
+        double progress;
+
+        JPanel panel1 = (JPanel) jf.getComponent(3);
+        JPanel panel2 = (JPanel) panel1.getComponent(3);
+        panel2.add(zero);
+
+        int returnVal = jf.showOpenDialog(CenterPanel);
+        File file = jf.getSelectedFile();
+
+        boolean zeroOrder = zero.isSelected();
+
+        ArrayList<ArrayList<Number>> csvData = new ArrayList();
+
+        ArrayList<Number> blank = new ArrayList<Number>();
+
+        String header = "";
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                BufferedReader csvReader = new BufferedReader(new FileReader(file));
+                String row;
+                boolean firstRow = true;
+
+                tracker.createandshowGUI("Import CSV features...", 0, 0);
+                addPropertyChangeListener(tracker);
+
+                while ((row = csvReader.readLine()) != null) {
+
+                    firePropertyChange("method", "", "Importing CSV");
+                    firePropertyChange("indeterminant", "Parsing CSV", "");
+
+                    if (firstRow) {
+                        header = row;
+                        firstRow = false;
+                    } else {
+                        String[] data = row.split(",");
+
+                        dataColumns = data.length;
+
+                        ArrayList<Number> dataList = new ArrayList<Number>();
+
+                        for (int j = 0; j < data.length; j++) {
+                            dataList.add(Float.parseFloat(data[j]));
+                        }
+
+                        csvData.add(dataList);
+
+                    }
+                }
+                csvReader.close();
+
+            } catch (IOException e) {
+                System.out.println("ERROR: Could not open the file.");
+            }
+
+            //csvData is an ArrayList of ArrayList<Number> where each 
+            //ArrayList<Number> is a segmented nucleus and columns are features
+            //Features can be added easily into VTEA by column 
+            //imported CSVs may not have values for all objects, enter a -1 for 
+            //now
+            //Old implementation parsed each feature of each object, On2 atleast
+            //parse the csvData once and build each column at the same time.
+            //generate empty ArrayList for objects without data
+            ArrayList<ArrayList<Number>> FeatureColumns = new ArrayList<>();
+
+            for (int k = 0; k < dataColumns; k++) {
+                blank.add(-1);
+                FeatureColumns.add(new ArrayList<Number>());
+            }
+
+            //build data by column
+            for (int c = 0; c < this.objects.size(); c++) {
+                ArrayList<Number> data = this.getObjectDataAll(zeroOrder, csvData, blank, c);
+                for (int b = 0; b < dataColumns; b++) {
+                    ArrayList<Number> al = FeatureColumns.get(b);
+                    al.add(data.get(b));
+                }
+                progress = 100 * ((double) c / (double) objects.size());
+
+                firePropertyChange("method", "", "Importing CSV");
+                firePropertyChange("progress", "Building table", (int) progress);
+            }
+
+            String[] columnTitles = header.split(",");
+
+            for (int m = 0; m < FeatureColumns.size(); m++) {
+
+                ArrayList<ArrayList<Number>> result = new ArrayList<ArrayList<Number>>();
+
+                progress = 100 * ((double) m / (double) FeatureColumns.size());
+
+                firePropertyChange("method", "", "Importing CSV");
+                firePropertyChange("progress", "Importing table...", (int) progress);
+
+                result.add(FeatureColumns.get(m));
+                this.notifyAddFeatureListener((columnTitles[m].replace(".", "_")).replace("/", "_"), result);
+
+            }
+        }
+        tracker.setVisible(false);
+    }
+
+    @Deprecated
+    public void addFromCSV_v1(String s) {
+
+        int countObjects = this.objects.size();
+        int dataColumns = 0;
+
+        JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+        JCheckBox zero = new JCheckBox("Zero Order", true);
+
+        ProgressTracker tracker = new ProgressTracker();
+
+        double progress;
+
+        JPanel panel1 = (JPanel) jf.getComponent(3);
+        JPanel panel2 = (JPanel) panel1.getComponent(3);
+        panel2.add(zero);
+
+        int returnVal = jf.showOpenDialog(CenterPanel);
+        File file = jf.getSelectedFile();
+
+        boolean zeroOrder = zero.isSelected();
+
+        ArrayList<ArrayList<Number>> csvData = new ArrayList();
+        ArrayList<ArrayList<Number>> paddedTable = new ArrayList();
+
+        ArrayList<Number> blank = new ArrayList<Number>();
+
+        String header = "";
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                BufferedReader csvReader = new BufferedReader(new FileReader(file));
+                String row;
+                boolean firstRow = true;
+
+                tracker.createandshowGUI("Import CSV features...", 0, 0);
+                addPropertyChangeListener(tracker);
+
+                while ((row = csvReader.readLine()) != null) {
+
+                    firePropertyChange("method", "", "Importing CSV");
+                    firePropertyChange("indeterminant", "Parsing CSV...", 0);
+
+                    if (firstRow) {
+                        header = row;
+                        firstRow = false;
+                    } else {
+                        String[] data = row.split(",");
+
+                        dataColumns = data.length;
+
+                        ArrayList<Number> dataList = new ArrayList<Number>();
+
+                        for (int j = 0; j < data.length; j++) {
+                            dataList.add(Float.parseFloat(data[j]));
+                        }
+
+                        csvData.add(dataList);
+
+                    }
+                }
+                csvReader.close();
+
+            } catch (IOException e) {
+                System.out.println("ERROR: Could not open the file.");
+            }
+
+            //generate empty ArrayList for objects without data
+            for (int k = 0; k < dataColumns; k++) {
+                blank.add(-1);
+            }
+
+            //grab data by column
+            for (int i = 1; i < dataColumns; i++) {
+
+                ArrayList<Number> data = getData(zeroOrder, i, csvData);
+
+                progress = 100 * ((double) i / (double) dataColumns);
+
+                firePropertyChange("method", "", "Importing CSV");
+                firePropertyChange("progress", "Processing CSV...", (int) progress);
+
+                if (data.size() > 0) {
+                    paddedTable.add(data);
+                } else {
+                    paddedTable.add(blank);
+                }
+
+            }
+
+            ArrayList<Number> paddedTableColumn = paddedTable.get(0);
+            dataColumns = paddedTableColumn.size();
+            String[] columnTitles = header.split(",");
+
+            for (int m = 0; m < paddedTable.size(); m++) {
+
+                ArrayList<ArrayList<Number>> result = new ArrayList<ArrayList<Number>>();
+
+                progress = 100 * ((double) m / (double) paddedTable.size());
+
+                firePropertyChange("method", "", "Importing CSV");
+                firePropertyChange("progress", "Importing table...", (int) progress);
+
+                result.add(paddedTable.get(m));
+                this.notifyAddFeatureListener((columnTitles[m + 1].replace(".", "_")).replace("/", "_"), result);
+
+            }
+        }
+        tracker.setVisible(false);
+    }
+
+    //*Original addFromCSV used in NephNet work DO NOT delete//
+    @Deprecated
+    public void addFromCSV_old(String s) {
 //        //this method does not assume that all objects get a value
         int countObjects = this.objects.size();
         int dataColumns = 0;
@@ -2137,13 +2369,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             }
 
             for (int i = 1; i < dataColumns; i++) {
-                ArrayList<Number> data = getData(i, csvData);
+                //ArrayList<Number> data = getData(i, csvData);
 
-                if (data.size() > 0) {
-                    paddedTable.add(data);
-                } else {
-                    paddedTable.add(blank);
-                }
+//                if (data.size() > 0) {
+//                    paddedTable.add(data);
+//                } else {
+//                    paddedTable.add(blank);
+//                }
             }
 
             String name = file.getName();
@@ -2152,7 +2384,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         }
     }
 
-    private ArrayList<Number> getData(int columnIndex,
+    private ArrayList<Number> getData(boolean zeroOrder, int columnIndex,
             ArrayList<ArrayList<Number>> data) {
         ArrayList<Number> result = new ArrayList<Number>();
 
@@ -2161,16 +2393,54 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             boolean elementFound = false;
             while (itr.hasNext()) {
                 ArrayList<Number> test = itr.next();
-                if ((Float) (test.get(0)) == (float) objectID) {
-                    result.add(test.get(columnIndex));
-                    elementFound = true;
-                    break;
+                if (zeroOrder) {
+                    if ((Float) (test.get(0)) == (float) objectID) {
+                        result.add(test.get(columnIndex));
+                        elementFound = true;
+                        break;
+                    }
+                } else {
+                    if ((Float) (test.get(0)) - 1 == (float) objectID) {
+                        result.add(test.get(columnIndex));
+                        elementFound = true;
+                        break;
+                    }
                 }
             }
             if (elementFound == false) {
                 result.add(-1);
             }
         }
+        return result;
+    }
+
+    private ArrayList<Number> getObjectDataAll(boolean zeroOrder,
+            ArrayList<ArrayList<Number>> data, ArrayList<Number> blank, float id) {
+        ArrayList<Number> result = new ArrayList<Number>();
+        boolean elementFound = false;
+        //for (int objectID = 0; objectID < objects.size(); objectID++) {
+        for (int x = 0; x < data.size(); x++) {
+            
+            ArrayList<Number> test = data.get(x);
+            if (zeroOrder) {
+                if ((Float) (test.get(0)) == (float) id) {
+                    result.addAll(test);
+                    elementFound = true;
+                    data.remove(x);
+                    return result;
+                }
+            } else {
+                if ((Float) (test.get(0)) - 1 == (float) id) {
+                    result.addAll(test);
+                    elementFound = true;
+                    data.remove(x);
+                    return result;
+                }
+            }
+            
+        }
+        
+        result.addAll(blank);
         return result;
     }
 
@@ -2233,14 +2503,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
             for (int i = (int) minClass; i <= (int) maxClass; i++) {
                 classes.add(i);
-                // System.out.println("PROFILING: Adding class: " + i);
+                //System.out.println("PROFILING: Adding class: " + i);
             }
 
             HashMap<String, String> objFeature = new HashMap<>();
 
             for (int c = 0; c < this.objects.size(); c++) {
-                // System.out.println("PROFILING: Adding hash: " + (objects.get(c)).getSerialID() +
-                //         ", " + features.get(c).get(0));
+                //System.out.println("PROFILING: Adding hash: " + (objects.get(c)).getSerialID() +
+                //        ", " + features.get(c).get(0));
                 objFeature.put(String.valueOf((objects.get(c)).getSerialID()), String.valueOf(features.get(c).get(0)));
 
             }
@@ -2265,7 +2535,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 MicroObject obj = (MicroObject) itrName.next();
                 double[] k = new double[1];
                 k[0] = obj.getSerialID();
-                //System.out.println("PROFILING: object: " + k[0]);
+                //System.out.println("PROFILING: Adding object(node): " + k[0]);
                 key[i] = k;
 
                 double[] d = new double[3];
@@ -2668,7 +2938,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             listener.addFeatures(name, feature);
         }
     }
-    
+
     @Override
     public void addupdateExplorerGUIListener(UpdateExplorerGuiListener listener) {
         updateexlporerguilisteners.add(listener);
@@ -2734,8 +3004,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void imageOpened(ImagePlus ip) {
-                if (ip.getID() == impoverlay.getID() && updateimage) {
-                     impZ = impoverlay.getCurrentSlice();
+        if (ip.getID() == impoverlay.getID() && updateimage) {
+            impZ = impoverlay.getCurrentSlice();
         }
     }
 
@@ -2746,9 +3016,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void imageUpdated(ImagePlus ip) {
-        
+
         if (ip.getID() == impoverlay.getID() && updateimage && impZ != impoverlay.getCurrentSlice()) {
-             impZ = impoverlay.getCurrentSlice();
+            impZ = impoverlay.getCurrentSlice();
             makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
         }
     }
@@ -2795,6 +3065,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         explorerXposition = xPos;
         explorerYposition = yPos;
         AxesManager.updateMenuPosition(xPos, yPos);
+        gm.setLocation(xPos, yPos + 96);
+        gm.pack();
     }
 
     @Override
@@ -2815,6 +3087,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void updateFeatures(String name, ArrayList<ArrayList<Number>> al) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void doGates(String st) {
+        if (st.equals("import")) {
+            this.importGates();
+        }
+        if (st.equals("export")) {
+            this.exportGates();
+        }
     }
 
     class ExportGates {
@@ -3053,15 +3335,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
             ArrayList<PolygonGate> result = new ArrayList();
 
+            Object obj = new Object();
+
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
                     try {
                         FileInputStream fis = new FileInputStream(file);
                         ObjectInputStream ois = new ObjectInputStream(fis);
-                        result = (ArrayList<PolygonGate>) ois.readObject();
+                        result = (ArrayList) ois.readObject();
                         ois.close();
                     } catch (IOException e) {
                         System.out.println("ERROR: Could not open the file.");
+                        System.out.println(e.getMessage());
                     }
                 } catch (ClassNotFoundException ne) {
                     System.out.println("ERROR: Not Found in Gate Export");

@@ -24,7 +24,9 @@ import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Duplicator;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
@@ -98,7 +100,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
         super(step, Channels);
 
-        this.setTitle("Object_" + (step));
+        setTitle("Object_" + (step));
+        
 
         MorphologyMenu = new MorphologyFrame(Channels);
         MorphologyMenu.addMorphologyListener(this);
@@ -134,7 +137,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         TitleText.setEditable(true);
         PositionText.setText("Object_" + (step));
         PositionText.setVisible(false);
-        ProcessText.setText("Object building method ");
+        ProcessText.setText("Method ");
 
         comments.remove(notesPane);
 
@@ -301,6 +304,11 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
+        methodBuild.removeAll();
+        JPanel panel = new JPanel();
+        panel.setPreferredSize(new Dimension(370, 330));
+        panel.setBackground(new Color(238,238,238));
+        methodBuild.add(panel);
         methodBuild.removeAll();
 
         double width = 4;

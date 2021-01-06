@@ -72,11 +72,12 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
      */
     public MicroBlockFeatureSetup(int step, ArrayList AvailableData, int nvol) {
         super(step);
+        setupJFrame();
+        
         this.availabledata = AvailableData;
         this.nvol = nvol;
-        this.setLocation(400, 0);
-        this.setResizable(false);
 
+        
         TitleText.setText("Feature_" + step);
         TitleText.setEditable(true);
 
@@ -90,15 +91,34 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         methodMorphology.setMaximumSize(new Dimension(359, 500));
         methodMorphology.setPreferredSize(new Dimension(359, 150));
         this.MethodDetails.setPreferredSize(new Dimension(340, 125));
-        repaint();
-        pack();
+        
+        
+
 
         setupGroups();
 
         setupDataBox();
 
         setSpecificComboBox(ChannelComboBox.getSelectedIndex());
+        finish();
+    }
+    
+    private void setupJFrame(){
+                this.setLocation(200, 0);
+        this.setResizable(true);
+        
 
+        setMaximumSize(new java.awt.Dimension(390, 640));
+        setMinimumSize(new java.awt.Dimension(390, 640));
+        setTitle("Add Features"); 
+        setPreferredSize(new java.awt.Dimension(390, 640));
+        setSize(new java.awt.Dimension(390, 600));
+         this.setResizable(false);
+    }
+    
+    private void finish(){
+                repaint();
+        pack();
     }
 
     /**

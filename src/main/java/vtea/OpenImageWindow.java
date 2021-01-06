@@ -17,6 +17,7 @@
  */
 package vtea;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
@@ -25,7 +26,13 @@ import ij.plugin.Duplicator;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import vteaexploration.MicroExplorer;
 
 /*
  * To change this template, choose Tools | Templates
@@ -44,10 +51,20 @@ public class OpenImageWindow extends javax.swing.JFrame {
      */
     public OpenImageWindow(javax.swing.JList images) {
 
+
+        
         OpenImages = images;
 
         GuiSetup();
         initComponents();
+        
+                                try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (UnsupportedLookAndFeelException ex) {
+            Logger.getLogger(MicroExplorer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        SwingUtilities.updateComponentTreeUI(this);
+        this.pack();
 
         this.getRootPane().setDefaultButton(this.SelectImage);
 
@@ -73,7 +90,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         comment = new javax.swing.JLabel();
 
-        setTitle("VTEA Select Image");
+        setTitle("Select Image");
         setBackground(vtea._vtea.BACKGROUND);
         setIconImages(null);
         setLocation(new java.awt.Point(130, 180));
@@ -107,16 +124,22 @@ public class OpenImageWindow extends javax.swing.JFrame {
     jScrollPane10.setViewportView(OpenImages);
 
     SelectImage.setText("Select");
+    SelectImage.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 153, 255), 2, true));
     SelectImage.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
     SelectImage.setEnabled(false);
+    SelectImage.setMaximumSize(new java.awt.Dimension(100, 35));
+    SelectImage.setMinimumSize(new java.awt.Dimension(100, 35));
+    SelectImage.setPreferredSize(new java.awt.Dimension(100, 35));
+    SelectImage.setRequestFocusEnabled(false);
+    SelectImage.setSize(new java.awt.Dimension(100, 35));
     SelectImage.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
             SelectImageActionPerformed(evt);
         }
     });
 
-    comment.setFont(new java.awt.Font("Lucida Grande", 0, 10)); // NOI18N
-    comment.setText("Select multiple for batch");
+    comment.setFont(new java.awt.Font("Helvetica", 0, 14)); // NOI18N
+    comment.setText("Loading");
 
     javax.swing.GroupLayout PanelLayout = new javax.swing.GroupLayout(Panel);
     Panel.setLayout(PanelLayout);
@@ -138,10 +161,10 @@ public class OpenImageWindow extends javax.swing.JFrame {
         PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         .addGroup(PanelLayout.createSequentialGroup()
             .addContainerGap()
-            .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+            .addComponent(jScrollPane10, javax.swing.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addGroup(PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(SelectImage)
+                .addComponent(SelectImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(comment))
             .addGap(1, 1, 1)
             .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)

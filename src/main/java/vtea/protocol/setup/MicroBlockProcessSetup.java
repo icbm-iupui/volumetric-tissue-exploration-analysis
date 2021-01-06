@@ -22,8 +22,10 @@ import ij.LookUpTable;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Duplicator;
 import ij.process.LUT;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -112,7 +114,9 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         };
         imagePanel.setPreferredSize(new Dimension(256, 256));
         imagePanel.setMinimumSize(new Dimension(256, 256));
-        imagePanel.setBackground(vtea._vtea.BACKGROUND);
+        imagePanel.setLayout(new FlowLayout());
+        imagePanel.setBackground(new Color(238,238,238));
+        //imagePanel.setForeground(new Color(238,238,238));
 
         methodBuild.setLayout(new GridBagLayout());
 
@@ -138,6 +142,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
 
         if (OriginalImage.getNSlices() > 1) {
             sliceSlider = new JSlider(SwingConstants.VERTICAL, 1, OriginalImage.getNSlices(), currentSlice);
+            //sliceSlider.setPaintTrack(false);
             sliceSlider.addChangeListener(this);
         } else {
             sliceSlider = new JSlider(SwingConstants.VERTICAL, 1, 10, 1);
@@ -149,7 +154,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         JPanel previewControlPanel = new JPanel();
 
         previewControlPanel.setMinimumSize(new Dimension(50, 280));
-        previewControlPanel.setBackground(vtea._vtea.BACKGROUND);
+        previewControlPanel.setBackground(new Color(238,238,238));
 
         GridBagLayout gb = new GridBagLayout();
 
@@ -265,7 +270,7 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
         //imagePanel.setBackground(Color.red);
         imagePanel.setPreferredSize(new Dimension(256, 256));
         imagePanel.setMinimumSize(new Dimension(256, 256));
-        imagePanel.setBackground(vtea._vtea.BACKGROUND);
+        imagePanel.setBackground(new Color(238,238,238));
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 

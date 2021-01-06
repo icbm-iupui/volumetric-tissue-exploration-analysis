@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
     <groupId>icbm-iupui</groupId>
     <artifactId>vtea</artifactId>
-    <version>1.0alpha5-SNAPSHOT</version>
+    <version>1.0alpha6-SNAPSHOT</version>
 
     <name>VTEA master renjin</name>
     <description>Volumetric analysis</description>
@@ -83,7 +83,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
-            <version>1.52n</version>
+            <version>1.53f</version>
             <type>jar</type>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.imagej/imagej-ui-swing -->
@@ -209,6 +209,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <groupId>org.netbeans.external</groupId>
             <artifactId>AbsoluteLayout</artifactId>
             <version>RELEASE113</version>
+</dependency>
+        <!-- https://mvnrepository.com/artifact/com.formdev/flatlaf -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>0.44</version>
+            <type>jar</type>
+
         </dependency>
     </dependencies>
 

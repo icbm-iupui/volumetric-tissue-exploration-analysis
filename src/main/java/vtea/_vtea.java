@@ -17,20 +17,29 @@
  */
 package vtea;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.WindowManager;
+import ij.io.LogStream;
 import ij.plugin.PlugIn;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Window;
 import java.awt.event.ActionListener;
+import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Date;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import org.scijava.Context;
 import org.scijava.Prioritized;
@@ -39,6 +48,8 @@ import org.scijava.log.LogService;
 import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
 import org.scijava.plugin.RichPlugin;
+import org.scijava.ui.UIService;
+import org.scijava.ui.console.ConsolePane;
 import vtea.objects.layercake.microRegion;
 import vtea.protocol.ProtocolManagerMulti;
 import vtea.renjin.TestRenjin;
@@ -56,7 +67,7 @@ import vtea.services.WorkflowService;
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
-    public static String VERSION = new String("1.0 alpha r5");
+    public static String VERSION = new String("1.0 alpha r6");
     
     public ProtocolManagerMulti protocolWindow;
 
@@ -111,17 +122,28 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static ConcurrentHashMap<String, String> MORPHOLOGICALMAP;
     public static ConcurrentHashMap<String, String> FEATUREMAP;
     public static ConcurrentHashMap<String, String> LUTMAP;
+    
+    public static Date STARTUPTIME;
 
     public static void main(String[] args) {
+
+        
         //set the plugins.dir property to make the plugin appear in the Plugins menu
         Class<?> clazz = _vtea.class;
         String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
         String pluginsDir = url.substring(5, url.length() - clazz.getName().length() - 6);
         System.setProperty("plugins.dir", pluginsDir);
+        
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
+                        
+//                           try {
+//    UIManager.setLookAndFeel( new FlatLightLaf() );
+//} catch( Exception ex ) {
+//    System.err.println( "Failed to initialize LaF" );
+//}
                 new ImageJ();
             }
         });
@@ -186,10 +208,27 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
     @Override
     public void run(String str) {
+        
+
 
         //getUIValues();
-        context = new Context(LogService.class, PluginService.class);
-        priority = Priority.FIRST_PRIORITY;
+        context = new Context(LogService.class, PluginService.class, UIService.class);
+        priority = Priority.HIGH;
+        
+        STARTUPTIME = new Date(System.currentTimeMillis());
+
+        IJ.log("Activated Log: " + STARTUPTIME.toString());
+        
+           LogStream.redirectSystemOut("");
+           LogStream.redirectSystemErr("");          
+           Frame log = WindowManager.getFrame("Log");
+           log.setSize(new Dimension(760,350));
+           log.setLocation(0,560);
+           
+
+
+
+           
 
         System.out.println("Starting up VTEA... ");
         System.out.println("-------------------------------- ");

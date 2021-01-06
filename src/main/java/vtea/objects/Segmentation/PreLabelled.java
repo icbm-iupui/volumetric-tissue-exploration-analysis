@@ -122,12 +122,17 @@ public class PreLabelled extends AbstractSegmentation {
 
     @Override
     public JPanel getSegmentationTool() {
+        JPanel container = new JPanel();
+        container.setBackground(vtea._vtea.BACKGROUND);
+        container.setPreferredSize(new Dimension(280, 300));
         JPanel panel = new JPanel();
         panel.setBackground(vtea._vtea.BACKGROUND);
-        panel.setPreferredSize(new Dimension(355, 150));
+        panel.setPreferredSize(new Dimension(270, 100));
         panel.setLayout(new GridBagLayout());
-        file.setPreferredSize(new Dimension(250, 30));
-        file.setMinimumSize(new Dimension(250, 30));
+        file.setPreferredSize(new Dimension(240, 30));
+        file.setMinimumSize(new Dimension(240, 30));
+        
+        
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
@@ -136,40 +141,35 @@ public class PreLabelled extends AbstractSegmentation {
         layoutConstraints.gridy = 0;
         layoutConstraints.weightx = 1;
         layoutConstraints.weighty = 1;
-        //layoutConstraints.gridwidth = 1;
+        layoutConstraints.gridwidth = 2;
         panel.add(new JLabel("Labeled image: "), layoutConstraints);
 
         layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
-        layoutConstraints.gridx = 2;
-        layoutConstraints.gridy = 0;
+        layoutConstraints.gridx = 0;
+        layoutConstraints.gridy = 1;
         layoutConstraints.weightx = 1;
         layoutConstraints.weighty = 1;
-        layoutConstraints.gridwidth = 3;
+        layoutConstraints.gridwidth = 2;
         panel.add(file, layoutConstraints);
 
         layoutConstraints.fill = GridBagConstraints.CENTER;
-        layoutConstraints.gridx = 2;
-        layoutConstraints.gridy = 1;
+        layoutConstraints.gridx = 0;
+        layoutConstraints.gridy = 2;
         layoutConstraints.weightx = 1;
         layoutConstraints.weighty = 1;
         layoutConstraints.gridwidth = 1;
         panel.add(new JLabel("Unique IDs:"), layoutConstraints);
 
         layoutConstraints.fill = GridBagConstraints.CENTER;
-        layoutConstraints.gridx = 3;
-        layoutConstraints.gridy = 1;
+        layoutConstraints.gridx = 1;
+        layoutConstraints.gridy = 2;
         layoutConstraints.weightx = 1;
         layoutConstraints.weighty = 1;
         layoutConstraints.gridwidth = 1;
+        uniqueID.setSelectedIndex(1);
         panel.add(uniqueID, layoutConstraints);
 
-//        layoutConstraints.fill = GridBagConstraints.CENTER;
-//        layoutConstraints.gridx = 2;
-//        layoutConstraints.gridy = 2;
-//        layoutConstraints.weightx = 1;
-//        layoutConstraints.weighty = 1;
-//        layoutConstraints.gridwidth = 1;
-//        panel.add(new JLabel("Continguous:"), layoutConstraints);
+
 //        
 //        layoutConstraints.fill = GridBagConstraints.CENTER;
 //        layoutConstraints.gridx = 3;
@@ -178,7 +178,8 @@ public class PreLabelled extends AbstractSegmentation {
 //        layoutConstraints.weighty = 1;
 //        layoutConstraints.gridwidth = 1;
 //        panel.add(this.contiguousObject, layoutConstraints);
-        return panel;
+        container.add(panel);
+        return container;
     }
 
     @Override

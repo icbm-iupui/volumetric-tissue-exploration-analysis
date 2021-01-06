@@ -17,6 +17,7 @@
  */
 package vteaexploration;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
@@ -45,6 +46,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
@@ -57,9 +60,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.commons.io.FilenameUtils;
 import vtea.OpenObxFormat;
 import vtea._vtea;
@@ -150,6 +156,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
     JLabel yLabel;
     JLabel lLabel;
 
+//    JProgressBar progressBar;
+
     TableWindow ResultsWindow;
 
     double[][] ObjectIDs;
@@ -181,6 +189,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
     public MicroExplorer() {
 
         Roi.addRoiListener(this);
+
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (UnsupportedLookAndFeelException ex) {
+            Logger.getLogger(MicroExplorer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        SwingUtilities.updateComponentTreeUI(this);
+        this.pack();
 
     }
 
@@ -236,14 +252,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
         PlottingPopupLUTaxis.addPopupMenuAxisListener(this);
 
         xLabel = new JLabel("X_axis");
-        xLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
-        yLabel = new JLabel("Y_axis");
+        xLabel.setFont(new Font("Helvetica", Font.BOLD, 18));
 
+        yLabel = new JLabel("Y_axis");
         yLabel.setUI(new VerticalLabelUI(false));
-        yLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
+        yLabel.setFont(new Font("Helvetica", Font.BOLD, 18));
 
         lLabel = new JLabel("No LUT");
-        lLabel.setFont(new Font("Lucidia Grande", Font.BOLD, 16));
+        lLabel.setFont(new Font("Helvetica", Font.BOLD, 18));
 
         xLabel.addMouseListener(new java.awt.event.MouseListener() {
 
@@ -320,6 +336,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
             public void mouseExited(MouseEvent me) {
             }
         });
+
+//        progressBar = new JProgressBar();
+//        progressBar.setPreferredSize(new Dimension(200, 20));
 
         DefaultXYPanels = new XYPanels(AvailableData);
         DefaultXYPanels.addChangePlotAxesListener(this);
@@ -416,11 +435,13 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         setTitle(getTitle());
+        setAlwaysOnTop(true);
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
         setMaximumSize(getPreferredSize());
         setMinimumSize(getPreferredSize());
         setPreferredSize(new java.awt.Dimension(725, 650));
+        setResizable(false);
         setSize(new java.awt.Dimension(725, 650));
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
@@ -459,7 +480,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         toolbarPlot.setPreferredSize(new java.awt.Dimension(715, 30));
         toolbarPlot.add(jSeparator4);
 
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 12)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Helvetica", 1, 12)); // NOI18N
         jLabel1.setLabelFor(jComboBoxXaxis);
         jLabel1.setText("X");
         toolbarPlot.add(jLabel1);
@@ -473,7 +494,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarPlot.add(jComboBoxXaxis);
 
-        jLabel2.setFont(new java.awt.Font("Lucida Grande", 1, 12)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Helvetica", 1, 12)); // NOI18N
         jLabel2.setLabelFor(jComboBoxYaxis);
         jLabel2.setText(" Y");
         toolbarPlot.add(jLabel2);
@@ -487,7 +508,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarPlot.add(jComboBoxYaxis);
 
-        jLabel5.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Helvetica", 1, 13)); // NOI18N
         jLabel5.setLabelFor(jComboBoxLUTPlot);
         jLabel5.setText(" Color");
         jLabel5.setToolTipText("Metric to be plotted as a \npoint's look-up table.");
@@ -503,7 +524,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarPlot.add(jComboBoxLUTPlot);
 
-        jLabel6.setFont(new java.awt.Font("Lucida Grande", 1, 12)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Helvetica", 1, 12)); // NOI18N
         jLabel6.setText(" Size ");
         toolbarPlot.add(jLabel6);
 
@@ -735,7 +756,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarGate.add(jButtonDistance);
 
-        jButtonMeas.setBackground(new java.awt.Color(102, 255, 102));
         jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/FeaturesAdd_2.png"))); // NOI18N
         jButtonMeas.setToolTipText("Import features from CSV...");
         jButtonMeas.setFocusable(false);
@@ -751,7 +771,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarGate.add(jButtonMeas);
 
-        jButtonFeature.setBackground(new java.awt.Color(102, 255, 102));
         jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
         jButtonFeature.setToolTipText("Add features...");
         jButtonFeature.setFocusable(false);
@@ -945,13 +964,15 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_FlipAxesActionPerformed
 
     private void jComboBoxLUTPlotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxLUTPlotActionPerformed
-
-        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        if (updatePlot) {
+            onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        }
     }//GEN-LAST:event_jComboBoxLUTPlotActionPerformed
 
     private void jComboBoxPointSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxPointSizeActionPerformed
-
-        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        if (updatePlot) {
+            onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        }
     }//GEN-LAST:event_jComboBoxPointSizeActionPerformed
 
     private void jComboBoxPointSizePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jComboBoxPointSizePropertyChange
@@ -959,7 +980,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_jComboBoxPointSizePropertyChange
 
     private void get3DProjectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_get3DProjectionActionPerformed
-         
+
         new Thread(() -> {
             try {
                 ec.getZProjection();
@@ -969,7 +990,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
-            
+
         }).start();
 
 
@@ -1056,7 +1077,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_ExportGraphActionPerformed
 
     private void jButtonFeatureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFeatureActionPerformed
+        ff.setLocation(760, 100);
         ff.setVisible(true);
+
         if (!ffchecked) {
             ffchecked = true;
         }
@@ -1086,13 +1109,16 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_exportCSVActionPerformed
 
     private void jButtonMeasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMeasActionPerformed
+        new Thread(() -> {
+            try {
 
-        ec.addFromCSV("new");
+                ec.addFromCSV("new");
+            } catch (Exception e) {
+                System.out.println("ERROR in import CSV... ");
+                e.printStackTrace();
+            }
+        }).start();
 
-//        mf.setVisible(true);
-//        if (!mfchecked) {
-//            mfchecked = true;
-//        }
     }//GEN-LAST:event_jButtonMeasActionPerformed
 
     private void NorthMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NorthMouseClicked
@@ -1245,7 +1271,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
-
     }
 
     public ArrayList<ArrayList<String>> getFeatureDescriptions() {
@@ -1366,36 +1391,33 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }
 
     public void onPlotChangeRequest(int x, int y, int z, int size, boolean imagegate) {
-        
+
         //System.out.println("MicroExplorer, change plot request start:" + System.currentTimeMillis());
-        
         new Thread(() -> {
             try {
-                ec.updatePlot(x, y, z, size);            
+                ec.updatePlot(x, y, z, size);
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
-        
-         
     }
 
     public void ExplorerSetupPlotChangerequest(int x, int y, int z, int size) {
         new Thread(() -> {
             try {
-                
+
                 ec.updatePlot(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(),
                         this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
-                
+
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
         }).start();
     }
-    
+
     @Override
-    public void rebuildExplorerGUI(){
-        
+    public void rebuildExplorerGUI() {
+
         Main.removeAll();
         Main.add(ec.getPanel());
         updateBorderPanels(DefaultXYPanels);
@@ -1419,6 +1441,15 @@ public class MicroExplorer extends javax.swing.JFrame implements
         }).start();
     }
 
+//    public void updateProgressBar(int val) {
+//        this.progressBar.setValue(val);
+//    }
+//
+//    public void initializeProgressBar(int max, int min) {
+//        this.progressBar.setMinimum(min);
+//        this.progressBar.setMaximum(max);
+//    }
+
     private void addAxesLabels(String xText, String yText, String lText) {
 
         yTextPanel.setPreferredSize(new Dimension(40, 40));
@@ -1433,6 +1464,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
         lLabel.setText("Color: " + lText + "           ");
         SouthPanel.add(lLabel);
         SouthPanel.add(xLabel);
+       // SouthPanel.add(progressBar);
+
         pack();
     }
 
@@ -1529,7 +1562,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
                     impoverlay.show();
                 } else {
                 }
-
             }
         }
     }
@@ -1768,6 +1800,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
         AvailableDataHM = makeAvailableDataHM(descriptions);
         ec.updateFeatureSpace(AvailableDataHM, measurements);
 
+        updatePlot = false;
+
         jComboBoxXaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
         jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
@@ -1885,8 +1919,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
         ff.updateColumns(ObjectIDs, descriptions);
         ff.pack();
 
-        pack();
-        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        updatePlot = true;
+        //onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
         pack();
 
     }

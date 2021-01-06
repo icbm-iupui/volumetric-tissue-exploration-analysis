@@ -66,7 +66,7 @@ public class ProgressTracker extends JPanel implements PropertyChangeListener {
         jf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
         
- 
+        jpb.setPreferredSize(new Dimension(100,15));
         jpb.setMaximum(100);
         jpb.setMinimum(0);
         jpb.setValue(1);

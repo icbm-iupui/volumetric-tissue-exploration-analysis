@@ -86,7 +86,7 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
      * @param nvol number of volumes
      */
     public MorphologyStepBlockGUI(String FeatureText, String CommentText, Color BlockColor, int position, ArrayList Channels) {
-        BuildStepBlock(FeatureText, CommentText, Color.GRAY, position, Channels);
+        BuildStepBlock(FeatureText, CommentText, BlockColor, position, Channels);
     }
 
     private void BuildStepBlock(String ProcessText, String CommentText, Color BlockColor, final int position, ArrayList Channels) {
@@ -141,16 +141,16 @@ public class MorphologyStepBlockGUI extends AbstractMicroBlockStepGUI implements
 
         performValidation = false;
 
-        DeleteButton.setSize(20, 20);
+        DeleteButton.setSize(19, 19);
         DeleteButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         DeleteButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-delete-6_16.png")));
 
-        EditButton.setSize(20, 20);
+        EditButton.setSize(19, 19);
         EditButton.setBackground(vtea._vtea.BUTTONBACKGROUND);
         EditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4.png")));
 
-        step.setSize(205, 20);
-        step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        step.setSize(245, 40);
+        //step.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         step.setLayout(new GridBagLayout());
         GridBagConstraints layoutConstraints = new GridBagConstraints();
