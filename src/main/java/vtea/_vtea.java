@@ -41,6 +41,7 @@ import org.scijava.plugin.PluginService;
 import org.scijava.plugin.RichPlugin;
 import vtea.objects.layercake.microRegion;
 import vtea.protocol.ProtocolManagerMulti;
+import vtea.renjin.TestRenjin;
 import vtea.services.FeatureService;
 import vtea.services.FileTypeService;
 import vtea.services.ImageProcessingService;
@@ -447,12 +448,23 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
                 FEATUREMAP.put(FEATUREOPTIONS[i], o.getClass().getName());
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+                //Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
         System.out.println("-------------------------------- ");
-
+        
+        
+        
+//        try {
+//            TestRenjin tr = new TestRenjin();
+//            boolean success = tr.process();
+//        } catch (Exception ex) {
+//            Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        
+        System.out.println("-------------------------------- ");
+        
     }
 
     @Override

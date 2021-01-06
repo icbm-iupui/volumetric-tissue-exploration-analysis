@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <artifactId>vtea</artifactId>
     <version>1.0alpha5-SNAPSHOT</version>
 
-    <name>VTEA master</name>
+    <name>VTEA master renjin</name>
     <description>Volumetric analysis</description>
     
     <properties>
@@ -171,6 +171,45 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>v1.4.0</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.renjin</groupId>
+            <artifactId>renjin-aether-package-loader</artifactId>
+            <version>3.5-beta76</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.renjin</groupId>
+            <artifactId>renjin-script-engine</artifactId>
+            <version>3.5-beta76</version>
+        </dependency>
+        <dependency>
+            <groupId>org.renjin</groupId>
+            <artifactId>grDevices</artifactId>
+            <version>3.5-beta76</version>
+        </dependency> 
+                <dependency>
+            <groupId>org.renjin.cran</groupId>
+            <artifactId>ggplot2</artifactId>
+            <version>3.2.0-b8</version>
+            <type>jar</type>
+        </dependency>
+  <dependency>
+  <groupId>org.renjin.cran</groupId>
+  <artifactId>vioplot</artifactId>
+  <version>0.3.0-b1</version>
+  </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/com.github.yannrichet/Rsession -->
+<dependency>
+    <groupId>com.github.yannrichet</groupId>
+    <artifactId>Rsession</artifactId>
+    <version>3.0.5</version>
+</dependency>
+        <dependency>
+            <groupId>org.netbeans.external</groupId>
+            <artifactId>AbsoluteLayout</artifactId>
+            <version>RELEASE113</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -267,11 +306,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <id>scijava.public</id>
             <url>https://maven.scijava.org/content/groups/public</url>
         </repository>
-        <repository>
-            <id>bedatadriven</id>
-            <name>bedatadriven public repo</name>
-            <url>https://nexus.bedatadriven.com/content/groups/public/</url>
-        </repository>
+  <repository>
+    <id>bedatadriven</id>
+    <name>bedatadriven public repo</name>
+    <url>https://nexus.bedatadriven.com/content/groups/public/</url>
+  </repository>
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>

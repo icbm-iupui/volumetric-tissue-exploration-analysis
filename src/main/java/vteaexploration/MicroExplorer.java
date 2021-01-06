@@ -1907,7 +1907,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         this.childKeys.add(linkedKey);
     }
 
-    class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
+    public class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
 
         HashMap<Integer, String> hm_position;
         HashMap<String, Integer> hm_string;
