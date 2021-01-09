@@ -32,9 +32,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
     <groupId>icbm-iupui</groupId>
     <artifactId>vtea</artifactId>
-    <version>1.0alpha6-SNAPSHOT</version>
+    <version>0.8-SNAPSHOT</version>
 
-    <name>VTEA master</name>
+    <name>VTEA_prerelease_0.8</name>
     <description>Volumetric analysis</description>
     
     <properties>
