@@ -329,6 +329,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             for (int i = 0; i < objects.size(); i++) {
 
                 MicroObject volume = objects.get(i);
+                
+                //MicroObject vol = (MicroObject) objects.get(i);
+                
                 ArrayList<Number> measured = measurements.get(i);
 
                 sb.append(volume.getSerialID());

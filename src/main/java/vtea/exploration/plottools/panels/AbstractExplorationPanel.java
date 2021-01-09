@@ -64,8 +64,8 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     
     protected JPanel CenterPanel = new JPanel();
     protected ArrayList<PolygonGate> gates = new ArrayList<>();
-    protected ArrayList<ArrayList<Number>> measurements = new ArrayList();
-    protected ArrayList<MicroObject> objects = new ArrayList();
+    protected ArrayList<ArrayList<Number>> measurements = new ArrayList<ArrayList<Number>>();
+    protected ArrayList<MicroObject> objects = new ArrayList<MicroObject>();
     protected ArrayList<String> descriptions = new ArrayList();
     protected ChartPanel chart;
     protected ArrayList<XYPanels> charts = new ArrayList<>();
