@@ -66,7 +66,9 @@ import vtea.services.WorkflowService;
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
+
     public static String VERSION = new String("1.0r8 alpha");
+
     
     public ProtocolManagerMulti protocolWindow;
 
