@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
     <groupId>icbm-iupui</groupId>
     <artifactId>vtea</artifactId>
-    <version>0.8-SNAPSHOT</version>
+    <version>1.0r8-SNAPSHOT</version>
 
 
     <name>VTEA_prerelease_1.0a r8</name>
