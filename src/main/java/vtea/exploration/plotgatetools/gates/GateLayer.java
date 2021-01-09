@@ -673,6 +673,7 @@ public class GateLayer implements ActionListener, ItemListener {
         menu.add(jm);
 
         menuItem = new JMenuItem("Line...");
+        menuItem.setEnabled(false);
         menuItem.addActionListener(this);
         menu.add(menuItem);
 
@@ -702,17 +703,19 @@ public class GateLayer implements ActionListener, ItemListener {
 
         menu.add(new JSeparator());
 
-        menuItem = new JMenuItem("Make Ground Truth...");
+        menuItem = new JMenuItem("Make Training data...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
         menu.add(new JSeparator());
         
         menuItem = new JMenuItem("Classify by Image...");
+        menuItem.setEnabled(false);
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
         menuItem = new JMenuItem("Classify by Gate...");
+        menuItem.setEnabled(false);
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
@@ -725,16 +728,19 @@ public class GateLayer implements ActionListener, ItemListener {
         menu.add(new JSeparator());
 
         menuItem = new JMenuItem("Add Distance Map...");
+        menuItem.setEnabled(false);
         menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menuItem = new JMenuItem("Add Density Map...");
+        menuItem.setEnabled(false);
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
         menu.add(new JSeparator());
         
          menuItem = new JMenuItem("Generate Neighborhoods...");
+         menuItem.setEnabled(false);
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
