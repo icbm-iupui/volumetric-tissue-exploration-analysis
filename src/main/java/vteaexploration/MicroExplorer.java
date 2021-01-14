@@ -24,7 +24,9 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.io.FileSaver;
+import ij.io.Opener;
 import ij.measure.ResultsTable;
+import ij.process.LUT;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -66,6 +68,7 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FilenameUtils;
 import vtea.OpenObxFormat;
 import vtea._vtea;
@@ -127,13 +130,15 @@ public class MicroExplorer extends javax.swing.JFrame implements
     public static final int POINTSIZE = 4;
 
     int featureCount = 0;
+    
+    LUT[] imageLUTs;
 
     ArrayList measurements;
     ExplorationCenter ec;
     PlotAxesPanels pap;
     JPanel HeaderPanel;
     ImagePlus imp;
-    ImagePlus impoverlay;
+    VTEAImagePlus impoverlay;
     int impMode;
     String title;
     String key;
@@ -157,7 +162,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
     JLabel lLabel;
 
 //    JProgressBar progressBar;
-
     TableWindow ResultsWindow;
 
     double[][] ObjectIDs;
@@ -216,7 +220,13 @@ public class MicroExplorer extends javax.swing.JFrame implements
         renderer.setTooltips(descriptionsLabels);
 
         this.imp = imp;
-        this.impoverlay = imp.duplicate();
+        
+        this.imageLUTs = imp.getLuts();
+        
+        //this.impoverlay = (VTEAImagePlus)imp;
+
+        this.impoverlay = new VTEAImagePlus("string", imp);
+
         this.impoverlay.addImageListener(this);
 
         this.impoverlay.setOpenAsHyperStack(true);
@@ -339,7 +349,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
 //        progressBar = new JProgressBar();
 //        progressBar.setPreferredSize(new Dimension(200, 20));
-
         DefaultXYPanels = new XYPanels(AvailableData);
         DefaultXYPanels.addChangePlotAxesListener(this);
 
@@ -1087,7 +1096,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_jButtonFeatureActionPerformed
 
     private void getSegmentationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getSegmentationActionPerformed
-        SegmentationPreviewer.SegmentationFactory(imp, ec.getObjects());
+        SegmentationPreviewer.SegmentationFactory(impoverlay, ec.getObjects());
     }//GEN-LAST:event_getSegmentationActionPerformed
 
     private void jButtonDistanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDistanceActionPerformed
@@ -1261,7 +1270,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
                     newDescriptionsLabels.add(str1);
                 }
 
-                ExplorerProcessor ep = new ExplorerProcessor("Subgate_" + subgateSerial + "_" + this.key, this.key, imp.duplicate(), objects,
+                impoverlay.setLuts(imageLUTs);
+                
+                ExplorerProcessor ep = new ExplorerProcessor("Subgate_" + subgateSerial + "_" + this.key, this.key, impoverlay, objects,
                         measurements, newDescriptions, newDescriptionsLabels);
                 ep.execute();
 
@@ -1449,7 +1460,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
 //        this.progressBar.setMinimum(min);
 //        this.progressBar.setMaximum(max);
 //    }
-
     private void addAxesLabels(String xText, String yText, String lText) {
 
         yTextPanel.setPreferredSize(new Dimension(40, 40));
@@ -1464,7 +1474,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         lLabel.setText("Color: " + lText + "           ");
         SouthPanel.add(lLabel);
         SouthPanel.add(xLabel);
-       // SouthPanel.add(progressBar);
+        // SouthPanel.add(progressBar);
 
         pack();
     }
@@ -1546,22 +1556,43 @@ public class MicroExplorer extends javax.swing.JFrame implements
             if (ip.getID() == impoverlay.getID()) {
                 JFrame frame = new JFrame();
                 frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
-                Object[] options = {"Yes", "No"};
+                frame.setAlwaysOnTop(true);
+                Object[] options = {"Yes", "No", "Restore"};
                 int n = JOptionPane.showOptionDialog(frame,
-                        "The overlay image has been closed.  Reload?",
+                        "The overlay image has been closed.  Open a different image?",
                         "Image closed.",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE,
+                        JOptionPane.YES_NO_CANCEL_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
                         null,
                         options,
                         options[0]);
+
                 if (n == JOptionPane.YES_OPTION) {
-                    this.impoverlay = imp.duplicate();
+                    JFileChooser jf2 = new JFileChooser(_vtea.LASTDIRECTORY);
+
+                    FileNameExtensionFilter filter2
+                            = new FileNameExtensionFilter("Tiff file.", ".tif", "tif");
+                    jf2.addChoosableFileFilter(filter2);
+                    jf2.setFileFilter(filter2);
+                    int returnVal2 = jf2.showOpenDialog(this);
+                    File file2 = jf2.getSelectedFile();
+                    Opener op = new Opener();
+                    ImagePlus imp = op.openImage(file2.getParent(), file2.getName());
+                    this.impoverlay = new VTEAImagePlus("string", imp);
                     ec.setGatedOverlay(impoverlay);
                     impoverlay.setTitle("Mapping: " + title);
+                    impoverlay.setLuts(imageLUTs);
+                    impoverlay.show();
+                } else if (n == 2) {
+                    this.impoverlay = new VTEAImagePlus("string", this.imp);
+                    ec.setGatedOverlay(impoverlay);
+                    impoverlay.setTitle("Mapping: " + title);
+                    impoverlay.setLuts(imageLUTs);
                     impoverlay.show();
                 } else {
+
                 }
+
             }
         }
     }
@@ -2026,6 +2057,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
             //Arraylist to save to file
             //key; Objects; Measurements; headers; headerLabels
             //string; ImagePlus; ArrayList; ArrayList; ArrayList; ArrayList
+           
+            
             ArrayList output = new ArrayList();
 
             output.add(k);
@@ -2064,8 +2097,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
                         oos.writeObject(output);
                         oos.close();
 
-                        FileSaver fs = new FileSaver(imp);
-                        fs.saveAsTiffStack(file.getParent() + "/" + key + ".tif");
+                                FileSaver fs = new FileSaver(imp);
+                                fs.saveAsTiffStack(file.getParent() + "/" + key + ".tif");
 
                     } catch (IOException e) {
                         System.out.println("ERROR: Could not save the file" + e);
