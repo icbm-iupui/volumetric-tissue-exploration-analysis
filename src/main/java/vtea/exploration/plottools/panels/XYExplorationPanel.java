@@ -1977,8 +1977,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                     }
 
                                     objectsFinal.add(object);
+                                    
+                                    
 
-                                    measurementsFinal.add(measurementsGated.get(i));
+                                    measurementsFinal.add(cloneMeasurements(measurementsGated.get(i)));
                                     position++;
                                 }
 
@@ -1990,7 +1992,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                                 objectsFinal.add(object);
 
-                                measurementsFinal.add(measurementsGated.get(i));
+                                measurementsFinal.add(cloneMeasurements(measurementsGated.get(i)));
                                 position++;
                             }
                         }
@@ -2004,6 +2006,17 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             }
 
         }
+        return result;
+    }
+    
+    ArrayList<Number> cloneMeasurements(ArrayList<Number> al){
+        ArrayList<Number> result = new ArrayList<Number>();
+        
+        for(int i = 0; i < al.size(); i++){
+            float f = al.get(i).floatValue();
+            result.add(Float.valueOf(f));
+        }
+        
         return result;
     }
 
