@@ -143,13 +143,15 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         jLabel3.setAlignmentX(0.5F);
 
         setTitle("Setup");
+        setAlwaysOnTop(true);
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(110, 160, 800, 400));
-        setMaximumSize(new java.awt.Dimension(390, 730));
-        setMinimumSize(new java.awt.Dimension(390, 730));
+        setMaximumSize(new java.awt.Dimension(390, 735));
+        setMinimumSize(new java.awt.Dimension(390, 735));
         setName("BlockOptionFrame"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(390, 730));
-        setSize(new java.awt.Dimension(390, 720));
+        setPreferredSize(new java.awt.Dimension(390, 747));
+        setResizable(false);
+        setSize(new java.awt.Dimension(390, 735));
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
         layout.columnWidths = new int[] {0};
         layout.rowHeights = new int[] {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
@@ -213,7 +215,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         methodBuild.setMaximumSize(new java.awt.Dimension(370, 330));
         methodBuild.setMinimumSize(new java.awt.Dimension(370, 330));
         methodBuild.setPreferredSize(new java.awt.Dimension(370, 330));
-        methodBuild.setSize(new java.awt.Dimension(370, 330));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
@@ -276,7 +277,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         PreviewProgress.setMinimumSize(new java.awt.Dimension(250, 30));
         PreviewProgress.setPreferredSize(new java.awt.Dimension(250, 30));
         PreviewProgress.setRequestFocusEnabled(false);
-        PreviewProgress.setSize(new java.awt.Dimension(250, 30));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         buttonPanel.add(PreviewProgress, gridBagConstraints);
@@ -286,7 +286,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         PreviewButton.setMaximumSize(vtea._vtea.SMALLBUTTONSIZE);
         PreviewButton.setMinimumSize(vtea._vtea.SMALLBUTTONSIZE);
         PreviewButton.setPreferredSize(vtea._vtea.SMALLBUTTONSIZE);
-        PreviewButton.setSize(vtea._vtea.SMALLBUTTONSIZE);
         PreviewButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 PreviewButtonActionPerformed(evt);
@@ -343,7 +342,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         channelSelection.setMinimumSize(new java.awt.Dimension(359, 41));
         channelSelection.setPreferredSize(new java.awt.Dimension(359, 41));
         channelSelection.setRequestFocusEnabled(false);
-        channelSelection.setSize(new java.awt.Dimension(359, 41));
         channelSelection.setLayout(new java.awt.GridBagLayout());
 
         ProcessText.setFont(new java.awt.Font("Helvetica", 0, 18)); // NOI18N
@@ -359,7 +357,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         ProcessSelectComboBox.setMaximumSize(new java.awt.Dimension(200, 27));
         ProcessSelectComboBox.setMinimumSize(new java.awt.Dimension(200, 27));
         ProcessSelectComboBox.setPreferredSize(new java.awt.Dimension(200, 27));
-        ProcessSelectComboBox.setSize(new java.awt.Dimension(200, 27));
         ProcessSelectComboBox.addInputMethodListener(new java.awt.event.InputMethodListener() {
             public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
             }
@@ -384,7 +381,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         ApproachPanel.setMaximumSize(new java.awt.Dimension(359, 41));
         ApproachPanel.setMinimumSize(new java.awt.Dimension(359, 41));
         ApproachPanel.setPreferredSize(new java.awt.Dimension(359, 41));
-        ApproachPanel.setSize(new java.awt.Dimension(359, 41));
 
         ChannelSelection.setFont(new java.awt.Font("Helvetica", 0, 18)); // NOI18N
         ChannelSelection.setText("Segment on Channel");
@@ -392,7 +388,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
 
         ChannelComboBox.setModel(channelsComboBox);
         ChannelComboBox.setMaximumSize(new java.awt.Dimension(52, 27));
-        ChannelComboBox.setSize(new java.awt.Dimension(52, 27));
         ChannelComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ChannelComboBoxActionPerformed(evt);

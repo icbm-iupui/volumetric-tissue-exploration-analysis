@@ -499,39 +499,55 @@ public class GateLayer implements ActionListener, ItemListener {
 
     public void makeQuadrantGate() throws Throwable {
         this.msQuadrant = false;
+        
 
-        ArrayList<Point> Q1 = new ArrayList<Point>();
-        ArrayList<Point> Q2 = new ArrayList<Point>();
-        ArrayList<Point> Q3 = new ArrayList<Point>();
-        ArrayList<Point> Q4 = new ArrayList<Point>();
+        ArrayList<PolygonGate> multipleGates = new ArrayList<>();
+        
+        ArrayList<Point2D.Double> Q1 = new ArrayList<>();
+        ArrayList<Point2D.Double> Q2 = new ArrayList<>();
+        ArrayList<Point2D.Double> Q3 = new ArrayList<>();
+        ArrayList<Point2D.Double> Q4 = new ArrayList<>();
 
-        Q1.add(new Point(42, 30));
-        Q1.add(new Point(points.get(0).x, 30));
-        Q1.add(points.get(0));
-        Q1.add(new Point(42, points.get(0).y));
+        Q1.add(new Point2D.Double(42, 30));
+        Q1.add(new Point2D.Double(points.get(0).x, 30));
+        Q1.add(new Point2D.Double(points.get(0).x, points.get(0).y));
+        Q1.add(new Point2D.Double(42, points.get(0).y));
 
-        Q2.add(new Point(points.get(0).x, 30));
-        Q2.add(new Point(490, 30));
-        Q2.add(new Point(490, points.get(0).y));
-        Q2.add(points.get(0));
+        Q2.add(new Point2D.Double(points.get(0).x, 30));
+        Q2.add(new Point2D.Double(490, 30));
+        Q2.add(new Point2D.Double(490, points.get(0).y));
+        Q2.add(new Point2D.Double(points.get(0).x, points.get(0).y));
 
-        Q3.add(points.get(0));
-        Q3.add(new Point(490, points.get(0).y));
-        Q3.add(new Point(490, 465));
-        Q3.add(new Point(points.get(0).x, 465));
+        Q3.add(new Point2D.Double(points.get(0).x, points.get(0).y));
+        Q3.add(new Point2D.Double(490, points.get(0).y));
+        Q3.add(new Point2D.Double(490, 465));
+        Q3.add(new Point2D.Double(points.get(0).x, 465));
 
-        Q4.add(new Point(42, points.get(0).y));
-        Q4.add(points.get(0));
-        Q4.add(new Point(points.get(0).x, 465));
-        Q4.add(new Point(42, 465));
+        Q4.add(new Point2D.Double(42, points.get(0).y));
+        Q4.add(new Point2D.Double(points.get(0).x, points.get(0).y));
+        Q4.add(new Point2D.Double(points.get(0).x, 465));
+        Q4.add(new Point2D.Double(42, 465));
 
-        notifyPolygonSelectionListeners(Q1);
-        this.finalize();
-        notifyPolygonSelectionListeners(Q2);
-        this.finalize();
-        notifyPolygonSelectionListeners(Q3);
-        this.finalize();
-        notifyPolygonSelectionListeners(Q4);
+//        notifyPolygonSelectionListeners(Q1);
+//        this.finalize();
+//        notifyPolygonSelectionListeners(Q2);
+//        this.finalize();
+//        notifyPolygonSelectionListeners(Q3);
+//        this.finalize();
+//        notifyPolygonSelectionListeners(Q4);
+        
+        
+        PolygonGate pg1 = new PolygonGate(Q1);
+        multipleGates.add(pg1);
+        PolygonGate pg2 = new PolygonGate(Q2);
+        multipleGates.add(pg2);
+        PolygonGate pg3 = new PolygonGate(Q3);
+        multipleGates.add(pg3);
+        PolygonGate pg4 = new PolygonGate(Q4);
+        multipleGates.add(pg4);
+        
+        this.notifyQuadrantSelectionListeners(multipleGates);
+        
         this.points.clear();
         this.finalize();
     }
@@ -600,6 +616,16 @@ public class GateLayer implements ActionListener, ItemListener {
             listener.polygonGate(points);
         }
     }
+    
+        public void addQuadrantSelectionListener(QuadrantSelectionListener listener) {
+        quadrantlisteners.add(listener);
+    }
+
+    public void notifyQuadrantSelectionListeners(ArrayList<PolygonGate> g) {
+        for (QuadrantSelectionListener listener : quadrantlisteners) {
+            listener.addQuadrantGate(g);
+        }
+    }
 
     public void addDeleteGateListener(DeleteGateListener listener) {
         //System.out.println("Adding Deleting gate .");
@@ -621,16 +647,6 @@ public class GateLayer implements ActionListener, ItemListener {
             listener.onPasteGate(gates);
         }
     }
-    
-//    public void addImportGateListener(AddGateListener listener) {
-//        addgatelisteners.add(listener);
-//    }
-//
-//    public void notifyPasteGateListeners() {
-//        for (AddGateListener listener : addgatelisteners) {
-//            listener.onPasteGate(gates);
-//        }
-//    }
     
     public void addGateColorListener(GateColorListener listener) {
         gatecolorlisteners.add(listener);
@@ -872,19 +888,19 @@ public class GateLayer implements ActionListener, ItemListener {
             }
             if (path != null) {
 
-                String s = (String) JOptionPane.showInputDialog(
-                        null,
-                        "Please enter the group name",
-                        "Neighborhood Group",
-                        JOptionPane.PLAIN_MESSAGE,
-                        null,
-                        null,
-                        "Neighborhood_");
+//                String s = (String) JOptionPane.showInputDialog(
+//                        null,
+//                        "Please enter the group name",
+//                        "Neighborhood Group",
+//                        JOptionPane.PLAIN_MESSAGE,
+//                        null,
+//                        null,
+//                        "Neighborhood_").setAlwaysOnTop(true);
 
                 new Thread(() -> {
                     try {
 
-                       this.notifyNeighborhoodListeners(s);
+                       this.notifyNeighborhoodListeners("Neighborhood");
 
                     } catch (Exception ex) {
                         StackTraceElement[] error = ex.getStackTrace();
@@ -1069,8 +1085,7 @@ public class GateLayer implements ActionListener, ItemListener {
      */
     private void notifyNeighborhoodListeners(String name) {
         for (NeighborhoodListener listener : neighborhoodListeners) {
-            listener.addNeighborhoodFromGate(name);
-
+            listener.addNeighborhoodFromGate("neighborhood");
         }
     }
 

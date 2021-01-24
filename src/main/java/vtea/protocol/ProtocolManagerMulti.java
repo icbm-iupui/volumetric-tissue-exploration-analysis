@@ -151,6 +151,13 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
         this.ImageTabs.setTabPlacement(JTabbedPane.TOP);
         this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount() - 1);
         //IJ.log("Starting things up!");
+        
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                _vtea.setLastDirectory(_vtea.getLastDirectory());
+                _vtea.clearVTEADirectory();
+            }
+        });
     }
 
     /**
@@ -192,11 +199,12 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
         setAutoRequestFocus(false);
         setBackground(new java.awt.Color(204, 204, 204));
         setBounds(new java.awt.Rectangle(0, 100, 890, 400));
-        setMaximumSize(new java.awt.Dimension(760, 460));
-        setMinimumSize(new java.awt.Dimension(760, 460));
+        setMaximumSize(new java.awt.Dimension(767, 472));
+        setMinimumSize(new java.awt.Dimension(767, 472));
         setName("ProcessingFrame"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(760, 460));
-        setSize(new java.awt.Dimension(760, 460));
+        setPreferredSize(new java.awt.Dimension(767, 472));
+        setResizable(false);
+        setSize(new java.awt.Dimension(767, 472));
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 formMousePressed(evt);
@@ -894,7 +902,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
             repaint();
             ois.close();
-
+            _vtea.LASTDIRECTORY = file.getAbsolutePath();
             return 1;
         } else {
             repaint();
@@ -1025,6 +1033,8 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
         }
     }
+    
+    
 
     @Override
     public void onSegmentationFileSave() throws Exception {

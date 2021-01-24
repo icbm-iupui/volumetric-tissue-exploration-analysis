@@ -106,6 +106,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         VTEAProgressBar = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setAlwaysOnTop(true);
         setMinimumSize(new java.awt.Dimension(380, 360));
         setResizable(false);
         setSize(new java.awt.Dimension(30, 381));
