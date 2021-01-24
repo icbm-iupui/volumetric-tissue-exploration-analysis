@@ -60,6 +60,8 @@ engine.eval("print(lm(y ~ x, df))");
 engine.eval("p <- ggplot(df, aes(y,x)) + geom_violin()");
 engine.eval("pdf('test.pdf')");
 engine.eval("print(p)");
+//engine.eval("png('violin.png')");
+//engine.eval("print(p)");
 engine.eval("dev.off()");
 
 

@@ -495,12 +495,12 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         
         
         
-//        try {
-//            TestRenjin tr = new TestRenjin();
-//            boolean success = tr.process();
-//        } catch (Exception ex) {
-//            Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+        try {
+            TestRenjin tr = new TestRenjin();
+            boolean success = tr.process();
+        } catch (Exception ex) {
+            Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         System.out.println("-------------------------------- ");
         
