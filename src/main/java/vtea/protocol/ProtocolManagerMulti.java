@@ -151,6 +151,13 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
         this.ImageTabs.setTabPlacement(JTabbedPane.TOP);
         this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount() - 1);
         //IJ.log("Starting things up!");
+        
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                _vtea.setLastDirectory(_vtea.getLastDirectory());
+                _vtea.clearVTEADirectory();
+            }
+        });
     }
 
     /**
@@ -895,7 +902,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
             repaint();
             ois.close();
-
+            _vtea.LASTDIRECTORY = file.getAbsolutePath();
             return 1;
         } else {
             repaint();
@@ -1026,6 +1033,8 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
         }
     }
+    
+    
 
     @Override
     public void onSegmentationFileSave() throws Exception {

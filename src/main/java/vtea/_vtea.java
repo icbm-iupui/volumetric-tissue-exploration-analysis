@@ -62,12 +62,20 @@ import vtea.services.ObjectMeasurementService;
 import vtea.services.ProcessorService;
 import vtea.services.SegmentationService;
 import vtea.services.WorkflowService;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.File;
+import org.apache.commons.io.FileUtils;
+
+
 
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
     public static String VERSION = new String("1.0 alpha r6");
-    
+
     public ProtocolManagerMulti protocolWindow;
 
     public static Context context;
@@ -83,8 +91,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
 
     public static String TEMP_DIRECTORY = new String(ij.Prefs.getImageJDir()
-            + System.getProperty("path.separator") + "VTEATEMP"
-            + System.getProperty("path.separator"));
+            + System.getProperty("path.separator") + "VTEA"
+            + System.getProperty("path.separator") + "tmp");
 
     public static String H2_DATABASE = new String("VTEADB");
     public static String H2_MEASUREMENTS_TABLE = new String("MEASUREMENTS");
@@ -92,6 +100,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
     public static String MEASUREMENTS_TEMP = new String("MEASUREMENTS_TEMP");
     public static String OBJECTS_TEMP = new String("OBJECTS_TEMP");
+
+    public static String DATABASE_DIRECTORY = ij.Prefs.getImageJDir() + "VTEA";
+    public static boolean DATABASE_IN_RAM = true;
 
     public static String LASTDIRECTORY = new String(System.getProperty("user.home") + "/Desktop");
 
@@ -121,23 +132,21 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static ConcurrentHashMap<String, String> MORPHOLOGICALMAP;
     public static ConcurrentHashMap<String, String> FEATUREMAP;
     public static ConcurrentHashMap<String, String> LUTMAP;
-    
+
     public static Date STARTUPTIME;
 
     public static void main(String[] args) {
 
-        
         //set the plugins.dir property to make the plugin appear in the Plugins menu
         Class<?> clazz = _vtea.class;
         String url = clazz.getResource("/" + clazz.getName().replace('.', '/') + ".class").toString();
         String pluginsDir = url.substring(5, url.length() - clazz.getName().length() - 6);
         System.setProperty("plugins.dir", pluginsDir);
-        
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                        
+
 //                           try {
 //    UIManager.setLookAndFeel( new FlatLightLaf() );
 //} catch( Exception ex ) {
@@ -204,30 +213,22 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         return stacks;
     }
 
-
     @Override
     public void run(String str) {
-        
-
 
         //getUIValues();
         context = new Context(LogService.class, PluginService.class, UIService.class);
         priority = Priority.HIGH;
-        
+
         STARTUPTIME = new Date(System.currentTimeMillis());
 
         IJ.log("Activated Log: " + STARTUPTIME.toString());
-        
-           LogStream.redirectSystemOut("");
-           LogStream.redirectSystemErr("");          
-           Frame log = WindowManager.getFrame("Log");
-           log.setSize(new Dimension(760,350));
-           log.setLocation(0,560);
-           
 
-
-
-           
+        LogStream.redirectSystemOut("");
+        LogStream.redirectSystemErr("");
+        Frame log = WindowManager.getFrame("Log");
+        log.setSize(new Dimension(760, 350));
+        log.setLocation(0, 560);
 
         System.out.println("Starting up VTEA... ");
         System.out.println("-------------------------------- ");
@@ -242,10 +243,25 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         System.out.println("Setting ImageJ configurations...");
 
         IJ.run("Options...", "iterations=1 count=1");
+        ImagePlus.addImageListener(this);
 
         System.out.println("-------------------------------- ");
 
-        ImagePlus.addImageListener(this);
+        System.out.println("Setting VTEA folders...");
+
+        if (!Files.exists(Paths.get(DATABASE_DIRECTORY))) {
+
+            try {
+
+                Files.createDirectories(Paths.get(DATABASE_DIRECTORY));
+
+            } catch (IOException e) {
+
+                System.err.println("ERROR: VTEA directories could not be created");
+
+            }
+
+        }
 
         System.out.println("-------------------------------- ");
 
@@ -276,7 +292,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         ImageProcessingService ips = new ImageProcessingService(context);
 
         ObjectMeasurementService oms = new ObjectMeasurementService(context);
-        
+
         NeighborhoodMeasurementService nms = new NeighborhoodMeasurementService(context);
 
         MorphologicalFilterService mfs = new MorphologicalFilterService(context);
@@ -286,7 +302,6 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         //ObjectAnalysisService oas = new ObjectAnalysisService();             
         //GroupAnalysisService gas = new GroupAnalysisService();
         //VisualizationService vs = new VisualizationService();
-        
         List<String> fts_names = fts.getNames();
         List<String> fts_qualifiedNames = fts.getQualifiedName();
 
@@ -301,7 +316,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
         List<String> oms_names = oms.getNames();
         List<String> oms_qualifiedNames = oms.getQualifiedName();
-        
+
         List<String> nms_names = nms.getNames();
         List<String> nms_qualifiedNames = nms.getQualifiedName();
 
@@ -424,7 +439,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
+
         System.out.println("Loading Neighborhood Measurement Plugins: ");
         //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
 
@@ -440,7 +455,6 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
 
         System.out.println("Loading Segmentation Plugins: ");
         //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
@@ -553,9 +567,30 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public void setInfo(PluginInfo<?> pi) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-       
 
+    public static void setLastDirectory(String str) {
+       if(str != null){
+        _vtea.LASTDIRECTORY = str;
+        ij.Prefs.set("VTEALastDirectory", str);
+       }
+    }
+
+    public static String getLastDirectory() {
+        return ij.Prefs.getString("VTEALastDirectory");
+    }
+
+    public static boolean isDatabaseInRam() {
+        return DATABASE_IN_RAM;
+    }
+
+    public static void setDatabaseInRam(boolean b) {
+        DATABASE_IN_RAM = b;
+    }
     
+    public static void clearVTEADirectory(){
+        try{
+        FileUtils.cleanDirectory(new File(_vtea.DATABASE_DIRECTORY)); 
+        } catch(IOException e){}
+    }
 
 }

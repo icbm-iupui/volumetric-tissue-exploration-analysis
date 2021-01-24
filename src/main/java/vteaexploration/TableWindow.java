@@ -157,7 +157,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
         currentMeasure.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
-        currentMeasure.setText("currentMeasure");
+        currentMeasure.setText("Gating Statistics");
         currentMeasure.setToolTipText(currentMeasure.getText());
         currentMeasure.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
         currentMeasure.setMaximumSize(new java.awt.Dimension(670, 20));
@@ -442,12 +442,9 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                 if (pg.getTotalObjects() > 0) {
                     gateData[7] = (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects());
                 }
-
                 gatesData[i] = gateData;
-
                 i++;
-   
-                
+
             }
 
             String[] columnNames = {"View",
@@ -479,7 +476,9 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
             ) {
 
                 public Class getColumnClass(int c) {
+                    
                     return getValueAt(0, c).getClass();
+
                 }
 
                 public boolean isCellEditable(int row, int col) {

@@ -17,12 +17,15 @@
  */
 package vtea.exploration.plotgatetools.listeners;
 
+import java.util.ArrayList;
+import vtea.exploration.plotgatetools.gates.PolygonGate;
+
 /**
  *
  * @author vinfrais
  */
 public interface QuadrantSelectionListener {
 
-    public void quadrantSelection(float x, float y);
+    public void addQuadrantGate(ArrayList<PolygonGate> al);
 
 }

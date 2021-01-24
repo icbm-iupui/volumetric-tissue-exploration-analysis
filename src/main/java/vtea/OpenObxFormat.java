@@ -52,7 +52,7 @@ public class OpenObxFormat {
         int returnVal = jf.showOpenDialog(parent);
         File file = jf.getSelectedFile();
 
-        _vtea.LASTDIRECTORY = file.getAbsolutePath();
+       
 
         ArrayList result = new ArrayList();
 
@@ -71,6 +71,7 @@ public class OpenObxFormat {
 //                    pm.getProgressMonitor().setMillisToPopup(10);
                     result = (ArrayList) ois.readObject();
                     ois.close();
+                    _vtea.LASTDIRECTORY = file.getAbsolutePath();
                 } catch (IOException e) {
                     System.out.println("ERROR: Could not open the object file.");
 

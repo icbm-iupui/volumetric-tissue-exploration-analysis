@@ -96,7 +96,7 @@ public class SegmentationProcessor extends AbstractProcessor {
 
         firePropertyChange("progress", 0, 1);
         firePropertyChange("comment", key, ("Starting segmentation...  "));
-
+        long start_time = System.currentTimeMillis();
         /**
          * segmentation and measurement protocol redefining. 0: title text, 1:
          * method (as String), 2: channel, 3: ArrayList of JComponents used for
@@ -144,7 +144,7 @@ public class SegmentationProcessor extends AbstractProcessor {
                 }
             }
 
-            long start_time = System.currentTimeMillis();
+            
 
             ProcessorForkPool pfp = new ProcessorForkPool(protocol, 0, volumes.size());
             ForkJoinPool pool = new ForkJoinPool();

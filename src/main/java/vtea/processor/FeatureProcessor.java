@@ -205,7 +205,7 @@ public class FeatureProcessor extends AbstractProcessor {
         int returnVal = JFileChooser.CANCEL_OPTION;
         int choice = JOptionPane.OK_OPTION;
         do {
-            JFileChooser jf = new JFileChooser(new File("untitled.csv"));
+            JFileChooser jf = new JFileChooser(new File(vtea._vtea.LASTDIRECTORY + "untitled.csv"));
             jf.addChoosableFileFilter(new FileNameExtensionFilter("Comma Separated Values", "csv"));
             returnVal = jf.showSaveDialog(null);
             file = jf.getSelectedFile();

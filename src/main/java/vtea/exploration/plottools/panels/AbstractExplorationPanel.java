@@ -18,6 +18,7 @@
 package vtea.exploration.plottools.panels;
 
 import ij.ImagePlus;
+import ij.ImageStack;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
@@ -79,6 +80,7 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected ArrayList<ArrayList> ExplorationItems = new ArrayList<>();
     protected HashMap<Integer, String> hm = new HashMap<>();
     protected ImagePlus impoverlay;
+    protected ArrayList<ImageStack> GateOverlays;
     protected boolean imageGate = false;
     
     protected ArrayList<Double> AxesLimits;
