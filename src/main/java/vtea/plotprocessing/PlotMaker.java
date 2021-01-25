@@ -15,16 +15,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.graphoutputprocessing;
+package vtea.plotprocessing;
 
-import java.awt.Component;
-import net.imglib2.type.numeric.RealType;
+import java.util.ArrayList;
 import vtea.VTEAModule;
 
 /**
  *
  * @author sethwinfree
  */
-public interface GraphOutputProcessing<T extends Component, A extends RealType> extends VTEAModule {
+public interface PlotMaker extends VTEAModule {
+
+    public String getVersion();
+
+    public String getAuthor();
+
+    public String getComment();
+    
+    public String makePlot(ArrayList<ArrayList> al, String location, String key, String feature, String group) ;
     
 }

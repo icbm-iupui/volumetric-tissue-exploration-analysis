@@ -15,22 +15,54 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.graphoutputprocessing;
+package vtea.plotprocessing;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author sethwinfree
  */
-public class AbstractGraphOutputProcessing implements GraphOutputProcessing {
+public abstract class AbstractPlotMaker implements PlotMaker {
+    
+        protected String VERSION = "0.0";
+        protected String AUTHOR = "VTEA developer";
+        protected String COMMENT = "Classes for generating plots.";
+        protected String NAME = "Abstract PlotMaker";
+        protected String KEY = "AbstractPlotMaker";
 
     @Override
     public String getName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   return NAME;
+    }
+    @Override
+    public String getKey() {
+   return KEY;
     }
 
     @Override
-    public String getKey() {
+    public String getVersion() {
+    return VERSION;
+    }
+
+    @Override
+    public String getAuthor() {
+   return AUTHOR;
+    }
+
+    @Override
+    public String getComment() {
+   return COMMENT;
+    }
+
+    @Override
+    public String makePlot(ArrayList<ArrayList> al, String location, String key, String feature, String group) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+
+    
+    
     
 }

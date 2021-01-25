@@ -20,18 +20,17 @@ package vtea.services;
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.Service;
-import vtea.featureprocessing.FeatureProcessing;
-import vtea.graphoutputprocessing.GraphOutputProcessing;
+import vtea.plotprocessing.PlotMaker;
 
 /**
  *
- * @author Drew
+ * @author Seth
  */
 @Plugin(type = Service.class)
-public class GraphOutputService extends AbstractService<GraphOutputProcessing> {
+public class PlotMakerService extends AbstractService<PlotMaker> {
 
-    public GraphOutputService(Context context) {
-        super(GraphOutputProcessing.class, context);
+    public PlotMakerService(Context context) {
+        super(PlotMaker.class, context);
     }
 
 }

@@ -1,0 +1,150 @@
+/* 
+ * Copyright (C) 2020 Indiana University
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package vtea.processor;
+
+import ij.ImagePlus;
+import java.lang.reflect.Constructor;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import javax.swing.table.AbstractTableModel;
+import org.scijava.plugin.Plugin;
+import vtea.exploration.plottools.panels.DefaultPlotPanels;
+import vtea.exploration.plottools.panels.XYExplorationPanel;
+import vtea.jdbc.H2DatabaseEngine;
+import vtea.objects.measurements.AbstractMeasurement;
+import vtea.plotprocessing.AbstractPlotMaker;
+import vteaexploration.MicroExplorer;
+import vteaobjects.MicroObject;
+
+/**
+ *
+ * @author sethwinfree
+ */
+@Plugin(type = Processor.class)
+public class PlotProcessor extends AbstractProcessor {
+
+    
+
+    private ArrayList descriptions;
+    private ArrayList descriptionLabels;
+    private ArrayList measurements;
+    private ArrayList objects;
+
+    private String parentKey;
+    private String plotType;
+    private String feature;
+    private String group;
+
+
+
+    public PlotProcessor() {
+
+        VERSION = "0.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Processor for generating plots.";
+        NAME = "Plot Processor";
+        KEY = "PlotProcessor";
+
+    }
+
+    /*this constructor should change to:
+    
+    public ExplorerProcessor(ImagePlus imp, ArrayList volumes, ArrayList measurements)
+    
+    once SegmentationProcessor exists on its own.
+    
+     */
+    public <T extends String> PlotProcessor(ArrayList<T> settings) {
+
+        VERSION = "0.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Processor for generating plots.";
+        NAME = "Plot Processor";
+        KEY = "PlotProcessor";
+
+   
+    }
+    
+    public <T extends String> PlotProcessor(String key, ArrayList<String> settings){
+        
+        VERSION = "0.0";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Processor for generating plots.";
+        NAME = "Plot Processor";
+        KEY = "PlotProcessor";
+        
+        parentKey = settings.get(0);
+        plotType = settings.get(1);
+        feature = settings.get(2);
+        group = settings.get(3);
+       
+    }
+
+    @Override
+    protected Void doInBackground() throws Exception {
+
+
+            try {
+
+                firePropertyChange("progress", 0, 5);
+                firePropertyChange("comment", "", "Generating " 
+                        + plotType);
+
+                HashMap<Integer, String> hm = new HashMap<Integer, String>();
+
+                for (int i = 0; i < descriptions.size(); i++) {
+                    hm.put(i, descriptions.get(i).toString());
+                }
+
+                ArrayList<ArrayList> al = H2DatabaseEngine.getColumns3D(parentKey, "Object", feature, group);
+                
+                Class<?> c;
+                c = Class.forName(plotType);
+                Constructor<?> con;
+                
+                Object iImp = new Object();
+
+                con = c.getConstructor();
+                iImp = con.newInstance();
+
+                ((AbstractPlotMaker) iImp).makePlot(al, vtea._vtea.PLOT_DIRECTORY, parentKey, feature, group);     
+
+                firePropertyChange("comment", "", "Done.");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+       
+        return null;
+    }
+
+    @Override
+    public int process(ArrayList al, String... str) {
+
+        return 1;
+    }
+
+    @Override
+    public String getChange() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+}
+
+
+   

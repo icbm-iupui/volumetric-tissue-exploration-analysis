@@ -69,6 +69,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
+import vtea.services.PlotMakerService;
 
 
 
@@ -92,20 +93,32 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
 
     public static String TEMP_DIRECTORY = new String(ij.Prefs.getImageJDir()
-            + System.getProperty("path.separator") + "VTEA"
-            + System.getProperty("path.separator") + "tmp");
+            + System.getProperty("file.separator") + "VTEA"
+            + System.getProperty("file.separator") + "tmp");
+    
 
     public static String H2_DATABASE = new String("VTEADB");
     public static String H2_MEASUREMENTS_TABLE = new String("MEASUREMENTS");
     public static String H2_OBJECT_TABLE = new String("OBJECTS");
+    
+
+
 
     public static String MEASUREMENTS_TEMP = new String("MEASUREMENTS_TEMP");
     public static String OBJECTS_TEMP = new String("OBJECTS_TEMP");
 
-    public static String DATABASE_DIRECTORY = ij.Prefs.getImageJDir() + "VTEA";
+    public static String DATABASE_DIRECTORY = ij.Prefs.getImageJDir() + "VTEA"
+            + System.getProperty("file.separator") + "tmp";
     public static boolean DATABASE_IN_RAM = true;
+    
+    public static String PLOT_DIRECTORY = new String(ij.Prefs.getImageJDir() + "VTEA"
+             + System.getProperty("file.separator") + "plots");
 
-    public static String LASTDIRECTORY = new String(System.getProperty("user.home") + "/Desktop");
+    public static String PLOT_TMP_DIRECTORY = new String(ij.Prefs.getImageJDir() + "VTEA"
+             + System.getProperty("file.separator") + "plots" + System.getProperty("file.separator") + "tmp");
+        
+    public static String LASTDIRECTORY = new String(System.getProperty("user.home") 
+             + "Desktop");
 
     public static String[] FEATURETYPE = {"Cluster", "Reduction", "Other"};
 
@@ -122,6 +135,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static String[] MORPHOLOGICALOPTIONS;
     public static String[] FEATUREOPTIONS;
     public static String[] LUTOPTIONS;
+    public static String[] PLOTMAKEROPTIONS;
 
     public static ConcurrentHashMap<String, String> PROCESSINGMAP;
     public static ConcurrentHashMap<String, String> SEGMENTATIONMAP;
@@ -132,6 +146,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static ConcurrentHashMap<String, String> NEIGHBORHOODMEASUREMENTMAP;
     public static ConcurrentHashMap<String, String> MORPHOLOGICALMAP;
     public static ConcurrentHashMap<String, String> FEATUREMAP;
+    public static ConcurrentHashMap<String, String> PLOTMAKERMAP;
     public static ConcurrentHashMap<String, String> LUTMAP;
 
     public static Date STARTUPTIME;
@@ -249,6 +264,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         System.out.println("-------------------------------- ");
 
         System.out.println("Setting VTEA folders...");
+        System.out.println("    VTEA folder:      " + DATABASE_DIRECTORY);
+        System.out.println("    plot folder:      " + PLOT_DIRECTORY);
+        System.out.println("    plot temp folder: " + PLOT_TMP_DIRECTORY);
 
         if (!Files.exists(Paths.get(DATABASE_DIRECTORY))) {
 
@@ -258,7 +276,34 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
             } catch (IOException e) {
 
-                System.err.println("ERROR: VTEA directories could not be created");
+                System.err.println("ERROR: VTEA directories could not be created...");
+
+            }
+
+        }
+        
+        if (!Files.exists(Paths.get(PLOT_DIRECTORY))) {
+
+            try {
+
+                Files.createDirectories(Paths.get(PLOT_DIRECTORY));
+
+            } catch (IOException e) {
+
+                System.err.println("ERROR: VTEA plot directories could not be created");
+
+            }
+
+        }
+        if (!Files.exists(Paths.get(PLOT_TMP_DIRECTORY))) {
+
+            try {
+
+                Files.createDirectories(Paths.get(PLOT_TMP_DIRECTORY));
+
+            } catch (IOException e) {
+
+                System.err.println("ERROR: VTEA plot temp directory could not be created");
 
             }
 
@@ -273,6 +318,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         SEGMENTATIONMAP = new ConcurrentHashMap<String, String>();
         FILETYPEMAP = new ConcurrentHashMap<String, String>();
         WORKFLOWMAP = new ConcurrentHashMap<String, String>();
+        PLOTMAKERMAP = new ConcurrentHashMap<String, String>();
         PROCESSORMAP = new ConcurrentHashMap<String, String>();
         OBJECTMEASUREMENTMAP = new ConcurrentHashMap<String, String>();
         NEIGHBORHOODMEASUREMENTMAP = new ConcurrentHashMap<String, String>();
@@ -299,6 +345,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         MorphologicalFilterService mfs = new MorphologicalFilterService(context);
 
         LUTService lfs = new LUTService(context);
+        
+        PlotMakerService pms = new PlotMakerService(context);
 
         //ObjectAnalysisService oas = new ObjectAnalysisService();             
         //GroupAnalysisService gas = new GroupAnalysisService();
@@ -332,6 +380,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
         List<String> lfs_names = lfs.getNames();
         List<String> lfs_qualifiedNames = lfs.getQualifiedName();
+        
+        List<String> pms_names = pms.getNames();
+        List<String> pms_qualifiedNames = pms.getQualifiedName();
 
         //List<String> oas_names = oas.getNames();
         //List<String> oas_qualifiedNames = oas.getQualifiedName();
@@ -356,6 +407,22 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 System.out.println("Loaded: " + o.getClass().getName());
                 //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
                 LUTMAP.put(LUTOPTIONS[i], o.getClass().getName());
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+                System.out.println("Loading PlotMaker Plugins: ");
+        //Logger.getAnonymousLogger().log(Level.INFO, "Loading Segmentation Plugins: ");
+
+        PLOTMAKEROPTIONS = pms_names.toArray(new String[pms_names.size()]);
+
+        for (int i = 0; i < pms_names.size(); i++) {
+            try {
+                Object o = Class.forName(pms_qualifiedNames.get(i)).newInstance();
+                System.out.println("Loaded: " + o.getClass().getName());
+                //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
+                PLOTMAKERMAP.put(PLOTMAKEROPTIONS[i], o.getClass().getName());
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
                 Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
             }

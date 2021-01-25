@@ -34,16 +34,16 @@ public class TestRenjin {
 //    // create a Renjin engine:
     ScriptEngine engine = factory.getScriptEngine();
 ////    
-engine.eval("library(vioplot)");
-
-engine.eval("mu<-2");
-engine.eval("si<-0.6");
-engine.eval("bimodal<-c(rnorm(1000,-mu,si),rnorm(1000,mu,si))");
-engine.eval("uniform<-runif(2000,-4,4)");
-engine.eval("normal<-rnorm(2000,0,3)");
-engine.eval("pdf('violin.pdf')");
-engine.eval("vioplot(bimodal,uniform,normal)");
-engine.eval("dev.off()");
+//engine.eval("library(vioplot)");
+//
+//engine.eval("mu<-2");
+//engine.eval("si<-0.6");
+//engine.eval("bimodal<-c(rnorm(1000,-mu,si),rnorm(1000,mu,si))");
+//engine.eval("uniform<-runif(2000,-4,4)");
+//engine.eval("normal<-rnorm(2000,0,3)");
+////engine.eval("pdf('violin.pdf')");
+//engine.eval("vioplot(bimodal,uniform,normal)");
+//engine.eval("dev.off()");
 ////engine.eval("boxplot(bimodal,uniform,normal)");
 //
 
@@ -58,10 +58,10 @@ engine.eval("df <- data.frame(x=1:10, y=(1:10)+rnorm(n=10))");
 engine.eval("print(df)");
 engine.eval("print(lm(y ~ x, df))");
 engine.eval("p <- ggplot(df, aes(y,x)) + geom_violin()");
-engine.eval("pdf('test.pdf')");
-engine.eval("print(p)");
-//engine.eval("png('violin.png')");
+//engine.eval("pdf('test.pdf')");
 //engine.eval("print(p)");
+engine.eval("png('" + vtea._vtea.PLOT_DIRECTORY + System.getProperty("file.separator") + "violin.png')");
+engine.eval("print(p)");
 engine.eval("dev.off()");
 
 
@@ -73,14 +73,14 @@ Rsession r = new RenjinSession(System.out, null);
         //...
         r.set("c", Math.random()); //create R variable from java one
 
-        r.save(new File("save.Rdata"), "c"); //save variables in .Rdata
+        r.save(new File(vtea._vtea.PLOT_DIRECTORY + System.getProperty("file.separator") + "save.Rdata"), "c"); //save variables in .Rdata
         //r.rm("c"); //delete variable in R environment
         //r.load(new File("save.Rdata")); //load R variable from .Rdata
 
         //...
         //r.set("df", new double[][]{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10, 11, 12}}, "x1", "x2", "x3"); //create data frame from given vectors
         //double value = (double) (r.eval("df$x1[3]")); //access one value in data frame
-         File file = new File("plot.png");
+         File file = new File(vtea._vtea.PLOT_DIRECTORY + System.getProperty("file.separator") + "plot.png");
          file.createNewFile();
         //...
         r.toPNG(file, 400, 400, "plot(rnorm(10))"); //create jpeg file from R graphical command (like plot)
