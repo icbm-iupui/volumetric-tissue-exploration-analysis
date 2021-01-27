@@ -17,7 +17,6 @@
  */
 package vtea;
 
-import com.formdev.flatlaf.FlatLightLaf;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImageListener;
@@ -27,19 +26,14 @@ import ij.WindowManager;
 import ij.io.LogStream;
 import ij.plugin.PlugIn;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Window;
 import java.awt.event.ActionListener;
-import java.sql.Timestamp;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Date;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import org.scijava.Context;
 import org.scijava.Prioritized;
@@ -49,8 +43,6 @@ import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
 import org.scijava.plugin.RichPlugin;
 import org.scijava.ui.UIService;
-import org.scijava.ui.console.ConsolePane;
-import vtea.objects.layercake.microRegion;
 import vtea.protocol.ProtocolManagerMulti;
 import vtea.renjin.TestRenjin;
 import vtea.services.FeatureService;
@@ -65,7 +57,6 @@ import vtea.services.SegmentationService;
 import vtea.services.WorkflowService;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
@@ -240,8 +231,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
         IJ.log("Activated Log: " + STARTUPTIME.toString());
 
-        LogStream.redirectSystemOut("");
-        LogStream.redirectSystemErr("");
+//        LogStream.redirectSystemOut("");
+//        LogStream.redirectSystemErr("");
         Frame log = WindowManager.getFrame("Log");
         log.setSize(new Dimension(760, 350));
         log.setLocation(0, 560);
@@ -263,10 +254,10 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
         System.out.println("-------------------------------- ");
 
-        System.out.println("Setting VTEA folders...");
-        System.out.println("    VTEA folder:      " + DATABASE_DIRECTORY);
-        System.out.println("    plot folder:      " + PLOT_DIRECTORY);
-        System.out.println("    plot temp folder: " + PLOT_TMP_DIRECTORY);
+        System.out.println("Setting-up VTEA folders...");
+//        System.out.println("    VTEA folder:      " + DATABASE_DIRECTORY);
+//        System.out.println("    plot folder:      " + PLOT_DIRECTORY);
+//        System.out.println("    plot temp folder: " + PLOT_TMP_DIRECTORY);
 
         if (!Files.exists(Paths.get(DATABASE_DIRECTORY))) {
 
@@ -576,14 +567,14 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         
         
         
-        try {
-            TestRenjin tr = new TestRenjin();
-            boolean success = tr.process();
-        } catch (Exception ex) {
-            Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        System.out.println("-------------------------------- ");
+//        try {
+//            TestRenjin tr = new TestRenjin();
+//            boolean success = tr.process();
+//        } catch (Exception ex) {
+//            Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        
+//        System.out.println("-------------------------------- ");
         
     }
 
@@ -669,6 +660,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static void clearVTEADirectory(){
         try{
         FileUtils.cleanDirectory(new File(_vtea.DATABASE_DIRECTORY)); 
+        FileUtils.cleanDirectory(new File(_vtea.PLOT_DIRECTORY));
         } catch(IOException e){}
     }
 

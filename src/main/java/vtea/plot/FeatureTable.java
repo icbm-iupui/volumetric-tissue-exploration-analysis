@@ -15,8 +15,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vteaexploration;
+package vtea.plot;
 
+import vteaexploration.*;
 import ij.IJ;
 import java.awt.Color;
 import java.awt.Component;
@@ -49,27 +50,28 @@ import vtea.exploration.plotgatetools.gates.PolygonGate;
  *
  * @author vinfrais
  */
-public class TableWindow extends javax.swing.JFrame implements TableModelListener {
+public class FeatureTable extends javax.swing.JFrame implements TableModelListener {
 
     private Object[][] DataTableArray = new Object[4][15];
 
     private ArrayList<NameUpdateListener> nameUpdateListeners = new ArrayList<>();
     private ArrayList<remapOverlayListener> remapOverlayListeners = new ArrayList<>();
     private ArrayList<colorUpdateListener> UpdateColorListeners = new ArrayList<>();
-    
+
     private ArrayList<GateManagerActionListener> gateManagerListeners = new ArrayList<>();
-    
+
     private ArrayList<PolygonGate> gateList = new ArrayList();
 
     /**
      * Creates new form gatePercentages
      */
-    public TableWindow(String name) {
+    public FeatureTable(String name) {
         initComponents();
-        GateDataTable.getModel().addTableModelListener(this);
-        setTitle(getTitle()+": "+name);
+        jPanel1.setVisible(false);
+        FeatureTable.getModel().addTableModelListener(this);
+        setTitle(getTitle() + ": " + name);
     }
-    
+
     public void setVisible() {
         this.setVisible(false);
     }
@@ -99,7 +101,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
             listener.onColorUpdate(color, row);
         }
     }
-    
+
     public void addGateActionListener(GateManagerActionListener listener) {
         gateManagerListeners.add(listener);
     }
@@ -135,17 +137,15 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         jSeparator1 = new javax.swing.JToolBar.Separator();
         jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        GateDataTable = new javax.swing.JTable();
+        FeatureTable = new javax.swing.JTable();
 
         jRadioButton1.setText("jRadioButton1");
 
-        setTitle("Gate Management");
+        setTitle("Features:");
         setAlwaysOnTop(true);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setFocusTraversalPolicyProvider(true);
-        setMaximumSize(new java.awt.Dimension(725, 270));
         setMinimumSize(new java.awt.Dimension(725, 270));
-        setPreferredSize(new java.awt.Dimension(725, 270));
         setResizable(false);
         setSize(new java.awt.Dimension(725, 280));
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -239,7 +239,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         jScrollPane1.setPreferredSize(new java.awt.Dimension(700, 200));
         jScrollPane1.setSize(new java.awt.Dimension(700, 200));
 
-        GateDataTable.setModel(new javax.swing.table.DefaultTableModel(
+        FeatureTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null, null, null},
@@ -276,11 +276,11 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                 return canEdit [columnIndex];
             }
         });
-        GateDataTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-        GateDataTable.setMaximumSize(new java.awt.Dimension(630, 200));
-        GateDataTable.setMinimumSize(new java.awt.Dimension(630, 200));
-        GateDataTable.setPreferredSize(new java.awt.Dimension(640, 200));
-        jScrollPane1.setViewportView(GateDataTable);
+        FeatureTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        FeatureTable.setMaximumSize(new java.awt.Dimension(630, 200));
+        FeatureTable.setMinimumSize(new java.awt.Dimension(630, 200));
+        FeatureTable.setPreferredSize(new java.awt.Dimension(640, 200));
+        jScrollPane1.setViewportView(FeatureTable);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -291,37 +291,37 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     }// </editor-fold>//GEN-END:initComponents
 
     private void addMeasurementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMeasurementActionPerformed
-       IJ.log(this.getTitle());
-       System.out.println(this.getTitle());
-       
+        IJ.log(this.getTitle());
+        System.out.println(this.getTitle());
+
         ListIterator<PolygonGate> itr = gateList.listIterator();
 
-            while (itr.hasNext()) {
-                PolygonGate pg = (PolygonGate) itr.next();
-                if(pg.getSelected()){
+        while (itr.hasNext()) {
+            PolygonGate pg = (PolygonGate) itr.next();
+            if (pg.getSelected()) {
 //                 System.out.println("Gating results: Name: " + pg.getName() + ", " +
 //                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
 //                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
 //                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects())); 
 //                 
-                 IJ.log("Gating results: Name: " + pg.getName() + ", " +
-                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
-                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
-                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects()));
-                }
+                IJ.log("Gating results: Name: " + pg.getName() + ", "
+                        + pg.getColor().toString() + ", " + pg.getXAxis() + ", " + pg.getYAxis() + ", "
+                        + pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", "
+                        + (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects()));
             }
+        }
     }//GEN-LAST:event_addMeasurementActionPerformed
 
     private void exportGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGatesActionPerformed
-    notifyGateActionListeners("export");
+        notifyGateActionListeners("export");
     }//GEN-LAST:event_exportGatesActionPerformed
 
     private void LoadGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadGatesActionPerformed
-    notifyGateActionListeners("import");
+        notifyGateActionListeners("import");
     }//GEN-LAST:event_LoadGatesActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTable GateDataTable;
+    private javax.swing.JTable FeatureTable;
     private javax.swing.JButton LoadGates;
     private javax.swing.JButton addMeasurement;
     public javax.swing.JLabel currentMeasure;
@@ -346,223 +346,145 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         this.currentMeasure.setToolTipText(st);
         this.currentMeasure.setText(st);
     }
-    
-    public void addGateToTable(PolygonGate g) {
+
+    public void addFeatureToTable(PolygonGate g) {
         //if (gateList.size() > 0) {
-            if (g.getGateAsPoints().size() > 2) {
-                ((DefaultTableModel) GateDataTable.getModel()).addRow(
-                        new Object[]{g.getSelected(),
-                            g.getColor(),
-                            g.getName(),
-                            g.getXAxis(),
-                            g.getYAxis(),
-                            g.getObjectsInGate(),
-                            g.getTotalObjects(),
-                            (float) 100 * ((int) g.getObjectsInGate()) / ((int) g.getTotalObjects())
-                        });
+        if (g.getGateAsPoints().size() > 2) {
+            ((DefaultTableModel) FeatureTable.getModel()).addRow(
+                    new Object[]{g.getSelected(),
+                        g.getColor(),
+                        g.getName(),
+                        g.getXAxis(),
+                        g.getYAxis(),
+                        g.getObjectsInGate(),
+                        g.getTotalObjects(),
+                        (float) 100 * ((int) g.getObjectsInGate()) / ((int) g.getTotalObjects())
+                    });
 
         }
-            pack();
-            repaint();
-            
+        pack();
+        repaint();
+
     }
-    
-    public void updateGateSelection(ArrayList<PolygonGate> gates){
-        
+
+    public void updateGateSelection(ArrayList<PolygonGate> gates) {
+
         ListIterator<PolygonGate> itr = gates.listIterator();
         int i = 0;
-         while (itr.hasNext()) {
-             PolygonGate pg = (PolygonGate) itr.next();
-             boolean selected = pg.getSelected();
-             GateDataTable.getModel().setValueAt(selected, i, 0);
-             i++;
-         }
-            pack();
+        while (itr.hasNext()) {
+            PolygonGate pg = (PolygonGate) itr.next();
+            boolean selected = pg.getSelected();
+            FeatureTable.getModel().setValueAt(selected, i, 0);
+            i++;
+        }
+        pack();
         repaint();
-        
+
     }
-    
-    private ArrayList<PolygonGate> cleanGateList(ArrayList<PolygonGate> gates){
-        ListIterator<PolygonGate> itr = gates.listIterator();
-        
-        ArrayList<PolygonGate> result = new ArrayList<>();
 
-            int i = 0;
-            while (itr.hasNext()) {
-                PolygonGate g = itr.next();
-                if(g.getGateAsPoints().size() > 2){
-                    result.add(g);
-                }
-            }
-            return result;
-    }
-    
-       
+//    private ArrayList<PolygonGate> cleanGateList(ArrayList<PolygonGate> gates) {
+//        ListIterator<PolygonGate> itr = gates.listIterator();
+//
+//        ArrayList<PolygonGate> result = new ArrayList<>();
+//
+//        int i = 0;
+//        while (itr.hasNext()) {
+//            PolygonGate g = itr.next();
+//            if (g.getGateAsPoints().size() > 2) {
+//                result.add(g);
+//            }
+//        }
+//        return result;
+//    }
 
-    public void updateTable(ArrayList<PolygonGate> gates) {
-        
-        gateList = cleanGateList(gates);
-        
+    public void updateTable(boolean[] selected, ArrayList<String> descriptions, ArrayList<String> descriptionsLabel) {
 
+        //gateList = cleanGateList(gates);
         // System.out.println("PROFILING:  Rebuilding GM with gates: " + gates.size());
-        if (gateList.size() > 0) {
+        if (descriptions.size() > 0) {
 
-            ListIterator<PolygonGate> itr = gateList.listIterator();
+            //ListIterator<String> itr = gateList.listIterator();
+            Object[][] tableData = new Object[descriptions.size()][3];
 
-            Object[][] gatesData = new Object[gateList.size()][9];
-            int i = 0;
-            while (itr.hasNext()) {
-                Object[] gateData = new Object[9];
+            for (int i = 0; i < descriptions.size(); i++) {
+                Object[] featureData = new Object[3];
 
-                PolygonGate pg = (PolygonGate) itr.next();
-                
-                
+                featureData[0] = selected[i];
+                featureData[1] = descriptions.get(i);
+                featureData[2] = descriptionsLabel.get(i);
 
-                gateData[0] = pg.getSelected();
-                gateData[1] = pg.getColor();
-                gateData[2] = pg.getName();
-                gateData[3] = pg.getXAxis();
-                gateData[4] = pg.getYAxis();
-                gateData[5] = pg.getObjectsInGate();
-                gateData[6] = pg.getTotalObjects();
-                if (pg.getTotalObjects() > 0) {
-                    gateData[7] = (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects());
-                }
-                gatesData[i] = gateData;
-                i++;
+                tableData[i] = featureData;
 
             }
 
-            String[] columnNames = {"View",
-                "Color",
-                "Name",
-                "XAxis",
-                "YAxis",
-                "Gated",
-                "Total",
-                "%"
+            String[] columnNames = {"Select",
+                "Feature",
+                "Description"
             };
 
-            this.GateDataTable = new JTable(gatesData, columnNames) {
-                @Override
-                public TableCellRenderer getCellRenderer(int row, int column) {
-                    for (int i = 0; i < gatesData.length; i++) {
-                        if ((row == i) && (column == 1)) {
-                            return new ColorRenderer(true, (Color) gatesData[i][1]);
-                        }
-                    }
+            this.FeatureTable = new JTable(tableData, columnNames);
 
-                    return super.getCellRenderer(row, column);
-                }
-            };
-
-            GateDataTable.setModel(new javax.swing.table.DefaultTableModel(
-                    gatesData,
+            FeatureTable.setModel(new javax.swing.table.DefaultTableModel(
+                    tableData,
                     columnNames
-            ) {
+            ));
 
-                public Class getColumnClass(int c) {
-                    
-                    return getValueAt(0, c).getClass();
+//            FeatureTable.setDefaultRenderer(Color.class,
+//                    new ColorRenderer(true, new Color(255, 0, 0)));
+////            FeatureTable.setDefaultEditor(Color.class,
+//                    new ColorEditor());
 
-                }
+            FeatureTable.getModel().addTableModelListener(this);
 
-                public boolean isCellEditable(int row, int col) {
-
-                    if (col == 2 || col == 0) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-
-            });
-
-            GateDataTable.setDefaultRenderer(Color.class,
-                    new ColorRenderer(true, new Color(255, 0, 0)));
-            GateDataTable.setDefaultEditor(Color.class,
-                    new ColorEditor());
-
-            GateDataTable.getModel().addTableModelListener(this);
-
-            GateDataTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-            GateDataTable.setMaximumSize(new java.awt.Dimension(680, 1400));
-            GateDataTable.setMinimumSize(new java.awt.Dimension(630, 1400));
-            GateDataTable.setPreferredSize(new java.awt.Dimension(680, 1400));
-            GateDataTable.setShowGrid(true);
+            FeatureTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+            FeatureTable.setMaximumSize(new java.awt.Dimension(300, 500));
+            FeatureTable.setMinimumSize(new java.awt.Dimension(300, 500));
+            FeatureTable.setPreferredSize(new java.awt.Dimension(300, 500));
+            FeatureTable.setShowGrid(true);
 
             TableColumn column = null;
-            column = GateDataTable.getColumnModel().getColumn(0);
-            column.setPreferredWidth(40);
-            column = GateDataTable.getColumnModel().getColumn(1);
-            column.setPreferredWidth(60);
-            column = GateDataTable.getColumnModel().getColumn(2);
-            column.setPreferredWidth(120);
-            column = GateDataTable.getColumnModel().getColumn(3);
-            column.setPreferredWidth(115);
-            column = GateDataTable.getColumnModel().getColumn(4);
-            column.setPreferredWidth(115);
-            column = GateDataTable.getColumnModel().getColumn(5);
-            column.setPreferredWidth(90);
-            column = GateDataTable.getColumnModel().getColumn(6);
-            column.setPreferredWidth(90);
-            column = GateDataTable.getColumnModel().getColumn(7);
-            column.setPreferredWidth(55);
-            GateDataTable.doLayout();
-            GateDataTable.repaint();
+            column = FeatureTable.getColumnModel().getColumn(0);
+            column.setPreferredWidth(80);
+            column.setMinWidth(80);
+            column = FeatureTable.getColumnModel().getColumn(1);
+            column.setPreferredWidth(160);
+            column.setMinWidth(160);
+            column = FeatureTable.getColumnModel().getColumn(2);
+            column.setPreferredWidth(280);
+            column.setMinWidth(280);
+            FeatureTable.doLayout();
+            FeatureTable.repaint();
 
-            jScrollPane1.setViewportView(GateDataTable);
+            jScrollPane1.setViewportView(FeatureTable);
         } else {
-            GateDataTable = new JTable();
-            GateDataTable.setModel(new javax.swing.table.DefaultTableModel(
+            FeatureTable = new JTable();
+            FeatureTable.setModel(new javax.swing.table.DefaultTableModel(
                     new Object[][]{
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null},
-                        {null, null, null, null, null, null, null, null}
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null}
                     },
                     new String[]{
-                        "View",
-                        "Color",
-                        "Name",
-                        "XAxis",
-                        "YAxis",
-                        "Gated",
-                        "Total",
-                        "%"
-
+                        "Select",
+                        "Feature",
+                        "Description"
                     }
             ) {
                 Class[] types = new Class[]{
-                    java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class
+                    java.lang.Boolean.class, java.lang.String.class, java.lang.String.class
                 };
                 boolean[] canEdit = new boolean[]{
-                    false, true, false, false, false, false, false, false, false
+                    false, false, false
                 };
 
                 public Class getColumnClass(int columnIndex) {
@@ -573,139 +495,137 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                     return canEdit[columnIndex];
                 }
             });
-
-            jScrollPane1.setViewportView(GateDataTable);
+            jScrollPane1.setViewportView(FeatureTable);
         }
-        
 
     }
 
     @Override
     public void tableChanged(TableModelEvent e) {
-        int row = e.getFirstRow();
-        int column = e.getColumn();
-        TableModel model = (TableModel) e.getSource();
-        String columnName = model.getColumnName(column);
-        Object data = model.getValueAt(row, column);
-        if (column == 2) {
-            notifyUpdateNameListeners((String) data, row);
-        }
-        if (column == 0) {
-            notifyRemapOverlayListeners((Boolean) data, row);
-        }
-        if (column == 1) {
-            notifyUpdateColorListeners((Color) data, row);
-        }
-        
+//        int row = e.getFirstRow();
+//        int column = e.getColumn();
+//        TableModel model = (TableModel) e.getSource();
+//        String columnName = model.getColumnName(column);
+//        Object data = model.getValueAt(row, column);
+//        if (column == 2) {
+//            notifyUpdateNameListeners((String) data, row);
+//        }
+//        if (column == 0) {
+//            notifyRemapOverlayListeners((Boolean) data, row);
+//        }
+//        if (column == 1) {
+//            notifyUpdateColorListeners((Color) data, row);
+//        }
+
         // System.out.println("DEBUGGING: Gate Percentages, tableChanged" + e.toString());
     }
 
 }
 
-class ColorRenderer extends JLabel
-        implements TableCellRenderer {
+//class ColorRenderer extends JLabel
+//        implements TableCellRenderer {
+//
+//    Border unselectedBorder = null;
+//    Border selectedBorder = null;
+//    boolean isBordered = true;
+//    Color color = new Color(255, 0, 0, 0);
+//
+//    public ColorRenderer(boolean isBordered, Color color) {
+//        this.isBordered = isBordered;
+//        this.color = color;
+//        setOpaque(true); //MUST do this for background to show up.
+//    }
+//
+//    public Component getTableCellRendererComponent(
+//            JTable table, Object color,
+//            boolean isSelected, boolean hasFocus,
+//            int row, int column) {
+//        Color newColor = (Color) color;
+//        setBackground(newColor);
+//        if (isBordered) {
+//            if (isSelected) {
+//                if (selectedBorder == null) {
+//                    selectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5,
+//                            table.getSelectionBackground());
+//                }
+//                setBorder(selectedBorder);
+//            } else {
+//                if (unselectedBorder == null) {
+//                    unselectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5,
+//                            table.getBackground());
+//                }
+//                setBorder(unselectedBorder);
+//            }
+//        }
+//
+//        setToolTipText("RGB value: " + newColor.getRed() + ", "
+//                + newColor.getGreen() + ", "
+//                + newColor.getBlue());
+//        return this;
+//    }
+//}
+//
+//class ColorEditor extends AbstractCellEditor
+//        implements TableCellEditor,
+//        ActionListener {
+//
+//    protected static final String EDIT = "edit";
+//    Color currentColor;
+//    JButton button;
+//    JColorChooser colorChooser;
+//    JDialog dialog;
+//
+//    public ColorEditor() {
+//        //Set up the editor (from the table's point of view),
+//        //which is a button.
+//        //This button brings up the color chooser dialog,
+//        //which is the editor from the user's point of view.
+//        button = new JButton();
+//        button.setActionCommand(EDIT);
+//        button.addActionListener(this);
+//        button.setBorderPainted(false);
+//
+//        //Set up the dialog that the button brings up.
+//        colorChooser = new JColorChooser();
+//        dialog = JColorChooser.createDialog(button,
+//                "Pick a Color",
+//                true, //modal
+//                colorChooser,
+//                this, //OK button handler
+//                null); //no CANCEL button handler
+//    }
+//
+//    /**
+//     * Handles events from the editor button and from the dialog's OK button.
+//     */
+//    public void actionPerformed(ActionEvent e) {
+//        if (EDIT.equals(e.getActionCommand())) {
+//            //The user has clicked the cell, so
+//            //bring up the dialog.
+//            button.setBackground(currentColor);
+//            colorChooser.setColor(currentColor);
+//            dialog.setVisible(true);
+//
+//            //Make the renderer reappear.
+//            fireEditingStopped();
+//
+//        } else { //User pressed dialog's "OK" button.
+//            currentColor = colorChooser.getColor();
+//        }
+//    }
 
-    Border unselectedBorder = null;
-    Border selectedBorder = null;
-    boolean isBordered = true;
-    Color color = new Color(255, 0, 0, 0);
+//    //Implement the one CellEditor method that AbstractCellEditor doesn't.
+//    public Object getCellEditorValue() {
+//        return currentColor;
+//    }
+//
+//    //Implement the one method defined by TableCellEditor.
+//    public Component getTableCellEditorComponent(JTable table,
+//            Object value,
+//            boolean isSelected,
+//            int row,
+//            int column) {
+//        currentColor = (Color) value;
+//        return button;
+//    }
 
-    public ColorRenderer(boolean isBordered, Color color) {
-        this.isBordered = isBordered;
-        this.color = color;
-        setOpaque(true); //MUST do this for background to show up.
-    }
-
-    public Component getTableCellRendererComponent(
-            JTable table, Object color,
-            boolean isSelected, boolean hasFocus,
-            int row, int column) {
-        Color newColor = (Color) color;
-        setBackground(newColor);
-        if (isBordered) {
-            if (isSelected) {
-                if (selectedBorder == null) {
-                    selectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5,
-                            table.getSelectionBackground());
-                }
-                setBorder(selectedBorder);
-            } else {
-                if (unselectedBorder == null) {
-                    unselectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5,
-                            table.getBackground());
-                }
-                setBorder(unselectedBorder);
-            }
-        }
-
-        setToolTipText("RGB value: " + newColor.getRed() + ", "
-                + newColor.getGreen() + ", "
-                + newColor.getBlue());
-        return this;
-    }
-}
-
-class ColorEditor extends AbstractCellEditor
-        implements TableCellEditor,
-        ActionListener {
-
-    protected static final String EDIT = "edit";
-    Color currentColor;
-    JButton button;
-    JColorChooser colorChooser;
-    JDialog dialog;
-
-    public ColorEditor() {
-        //Set up the editor (from the table's point of view),
-        //which is a button.
-        //This button brings up the color chooser dialog,
-        //which is the editor from the user's point of view.
-        button = new JButton();
-        button.setActionCommand(EDIT);
-        button.addActionListener(this);
-        button.setBorderPainted(false);
-
-        //Set up the dialog that the button brings up.
-        colorChooser = new JColorChooser();
-        dialog = JColorChooser.createDialog(button,
-                "Pick a Color",
-                true, //modal
-                colorChooser,
-                this, //OK button handler
-                null); //no CANCEL button handler
-    }
-
-    /**
-     * Handles events from the editor button and from the dialog's OK button.
-     */
-    public void actionPerformed(ActionEvent e) {
-        if (EDIT.equals(e.getActionCommand())) {
-            //The user has clicked the cell, so
-            //bring up the dialog.
-            button.setBackground(currentColor);
-            colorChooser.setColor(currentColor);
-            dialog.setVisible(true);
-
-            //Make the renderer reappear.
-            fireEditingStopped();
-
-        } else { //User pressed dialog's "OK" button.
-            currentColor = colorChooser.getColor();
-        }
-    }
-
-    //Implement the one CellEditor method that AbstractCellEditor doesn't.
-    public Object getCellEditorValue() {
-        return currentColor;
-    }
-
-    //Implement the one method defined by TableCellEditor.
-    public Component getTableCellEditorComponent(JTable table,
-            Object value,
-            boolean isSelected,
-            int row,
-            int column) {
-        currentColor = (Color) value;
-        return button;
-    }
-}

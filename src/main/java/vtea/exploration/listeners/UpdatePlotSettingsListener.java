@@ -15,29 +15,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.plotprocessing;
+package vtea.exploration.listeners;
 
 import java.util.ArrayList;
-import vtea.VTEAModule;
 
 /**
  *
  * @author sethwinfree
  */
-public interface PlotMaker extends VTEAModule {
-
-    public String getVersion();
-
-    public String getAuthor();
-
-    public String getComment();
+public interface UpdatePlotSettingsListener {
     
-    public boolean doesMultiples();
-    
-    public String makePlot(String location, String key, ArrayList<ArrayList<Double>> al,
-            ArrayList<String> featureNames, String group);
-    
-    public String exportPDFPlot(String location, String key, ArrayList<ArrayList<Double>> al,
-            ArrayList<String> featureNames, String group);
+    public void updateDescriptions(ArrayList<String> descriptions, ArrayList<String> descriptionLabel);
     
 }

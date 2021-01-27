@@ -17,6 +17,7 @@
  */
 package vtea.processor;
 
+import ij.IJ;
 import ij.ImagePlus;
 import java.lang.reflect.Constructor;
 import java.sql.Connection;
@@ -41,10 +42,12 @@ public class PlotProcessor extends AbstractProcessor {
 
     
 
-    private ArrayList descriptions;
-    private ArrayList descriptionLabels;
+    private ArrayList<String> descriptions;
+    private ArrayList<String> descriptionLabels;
     private ArrayList measurements;
     private ArrayList objects;
+    
+    private ArrayList<String> features;
 
     private String parentKey;
     private String plotType;
@@ -63,13 +66,6 @@ public class PlotProcessor extends AbstractProcessor {
 
     }
 
-    /*this constructor should change to:
-    
-    public ExplorerProcessor(ImagePlus imp, ArrayList volumes, ArrayList measurements)
-    
-    once SegmentationProcessor exists on its own.
-    
-     */
     public <T extends String> PlotProcessor(ArrayList<T> settings) {
 
         VERSION = "0.0";
@@ -81,7 +77,7 @@ public class PlotProcessor extends AbstractProcessor {
    
     }
     
-    public <T extends String> PlotProcessor(String key, ArrayList<String> settings){
+    public <T extends String> PlotProcessor(String key, ArrayList<String> settings, ArrayList<String> features){
         
         VERSION = "0.0";
         AUTHOR = "Seth Winfree";
@@ -89,16 +85,16 @@ public class PlotProcessor extends AbstractProcessor {
         NAME = "Plot Processor";
         KEY = "PlotProcessor";
         
-        parentKey = settings.get(0);
-        plotType = settings.get(1);
-        feature = settings.get(2);
-        group = settings.get(3);
+        parentKey = key;
+        plotType = settings.get(0);
+        group = settings.get(1);
+        this.features = features;
        
     }
 
     @Override
     protected Void doInBackground() throws Exception {
-
+     
 
             try {
 
@@ -106,24 +102,22 @@ public class PlotProcessor extends AbstractProcessor {
                 firePropertyChange("comment", "", "Generating " 
                         + plotType);
 
-                HashMap<Integer, String> hm = new HashMap<Integer, String>();
-
-                for (int i = 0; i < descriptions.size(); i++) {
-                    hm.put(i, descriptions.get(i).toString());
-                }
-
-                ArrayList<ArrayList> al = H2DatabaseEngine.getColumns3D(parentKey, "Object", feature, group);
-                
+                ArrayList<ArrayList<Double>> al = H2DatabaseEngine.getColumnsnD(
+                       vtea._vtea.H2_MEASUREMENTS_TABLE + "_" 
+                               + parentKey.replace("-", "_"), "Object", 
+                               group, this.features);  
+//                
                 Class<?> c;
-                c = Class.forName(plotType);
+                c = Class.forName(vtea._vtea.PLOTMAKERMAP.get(plotType));
                 Constructor<?> con;
                 
                 Object iImp = new Object();
 
                 con = c.getConstructor();
                 iImp = con.newInstance();
-
-                ((AbstractPlotMaker) iImp).makePlot(al, vtea._vtea.PLOT_DIRECTORY, parentKey, feature, group);     
+                
+                ((AbstractPlotMaker) iImp).makePlot(vtea._vtea.PLOT_DIRECTORY, 
+                        parentKey, al, this.features, group);
 
                 firePropertyChange("comment", "", "Done.");
             } catch (Exception e) {
@@ -131,8 +125,10 @@ public class PlotProcessor extends AbstractProcessor {
             }
        
         return null;
+      
     }
-
+    
+ 
     @Override
     public int process(ArrayList al, String... str) {
 

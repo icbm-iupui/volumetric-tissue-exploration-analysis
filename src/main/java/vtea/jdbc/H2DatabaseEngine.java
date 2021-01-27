@@ -40,7 +40,7 @@ public class H2DatabaseEngine {
 //derived from https://www.javatips.net/blog/h2-database-example
     private static final String DB_DRIVER = "org.h2.Driver";
     //private static final String DB_CONNECTION = "jdbc:h2:" + ij.Prefs.getImageJDir() + vtea._vtea.H2_DATABASE + ";AUTO_SERVER=TRUE";
-    private static final String DB_CONNECTION = "jdbc:h2:mem:"  + vtea._vtea.H2_DATABASE;
+    private static final String DB_CONNECTION = "jdbc:h2:mem:" + vtea._vtea.H2_DATABASE;
     private static final String DB_USER = "";
     private static final String DB_PASSWORD = "";
 
@@ -161,8 +161,6 @@ public class H2DatabaseEngine {
         try {
 
             String SelectQuery = "select COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = " + table;
-            
-            
 
             Connection cn = H2DatabaseEngine.getDBConnection();
 
@@ -208,31 +206,26 @@ public class H2DatabaseEngine {
             System.out.println("PROFILING: getColumn Exception Message: " + e.getLocalizedMessage());
             StackTraceElement[] st = e.getStackTrace();
             System.out.println("PROFILING:, stack trace:");
-            for(int i = 0; i < st.length; i++){
-            System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
+            for (int i = 0; i < st.length; i++) {
+                System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
             }
         }
         return measurements;
     }
-    
-    
-    
+
     //H2 SQL to drop a column, for use with Manual Assignment of Classes
-    
     public static boolean dropColumn(String table,
             String column1) {
         Connection cn = getDBConnection();
 
         PreparedStatement dropPreparedStatement = null;
 
-
         try {
 
             String DropStatement = "alter table " + table
-                    + " drop column " + column1 ;
+                    + " drop column " + column1;
 
             dropPreparedStatement = cn.prepareStatement(DropStatement);
-  
 
         } catch (SQLException e) {
             System.out.println("PROFILING: dropColumn Exception Message " + e.getLocalizedMessage());
@@ -241,7 +234,7 @@ public class H2DatabaseEngine {
         return true;
     }
 
-    //H2 SQL for returning ArrayList of all records for the desired columns
+    //H2 SQL for returning ArrayList of all records for the desired 3 columns
     public static ArrayList getColumns3D(String table,
             String column1, String column2, String column3) {
         Connection cn = getDBConnection();
@@ -257,8 +250,12 @@ public class H2DatabaseEngine {
                     + ", " + column2
                     + ", " + column3 + " from " + table;
 
+           // System.out.println("PROFILING, SQL query: " + SelectQuery);
+
             selectPreparedStatement = cn.prepareStatement(SelectQuery);
             rs = selectPreparedStatement.executeQuery();
+
+           // System.out.println("Found: " + rs.getFetchSize());
 
             while (rs.next()) {
                 ArrayList al = new ArrayList();
@@ -272,8 +269,94 @@ public class H2DatabaseEngine {
             System.out.println("PROFILING: getColumns3D Exception Message: " + e.getLocalizedMessage());
             StackTraceElement[] st = e.getStackTrace();
             System.out.println("PROFILING:, stack trace:");
-            for(int i = 0; i < st.length; i++){
-            System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
+            for (int i = 0; i < st.length; i++) {
+                System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
+            }
+        }
+        return measurements;
+    }
+
+    //H2 SQL for returning ArrayList of all records for the desired columns
+    public static ArrayList getColumnsnD(String table,
+            String column1, String column2, ArrayList<String> columns) {
+        Connection cn = getDBConnection();
+
+        PreparedStatement selectPreparedStatement = null;
+        ResultSet rs = null;
+
+        ArrayList measurements = new ArrayList();
+
+        try {
+
+            String SelectQuery = "select " + column1 + ", "
+                    + column2;
+
+            for (int i = 0; i < columns.size(); i++) {
+
+                SelectQuery += ", " + columns.get(i);
+            }
+
+            SelectQuery += " from " + table;
+
+            System.out.println("PROFILING, SQL query: " + SelectQuery);
+
+            selectPreparedStatement = cn.prepareStatement(SelectQuery);
+            rs = selectPreparedStatement.executeQuery();
+
+            System.out.println("Found: " + rs.getFetchSize());
+
+            while (rs.next()) {
+                ArrayList al = new ArrayList();
+                for (int j = 1; j <= columns.size()+2; j++) {
+                    al.add(rs.getDouble(j));
+
+                }
+                measurements.add(al);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("PROFILING: getColumnsnD Exception Message: " + e.getLocalizedMessage());
+            StackTraceElement[] st = e.getStackTrace();
+            System.out.println("PROFILING:, stack trace:");
+            for (int i = 0; i < st.length; i++) {
+                System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
+            }
+        }
+        return measurements;
+    }
+
+    //H2 SQL for returning ArrayList of all records for the desired  2 columns
+    public static ArrayList getColumns2D(String table,
+            String column1, String column2) {
+        Connection cn = getDBConnection();
+
+        PreparedStatement selectPreparedStatement = null;
+        ResultSet rs = null;
+
+        ArrayList measurements = new ArrayList();
+
+        try {
+
+            String SelectQuery = "select " + column1
+                    + ", " + column2
+                    + " from " + table;
+
+            selectPreparedStatement = cn.prepareStatement(SelectQuery);
+            rs = selectPreparedStatement.executeQuery();
+
+            while (rs.next()) {
+                ArrayList al = new ArrayList();
+                al.add(rs.getDouble(1));
+                al.add(rs.getDouble(2));
+                measurements.add(al);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("PROFILING: getColumns2D Exception Message: " + e.getLocalizedMessage());
+            StackTraceElement[] st = e.getStackTrace();
+            System.out.println("PROFILING:, stack trace:");
+            for (int i = 0; i < st.length; i++) {
+                System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
             }
         }
         return measurements;

@@ -17,12 +17,20 @@
  */
 package vtea.plot;
 
+import ij.io.FileSaver;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import org.apache.commons.io.FilenameUtils;
+import vtea._vtea;
 
 /**
  *
@@ -57,7 +65,7 @@ public class PlotOutput {
             BufferedImage img = ImageIO.read(new File(filename));
             imageIcon = new ImageIcon(img);
 
-        } catch (IOException ex) {
+        } catch (IOException ex ) {
               ex.printStackTrace();
         }
         return imageIcon;
@@ -76,12 +84,31 @@ public class PlotOutput {
         }
         return imageIcon;
     }
+    
+        
+    public void deletePlot(int i) {
+        
+        graphs.remove(i);
+        
+    }
+    
+            //pdf  view pdf 
+    public String savePlot(int i) {
+        
+        int returnVal;
+        String filename = vtea._vtea.PLOT_DIRECTORY
+                    + System.getProperty("file.separator") + graphs.get(i);
+        return filename;
+        
+        
+        
+    }
 
     public int getPlotCount() {
         return graphs.size();
     }
 
-    public ArrayList<String> updatePlotOutput() {
+    public void updatePlotOutput() {
         //get directory contents, rebuild.
         File f = new File(vtea._vtea.PLOT_DIRECTORY);
         File[] ar = f.listFiles();
@@ -91,7 +118,7 @@ public class PlotOutput {
             graphs.add(ar[i].getName());}
         }
 
-        return graphs;
+        //return graphs;
     }
 
     public ArrayList<String> getPlots() {
