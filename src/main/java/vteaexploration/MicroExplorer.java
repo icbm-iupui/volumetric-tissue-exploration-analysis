@@ -81,6 +81,7 @@ import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.LinkedKeyListener;
 import vtea.exploration.listeners.UpdateExplorerGuiListener;
+import vtea.exploration.listeners.UpdatePlotSettingsListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
@@ -117,7 +118,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private static final Dimension MAINPANELSIZE = new Dimension(630, 640);
     private static final int POLYGONGATE = 10;
     private static final int RECTANGLEGATE = 11;
-    private static final int QUADRANTGATE = 12;
+    //private static final int QUADRANTGATE = 12;
 
     public static final int XAXIS = 0;
     public static final int YAXIS = 1;
@@ -171,7 +172,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     HashMap<Integer, String> AvailableDataHM = new HashMap<Integer, String>();
 
     ArrayList<AddFeaturesListener> FeatureListeners = new ArrayList<AddFeaturesListener>();
-
+    ArrayList<UpdatePlotSettingsListener> PlotSettingListeners = new ArrayList<UpdatePlotSettingsListener>();
     ArrayList<SubGateExplorerListener> SubGateListeners = new ArrayList<SubGateExplorerListener>();
 
     int subgateSerial = 0;
@@ -1151,10 +1152,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_formWindowClosed
 
     private void jButtonPlotsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlotsActionPerformed
-        PlotOutputFrame gof = new PlotOutputFrame();
-        ec.addFeatureListener(gof);
-        ff.addListener(gof);
-        gof.process(key, title, descriptions, descriptionsLabels);
+        PlotOutputFrame pof = new PlotOutputFrame();
+        this.addPlotSettingsListener(pof);
+        pof.process(key, title, descriptions, descriptionsLabels);
     }//GEN-LAST:event_jButtonPlotsActionPerformed
 
     /**
@@ -1352,11 +1352,11 @@ public class MicroExplorer extends javax.swing.JFrame implements
         pack();
     }
 
-    private void makeQuadrantGate() {
-        activationGateTools(QUADRANTGATE);
-        ec.addQuadrantToPlot();
-        pack();
-    }
+//    private void makeQuadrantGate() {
+//        activationGateTools(QUADRANTGATE);
+//        ec.addQuadrantToPlot();
+//        pack();
+//    }
 
     private HashMap makeAvailableDataHM(ArrayList al) {
         HashMap<Integer, String> hm = new HashMap<Integer, String>();
@@ -1375,18 +1375,18 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void activationGateTools(int activeGate) {
         if (activeGate > 5) {
-            for (int i = 10; i <= 12; i++) {
+            for (int i = 10; i <= 11; i++) {
                 if (i != activeGate) {
                     this.GateButtonsHM.get(i).setEnabled(false);
                 }
             }
         } else if (activeGate == 0) {
-            for (int i = 10; i <= 12; i++) {
+            for (int i = 10; i <= 11; i++) {
                 this.GateButtonsHM.get(i).setEnabled(true);
                 this.GateButtonsHM.get(i).setSelected(false);
             }
         } else {
-            for (int i = 10; i <= 12; i++) {
+            for (int i = 10; i <= 11; i++) {
                 this.GateButtonsHM.get(i).setEnabled(true);
                 this.GateButtonsHM.get(i).setSelected(false);
             }
@@ -1512,6 +1512,19 @@ public class MicroExplorer extends javax.swing.JFrame implements
         this.jMenuBar.removeAll();
         this.jMenuBar.setVisible(false);
     }
+    
+    
+    public void addPlotSettingsListener(UpdatePlotSettingsListener listener) {
+        this.PlotSettingListeners.add(listener);
+    }
+
+    
+    public void notifyResetSelectionListeners() {
+        for (UpdatePlotSettingsListener listener : PlotSettingListeners) {
+            listener.updateDescriptions(descriptions, descriptionsLabels);
+        }
+    }
+
 
     @Override
     @SuppressWarnings("empty-statementget3DProjection.setEnabled(true);")
@@ -1941,6 +1954,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
         makeDataTable();
         ff.updateColumns(ObjectIDs, descriptions);
         ff.pack();
+        
+        this.notifyResetSelectionListeners();
 
         updatePlot = true;
         //onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);

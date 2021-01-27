@@ -17,6 +17,7 @@
  */
 package vtea.processor;
 
+import ij.IJ;
 import ij.ImagePlus;
 import java.lang.reflect.Constructor;
 import java.sql.Connection;
@@ -89,10 +90,10 @@ public class PlotProcessor extends AbstractProcessor {
         NAME = "Plot Processor";
         KEY = "PlotProcessor";
         
-        parentKey = settings.get(0);
-        plotType = settings.get(1);
-        feature = settings.get(2);
-        group = settings.get(3);
+        parentKey = key;
+        plotType = settings.get(0);
+        feature = settings.get(1);
+        group = settings.get(2);
        
     }
 
@@ -106,16 +107,12 @@ public class PlotProcessor extends AbstractProcessor {
                 firePropertyChange("comment", "", "Generating " 
                         + plotType);
 
-                HashMap<Integer, String> hm = new HashMap<Integer, String>();
-
-                for (int i = 0; i < descriptions.size(); i++) {
-                    hm.put(i, descriptions.get(i).toString());
-                }
-
-                ArrayList<ArrayList> al = H2DatabaseEngine.getColumns3D(parentKey, "Object", feature, group);
+                
+               ArrayList<ArrayList> al = H2DatabaseEngine.getColumns3D(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + parentKey.replace("-", "_"),"Object", feature,group);
+                
                 
                 Class<?> c;
-                c = Class.forName(plotType);
+                c = Class.forName(vtea._vtea.PLOTMAKERMAP.get(plotType));
                 Constructor<?> con;
                 
                 Object iImp = new Object();
