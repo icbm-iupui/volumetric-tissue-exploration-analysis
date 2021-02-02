@@ -362,42 +362,42 @@ public class H2DatabaseEngine {
         return measurements;
     }
     
-    //H2 SQL for returning ArrayList of all records for the desired columns
-    public static ArrayList getColumns2D(String table,
-            String column1, String column2) {
-        Connection cn = getDBConnection();
-
-        PreparedStatement selectPreparedStatement = null;
-        ResultSet rs = null;
-
-        ArrayList measurements = new ArrayList();
-
-        try {
-
-            String SelectQuery = "select " + column1
-                    + ", " + column2
-                    + " from " + table;
-
-            selectPreparedStatement = cn.prepareStatement(SelectQuery);
-            rs = selectPreparedStatement.executeQuery();
-
-            while (rs.next()) {
-                ArrayList al = new ArrayList();
-                al.add(rs.getDouble(1));
-                al.add(rs.getDouble(2));
-                measurements.add(al);
-            }
-
-        } catch (SQLException e) {
-            System.out.println("PROFILING: getColumns2D Exception Message: " + e.getLocalizedMessage());
-            StackTraceElement[] st = e.getStackTrace();
-            System.out.println("PROFILING:, stack trace:");
-            for(int i = 0; i < st.length; i++){
-            System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
-            }
-        }
-        return measurements;
-    }
+//    //H2 SQL for returning ArrayList of all records for the desired columns
+//    public static ArrayList getColumns2D(String table,
+//            String column1, String column2) {
+//        Connection cn = getDBConnection();
+//
+//        PreparedStatement selectPreparedStatement = null;
+//        ResultSet rs = null;
+//
+//        ArrayList measurements = new ArrayList();
+//
+//        try {
+//
+//            String SelectQuery = "select " + column1
+//                    + ", " + column2
+//                    + " from " + table;
+//
+//            selectPreparedStatement = cn.prepareStatement(SelectQuery);
+//            rs = selectPreparedStatement.executeQuery();
+//
+//            while (rs.next()) {
+//                ArrayList al = new ArrayList();
+//                al.add(rs.getDouble(1));
+//                al.add(rs.getDouble(2));
+//                measurements.add(al);
+//            }
+//
+//        } catch (SQLException e) {
+//            System.out.println("PROFILING: getColumns2D Exception Message: " + e.getLocalizedMessage());
+//            StackTraceElement[] st = e.getStackTrace();
+//            System.out.println("PROFILING:, stack trace:");
+//            for(int i = 0; i < st.length; i++){
+//            System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
+//            }
+//        }
+//        return measurements;
+//    }
 
 
     //H2 SQL for get related MicroObject by ID
