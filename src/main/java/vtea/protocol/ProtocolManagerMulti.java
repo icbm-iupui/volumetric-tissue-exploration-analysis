@@ -153,6 +153,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
         //IJ.log("Starting things up!");
         
         addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
                 _vtea.setLastDirectory(_vtea.getLastDirectory());
                 _vtea.clearVTEADirectory();

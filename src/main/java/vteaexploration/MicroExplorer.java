@@ -81,6 +81,7 @@ import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.LinkedKeyListener;
 import vtea.exploration.listeners.UpdateExplorerGuiListener;
+import vtea.exploration.listeners.UpdatePlotSettingsListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
@@ -98,6 +99,7 @@ import vtea.feature.FeatureFrame;
 import vtea.measurement.MeasurementFrame;
 import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
+import vtea.plot.PlotOutputFrame;
 import vteaobjects.MicroObject;
 
 /**
@@ -116,7 +118,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private static final Dimension MAINPANELSIZE = new Dimension(630, 640);
     private static final int POLYGONGATE = 10;
     private static final int RECTANGLEGATE = 11;
-    private static final int QUADRANTGATE = 12;
+    //private static final int QUADRANTGATE = 12;
 
     public static final int XAXIS = 0;
     public static final int YAXIS = 1;
@@ -170,7 +172,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     HashMap<Integer, String> AvailableDataHM = new HashMap<Integer, String>();
 
     ArrayList<AddFeaturesListener> FeatureListeners = new ArrayList<AddFeaturesListener>();
-
+    ArrayList<UpdatePlotSettingsListener> PlotSettingListeners = new ArrayList<UpdatePlotSettingsListener>();
     ArrayList<SubGateExplorerListener> SubGateListeners = new ArrayList<SubGateExplorerListener>();
 
     int subgateSerial = 0;
@@ -251,7 +253,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         GateButtonsHM.put(POLYGONGATE, this.addPolygonGate);
         GateButtonsHM.put(RECTANGLEGATE, this.addRectangularGate);
-        GateButtonsHM.put(QUADRANTGATE, this.addQuadrantGate);
+        //GateButtonsHM.put(QUADRANTGATE, this.addQuadrantGate);
 
         final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
         final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.YAXIS);
@@ -409,7 +411,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         toolbarGate = new javax.swing.JToolBar();
         addPolygonGate = new javax.swing.JToggleButton();
         addRectangularGate = new javax.swing.JToggleButton();
-        addQuadrantGate = new javax.swing.JToggleButton();
         exportGates = new javax.swing.JButton();
         LoadGates = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
@@ -423,10 +424,11 @@ public class MicroExplorer extends javax.swing.JFrame implements
         getMask = new javax.swing.JButton();
         getSegmentation = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
-        jButtonDistance = new javax.swing.JButton();
+        jButtonMeasure = new javax.swing.JButton();
         jButtonMeas = new javax.swing.JButton();
         jButtonFeature = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
+        jButtonPlots = new javax.swing.JButton();
         ExportGraph = new javax.swing.JButton();
         exportCSV = new javax.swing.JButton();
         jSeparator9 = new javax.swing.JToolBar.Separator();
@@ -590,25 +592,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         toolbarGate.add(addRectangularGate);
         addRectangularGate.getAccessibleContext().setAccessibleName("AddRectangleGate");
 
-        addQuadrantGate.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        addQuadrantGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/quad_sw.png"))); // NOI18N
-        addQuadrantGate.setToolTipText("Add quadrant gate");
-        addQuadrantGate.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        addQuadrantGate.setBorderPainted(false);
-        addQuadrantGate.setFocusable(false);
-        addQuadrantGate.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        addQuadrantGate.setMaximumSize(new java.awt.Dimension(35, 40));
-        addQuadrantGate.setMinimumSize(new java.awt.Dimension(35, 40));
-        addQuadrantGate.setName(""); // NOI18N
-        addQuadrantGate.setPreferredSize(new java.awt.Dimension(35, 40));
-        addQuadrantGate.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        addQuadrantGate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addQuadrantGateActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(addQuadrantGate);
-
         exportGates.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save-2_24.png"))); // NOI18N
         exportGates.setToolTipText("Save gates...");
         exportGates.setFocusable(false);
@@ -748,22 +731,22 @@ public class MicroExplorer extends javax.swing.JFrame implements
         toolbarGate.add(getSegmentation);
         toolbarGate.add(jSeparator7);
 
-        jButtonDistance.setBackground(new java.awt.Color(102, 255, 102));
-        jButtonDistance.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
-        jButtonDistance.setToolTipText("Add distance measure");
-        jButtonDistance.setEnabled(false);
-        jButtonDistance.setFocusable(false);
-        jButtonDistance.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonDistance.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonDistance.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonDistance.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonDistance.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonDistance.addActionListener(new java.awt.event.ActionListener() {
+        jButtonMeasure.setBackground(new java.awt.Color(102, 255, 102));
+        jButtonMeasure.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
+        jButtonMeasure.setToolTipText("Add distance measure");
+        jButtonMeasure.setEnabled(false);
+        jButtonMeasure.setFocusable(false);
+        jButtonMeasure.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonMeasure.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonMeasure.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonMeasure.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonMeasure.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonMeasure.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonDistanceActionPerformed(evt);
+                jButtonMeasureActionPerformed(evt);
             }
         });
-        toolbarGate.add(jButtonDistance);
+        toolbarGate.add(jButtonMeasure);
 
         jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/FeaturesAdd_2.png"))); // NOI18N
         jButtonMeas.setToolTipText("Import features from CSV...");
@@ -795,6 +778,21 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarGate.add(jButtonFeature);
         toolbarGate.add(jSeparator8);
+
+        jButtonPlots.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/plots.png"))); // NOI18N
+        jButtonPlots.setToolTipText("Make expression plot...");
+        jButtonPlots.setFocusable(false);
+        jButtonPlots.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonPlots.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonPlots.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonPlots.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonPlots.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonPlots.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPlotsActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(jButtonPlots);
 
         ExportGraph.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/insert-image-2 copy.png"))); // NOI18N
         ExportGraph.setToolTipText("Export graph as PNG...");
@@ -894,7 +892,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         getContentPane().add(SouthPanel, java.awt.BorderLayout.SOUTH);
 
         Main.setBackground(new java.awt.Color(255, 255, 255));
-        Main.setToolTipText("");
+        Main.setToolTipText("Make expression level plots...");
         Main.setMaximumSize(new java.awt.Dimension(600, 600));
         Main.setMinimumSize(new java.awt.Dimension(600, 600));
         Main.setName(""); // NOI18N
@@ -935,37 +933,25 @@ public class MicroExplorer extends javax.swing.JFrame implements
         }
     }//GEN-LAST:event_jComboBoxYaxisActionPerformed
 
-    private void addQuadrantGateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addQuadrantGateActionPerformed
-
-        if (!(this.GateButtonsHM.get(POLYGONGATE).isEnabled()) && !(this.GateButtonsHM.get(POLYGONGATE).isEnabled())) {
-            ec.stopGateSelection();
-            this.activationGateTools(0);
-        } else {
-
-            this.activationGateTools(QUADRANTGATE);
-            this.makeQuadrantGate();
-        }
-    }//GEN-LAST:event_addQuadrantGateActionPerformed
-
     private void addPolygonGateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addPolygonGateActionPerformed
 
-        if (!(this.GateButtonsHM.get(QUADRANTGATE).isEnabled()) && !(this.GateButtonsHM.get(QUADRANTGATE).isEnabled())) {
-            ec.stopGateSelection();
-            this.activationGateTools(0);
-        } else {
+//        if (!(this.GateButtonsHM.get(QUADRANTGATE).isEnabled()) && !(this.GateButtonsHM.get(QUADRANTGATE).isEnabled())) {
+//            ec.stopGateSelection();
+//            this.activationGateTools(0);
+//        } else {
             this.activationGateTools(POLYGONGATE);
             this.makePolygonGate();
-        }
+//        }
     }//GEN-LAST:event_addPolygonGateActionPerformed
 
     private void addRectangularGateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRectangularGateActionPerformed
-        if (!(this.GateButtonsHM.get(QUADRANTGATE).isEnabled()) && !(this.GateButtonsHM.get(QUADRANTGATE).isEnabled())) {
-            ec.stopGateSelection();
-            this.activationGateTools(0);
-        } else {
+//        if (!(this.GateButtonsHM.get(QUADRANTGATE).isEnabled()) && !(this.GateButtonsHM.get(QUADRANTGATE).isEnabled())) {
+//            ec.stopGateSelection();
+//            this.activationGateTools(0);
+//        } else {
             this.activationGateTools(RECTANGLEGATE);
             this.makeRectangleGate();
-        }
+//        }
     }//GEN-LAST:event_addRectangularGateActionPerformed
 
     private void FlipAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FlipAxesActionPerformed
@@ -1099,9 +1085,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
         SegmentationPreviewer.SegmentationFactory(impoverlay, ec.getObjects());
     }//GEN-LAST:event_getSegmentationActionPerformed
 
-    private void jButtonDistanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDistanceActionPerformed
+    private void jButtonMeasureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMeasureActionPerformed
 
-    }//GEN-LAST:event_jButtonDistanceActionPerformed
+    }//GEN-LAST:event_jButtonMeasureActionPerformed
 
     private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
 
@@ -1165,6 +1151,12 @@ public class MicroExplorer extends javax.swing.JFrame implements
         ff.setVisible(false);
     }//GEN-LAST:event_formWindowClosed
 
+    private void jButtonPlotsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlotsActionPerformed
+        PlotOutputFrame pof = new PlotOutputFrame();
+        this.addPlotSettingsListener(pof);
+        pof.process(key, title, descriptions, descriptionsLabels);
+    }//GEN-LAST:event_jButtonPlotsActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1214,7 +1206,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private javax.swing.JToggleButton UseGlobal;
     private javax.swing.JPanel WestPanel;
     protected javax.swing.JToggleButton addPolygonGate;
-    protected javax.swing.JToggleButton addQuadrantGate;
     protected javax.swing.JToggleButton addRectangularGate;
     private javax.swing.JButton exportCSV;
     private javax.swing.JButton exportGates;
@@ -1223,9 +1214,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private javax.swing.JButton getMask;
     private javax.swing.JButton getSegmentation;
     private javax.swing.JButton importOBJ;
-    private javax.swing.JButton jButtonDistance;
     private javax.swing.JButton jButtonFeature;
     private javax.swing.JButton jButtonMeas;
+    private javax.swing.JButton jButtonMeasure;
+    private javax.swing.JButton jButtonPlots;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBoxLUTPlot;
     private javax.swing.JComboBox jComboBoxPointSize;
@@ -1360,11 +1352,11 @@ public class MicroExplorer extends javax.swing.JFrame implements
         pack();
     }
 
-    private void makeQuadrantGate() {
-        activationGateTools(QUADRANTGATE);
-        ec.addQuadrantToPlot();
-        pack();
-    }
+//    private void makeQuadrantGate() {
+//        activationGateTools(QUADRANTGATE);
+//        ec.addQuadrantToPlot();
+//        pack();
+//    }
 
     private HashMap makeAvailableDataHM(ArrayList al) {
         HashMap<Integer, String> hm = new HashMap<Integer, String>();
@@ -1383,18 +1375,18 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void activationGateTools(int activeGate) {
         if (activeGate > 5) {
-            for (int i = 10; i <= 12; i++) {
+            for (int i = 10; i <= 11; i++) {
                 if (i != activeGate) {
                     this.GateButtonsHM.get(i).setEnabled(false);
                 }
             }
         } else if (activeGate == 0) {
-            for (int i = 10; i <= 12; i++) {
+            for (int i = 10; i <= 11; i++) {
                 this.GateButtonsHM.get(i).setEnabled(true);
                 this.GateButtonsHM.get(i).setSelected(false);
             }
         } else {
-            for (int i = 10; i <= 12; i++) {
+            for (int i = 10; i <= 11; i++) {
                 this.GateButtonsHM.get(i).setEnabled(true);
                 this.GateButtonsHM.get(i).setSelected(false);
             }
@@ -1520,6 +1512,19 @@ public class MicroExplorer extends javax.swing.JFrame implements
         this.jMenuBar.removeAll();
         this.jMenuBar.setVisible(false);
     }
+    
+    
+    public void addPlotSettingsListener(UpdatePlotSettingsListener listener) {
+        this.PlotSettingListeners.add(listener);
+    }
+
+    
+    public void notifyResetSelectionListeners() {
+        for (UpdatePlotSettingsListener listener : PlotSettingListeners) {
+            listener.updateDescriptions(descriptions, descriptionsLabels);
+        }
+    }
+
 
     @Override
     @SuppressWarnings("empty-statementget3DProjection.setEnabled(true);")
@@ -1949,6 +1954,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
         makeDataTable();
         ff.updateColumns(ObjectIDs, descriptions);
         ff.pack();
+        
+        this.notifyResetSelectionListeners();
 
         updatePlot = true;
         //onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
@@ -1972,78 +1979,78 @@ public class MicroExplorer extends javax.swing.JFrame implements
         this.childKeys.add(linkedKey);
     }
 
-    class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
-
-        HashMap<Integer, String> hm_position;
-        HashMap<String, Integer> hm_string;
-        int Axis;
-        String CurrentSelection;
-        private ArrayList<PopupMenuAxisListener> listeners = new ArrayList<PopupMenuAxisListener>();
-
-        public SelectPlottingDataMenu(ArrayList<String> AvailableData, int Axis) {
-
-            this.Axis = Axis;
-
-            String tempString;
-            Integer tempInteger = 0;
-
-            ListIterator<String> itr = AvailableData.listIterator();
-            HashMap<String, Integer> hm_string = new HashMap<String, Integer>();
-            HashMap<Integer, String> hm_position = new HashMap<Integer, String>();
-
-            while (itr.hasNext()) {
-                tempString = itr.next();
-                tempInteger = itr.nextIndex();
-                this.add(new JMenuItem(tempString)).addActionListener(this);
-                hm_string.put(tempString, tempInteger);
-
-            }
-            if (this.Axis == 2) {
-                hm_string.put("None", tempInteger++);
-            }
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent ae) {
-            impoverlay.setOpenAsHyperStack(true);
-            notifyPopupMenuAxisListeners(Axis, ae.getActionCommand());
-        }
-
-        public void addPopupMenuAxisListener(PopupMenuAxisListener listener) {
-            listeners.add(listener);
-        }
-
-        public void notifyPopupMenuAxisListeners(int axis, String position) {
-            for (PopupMenuAxisListener listener : listeners) {
-                listener.changeAxes(Axis, position);
-            }
-        }
-
-    }
-
-    //as borrowed from https://stackoverflow.com/questions/480261/java-swing-mouseover-text-on-jcombobox-items
-    public class ComboboxToolTipRenderer extends DefaultListCellRenderer {
-
-        List<String> tooltips;
-
-        @Override
-        public Component getListCellRendererComponent(JList list, Object value,
-                int index, boolean isSelected, boolean cellHasFocus) {
-
-            JComponent comp = (JComponent) super.getListCellRendererComponent(list,
-                    value, index, isSelected, cellHasFocus);
-
-            if (-1 < index && null != value && null != tooltips) {
-                list.setToolTipText(tooltips.get(index));
-            }
-            return comp;
-        }
-
-        public void setTooltips(List<String> tooltips) {
-            this.tooltips = tooltips;
-        }
-    }
-    //this needs to be runnable
+//    public class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
+//
+//        HashMap<Integer, String> hm_position;
+//        HashMap<String, Integer> hm_string;
+//        int Axis;
+//        String CurrentSelection;
+//        private ArrayList<PopupMenuAxisListener> listeners = new ArrayList<PopupMenuAxisListener>();
+//
+//        public SelectPlottingDataMenu(ArrayList<String> AvailableData, int Axis) {
+//
+//            this.Axis = Axis;
+//
+//            String tempString;
+//            Integer tempInteger = 0;
+//
+//            ListIterator<String> itr = AvailableData.listIterator();
+//            HashMap<String, Integer> hm_string = new HashMap<String, Integer>();
+//            HashMap<Integer, String> hm_position = new HashMap<Integer, String>();
+//
+//            while (itr.hasNext()) {
+//                tempString = itr.next();
+//                tempInteger = itr.nextIndex();
+//                this.add(new JMenuItem(tempString)).addActionListener(this);
+//                hm_string.put(tempString, tempInteger);
+//
+//            }
+//            if (this.Axis == 2) {
+//                hm_string.put("None", tempInteger++);
+//            }
+//        }
+//
+//        @Override
+//        public void actionPerformed(ActionEvent ae) {
+//            impoverlay.setOpenAsHyperStack(true);
+//            notifyPopupMenuAxisListeners(Axis, ae.getActionCommand());
+//        }
+//
+//        public void addPopupMenuAxisListener(PopupMenuAxisListener listener) {
+//            listeners.add(listener);
+//        }
+//
+//        public void notifyPopupMenuAxisListeners(int axis, String position) {
+//            for (PopupMenuAxisListener listener : listeners) {
+//                listener.changeAxes(Axis, position);
+//            }
+//        }
+//
+//    }
+//
+//    //as borrowed from https://stackoverflow.com/questions/480261/java-swing-mouseover-text-on-jcombobox-items
+//    public class ComboboxToolTipRenderer extends DefaultListCellRenderer {
+//
+//        List<String> tooltips;
+//
+//        @Override
+//        public Component getListCellRendererComponent(JList list, Object value,
+//                int index, boolean isSelected, boolean cellHasFocus) {
+//
+//            JComponent comp = (JComponent) super.getListCellRendererComponent(list,
+//                    value, index, isSelected, cellHasFocus);
+//
+//            if (-1 < index && null != value && null != tooltips) {
+//                list.setToolTipText(tooltips.get(index));
+//            }
+//            return comp;
+//        }
+//
+//        public void setTooltips(List<String> tooltips) {
+//            this.tooltips = tooltips;
+//        }
+//    }
+//    //this needs to be runnable
 
     public class ExportOBJ {
 
@@ -2113,85 +2120,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     }
 
-//    public class ImportOBJ {
-//
-//        public ImportOBJ() {
-//        }
-//        
-//        protected void importObjects() {
-//
-//            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
-//            FileNameExtensionFilter filter = 
-//            new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
-//            jf.addChoosableFileFilter(filter);
-//            jf.setFileFilter(filter);
-//            int returnVal = jf.showOpenDialog(Main);
-//            File file = jf.getSelectedFile();
-//            
-//            
-//
-//            ArrayList result = new ArrayList();
-//
-//            if (returnVal == JFileChooser.APPROVE_OPTION) {
-//                try {
-//                    try {
-//                        FileInputStream fis = new FileInputStream(file);
-//                        ObjectInputStream ois = new ObjectInputStream(fis);
-//                        
-//                        ProgressMonitorInputStream pm = 
-//                        new ProgressMonitorInputStream(Main,"Reading" + file.getName() ,fis);
-//                        
-//                        result = (ArrayList) ois.readObject();
-//                        ois.close(); 
-//                        } catch (IOException e) {
-//                        System.out.println("ERROR: Could not open the file.");
-//                    }
-//                    try{
-//                        Opener op = new Opener();
-//                        ImagePlus imp = op.openImage(file.getParent(), ((String)result.get(0))+".tif");
-//                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
-//                    } catch (NullPointerException e) {
-//                        System.out.println("WARNING: Could not find the tiff file.");
-//                        JFileChooser jf2 = new JFileChooser(_vtea.LASTDIRECTORY);
-//                        FileNameExtensionFilter filter2 = 
-//                        new FileNameExtensionFilter("Tiff file.", ".tif", "tif");
-//                        jf.addChoosableFileFilter(filter2);
-//                        jf.setFileFilter(filter2);
-//                        int returnVal2 = jf2.showOpenDialog(Main);
-//                        File image = jf2.getSelectedFile();
-//                        
-//                        Opener op = new Opener();
-//                        ImagePlus imp = op.openImage(file.getParent(), image.getName());
-//                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
-//                    }
-//                    
-//                        
-//    
-//                    
-//                } catch (ClassNotFoundException ne) {
-//                    System.out.println("ERROR: Not Found.");
-//                }
-//            } else {
-//            }
-//            
-//        }
-//        
-//        private void executeExploring(String name, ArrayList result, ImagePlus imp){
-//
-//        String k = (String)result.get(0);
-//        ArrayList<MicroObject> objects = (ArrayList<MicroObject>)result.get(1);
-//        ArrayList measures = (ArrayList)result.get(2);
-//        ArrayList descriptions = (ArrayList)result.get(3);
-//        ArrayList descriptionLabels = (ArrayList)result.get(4);
-//            
-//        ExplorerProcessor ep = new ExplorerProcessor(name, imp, objects, measures, descriptions, descriptionLabels);
-//        ep.execute();
-//
-//        }
-//
-//    }
-//
-//    
+
     class ExportCSV {
 
         public ExportCSV() {
