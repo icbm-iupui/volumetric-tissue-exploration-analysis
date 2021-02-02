@@ -17,6 +17,7 @@
  */
 package vtea.plotprocessing;
 
+import ij.IJ;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
