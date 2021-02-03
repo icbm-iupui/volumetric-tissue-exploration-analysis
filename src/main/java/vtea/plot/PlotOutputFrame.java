@@ -249,7 +249,6 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         NorthPanel.setMinimumSize(new java.awt.Dimension(600, 70));
         NorthPanel.setPreferredSize(new java.awt.Dimension(600, 70));
         NorthPanel.setRequestFocusEnabled(false);
-        NorthPanel.setSize(new java.awt.Dimension(600, 70));
 
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
@@ -471,7 +470,7 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         PlotPanel.setLayout(PlotPanelLayout);
         PlotPanelLayout.setHorizontalGroup(
             PlotPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 600, Short.MAX_VALUE)
+            .addGap(0, 611, Short.MAX_VALUE)
         );
         PlotPanelLayout.setVerticalGroup(
             PlotPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

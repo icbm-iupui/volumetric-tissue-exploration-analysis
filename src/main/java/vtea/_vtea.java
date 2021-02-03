@@ -23,7 +23,6 @@ import ij.ImageListener;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.WindowManager;
-import ij.io.LogStream;
 import ij.plugin.PlugIn;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -59,6 +58,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.io.FileUtils;
 import vtea.services.PlotMakerService;
 
@@ -98,15 +98,15 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static String MEASUREMENTS_TEMP = new String("MEASUREMENTS_TEMP");
     public static String OBJECTS_TEMP = new String("OBJECTS_TEMP");
 
-    public static String DATABASE_DIRECTORY = ij.Prefs.getImageJDir() + "VTEA"
-            + System.getProperty("file.separator") + "tmp";
+    public static String DATABASE_DIRECTORY = ij.Prefs.getImageJDir() + "/" + "VTEA"
+            + "/" + "tmp";
     public static boolean DATABASE_IN_RAM = true;
     
-    public static String PLOT_DIRECTORY = new String(ij.Prefs.getImageJDir() + "VTEA"
-             + System.getProperty("file.separator") + "plots");
+    public static String PLOT_DIRECTORY = new String(ij.Prefs.getImageJDir() + "/" + "VTEA"
+             + "/" + "plots");
 
-    public static String PLOT_TMP_DIRECTORY = new String(ij.Prefs.getImageJDir() + "VTEA"
-             + System.getProperty("file.separator") + "plots" + System.getProperty("file.separator") + "tmp");
+    public static String PLOT_TMP_DIRECTORY = new String(ij.Prefs.getImageJDir() + "/" + "VTEA"
+             + "/" + "plots" + "/" + "tmp");
         
     public static String LASTDIRECTORY = new String(System.getProperty("user.home") 
              + "Desktop");
@@ -394,11 +394,19 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
         for (int i = 0; i < lfs_names.size(); i++) {
             try {
-                Object o = Class.forName(lfs_qualifiedNames.get(i)).newInstance();
+                Object o = Class.forName(lfs_qualifiedNames.get(i)).getDeclaredConstructor().newInstance();
                 System.out.println("Loaded: " + o.getClass().getName());
                 //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
                 LUTMAP.put(LUTOPTIONS[i], o.getClass().getName());
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoSuchMethodException ex) {
+                Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SecurityException ex) {
+                Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvocationTargetException ex) {
                 Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

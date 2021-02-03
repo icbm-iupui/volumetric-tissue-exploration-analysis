@@ -66,7 +66,7 @@ public class Heatmap extends AbstractPlotMaker {
 
         String filename = "Heatmap_" + System.currentTimeMillis();
         
-        IJ.log("PROFILING: Making Heatmap...");
+        //IJ.log("PROFILING: Making Heatmap...");
 
         ArrayList<String> features = featureNames;
         
@@ -151,12 +151,12 @@ public class Heatmap extends AbstractPlotMaker {
 
             //load data
             engine.eval("plot <- read.csv('" + location
-                    + System.getProperty("file.separator") + filename + ".csv')");
+                    + "/" + filename + ".csv')");
             engine.eval("row.names(plot) <- plot$" + group);
             engine.eval("plot <- plot[,-1]");
             engine.eval("plot <- as.matrix(plot)");
             engine.eval("lut <- colorRampPalette(brewer.pal(8, 'PiYG'))(50)");
-            engine.eval("png('" + vtea._vtea.PLOT_DIRECTORY + System.getProperty("file.separator") + filename + ".png')");
+            engine.eval("png('" + location + "/" + filename + ".png')");
             engine.eval("heatmap.2(plot,  scale='column',col = lut, density.info='none',"
                     + "cexRow=1,cexCol=1,margins=c(12,8),trace='none',srtCol=45)");
             engine.eval("dev.off()");
@@ -221,10 +221,7 @@ public class Heatmap extends AbstractPlotMaker {
         
         ListIterator<Double> itr = groupData.listIterator();
         
-        
-        while(itr.hasNext()){
-            System.out.println(itr.next().toString());
-        }
+
 
         int group = groupData.get(0).intValue();
         groups.add(group);

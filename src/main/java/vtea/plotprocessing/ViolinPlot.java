@@ -100,8 +100,7 @@ public class ViolinPlot extends AbstractPlotMaker {
             
             engine.eval("library(ggplot2)");
             engine.eval("library(colorspace)");
-            engine.eval("plot <- read.csv('" + location + 
-                    System.getProperty("file.separator") + filename + ".csv')");
+            engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
             engine.eval(VTEACOLORS);
             engine.eval("out <- ggplot(plot, aes(factor(plot$" + group + "),"
                + " plot$" + featureNames.get(0) + ", fill = as.factor(plot$" + group + ")))");
@@ -109,7 +108,7 @@ public class ViolinPlot extends AbstractPlotMaker {
                     + "+ theme_bw() + theme(legend.position = 'none') + "
                     + "scale_fill_manual(values = plot_colors)");
             
-            engine.eval("png('" + vtea._vtea.PLOT_DIRECTORY + System.getProperty("file.separator") + filename + ".png')");
+            engine.eval("png('" + location + "/" + filename + ".png')");
             engine.eval("print(out)");
             engine.eval("dev.off()");
 

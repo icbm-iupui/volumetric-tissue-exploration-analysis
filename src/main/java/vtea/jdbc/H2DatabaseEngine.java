@@ -298,12 +298,12 @@ public class H2DatabaseEngine {
 
             SelectQuery += " from " + table;
 
-            System.out.println("PROFILING, SQL query: " + SelectQuery);
+           // System.out.println("PROFILING, SQL query: " + SelectQuery);
 
             selectPreparedStatement = cn.prepareStatement(SelectQuery);
             rs = selectPreparedStatement.executeQuery();
 
-            System.out.println("Found: " + rs.getFetchSize());
+           // System.out.println("Found: " + rs.getFetchSize());
 
             while (rs.next()) {
                 ArrayList al = new ArrayList();
