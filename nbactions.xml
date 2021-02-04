@@ -15,9 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
--->
-
-<actions>
+--><actions>
     <action>
         <actionName>run</actionName>
         <packagings>
@@ -72,8 +70,5 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <goal>install</goal>
             <goal>process-classes</goal>
         </goals>
-        <properties>
-            <Env.JAVA_HOME>/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home</Env.JAVA_HOME>
-        </properties>
     </action>
 </actions>

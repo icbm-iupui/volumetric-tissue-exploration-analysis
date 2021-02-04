@@ -17,7 +17,6 @@
  */
 package vtea.plotprocessing;
 
-import ij.IJ;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -94,13 +93,21 @@ public class ViolinPlot extends AbstractPlotMaker {
             Logger.getLogger(ViolinPlot.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
+
             RenjinScriptEngineFactory factory = new RenjinScriptEngineFactory();
 
             ScriptEngine engine = factory.getScriptEngine();
             
             engine.eval("library(ggplot2)");
             engine.eval("library(colorspace)");
+
+            String platform = System.getProperty("os.name");
+            if(platform.startsWith("Windows")){
+              location = location.replace("\\", "//");
+              engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");  
+            } else {
             engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
+            }
             engine.eval(VTEACOLORS);
             engine.eval("out <- ggplot(plot, aes(factor(plot$" + group + "),"
                + " plot$" + featureNames.get(0) + ", fill = as.factor(plot$" + group + ")))");

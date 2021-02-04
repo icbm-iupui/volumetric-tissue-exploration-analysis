@@ -17,8 +17,8 @@
  */
 package vtea.objects.validation;
 
-import org.itk.simple.Image;
-import org.itk.simple.SimpleITK;
+//import org.itk.simple.Image;
+//import org.itk.simple.SimpleITK;
 
 /**
  *

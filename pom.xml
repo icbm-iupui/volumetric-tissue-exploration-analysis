@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <parent>
         <groupId>org.scijava</groupId>
         <artifactId>pom-scijava</artifactId>
-        <version>27.0.1</version>
+        <version>30.0.0</version>
         <relativePath/>
     </parent>
 
@@ -38,8 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <description>Volumetric analysis</description>
     
     <properties>
-        <clearcl.version>0.3.6</clearcl.version>
-        <cleargl.version>1.0.18</cleargl.version>
         <enforcer.skip>true</enforcer.skip>
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
         <netbeans.hint.license>gpl20</netbeans.hint.license>
@@ -47,12 +45,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.itk.simple/simpleitk -->
-        <dependency>
-            <groupId>org.itk.simple</groupId>
-            <artifactId>simpleitk</artifactId>
-            <version>0.9.0</version>
-            <type>jar</type>
-        </dependency>
         <dependency>
             <groupId>com.github.lejon.T-SNE-Java</groupId>
             <artifactId>tsne</artifactId>
@@ -78,6 +70,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>1.5.3</version>
             <type>jar</type>
         </dependency>
+          <dependency>
+            <groupId>com.github.haifengl</groupId>
+            <artifactId>smile-math</artifactId>
+            <version>1.5.3</version>
+            <type>jar</type>
+        </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
@@ -89,11 +87,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <groupId>org.swinglabs</groupId>
             <artifactId>swing-layout</artifactId>
             <version>1.0.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>4.1</version>
         </dependency>
         <dependency>
             <groupId>org.jfree</groupId>
@@ -134,7 +127,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         <!-- https://mvnrepository.com/artifact/net.imglib2/imglib2-ij -->
         <dependency>
             <groupId>net.imglib2</groupId>
-            <artifactId>imglib2-ij</artifactId>          
+            <artifactId>imglib2-ij</artifactId>        
         </dependency>
         <dependency>
             <groupId>net.imagej</groupId>
@@ -153,21 +146,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>com.github.haifengl</groupId>
-            <artifactId>smile-math</artifactId>
-            <version>1.5.3</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>com.github.ijpb</groupId>
             <artifactId>MorphoLibJ</artifactId>
             <version>v1.4.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.renjin</groupId>
-            <artifactId>renjin-aether-package-loader</artifactId>
-            <version>3.5-beta76</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -180,23 +161,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <artifactId>grDevices</artifactId>
             <version>3.5-beta76</version>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>org.renjin.cran</groupId>
             <artifactId>ggplot2</artifactId>
             <version>3.2.0-b8</version>
-            <type>jar</type>
         </dependency>
-  <dependency>
-  <groupId>org.renjin.cran</groupId>
-  <artifactId>vioplot</artifactId>
-  <version>0.3.0-b1</version>
-  </dependency>
-        
-        <!-- https://mvnrepository.com/artifact/com.github.yannrichet/Rsession -->
         <dependency>
-            <groupId>com.github.yannrichet</groupId>
-            <artifactId>Rsession</artifactId>
-            <version>3.0.5</version>
+            <groupId>org.renjin.cran</groupId>
+            <artifactId>vioplot</artifactId>
+            <version>0.3.0-b1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.renjin.cran</groupId>
+            <artifactId>colorspace</artifactId>
+            <version>1.3-2-b57</version>
+        </dependency>
+        <dependency>
+            <groupId>org.renjin.cran</groupId>
+            <artifactId>gplots</artifactId>
+            <version>3.0.1-b89</version>  
         </dependency>
         <dependency>
             <groupId>org.netbeans.external</groupId>
@@ -208,18 +191,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
             <version>0.44</version>
-            <type>jar</type>
         </dependency>    
         <!--Renjin specfic dependencies, needs to be pulled out for for a separate pom.xml-->     
+ 
         <dependency>
-            <groupId>org.renjin.cran</groupId>
-            <artifactId>colorspace</artifactId>
-            <version>1.3-2-b57</version>
-        </dependency>
-        <dependency>
-            <groupId>org.renjin.cran</groupId>
-            <artifactId>gplots</artifactId>
-            <version>3.0.1-b89</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.9</version>
         </dependency>
     </dependencies>
     <build>
@@ -284,6 +262,56 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                     </archive>
                 </configuration>
             </plugin>
+            
+            <!--
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <configuration>
+                            
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+     -->    
+                  <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>vtea</shadedClassifierName>
+                <minimizeJar>false</minimizeJar>
+                <artifactSet>
+                 <includes>
+                      <include>org.renjin.*</include>
+                      <include>org.renjin*</include>
+                  </includes>
+                  <excludes>
+                  </excludes>
+                </artifactSet> 
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+            <!-- any other plugins -->
+ 
+   
         </plugins>
     </build>  
     <developers>
