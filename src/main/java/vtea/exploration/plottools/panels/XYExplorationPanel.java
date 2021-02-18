@@ -30,6 +30,7 @@ import ij.gui.TextRoi;
 import ij.plugin.ChannelSplitter;
 import ij.plugin.Duplicator;
 import static ij.plugin.RGBStackMerge.mergeChannels;
+import ij.process.ImageConverter;
 import ij.process.StackConverter;
 import java.awt.Color;
 import java.awt.Component;
@@ -1386,11 +1387,19 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         for (int i = 0; i < isAll.length; i++) {
             images[i] = new ImagePlus("Channel_" + i, isAll[i]);
+            if(impoverlay.getSlice()>1){
             StackConverter sc = new StackConverter(images[i]);
             if (i < impoverlay.getNChannels()) {
                 images[i].setLut(oldLUT[i]);
             }
             sc.convertToGray8();
+            } else {
+            ImageConverter ic = new ImageConverter(images[i]); 
+            if (i < impoverlay.getNChannels()) {
+                images[i].setLut(oldLUT[i]);
+            }
+            ic.convertToGray8();
+            } 
         }
 
         ImagePlus merged = mergeChannels(images, true);

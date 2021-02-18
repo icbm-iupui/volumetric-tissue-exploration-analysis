@@ -375,24 +375,24 @@ public class GateLayer implements ActionListener, ItemListener {
                             e.consume();
                         }
                     }
-                    if (msQuadrant) {
-                        if (e.getClickCount() == 1) {
-                            if (points.isEmpty()) {
-                                points.clear();
-                                points.add(new Point((int) e.getX(), (int) e.getY()));
-                            } else {
-                                try {
-                                    drawMicroRectangleSelection(e);
-                                    makeQuadrantGate();
-                                    //add reset explorer interface here.
-                                } catch (Throwable ex) {
-                                    Logger.getLogger(GateLayer.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                            }
-                            e.consume();
-
-                        }
-                    }
+//                    if (msQuadrant) {
+//                        if (e.getClickCount() == 1) {
+//                            if (points.isEmpty()) {
+//                                points.clear();
+//                                points.add(new Point((int) e.getX(), (int) e.getY()));
+//                            } else {
+//                                try {
+//                                    drawMicroRectangleSelection(e);
+//                                    makeQuadrantGate();
+//                                    //add reset explorer interface here.
+//                                } catch (Throwable ex) {
+//                                    Logger.getLogger(GateLayer.class.getName()).log(Level.SEVERE, null, ex);
+//                                }
+//                            }
+//                            e.consume();
+//
+//                        }
+//                    }
 
                 } else {
 

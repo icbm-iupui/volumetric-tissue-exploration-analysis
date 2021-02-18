@@ -55,6 +55,8 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
     private ImagePlus imageResult;
     private ImageStack stackOriginal;
     protected ImageStack stackResult;
+    
+    private static double startPosition[] = new double[2];
 
     private double[][] distance;
 
@@ -346,12 +348,42 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
 
         int db = 0;
 
+        if(imageResult.getNSlices() == 1){
+            
+             for (int i = 0; i < alRegions.size(); i++) {
+
+                db = (100 * (i + 1)) / alRegions.size();
+
+                notifyProgressListeners("Building 2D objects...", (double) db);
+
+                test = alRegions.get(i);
+                
+                    startPosition[0] = test.getBoundCenterX();
+                    startPosition[1] = test.getBoundCenterY();
+
+                if (!test.isAMember()) {
+                    nVolumesLocal++;
+                    
+
+                    
+                    startRegion[0] = test.getBoundCenterX();
+                    startRegion[1] = test.getBoundCenterY();
+                    
+                    if(lengthCart(startPosition, startRegion) < (10*minConstants[2])){ 
+                    test.setMembership(nVolumesLocal);
+                    test.setAMember(true);
+                    alRegionsProcessed.add(test);
+                    findConnectedRegions2D(nVolumesLocal, startRegion);}
+                }
+            }
+            
+        }else{
        
             for (int i = 0; i < alRegions.size(); i++) {
 
                 db = (100 * (i + 1)) / alRegions.size();
 
-                notifyProgressListeners("Building volumes...", (double) db);
+                notifyProgressListeners("Building 3D objects...", (double) db);
 
                 test = alRegions.get(i);
 
@@ -363,10 +395,11 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
                     test.setAMember(true);
                     z = test.getZPosition();
                     alRegionsProcessed.add(test);
-                    findConnectedRegions(nVolumesLocal, startRegion, z);
+                    findConnectedRegions3D(nVolumesLocal, startRegion, z);
                 }
             }
-
+        }
+        
             for (int j = 1; j <= nVolumesLocal; j++) {
                 volume = new microVolume();
                 Iterator<microRegion> vol = alRegionsProcessed.listIterator();
@@ -399,7 +432,7 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
         return distance;
     }
 
-    private void findConnectedRegions(int volumeNumber, double[] startRegion, int z) {
+    private void findConnectedRegions3D(int volumeNumber, double[] startRegion, int z) {
 
         double[] testRegion = new double[2];
         int i = 0;
@@ -425,7 +458,41 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
 
                     //speed it up
                     alRegions.remove(i);
-                    findConnectedRegions(volumeNumber, testRegion, test.getZPosition());
+                    findConnectedRegions3D(volumeNumber, testRegion, test.getZPosition());
+                }
+
+            }
+            i++;
+        }
+    }
+    
+        private void findConnectedRegions2D(int volumeNumber, double[] startRegion) {
+
+        double[] testRegion = new double[2];
+        int i = 0;
+
+        boolean tooFar = true;
+
+        while (i < alRegions.size()) {
+            microRegion test = new microRegion();
+            test = alRegions.get(i);
+            testRegion[0] = test.getBoundCenterX();
+            testRegion[1] = test.getBoundCenterY();
+            double comparator = lengthCart(startRegion, testRegion);
+
+            if (!test.isAMember()) {
+                if (comparator <= minConstants[2]) {
+
+                    test.setMembership(volumeNumber);
+                    test.setAMember(true);
+                    //z = test.getZPosition();
+                    testRegion[0] = (testRegion[0] + startRegion[0]) / 2;
+                    testRegion[1] = (testRegion[1] + startRegion[1]) / 2;
+                    alRegionsProcessed.add(test);
+
+                    //speed it up
+                    alRegions.remove(i);
+                    findConnectedRegions2D(volumeNumber, testRegion);
                 }
 
             }

@@ -17,6 +17,8 @@
  */
 package vtea.plotprocessing;
 
+import java.awt.Component;
+import java.io.File;
 import java.util.ArrayList;
 import vtea.VTEAModule;
 
@@ -34,10 +36,18 @@ public interface PlotMaker extends VTEAModule {
     
     public boolean doesMultiples();
     
-    public String makePlot(String location, String key, ArrayList<ArrayList<Double>> al,
+   public String makePlot(String location, String key, ArrayList<ArrayList<Double>> al,
             ArrayList<String> featureNames, String group);
     
-    public String exportPDFPlot(String location, String key, ArrayList<ArrayList<Double>> al,
-            ArrayList<String> featureNames, String group);
+    public void exportPlot(String destination, String location, String filename, String key,
+            ArrayList<String> featureNames, String group, ArrayList<Component> secondarySettings);
+    
+    public String getGroup(File file);
+    
+    public ArrayList<String> getFeatures(File file);
+    
+    public boolean hasSecondarySettings();
+    
+    public ArrayList<Component> getSecondarySettings(ArrayList<String> features, String group, File file);
     
 }

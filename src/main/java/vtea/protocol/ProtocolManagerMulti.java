@@ -537,7 +537,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
     public void addMenuItems() {
         //this.WorkflowMenu = new JMenuProtocol("Workflow", this.getTabNames(), SingleImageProcessing.WORKFLOW);
-        this.ProcessingMenu = new JMenuProtocol("Protocol", this.getTabNames(), SingleImageProcessing.PROCESSBLOCKS);
+        this.ProcessingMenu = new JMenuProtocol("Start", this.getTabNames(), SingleImageProcessing.PROCESSBLOCKS);
         this.ObjectMenu = new JMenuProtocol("Explorer", this.getTabNames(), SingleImageProcessing.OBJECTBLOCKS);
 
         ProcessingMenu.addStepCopierListener(this);

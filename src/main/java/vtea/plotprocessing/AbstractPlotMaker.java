@@ -17,7 +17,15 @@
  */
 package vtea.plotprocessing;
 
+import java.awt.Component;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import static vtea.exploration.plottools.panels.XYExplorationPanel.getMaximumOfData;
+import static vtea.exploration.plottools.panels.XYExplorationPanel.getMinimumOfData;
+import vtea.jdbc.H2DatabaseEngine;
 
 /**
  *
@@ -63,8 +71,79 @@ abstract public class AbstractPlotMaker implements PlotMaker {
     }
     
     @Override
+      public void exportPlot(String destination, String location, String filename, String key,
+            ArrayList<String> featureNames, String group, ArrayList<Component> secondarySettings){
+          
+          //secondarySettings include:
+          //0: X
+          //1: Y
+          //2: custom, plot defined
+        
+          throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      }
+      
+      @Override
+    public String getGroup(File file){
+       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public ArrayList<String> getFeatures(File file){
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
     public boolean doesMultiples(){
         return false;
+    }
+    
+     public static String getCSVHeader(File file){
+        String header = "";
+         try {
+                    int dataColumns = 0;
+                BufferedReader csvReader = new BufferedReader(new FileReader(file));
+                String row;
+                boolean firstRow = true;
+                
+                
+
+
+                while ((row = csvReader.readLine()) != null) {
+
+                    if (firstRow) {
+                        header = row;
+                        firstRow = false;
+                    }
+                }
+                csvReader.close();
+
+            } catch (IOException e) {
+                System.out.println("ERROR: Could not open the file.");
+            }
+         
+         
+         
+         return header;
+         
+         
+    }
+     
+        static public String getGroupSortString(String keySQLSafe, String group) {
+            
+        double max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, group), 0));
+        double min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, group), 0));
+
+        String sort = new String();
+
+        sort = sort + "'" + (int) min;
+
+        for (int i = (int) min + 1; i <= max; i++) {
+            sort = sort + ",'" + i + "'";
+        }
+
+        //sort = sort + ")";
+        return sort;
+
     }
 
 }

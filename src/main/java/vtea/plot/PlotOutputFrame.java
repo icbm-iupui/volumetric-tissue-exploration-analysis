@@ -24,6 +24,7 @@ import java.awt.GridBagConstraints;
 import static java.awt.GridBagConstraints.CENTER;
 import static java.awt.GridBagConstraints.WEST;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -35,7 +36,9 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -43,13 +46,16 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import org.apache.commons.io.FilenameUtils;
 import vtea._vtea;
 import vtea.exploration.listeners.UpdatePlotSettingsListener;
 import vtea.gui.ComboboxToolTipRenderer;
+import vtea.jdbc.H2DatabaseEngine;
 import vtea.processor.PlotProcessor;
+import vteaexploration.PlotAxesSetup;
 
 /**
  *
@@ -71,6 +77,8 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
     JFrame multipleFeatures;
 
     boolean[] multipleSelections;
+    
+    PlotExportSetup pes;
 
     final static int DOWN_ARROW = 1;
     final static int UP_ARROW = 2;
@@ -79,18 +87,22 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
 
     int featureCount = 0;
     String key = "";
+    
+    public static Dimension plotSize = new Dimension(500,500);
 
     /**
      * Creates new form GraphOutputFrame
      */
     public PlotOutputFrame() {
-
+        
     }
 
     public void process(String key, String title, ArrayList descriptions, ArrayList descriptionLabel) {
 
         this.key = key;
         this.setTitle(title);
+        
+        pes = new PlotExportSetup();
 
         this.descriptions = new ArrayList<String>();
         this.descriptionsLabels = new ArrayList<String>();
@@ -225,29 +237,30 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         Forward = new javax.swing.JButton();
         ClosePlot = new javax.swing.JButton();
         SavePlot = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
         Generate = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
         GraphProgress = new javax.swing.JProgressBar();
         jPanel4 = new javax.swing.JPanel();
         PlotPanel = new javax.swing.JPanel();
 
         setTitle("Plots");
         setAlwaysOnTop(true);
-        setMaximumSize(new java.awt.Dimension(600, 600));
-        setMinimumSize(new java.awt.Dimension(600, 600));
+        setMaximumSize(new java.awt.Dimension(610, 600));
+        setMinimumSize(new java.awt.Dimension(610, 600));
         setName("Plots"); // NOI18N
-        setPreferredSize(new java.awt.Dimension(600, 600));
+        setPreferredSize(new java.awt.Dimension(610, 600));
         setResizable(false);
         addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentMoved(java.awt.event.ComponentEvent evt) {
+                formComponentMoved(evt);
+            }
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 formComponentResized(evt);
             }
         });
 
-        NorthPanel.setMaximumSize(new java.awt.Dimension(600, 70));
-        NorthPanel.setMinimumSize(new java.awt.Dimension(600, 70));
-        NorthPanel.setPreferredSize(new java.awt.Dimension(600, 70));
+        NorthPanel.setMaximumSize(new java.awt.Dimension(610, 70));
+        NorthPanel.setMinimumSize(new java.awt.Dimension(610, 70));
+        NorthPanel.setPreferredSize(new java.awt.Dimension(610, 70));
         NorthPanel.setRequestFocusEnabled(false);
 
         jToolBar1.setFloatable(false);
@@ -359,38 +372,20 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
 
         SavePlot.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
         SavePlot.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save-2_24.png"))); // NOI18N
+        SavePlot.setText("Export");
         SavePlot.setToolTipText("Save plot as png...");
         SavePlot.setFocusable(false);
-        SavePlot.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        SavePlot.setMaximumSize(new java.awt.Dimension(30, 30));
-        SavePlot.setMinimumSize(new java.awt.Dimension(30, 30));
-        SavePlot.setPreferredSize(new java.awt.Dimension(30, 30));
+        SavePlot.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        SavePlot.setMaximumSize(new java.awt.Dimension(90, 30));
+        SavePlot.setMinimumSize(new java.awt.Dimension(90, 30));
+        SavePlot.setPreferredSize(new java.awt.Dimension(90, 30));
         SavePlot.setRequestFocusEnabled(false);
-        SavePlot.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         SavePlot.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 SavePlotActionPerformed(evt);
             }
         });
         jToolBar2.add(SavePlot);
-
-        jPanel3.setMaximumSize(new java.awt.Dimension(20, 30));
-        jPanel3.setMinimumSize(new java.awt.Dimension(20, 30));
-        jPanel3.setPreferredSize(new java.awt.Dimension(20, 30));
-        jPanel3.setRequestFocusEnabled(false);
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 20, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 30, Short.MAX_VALUE)
-        );
-
-        jToolBar2.add(jPanel3);
 
         Generate.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
         Generate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/dialog-apply.png"))); // NOI18N
@@ -410,28 +405,9 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         });
         jToolBar2.add(Generate);
 
-        jPanel2.setToolTipText("");
-        jPanel2.setMaximumSize(new java.awt.Dimension(10, 30));
-        jPanel2.setMinimumSize(new java.awt.Dimension(10, 30));
-        jPanel2.setPreferredSize(new java.awt.Dimension(10, 30));
-        jPanel2.setRequestFocusEnabled(false);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 10, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 30, Short.MAX_VALUE)
-        );
-
-        jToolBar2.add(jPanel2);
-
-        GraphProgress.setMaximumSize(new java.awt.Dimension(150, 30));
-        GraphProgress.setMinimumSize(new java.awt.Dimension(150, 30));
-        GraphProgress.setPreferredSize(new java.awt.Dimension(150, 30));
+        GraphProgress.setMaximumSize(new java.awt.Dimension(120, 20));
+        GraphProgress.setMinimumSize(new java.awt.Dimension(120, 20));
+        GraphProgress.setPreferredSize(new java.awt.Dimension(150, 20));
         jToolBar2.add(GraphProgress);
 
         jPanel4.setToolTipText("");
@@ -457,9 +433,9 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         getContentPane().add(NorthPanel, java.awt.BorderLayout.NORTH);
 
         PlotPanel.setBackground(new java.awt.Color(255, 255, 255));
-        PlotPanel.setMaximumSize(new java.awt.Dimension(595, 500));
-        PlotPanel.setMinimumSize(new java.awt.Dimension(595, 500));
-        PlotPanel.setPreferredSize(new java.awt.Dimension(595, 500));
+        PlotPanel.setMaximumSize(new java.awt.Dimension(610, 500));
+        PlotPanel.setMinimumSize(new java.awt.Dimension(610, 500));
+        PlotPanel.setPreferredSize(new java.awt.Dimension(610, 500));
         PlotPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 PlotPanelComponentResized(evt);
@@ -470,11 +446,11 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         PlotPanel.setLayout(PlotPanelLayout);
         PlotPanelLayout.setHorizontalGroup(
             PlotPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 611, Short.MAX_VALUE)
+            .addGap(0, 616, Short.MAX_VALUE)
         );
         PlotPanelLayout.setVerticalGroup(
             PlotPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 500, Short.MAX_VALUE)
+            .addGap(0, 506, Short.MAX_VALUE)
         );
 
         getContentPane().add(PlotPanel, java.awt.BorderLayout.CENTER);
@@ -495,7 +471,12 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         if (position > -1) {
             Backward.setEnabled(true);
         }
+        pes.plotChanged(go.getPlotName(position));
+        pes.setTopPanel(pes.buildComponents());
+        pes.repaint();
+        pes.pack();
         setPlot();
+       
     }//GEN-LAST:event_ForwardActionPerformed
 
     private void plotTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_plotTypeActionPerformed
@@ -515,13 +496,17 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         if (position < go.getPlotCount()) {
             Forward.setEnabled(true);
         }
+        pes.plotChanged(go.getPlotName(position));
+        pes.setTopPanel(pes.buildComponents());
+        pes.repaint();
+        pes.pack();
         setPlot();
     }//GEN-LAST:event_BackwardActionPerformed
 
     private void GenerateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GenerateActionPerformed
 
         new Thread(() -> {
-            try {
+            
                 this.Generate.setEnabled(false);
                 this.GraphProgress.setIndeterminate(true);
                 ArrayList<String> settings = new ArrayList<>();
@@ -546,9 +531,7 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
                 PlotProcessor pp = new PlotProcessor(key, settings, features);
                 pp.run();
 
-            } catch (Exception e) {
-                System.out.println("ERROR in making 'features' list: " + e.getMessage());
-            }
+            
             go = new PlotOutput();
             go.updatePlotOutput();
             resetPosition(0);
@@ -581,44 +564,38 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         pack();
     }//GEN-LAST:event_ClosePlotActionPerformed
 
+    
     private void SavePlotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SavePlotActionPerformed
+        
+ 
         String filename = go.savePlot(position);
-        int returnVal = JFileChooser.CANCEL_OPTION;
-        File file;
-        int choice = JOptionPane.OK_OPTION;
-        do {
-            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
-            jf.setDialogTitle("Save plot...");
-
-            returnVal = jf.showSaveDialog(this);
-
-            file = jf.getSelectedFile();
-            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("png")) {
-
-            } else {
-                file = new File(file.toString() + ".png");
-            }
-            if (file.exists()) {
-                String message = String.format("%s already exists\nOverwrite it?", file.getName());
-                choice = JOptionPane.showConfirmDialog(null, message, "Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-            }
-        } while (choice != JOptionPane.OK_OPTION);
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-
-            try {
-                File f = new File(filename);
-
-                Files.copy(f.toPath(), file.toPath());
-
-            } catch (NullPointerException | IOException ex) {
-                System.out.println("ERROR: NPE or IO in image save.");
-            }
-            _vtea.LASTDIRECTORY = file.getAbsolutePath();
-        }
-
+        //need to get number of classes in group
+        pes.setPreferredSize(new Dimension(610, 100));
+        pes.setMaximumSize(new Dimension(610, 100));
+        pes.setMinimumSize(new Dimension(610, 100));
+        
+        pes.setSettings(key.replaceAll("-", "_"), filename);
+        pes.setTopPanel(pes.buildComponents());
+        pes.repaint();
+        pes.pack();
+        
+        pes.setVisible(true);
+         
+        Point position = this.getLocationOnScreen();
+        pes.setLocation(position.x, position.y + this.getHeight());
+        
+             
 
     }//GEN-LAST:event_SavePlotActionPerformed
+
+    private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
+        if (this.isVisible()) {
+            Point position = evt.getComponent().getLocationOnScreen();
+            if(pes.isVisible()){
+            pes.setLocation(position.x, position.y + this.getHeight());
+            }
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_formComponentMoved
 
     /**
      * @param args the command line arguments
@@ -669,8 +646,6 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
@@ -744,6 +719,8 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
 
         setPlot();
     }
+    
+
 
     @Override
     public void itemStateChanged(ItemEvent e) { 

@@ -465,11 +465,11 @@ public class MicroExplorer extends javax.swing.JFrame implements
             }
         });
         addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent evt) {
-                formWindowClosing(evt);
-            }
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
+            }
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
             }
         });
 
@@ -935,23 +935,23 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void addPolygonGateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addPolygonGateActionPerformed
 
-//        if (!(this.GateButtonsHM.get(QUADRANTGATE).isEnabled()) && !(this.GateButtonsHM.get(QUADRANTGATE).isEnabled())) {
-//            ec.stopGateSelection();
-//            this.activationGateTools(0);
-//        } else {
+        if (!(this.GateButtonsHM.get(this.RECTANGLEGATE).isEnabled()) && !(this.GateButtonsHM.get(this.RECTANGLEGATE).isEnabled())) {
+            ec.stopGateSelection();
+            this.activationGateTools(0);
+        } else {
             this.activationGateTools(POLYGONGATE);
             this.makePolygonGate();
-//        }
+        }
     }//GEN-LAST:event_addPolygonGateActionPerformed
 
     private void addRectangularGateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRectangularGateActionPerformed
-//        if (!(this.GateButtonsHM.get(QUADRANTGATE).isEnabled()) && !(this.GateButtonsHM.get(QUADRANTGATE).isEnabled())) {
-//            ec.stopGateSelection();
-//            this.activationGateTools(0);
-//        } else {
+        if (!(this.GateButtonsHM.get(this.POLYGONGATE).isEnabled()) && !(this.GateButtonsHM.get(this.POLYGONGATE).isEnabled())) {
+            ec.stopGateSelection();
+            this.activationGateTools(0);
+        } else {
             this.activationGateTools(RECTANGLEGATE);
             this.makeRectangleGate();
-//        }
+        }
     }//GEN-LAST:event_addRectangularGateActionPerformed
 
     private void FlipAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FlipAxesActionPerformed

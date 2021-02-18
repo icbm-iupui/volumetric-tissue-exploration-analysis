@@ -17,6 +17,8 @@
  */
 package vtea.plotprocessing;
 
+import java.awt.Component;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -26,6 +28,9 @@ import java.util.Comparator;
 import java.util.ListIterator;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import org.renjin.script.RenjinScriptEngineFactory;
 import org.scijava.plugin.Plugin;
 import static vtea.renjin.AbstractRenjin.VTEACOLORS;
@@ -56,7 +61,7 @@ public class Heatmap extends AbstractPlotMaker {
 //        1 -> group
 //        2 -> feature-1...
 //want rows by feature, columns averages by group number
-        String filename = "Heatmap_" + System.currentTimeMillis();
+        String filename = KEY + "_" + System.currentTimeMillis();
 
         //IJ.log("PROFILING: Making Heatmap...");
         ArrayList<String> features = featureNames;
@@ -146,7 +151,7 @@ public class Heatmap extends AbstractPlotMaker {
             } else {
             engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
             }
- 
+            
             engine.eval("row.names(plot) <- plot$" + group);
             engine.eval("plot <- plot[,-1]");
             engine.eval("plot <- as.matrix(plot)");
@@ -223,9 +228,41 @@ public class Heatmap extends AbstractPlotMaker {
     }
 
     @Override
-    public String exportPDFPlot(String location, String key, ArrayList<ArrayList<Double>> al, ArrayList<String> featureNames, String group) {
+    public String getGroup(File file){
+        String header = AbstractPlotMaker.getCSVHeader(file);
+        String[] data = header.split(",");
+        return data[0];  
+    }
+    
+    @Override
+    public ArrayList<String> getFeatures(File file){
+        ArrayList<String> features = new ArrayList<>();
+               String header = AbstractPlotMaker.getCSVHeader(file);
+                String[] data = header.split(",");
+                
+        for(int i = 1; i < data.length; i++){
+            features.add(data[i]);
+        }
+        
+        return features;
+    }
+
+    @Override
+    public boolean hasSecondarySettings() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public ArrayList<Component> getSecondarySettings(ArrayList<String> features, String group, File file) {
+          ArrayList<Component> secondaryComponents = new ArrayList<>();
+        JPanel fill = new JPanel();
+        fill.setPreferredSize(new Dimension(190, 20));
+        secondaryComponents.add(fill);
+        return secondaryComponents;
+    }
+
+    
+
 
 }
 

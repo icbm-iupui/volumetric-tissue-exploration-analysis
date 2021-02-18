@@ -112,6 +112,7 @@ public class ExplorerProcessor extends AbstractProcessor {
                 MicroExplorer explorer = new MicroExplorer();
 
                 explorer.setTitle("Explorer: " + title);
+                impOriginal.deleteRoi();
                 explorer.process(key, impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels);
                 XY.updateMenuPositions(explorer.getX(), explorer.getY() + explorer.getHeight());
                 setProgress(100);

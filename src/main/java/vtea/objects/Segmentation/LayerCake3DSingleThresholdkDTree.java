@@ -80,8 +80,8 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
         COMMENT = "Connected components object segmentation with kDTree datatype.";
-        NAME = "Connect 3D with kDTree";
-        KEY = "Connect3DSingleThresholdkDTree";
+        NAME = "Connect 2D/3D with kDTree";
+        KEY = "Connect2D3DSingleThresholdkDTree";
         TYPE = "Calculated";
 
         protocol = new ArrayList();

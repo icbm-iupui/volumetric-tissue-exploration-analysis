@@ -232,8 +232,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
         IJ.log("Activated Log: " + STARTUPTIME.toString());
 
-        LogStream.redirectSystemOut("");
-        LogStream.redirectSystemErr("");
+//        LogStream.redirectSystemOut("");
+//        LogStream.redirectSystemErr("");
         Frame log = WindowManager.getFrame("Log");
         log.setSize(new Dimension(760, 350));
         log.setLocation(0, 560);

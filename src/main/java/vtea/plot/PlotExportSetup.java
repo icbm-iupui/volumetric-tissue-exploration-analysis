@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vteaexploration;
+package vtea.plot;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -25,56 +25,83 @@ import java.util.ArrayList;
 import vtea.exploration.listeners.AxesChangeListener;
 import java.awt.Color;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
-import vtea.lut.*;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import org.apache.commons.io.FilenameUtils;
 import org.jfree.chart.renderer.LookupPaintScale;
+import vtea._vtea;
 import static vtea._vtea.LUTMAP;
-import static vtea._vtea.LUTOPTIONS;
-import vtea.exploration.plottools.panels.XYChartPanel;
 import vtea.jdbc.H2DatabaseEngine;
 import vtea.lut.AbstractLUT;
-import vteaexploration.LutCustomColorChooser;
 import vtea.exploration.listeners.CustomLutListener;
+import vtea.plotprocessing.AbstractPlotMaker;
+import vtea.processor.PlotProcessor;
+import vteaexploration.LutCustomColorChooser;
 
 /**
  *
  * @author sethwinfree
  */
-public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener, CustomLutListener {
-    
+public class PlotExportSetup extends javax.swing.JFrame implements ActionListener, CustomLutListener {
+
     ArrayList<AxesChangeListener> AxesChangeListeners = new ArrayList();
     ArrayList<Component> ContentList = new ArrayList();
     ArrayList<Component> LUTList = new ArrayList();
+    
+    ArrayList<Component>specialComponents = new ArrayList();
     HashMap<Integer, String> availableDataHM = new HashMap<Integer, String>();
     private Connection connection;
     String keySQLSafe = "";
     int explorerSelectedLutIndex = 0;
     HashMap<String, Color> customLutColors = new HashMap<String, Color>();
-     LutCustomColorChooser customLutChooser;
-     
-     JLabel messageLabel = new JLabel();
+    LutCustomColorChooser customLutChooser;
+
+    String filenameSource;
+    String filenameDestination;
+    
+    String header;
+
+    String group;
+    String plotType;
+    ArrayList<String> features;
+    
+    Object plotTypeInstance;
+
+    JLabel dimension;
+    JLabel xDimension;
+    JTextField xSize;
+    JLabel yDimension;
+    JTextField ySize;
+    JButton Go;
+    JButton Close;
+    
+    JLabel messageLabel = new JLabel();
 
     /**
      * Creates new form PlotAxesSetup
+     *
      * @param PosX
      * @param PosY
      */
-    public PlotAxesSetup() {
+    public PlotExportSetup() {
         initComponents();
         setVisible(false);
     }
@@ -95,21 +122,22 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Plot Settings");
         setAlwaysOnTop(true);
-        setMinimumSize(new java.awt.Dimension(725, 96));
-        setPreferredSize(new java.awt.Dimension(725, 96));
+        setMaximumSize(new java.awt.Dimension(610, 60));
+        setMinimumSize(new java.awt.Dimension(610, 60));
         setResizable(false);
-        setSize(new java.awt.Dimension(725, 96));
+        setSize(new java.awt.Dimension(610, 60));
         setType(java.awt.Window.Type.UTILITY);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        LUT.setMinimumSize(new java.awt.Dimension(680, 30));
-        LUT.setPreferredSize(new java.awt.Dimension(680, 30));
+        LUT.setMaximumSize(new java.awt.Dimension(610, 30));
+        LUT.setMinimumSize(new java.awt.Dimension(610, 30));
+        LUT.setPreferredSize(new java.awt.Dimension(610, 30));
 
         javax.swing.GroupLayout LUTLayout = new javax.swing.GroupLayout(LUT);
         LUT.setLayout(LUTLayout);
         LUTLayout.setHorizontalGroup(
             LUTLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 680, Short.MAX_VALUE)
+            .addGap(0, 610, Short.MAX_VALUE)
         );
         LUTLayout.setVerticalGroup(
             LUTLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -121,16 +149,17 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         gridBagConstraints.gridy = 2;
         getContentPane().add(LUT, gridBagConstraints);
 
-        Content.setMinimumSize(new java.awt.Dimension(680, 30));
+        Content.setMaximumSize(new java.awt.Dimension(610, 30));
+        Content.setMinimumSize(new java.awt.Dimension(610, 30));
         Content.setName(""); // NOI18N
         Content.setOpaque(false);
-        Content.setPreferredSize(new java.awt.Dimension(680, 30));
+        Content.setPreferredSize(new java.awt.Dimension(610, 30));
 
         javax.swing.GroupLayout ContentLayout = new javax.swing.GroupLayout(Content);
         Content.setLayout(ContentLayout);
         ContentLayout.setHorizontalGroup(
             ContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 680, Short.MAX_VALUE)
+            .addGap(0, 610, Short.MAX_VALUE)
         );
         ContentLayout.setVerticalGroup(
             ContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -145,7 +174,100 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public LookupPaintScale getPaintScale(int l){
+    public void plotChanged(String filename) {
+                
+        //need to do all the other stuff that changes with a new plot
+        
+        //1) get plottype
+        //2) get group
+        //3) get features
+        this.filenameSource = filename;
+        String csvFilename = filename.replace(".png", ".csv"); 
+        
+        plotType = filename.substring(0, filename.indexOf("_"));
+        plotType = plotType.substring(plotType.lastIndexOf(System.getProperty("file.separator"))+1, plotType.length());
+        
+        
+
+        try{
+        Class<?> c;
+        c = Class.forName("vtea.plotprocessing." +plotType);
+        Constructor<?> con;
+        Object iImp = new Object();
+        con = c.getConstructor();
+        iImp = con.newInstance();
+        
+       plotTypeInstance = iImp;
+
+        group = ((AbstractPlotMaker) iImp).getGroup(new File(vtea._vtea.PLOT_DIRECTORY
+                + System.getProperty("file.separator")
+                + csvFilename));
+        features = ((AbstractPlotMaker) iImp).getFeatures(new File(vtea._vtea.PLOT_DIRECTORY
+                + System.getProperty("file.separator")
+                + csvFilename));
+        } catch (Exception ex){
+            System.out.println("ERROR in plot selections...");
+            ex.printStackTrace();
+        }
+    }
+    
+    private ArrayList<Component> getSecondaryComponents(String plotType){
+        
+        
+        try{
+        Class<?> c;
+        c = Class.forName("vtea.plotprocessing." +plotType);
+        Constructor<?> con;
+        Object iImp = new Object();
+        con = c.getConstructor();
+        iImp = con.newInstance();
+        return ((AbstractPlotMaker) iImp).getSecondarySettings(features, group, new File(filenameSource));
+        } catch (Exception ex){
+            System.out.println("ERROR: Getting secondary settings for, " + plotType + " : "); 
+            ex.printStackTrace();
+        }
+        return new ArrayList<Component>();
+    }
+
+    public ArrayList<Component> buildComponents() {
+
+        this.setTitle("Export plot");
+
+        ArrayList<Component> comps = new ArrayList<>();
+        
+        dimension = new JLabel("Dimensions (in)");
+        xDimension = new JLabel("X:");
+        xSize = new JTextField("5");
+        xSize.setPreferredSize(new Dimension(50, 25));
+        yDimension = new JLabel("Y:");
+        ySize = new JTextField("5");
+        ySize.setPreferredSize(new Dimension(50, 25));
+        Go = new JButton("Export");
+        Go.setPreferredSize(new Dimension(70, 25));
+        Close = new JButton("Close");
+        Close.setPreferredSize(new Dimension(60, 25));
+
+        Go.addActionListener(this);
+        Close.addActionListener(this);
+        
+        specialComponents = this.getSecondaryComponents(plotType);
+
+        comps.addAll(specialComponents);
+        comps.add(dimension);
+        comps.add(xDimension);
+        comps.add(xSize);
+        comps.add(yDimension);
+        comps.add(ySize);
+        comps.add(Go);
+        comps.add(Close);
+
+        return comps;
+
+    }
+
+    
+
+    public void getPaintScale(int l) {
 
         String lText = "";
         if (l < 0) {
@@ -160,31 +282,29 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         if (max == 0) {
             max = 1;
         }
-        
-        LookupPaintScale ps = new LookupPaintScale(min, max+1, new Color(0x999999));
 
-        JComboBox lutTable = (JComboBox)LUTList.get(2);
-        if("Custom LUT".equals((String)lutTable.getSelectedItem())){
-            
-            for (int i = 0; i < customLutColors.size(); i++){
-                ps.add(i, customLutColors.get("Cluster_" + i));
+        //LookupPaintScale ps = new LookupPaintScale(min, max + 1, new Color(0x999999));
+        JComboBox lutTable = (JComboBox) LUTList.get(2);
+        if ("Custom LUT".equals((String) lutTable.getSelectedItem())) {
+
+            for (int i = 0; i < customLutColors.size(); i++) {
+                //ps.add(i, customLutColors.get("Cluster_" + i));
             }
-            
-        }else{
+
+        } else {
             try {
                 Class<?> c;
                 c = Class.forName(LUTMAP.get(lutTable.getSelectedItem().toString()));
                 Constructor<?> con;
-                
+
                 Object iImp = new Object();
-                
+
                 try {
-                    
+
                     con = c.getConstructor();
                     iImp = con.newInstance();
-                    
-                    ps = ((AbstractLUT) iImp).getPaintScale(min, max);
 
+                    //ps = ((AbstractLUT) iImp).getPaintScale(min, max);
                 } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                     System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
                 }
@@ -192,11 +312,11 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
                 System.out.println("EXCEPTION: new class decleration error... Class not found.");
             }
         }
-        
-        return ps;
+
+        //return ps;
     }
-    
-    public void setAdjustable(boolean state){
+
+    public void setAdjustable(boolean state) {
         Content.setEnabled(state);
     }
 
@@ -205,10 +325,10 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         return al;
     }
 
-    public void setContent(ArrayList<Component> al) {
+    public void setTopPanel(ArrayList<Component> al) {
         //System.out.println("PROFILING, my current postion is: " + this.getLocation());
         //Content = new JPanel();       
-        Content.setSize(new Dimension(350, 350));
+        Content.setPreferredSize(new java.awt.Dimension(610, 30));
         Content.setLayout(new GridBagLayout());
 
         Content.removeAll();
@@ -224,20 +344,19 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             layoutConstraints.gridx = 0;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
-            layoutConstraints.weighty = 1;          
+            layoutConstraints.weighty = 1;
             Content.add((Component) al.get(0), layoutConstraints);
         }
         if (al.size() > 1) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.fill = GridBagConstraints.EAST;
             layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
-            ((JTextField) al.get(1)).addActionListener(this);
             Content.add((Component) al.get(1), layoutConstraints);
         }
         if (al.size() > 2) {
-            layoutConstraints.fill = GridBagConstraints.EAST;
+            layoutConstraints.fill = GridBagConstraints.WEST;
             layoutConstraints.gridx = 2;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
@@ -245,12 +364,11 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             Content.add((Component) al.get(2), layoutConstraints);
         }
         if (al.size() > 3) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.fill = GridBagConstraints.EAST;
             layoutConstraints.gridx = 3;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
-            ((JTextField) al.get(3)).addActionListener(this);
             Content.add((Component) al.get(3), layoutConstraints);
         }
         if (al.size() > 4) {
@@ -259,11 +377,10 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
-            ((JComboBox) al.get(4)).addActionListener(this);
             Content.add((Component) al.get(4), layoutConstraints);
         }
         if (al.size() > 5) {
-            layoutConstraints.fill = GridBagConstraints.EAST;
+            layoutConstraints.fill = GridBagConstraints.WEST;
             layoutConstraints.gridx = 5;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
@@ -271,12 +388,11 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             Content.add((Component) al.get(5), layoutConstraints);
         }
         if (al.size() > 6) {
-            layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
+            layoutConstraints.fill = GridBagConstraints.WEST;
             layoutConstraints.gridx = 6;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
-            ((JTextField) al.get(6)).addActionListener(this);
             Content.add((Component) al.get(6), layoutConstraints);
         }
         if (al.size() > 7) {
@@ -293,7 +409,6 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
-            ((JTextField) al.get(8)).addActionListener(this);
             Content.add((Component) al.get(8), layoutConstraints);
         }
         if (al.size() > 9) {
@@ -302,20 +417,18 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
-            ((JComboBox) al.get(9)).addActionListener(this);
             Content.add((Component) al.get(9), layoutConstraints);
         }
 
-        
         Content.setVisible(true);
-
+        repaint();
         pack();
     }
 
-    public void setLUT(ArrayList<Component> al) {
+    public void setNewPanel(ArrayList<Component> al) {
 
         //Content = new JPanel();       
-        LUT.setSize(new Dimension(350, 350));
+        LUT.setSize(new java.awt.Dimension(680, 30));
         LUT.setLayout(new GridBagLayout());
 
         LUT.removeAll();
@@ -333,12 +446,10 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
             messageLabel = new JLabel();
-            messageLabel.setSize(new Dimension(300,40));
-            messageLabel.setPreferredSize(new Dimension(300,40));
-            messageLabel.setMinimumSize(new Dimension(300,40));
-           
-            
-            
+            messageLabel.setSize(new Dimension(300, 40));
+            messageLabel.setPreferredSize(new Dimension(300, 40));
+            messageLabel.setMinimumSize(new Dimension(300, 40));
+
             LUT.add(messageLabel, layoutConstraints);
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 1;
@@ -363,26 +474,24 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             LUT.add((Component) al.get(2), layoutConstraints);
         }
 
-        
-        
-        ((JComboBox)LUT.getComponent(3)).setSelectedItem("Black");
+        ((JComboBox) LUT.getComponent(3)).setSelectedItem("Black");
         LUT.setVisible(true);
-        
+
         pack();
-        
-        ((JButton)al.get(1)).addActionListener(new java.awt.event.ActionListener() {
+
+        ((JButton) al.get(1)).addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonCustomLutActionPerformed(evt);
             }
         });
-        
-        ((JComboBox)al.get(2)).addActionListener(new java.awt.event.ActionListener() {
+
+        ((JComboBox) al.get(2)).addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBoxLutActionPerformed(evt);
             }
         });
-        
-        ((JButton)LUT.getComponent(2)).setEnabled(FALSE);
+
+        ((JButton) LUT.getComponent(2)).setEnabled(FALSE);
     }
 
     public void addAxesChangeListener(AxesChangeListener listener) {
@@ -395,10 +504,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         }
     }
 
-    public void setDescriptor(String str) {
-        
-       // this.jLabel1.setText(str);
-    }
+
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -406,23 +512,22 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     private javax.swing.JPanel LUT;
     // End of variables declaration//GEN-END:variables
 
-    private void jComboBoxLutActionPerformed(java.awt.event.ActionEvent evt){
-        
-        JComboBox lutChoiceComboBox = (JComboBox)evt.getSource();
+    private void jComboBoxLutActionPerformed(java.awt.event.ActionEvent evt) {
+
+        JComboBox lutChoiceComboBox = (JComboBox) evt.getSource();
         Object selectedItem = lutChoiceComboBox.getSelectedItem();
-        
-        if(selectedItem == "Custom LUT"){
-            ((JButton)LUT.getComponent(2)).setEnabled(TRUE);
-        }
-        else{
-            ((JButton)LUT.getComponent(2)).setEnabled(FALSE);
+
+        if (selectedItem == "Custom LUT") {
+            ((JButton) LUT.getComponent(2)).setEnabled(TRUE);
+        } else {
+            ((JButton) LUT.getComponent(2)).setEnabled(FALSE);
         }
     }
-    
-    private void jButtonCustomLutActionPerformed(java.awt.event.ActionEvent evt){
-        
+
+    private void jButtonCustomLutActionPerformed(java.awt.event.ActionEvent evt) {
+
         ArrayList<String> clusterInfo = new ArrayList<String>();
-        
+
         String lText = "";
         if (explorerSelectedLutIndex < 0) {
             lText = "";
@@ -435,36 +540,34 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         if (max == 0) {
             max = 1;
         }
-        
-        for (int i=0; i <= range; i++){
+
+        for (int i = 0; i <= range; i++) {
             String clusterLabel = "Cluster_";
             String newClsuterLabel = clusterLabel.concat(String.valueOf(i));
             clusterInfo.add(newClsuterLabel);
         }
-        
+
         customLutChooser = new LutCustomColorChooser(clusterInfo);
         customLutChooser.registerAxesSetup(this);
         customLutChooser.invokeCustomLUTWindow();
 
-        
     }
-    
-    public void notifyAddFeatures(HashMap<Integer, String> availableDataHM){
+
+    public void notifyAddFeatures(HashMap<Integer, String> availableDataHM) {
         this.availableDataHM = availableDataHM;
     }
-    
+
     private double getMaximumOfData(ArrayList measurements, int l) {
 
         ListIterator<ArrayList> litr = measurements.listIterator();
-
 
         Number high = 0;
 
         while (litr.hasNext()) {
             try {
-                
+
                 ArrayList<Number> al = litr.next();
-              
+
                 if (al.get(l).floatValue() > high.floatValue()) {
                     high = al.get(l).floatValue();
                 }
@@ -495,47 +598,115 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         return low.longValue();
         //return low.doubleValue();
     }
-    
-    public void shareConnection(Connection connection, String keySQLSafe, HashMap<Integer, String> hm){
-        this.connection = connection;
+
+    public void setSettings(String keySQLSafe, String filename) {
         this.keySQLSafe = keySQLSafe;
-        this.availableDataHM = hm;
+        this.filenameSource = filename;
+        plotChanged(this.filenameSource);
     }
-    
-    public void shareExplorerLutSelectedIndex(int selectedIndex){
+
+    public void shareExplorerLutSelectedIndex(int selectedIndex) {
         this.explorerSelectedLutIndex = selectedIndex;
     }
     
+    private ArrayList<ArrayList<Number>> readCSV(File file){
+            
+            ArrayList<ArrayList<Number>> csvData = new ArrayList();
+
+                try {
+                    int dataColumns = 0;
+                BufferedReader csvReader = new BufferedReader(new FileReader(file));
+                String row;
+                boolean firstRow = true;
+                
+                header = "";
+
+
+                while ((row = csvReader.readLine()) != null) {
+
+                    firePropertyChange("method", "", "Importing CSV");
+                    firePropertyChange("indeterminant", "Parsing CSV", "");
+
+                    if (firstRow) {
+                        header = row;
+                        firstRow = false;
+                    } else {
+                        String[] data = row.split(",");
+
+                        dataColumns = data.length;
+
+                        ArrayList<Number> dataList = new ArrayList<Number>();
+
+                        for (int j = 0; j < data.length; j++) {
+                            dataList.add(Float.parseFloat(data[j]));
+                        }
+
+                        csvData.add(dataList);
+
+                    }
+                }
+                csvReader.close();
+
+            } catch (IOException e) {
+                System.out.println("ERROR: Could not open the file.");
+            }
+        return csvData;
+    }
+    
+    
     @Override
-    public void onCustomLutSelection(HashMap<String,Color> customLutColors){
+    public void onCustomLutSelection(HashMap<String, Color> customLutColors) {
         this.customLutColors = customLutColors;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        
-     
-        
-        int xMin = Integer.parseInt(((JTextField)ContentList.get(1)).getText());
-        int xMax = Integer.parseInt(((JTextField)ContentList.get(3)).getText());
-        int yMin = Integer.parseInt(((JTextField)ContentList.get(6)).getText());
-        int yMax = Integer.parseInt(((JTextField)ContentList.get(8)).getText());
-        
-        if(xMin >= xMax){
-            ((JTextField)ContentList.get(1)).setBackground(Color.red);
-            ((JTextField)ContentList.get(3)).setBackground(Color.red);
-            messageLabel.setText("Range error: minimum >= maximum");
-        } else if (yMin >= yMax){
-            ((JTextField)ContentList.get(6)).setBackground(Color.red);
-            ((JTextField)ContentList.get(8)).setBackground(Color.red);
-            messageLabel.setText("Domain error: minimum >= maximum");
+
+        if (((JButton) e.getSource()).getText().equals("Export")) {
+            int returnVal = JFileChooser.CANCEL_OPTION;
+            File file = new File("Unititled");
+            int choice = JOptionPane.OK_OPTION;
+            do {
+                JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+                jf.setDialogTitle("Save plot...");
+
+                returnVal = jf.showSaveDialog(this);
+
+                file = jf.getSelectedFile();
+                if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("pdf")) {
+
+                } else {
+                    filenameDestination = file.toString();
+                }
+                if (file.exists()) {
+                    String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                    choice = JOptionPane.showConfirmDialog(null, message, "Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                }
+            } while (choice != JOptionPane.OK_OPTION);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                new Thread(() -> {
+
+                    ArrayList<String> settings = new ArrayList<>();
+
+                    settings.add(plotType);
+                    settings.add(group);
+                    settings.add(filenameSource);
+                    settings.add(filenameDestination);
+                    
+                    ArrayList<Component> specialSettings = new ArrayList<>();
+                    
+                    specialSettings.add(this.xSize);
+                    specialSettings.add(this.ySize);
+                    specialSettings.addAll(this.specialComponents);
+                    PlotProcessor pp = new PlotProcessor(keySQLSafe, settings, specialSettings, features, true);
+                    pp.run();
+
+                }).start();
+            }
         } else {
-             ((JTextField)ContentList.get(1)).setBackground(Color.white);
-            ((JTextField)ContentList.get(3)).setBackground(Color.white);
-             ((JTextField)ContentList.get(6)).setBackground(Color.white);
-            ((JTextField)ContentList.get(8)).setBackground(Color.white);
-            messageLabel.setText("");
-            notifyAxesChangeListeners(ContentList, LUTList);
-        }      
+            this.dispose();
+        }
     }
+
 }

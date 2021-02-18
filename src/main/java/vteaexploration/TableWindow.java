@@ -237,7 +237,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         jScrollPane1.setMaximumSize(new java.awt.Dimension(700, 200));
         jScrollPane1.setMinimumSize(new java.awt.Dimension(700, 200));
         jScrollPane1.setPreferredSize(new java.awt.Dimension(700, 200));
-        jScrollPane1.setSize(new java.awt.Dimension(700, 200));
 
         GateDataTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
