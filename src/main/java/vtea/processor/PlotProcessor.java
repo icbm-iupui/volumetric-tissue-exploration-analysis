@@ -17,22 +17,12 @@
  */
 package vtea.processor;
 
-import ij.IJ;
-import ij.ImagePlus;
 import java.awt.Component;
 import java.lang.reflect.Constructor;
-import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.HashMap;
-import javax.swing.table.AbstractTableModel;
 import org.scijava.plugin.Plugin;
-import vtea.exploration.plottools.panels.DefaultPlotPanels;
-import vtea.exploration.plottools.panels.XYExplorationPanel;
 import vtea.jdbc.H2DatabaseEngine;
-import vtea.objects.measurements.AbstractMeasurement;
 import vtea.plotprocessing.AbstractPlotMaker;
-import vteaexploration.MicroExplorer;
-import vteaobjects.MicroObject;
 
 /**
  *
@@ -119,28 +109,24 @@ public class PlotProcessor extends AbstractProcessor {
         if (exportPDF) {
             try {
                 firePropertyChange("progress", 0, 5);
-                firePropertyChange("comment", "", "Generating " 
+                firePropertyChange("comment", "", "Generating "
                         + plotType);
 
-Class<?> c;
-                c = Class.forName("vtea.plotprocessing." +plotType);
+                Class<?> c;
+                c = Class.forName("vtea.plotprocessing." + plotType);
                 Constructor<?> con;
 
                 Object iImp = new Object();
 
                 con = c.getConstructor();
                 iImp = con.newInstance();
-                
-                
-
 
                 ((AbstractPlotMaker) iImp).exportPlot(filenameDestination, vtea._vtea.PLOT_DIRECTORY,
                         filename.replaceAll(".png", ""), parentKey, features, group, specialized);
 
                 firePropertyChange("comment", "", "Done.");
-                 
 
-                firePropertyChange("comment", "", "Done."); 
+                firePropertyChange("comment", "", "Done.");
             } catch (Exception e) {
                 e.printStackTrace();
             }

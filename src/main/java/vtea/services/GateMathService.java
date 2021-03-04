@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 SciJava
+ * Copyright (C) 2021 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,16 +15,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.exploration.listeners;
+package vtea.services;
 
-import java.util.ArrayList;
+import org.scijava.Context;
+import org.scijava.plugin.Plugin;
+import org.scijava.service.Service;
+import vtea.gates.math.GateMath;
+
 
 /**
  *
- * @author Indiana University
+ * @author sethwinfree
  */
-public interface AssignmentListener {
-    
-    public void assignClassification(String cmd);
-    
+@Plugin(type = Service.class)
+public class GateMathService extends AbstractService<GateMath> {
+
+    public GateMathService(Context context) {
+        super(GateMath.class, context);
+    }
+
 }

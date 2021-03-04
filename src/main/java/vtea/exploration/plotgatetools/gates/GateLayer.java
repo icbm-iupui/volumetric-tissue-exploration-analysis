@@ -60,6 +60,7 @@ import vtea.exploration.plotgatetools.listeners.ImageHighlightSelectionListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
 import vtea.exploration.plottools.panels.XYExplorationPanel;
+import vteaexploration.GateMathWindow;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -397,14 +398,14 @@ public class GateLayer implements ActionListener, ItemListener {
                 } else {
 
                     if (gateInClipboard) {
-                        ((JMenuItem) menu.getComponent(4)).setEnabled(true);
+                        ((JMenuItem) menu.getComponent(5)).setEnabled(true);
                     } else if (!gateInClipboard) {
-                        ((JMenuItem) menu.getComponent(4)).setEnabled(false);
+                        ((JMenuItem) menu.getComponent(5)).setEnabled(false);
                     }
 
                     if (SwingUtilities.isRightMouseButton(e) && !checkForGate(e, gates)) {
-                        ((JMenuItem) menu.getComponent(3)).setEnabled(false);
-                        ((JMenuItem) menu.getComponent(5)).setEnabled(false);
+                        ((JMenuItem) menu.getComponent(4)).setEnabled(false);
+                        ((JMenuItem) menu.getComponent(6)).setEnabled(false);
 
                         menu.show(e.getComponent(),
                                 e.getX(), e.getY());
@@ -412,8 +413,8 @@ public class GateLayer implements ActionListener, ItemListener {
 
                     } else if (SwingUtilities.isRightMouseButton(e) && checkForGate(e, gates)) {
 
-                        ((JMenuItem) menu.getComponent(3)).setEnabled(true);
-                        ((JMenuItem) menu.getComponent(5)).setEnabled(true);
+                        ((JMenuItem) menu.getComponent(4)).setEnabled(true);
+                        ((JMenuItem) menu.getComponent(6)).setEnabled(true);
 
                         menu.show(e.getComponent(),
                                 e.getX(), e.getY());
@@ -677,6 +678,12 @@ public class GateLayer implements ActionListener, ItemListener {
 //        menu.add(menuItem);
 
         JMenuItem menuItem = new JMenuItem("");
+        
+        menuItem = new JMenuItem("Add gate...");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+
+        menu.add(new JSeparator());
 
         JMenu jm = new JMenu("Color...");
 
@@ -688,9 +695,9 @@ public class GateLayer implements ActionListener, ItemListener {
 
         menu.add(jm);
 
-        menuItem = new JMenuItem("Line...");
-        menuItem.addActionListener(this);
-        menu.add(menuItem);
+//        menuItem = new JMenuItem("Line...");
+//        menuItem.addActionListener(this);
+//        menu.add(menuItem);
 
         menu.add(new JSeparator());
 
@@ -729,6 +736,10 @@ public class GateLayer implements ActionListener, ItemListener {
         menu.add(menuItem);
         
         menuItem = new JMenuItem("Classify by Gate...");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+        
+        menuItem = new JMenuItem("Classify by Gate Math...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
@@ -837,9 +848,13 @@ public class GateLayer implements ActionListener, ItemListener {
             
         }else if (e.getActionCommand().equals("Classify by Gate...")) {
           
-            notifyAssignmentListeners();
+            notifyAssignmentListeners("gate");
             
-        
+        }else if (e.getActionCommand().equals("Classify by Gate Math...")) {
+            
+            notifyAssignmentListeners("gatemath");
+         
+    
         } else if (e.getActionCommand().equals("Add Distance Map...")) {
             //Used to subgate to a new MicroExplorer
 
@@ -887,15 +902,6 @@ public class GateLayer implements ActionListener, ItemListener {
                 }
             }
             if (path != null) {
-
-//                String s = (String) JOptionPane.showInputDialog(
-//                        null,
-//                        "Please enter the group name",
-//                        "Neighborhood Group",
-//                        JOptionPane.PLAIN_MESSAGE,
-//                        null,
-//                        null,
-//                        "Neighborhood_").setAlwaysOnTop(true);
 
                 new Thread(() -> {
                     try {
@@ -1030,12 +1036,12 @@ public class GateLayer implements ActionListener, ItemListener {
      *
      * 
      */
-    private void notifyAssignmentListeners() {
+    private void notifyAssignmentListeners(String cmd) {
         
         //System.out.println("PROFILING: Notifying Manual Classifcation Listeners Total: " + manualClassListeners.size());
         for (AssignmentListener listener : assignmentListeners) {
             
-            listener.assignClassification();
+            listener.assignClassification(cmd);
         }
     }
 

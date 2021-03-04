@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 SciJava
+ * Copyright (C) 2021 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,10 +21,10 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Indiana University
+ * @author sethwinfree
  */
-public interface AssignmentListener {
+public interface AddClassByMathListener {
     
-    public void assignClassification(String cmd);
+    public void addClassByMath(ArrayList<String> gates, ArrayList<String> operators, int classAssigned);
     
 }

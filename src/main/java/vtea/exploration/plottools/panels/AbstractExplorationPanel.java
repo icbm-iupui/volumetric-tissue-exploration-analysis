@@ -67,6 +67,7 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected ArrayList<PolygonGate> gates = new ArrayList<>();
     protected ArrayList<ArrayList<Number>> measurements = new ArrayList<ArrayList<Number>>();
     protected ArrayList<MicroObject> objects = new ArrayList<MicroObject>();
+    protected ArrayList<MicroObject> gatemathobjects = new ArrayList<MicroObject>();
     protected ArrayList<String> descriptions = new ArrayList();
     protected ChartPanel chart;
     protected ArrayList<XYPanels> charts = new ArrayList<>();
@@ -149,5 +150,5 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
       @Override
        public void addFromCSV(String s){}
 
-
+       
 }

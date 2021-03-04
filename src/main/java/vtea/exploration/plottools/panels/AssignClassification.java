@@ -64,9 +64,6 @@ public class AssignClassification {
     }
     
     public void process(){
-        
-        
-        
         SetupAssignClassification smc = new SetupAssignClassification();
         
                 int result = smc.showDialog();
@@ -126,9 +123,7 @@ public class AssignClassification {
            r.add(result.get(m.getSerialID()));
           
             }
-        
-        Random rand = new Random();
- 
+
         paddedTable.add(r);
         notifyAddFeatureListener("Assigned", paddedTable);  
     }
