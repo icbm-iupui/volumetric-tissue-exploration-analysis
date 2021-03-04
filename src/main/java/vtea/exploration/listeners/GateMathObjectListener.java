@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 SciJava
+ * Copyright (C) 2021 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,13 +18,12 @@
 package vtea.exploration.listeners;
 
 import java.util.ArrayList;
+import vteaobjects.MicroObject;
 
 /**
  *
- * @author Indiana University
+ * @author sethwinfree
  */
-public interface AssignmentListener {
-    
-    public void assignClassification(String cmd);
-    
+public interface GateMathObjectListener {
+    public void addGateMathObjects(ArrayList<MicroObject> gatedObjects, int classAssigned);
 }

@@ -401,9 +401,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     public void updateTable(ArrayList<PolygonGate> gates) {
         
         gateList = cleanGateList(gates);
-        
 
-        // System.out.println("PROFILING:  Rebuilding GM with gates: " + gates.size());
         if (gateList.size() > 0) {
 
             ListIterator<PolygonGate> itr = gateList.listIterator();
@@ -574,9 +572,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
             });
 
             jScrollPane1.setViewportView(GateDataTable);
-        }
-        
-
+        }     
     }
 
     @Override

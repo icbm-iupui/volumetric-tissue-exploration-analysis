@@ -62,7 +62,11 @@ import vteaobjects.MicroObject;
  *
  * @author vinfrais
  */
-public class SingleImageProcessing extends javax.swing.JPanel implements PropertyChangeListener, UpdateSegmentationListener, UpdateProgressListener, ImageSelectionListener, TransferProtocolStepsListener, RebuildPanelListener, DeleteBlockListener {
+public class SingleImageProcessing extends javax.swing.JPanel implements 
+        PropertyChangeListener, UpdateSegmentationListener, 
+        UpdateProgressListener, ImageSelectionListener, 
+        TransferProtocolStepsListener, RebuildPanelListener, 
+        DeleteBlockListener {
 
     public static final int WORKFLOW = 0;
     public static final int PROCESSBLOCKS = 1;

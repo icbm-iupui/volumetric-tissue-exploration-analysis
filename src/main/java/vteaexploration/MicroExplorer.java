@@ -421,10 +421,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
         UseGlobal = new javax.swing.JToggleButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
         get3DProjection = new javax.swing.JButton();
+        MakeOverlays = new javax.swing.JToggleButton();
         getMask = new javax.swing.JButton();
         getSegmentation = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
-        jButtonMeasure = new javax.swing.JButton();
         jButtonMeas = new javax.swing.JButton();
         jButtonFeature = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
@@ -696,6 +696,21 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarGate.add(get3DProjection);
 
+        MakeOverlays.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/no_masks.png"))); // NOI18N
+        MakeOverlays.setToolTipText("Use global axes");
+        MakeOverlays.setFocusable(false);
+        MakeOverlays.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        MakeOverlays.setMaximumSize(new java.awt.Dimension(35, 40));
+        MakeOverlays.setMinimumSize(new java.awt.Dimension(35, 40));
+        MakeOverlays.setPreferredSize(new java.awt.Dimension(35, 40));
+        MakeOverlays.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        MakeOverlays.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MakeOverlaysActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(MakeOverlays);
+
         getMask.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/masks.png"))); // NOI18N
         getMask.setToolTipText("Visualize gated masks");
         getMask.setFocusable(false);
@@ -730,23 +745,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarGate.add(getSegmentation);
         toolbarGate.add(jSeparator7);
-
-        jButtonMeasure.setBackground(new java.awt.Color(102, 255, 102));
-        jButtonMeasure.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/ruler.png"))); // NOI18N
-        jButtonMeasure.setToolTipText("Add distance measure");
-        jButtonMeasure.setEnabled(false);
-        jButtonMeasure.setFocusable(false);
-        jButtonMeasure.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonMeasure.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonMeasure.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonMeasure.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonMeasure.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonMeasure.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonMeasureActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(jButtonMeasure);
 
         jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/FeaturesAdd_2.png"))); // NOI18N
         jButtonMeas.setToolTipText("Import features from CSV...");
@@ -1085,10 +1083,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         SegmentationPreviewer.SegmentationFactory(impoverlay, ec.getObjects());
     }//GEN-LAST:event_getSegmentationActionPerformed
 
-    private void jButtonMeasureActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMeasureActionPerformed
-
-    }//GEN-LAST:event_jButtonMeasureActionPerformed
-
     private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
 
         new Thread(() -> {
@@ -1157,6 +1151,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
         pof.process(key, title, descriptions, descriptionsLabels);
     }//GEN-LAST:event_jButtonPlotsActionPerformed
 
+    private void MakeOverlaysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MakeOverlaysActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_MakeOverlaysActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1199,6 +1197,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private javax.swing.JButton FlipAxes;
     private javax.swing.JButton LoadGates;
     protected javax.swing.JPanel Main;
+    private javax.swing.JToggleButton MakeOverlays;
     private javax.swing.JPanel North;
     private javax.swing.JButton SetGlobalToLocal;
     private javax.swing.JMenu Settings;
@@ -1216,7 +1215,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private javax.swing.JButton importOBJ;
     private javax.swing.JButton jButtonFeature;
     private javax.swing.JButton jButtonMeas;
-    private javax.swing.JButton jButtonMeasure;
     private javax.swing.JButton jButtonPlots;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBoxLUTPlot;

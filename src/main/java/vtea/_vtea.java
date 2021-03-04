@@ -61,6 +61,7 @@ import java.nio.file.Paths;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.io.FileUtils;
+import vtea.services.GateMathService;
 import vtea.services.PlotMakerService;
 
 
@@ -128,6 +129,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static String[] FEATUREOPTIONS;
     public static String[] LUTOPTIONS;
     public static String[] PLOTMAKEROPTIONS;
+    public static String[] GATEMATHOPTIONS;
 
     public static ConcurrentHashMap<String, String> PROCESSINGMAP;
     public static ConcurrentHashMap<String, String> SEGMENTATIONMAP;
@@ -140,6 +142,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static ConcurrentHashMap<String, String> FEATUREMAP;
     public static ConcurrentHashMap<String, String> PLOTMAKERMAP;
     public static ConcurrentHashMap<String, String> LUTMAP;
+    public static ConcurrentHashMap<String, String> GATEMATHMAP;
 
     public static Date STARTUPTIME;
 
@@ -317,6 +320,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         MORPHOLOGICALMAP = new ConcurrentHashMap<String, String>();
         FEATUREMAP = new ConcurrentHashMap<String, String>();
         LUTMAP = new ConcurrentHashMap<String, String>();
+        GATEMATHMAP = new ConcurrentHashMap<String, String>(); 
 
         FileTypeService fts = new FileTypeService(context);
 
@@ -339,6 +343,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         LUTService lfs = new LUTService(context);
         
         PlotMakerService pms = new PlotMakerService(context);
+        
+        GateMathService gms = new GateMathService(context);
 
         //ObjectAnalysisService oas = new ObjectAnalysisService();             
         //GroupAnalysisService gas = new GroupAnalysisService();
@@ -375,6 +381,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         
         List<String> pms_names = pms.getNames();
         List<String> pms_qualifiedNames = pms.getQualifiedName();
+        
+        List<String> gms_names = gms.getNames();
+        List<String> gms_qualifiedNames = gms.getQualifiedName();
 
         //List<String> oas_names = oas.getNames();
         //List<String> oas_qualifiedNames = oas.getQualifiedName();
@@ -589,6 +598,24 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
                 System.out.println("Loaded: " + o.getClass().getName());
                 //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
                 FEATUREMAP.put(FEATUREOPTIONS[i], o.getClass().getName());
+            } catch (ClassNotFoundException | InstantiationException | 
+                    IllegalAccessException | NoSuchMethodException |
+                    SecurityException  | IllegalArgumentException |
+                    InvocationTargetException ex) {
+                Logger.getLogger(_vtea.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+        }
+        
+        System.out.println("Loading Gate Math Plugins: ");
+        
+        GATEMATHOPTIONS = gms_names.toArray(new String[gms_names.size()]);
+
+        for (int i = 0; i < gms_names.size(); i++) {
+            try {
+                Object o = Class.forName(gms_qualifiedNames.get(i)).getDeclaredConstructor().newInstance();
+                System.out.println("Loaded: " + o.getClass().getName());
+                //Logger.getLogger(VTEAService.class.getName()).log(Level.INFO, "Loaded: " + o.getClass().getName());
+                GATEMATHMAP.put(GATEMATHOPTIONS[i], o.getClass().getName());
             } catch (ClassNotFoundException | InstantiationException | 
                     IllegalAccessException | NoSuchMethodException |
                     SecurityException  | IllegalArgumentException |
