@@ -398,7 +398,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     
        
 
-    public void updateTable(ArrayList<PolygonGate> gates) {
+    public void updateTable(ArrayList<PolygonGate> gates, boolean view) {
         
         gateList = cleanGateList(gates);
 
@@ -458,15 +458,17 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                     columnNames
             ) {
 
+                @Override
                 public Class getColumnClass(int c) {
                     
                     return getValueAt(0, c).getClass();
-
+      
                 }
 
+                @Override
                 public boolean isCellEditable(int row, int col) {
 
-                    if (col == 2 || col == 0) {
+                    if (col == 2 || col == 0 && view) {
                         return true;
                     } else {
                         return false;
@@ -562,10 +564,12 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                     false, true, false, false, false, false, false, false, false
                 };
 
+                @Override
                 public Class getColumnClass(int columnIndex) {
                     return types[columnIndex];
                 }
-
+                
+                @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
                 }

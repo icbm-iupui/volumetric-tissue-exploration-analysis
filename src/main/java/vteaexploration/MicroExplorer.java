@@ -697,7 +697,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         toolbarGate.add(get3DProjection);
 
         MakeOverlays.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/no_masks.png"))); // NOI18N
-        MakeOverlays.setToolTipText("Use global axes");
+        MakeOverlays.setToolTipText("Disable image mapping");
         MakeOverlays.setFocusable(false);
         MakeOverlays.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         MakeOverlays.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -1152,7 +1152,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_jButtonPlotsActionPerformed
 
     private void MakeOverlaysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MakeOverlaysActionPerformed
-        // TODO add your handling code here:
+        ec.setMapping(!this.MakeOverlays.isSelected());    
     }//GEN-LAST:event_MakeOverlaysActionPerformed
 
     /**

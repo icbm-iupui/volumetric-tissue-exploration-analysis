@@ -151,5 +151,7 @@ public interface ExplorationCenter {
     public void notifyUpdateExplorerGUIListener();
 
     public void addFromCSV(String s);
+    
+    public void setMapping(boolean map);
 
 }

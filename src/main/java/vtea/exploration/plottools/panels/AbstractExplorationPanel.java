@@ -83,6 +83,7 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
     protected ImagePlus impoverlay;
     protected ArrayList<ImageStack> GateOverlays;
     protected boolean imageGate = false;
+    protected boolean mapGates = true;
     
     protected ArrayList<Double> AxesLimits;
     
@@ -149,6 +150,11 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
       
       @Override
        public void addFromCSV(String s){}
+       
+       @Override
+       public void setMapping(boolean map){
+           this.mapGates = map;
+       }
 
        
 }

@@ -371,6 +371,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     public void makeGateOverlayImage() {
+        
+        if(this.mapGates){
 
         if (gates.size() > 0) {
 
@@ -515,7 +517,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             System.gc();
         }
     }
-
+    } 
 //    
     public void makeOverlayImageAndCalculate(ArrayList<PolygonGate> gates, int x, int y,
             int xAxis, int yAxis) {
@@ -612,6 +614,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                     Graphics2D g2 = selections.createGraphics();
 
+                    if(this.mapGates){
+                    
                     ListIterator<MicroObject> vitr = result.listIterator();
                     boolean inZ = true;
                     while (vitr.hasNext()) {
@@ -631,6 +635,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                             count++;
                         } catch (NullPointerException e) {
                         }
+                    }
                     }
 
                     //text for overlay
@@ -667,6 +672,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     gate.setObjectsInGate(selected);
                     gate.setTotalObjects(total);
                 }
+                
+                if(this.mapGates){
 
                 ir.setPosition(0, i + 1, 0);
 
@@ -682,13 +689,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     impoverlay.setDisplayMode(IJ.COMPOSITE);
                 }
                 impoverlay.show();
+                }
                 gm.setMeasurementsText(printResult);
 
-                gm.updateTable(gates);
+                gm.updateTable(gates, mapGates);
 
             }
         } else {
-            if (impoverlay.getOverlay() != null) {
+            if (mapGates || impoverlay.getOverlay() != null) {
                 impoverlay.getOverlay().clear();
             }
             gm.setMeasurementsText("No gate selected...");
@@ -696,6 +704,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         this.updateimage = true;
 
     }
+    
 
     public ArrayList<ImageStack> makeOverlayVolume(ArrayList<PolygonGate> gates, int x, int y,
             int xAxis, int yAxis) {
@@ -1410,7 +1419,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void onDeleteGate(ArrayList<PolygonGate> gt) {
         gates = gt;
-        gm.updateTable(gates);
+        gm.updateTable(gates, mapGates);
         gm.pack();
         gm.repaint();
         makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
@@ -1688,7 +1697,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 gl.importGate(pg);
             }
         }
-        gm.updateTable(gates);
+        gm.updateTable(gates, mapGates);
         gm.setVisible(true);
     }
 
@@ -1704,7 +1713,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             gl.importGate(pg);
         }
         notifyResetSelectionListeners();
-        gm.updateTable(gates);
+        gm.updateTable(gates, mapGates);
         gm.setVisible(true);
     }
 
@@ -3085,7 +3094,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void onGateColor(ArrayList<PolygonGate> gt) {
         gates = gt;
-        gm.updateTable(gates);
+        gm.updateTable(gates, mapGates);
         gm.pack();
         gm.repaint();
     }
