@@ -138,7 +138,8 @@ public class KNNCommunity extends AbstractFeatureProcessing {
         //5
         protocol.add(new JSpinner(new SpinnerNumberModel(30, 2, max, 1)));
 
-        protocol.add(new JLabel("    "));
+        protocol.add(new JLabel("CAUTION unstable"));    
+        //protocol.add(new JLabel("    "));
         protocol.add(new JLabel("    "));
 
         JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 20, 1);

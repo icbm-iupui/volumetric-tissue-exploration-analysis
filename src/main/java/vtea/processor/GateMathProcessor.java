@@ -110,6 +110,10 @@ public class GateMathProcessor extends AbstractProcessor {
             currentGate1 = this.gatesString.get(0);
             currentGate2 = this.gatesString.get(1);
             currentOperator = this.operatorsString.get(0);
+            
+            System.out.println("PROFILING: GateMath for 'Assigned' -> " 
+                    + classAssigned + ", " + currentGate1
+                    + " " + currentOperator + " " + currentGate2);
 
             Class<?> c;
             c = Class.forName(GATEMATHMAP.get(operatorsString.get(0)));
