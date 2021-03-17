@@ -78,9 +78,9 @@ public class KMeansClust extends AbstractFeatureProcessing {
 
         protocol = new ArrayList();
 
-        protocol.add(new JLabel("Maximum number of clusters"));
+        protocol.add(new JLabel("Clusters"));
         protocol.add(new JSpinner(new SpinnerNumberModel(5, 2, max, 1)));
-        
+
         protocol.add(new JLabel("Iterations"));
         protocol.add(new JTextField("10", 2));
     }

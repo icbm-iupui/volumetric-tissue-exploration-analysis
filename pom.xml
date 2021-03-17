@@ -193,11 +193,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>0.44</version>
         </dependency>    
         <!--Renjin specfic dependencies, needs to be pulled out for for a separate pom.xml-->     
- 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
+        </dependency>
+<!-- https://mvnrepository.com/artifact/nl.cwts/networkanalysis -->
+<dependency>
+    <groupId>nl.cwts</groupId>
+    <artifactId>networkanalysis</artifactId>
+    <version>1.1.0</version>
+</dependency>
+        <dependency>
+            <groupId>org.la4j</groupId>
+            <artifactId>la4j</artifactId>
+            <version>0.6.0</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
     <build>

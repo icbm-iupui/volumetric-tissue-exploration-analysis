@@ -35,7 +35,7 @@ import vtea.featureprocessing.FeatureProcessing;
  * @author drewmcnutt
  */
 @Plugin(type = FeatureProcessing.class)
-public class XMeansClust extends AbstractFeatureProcessing {
+public class Xmeans extends AbstractFeatureProcessing {
 
     public static boolean validate = false;
 
@@ -57,7 +57,7 @@ public class XMeansClust extends AbstractFeatureProcessing {
     /**
      * Basic Constructor. Sets all protected variables
      */
-    public XMeansClust() {
+    public Xmeans() {
         VERSION = "0.1";
         AUTHOR = "Andrew McNutt";
         COMMENT = "Implements the plugin from SMILE";
@@ -72,7 +72,7 @@ public class XMeansClust extends AbstractFeatureProcessing {
      *
      * @param max the number of objects segmented in the volume
      */
-    public XMeansClust(int max) {
+    public Xmeans(int max) {
         this();
 
         protocol = new ArrayList();

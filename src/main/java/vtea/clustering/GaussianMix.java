@@ -105,21 +105,18 @@ public class GaussianMix extends AbstractFeatureProcessing {
 
         JSpinner n_clust = new JSpinner(new SpinnerNumberModel(5, 2, max, 1));
         protocol.add(n_clust);
-        JCheckBox auto = new JCheckBox("Select Automatically");
+        JCheckBox auto = new JCheckBox("Automatically");
         JComboBox infoCrit = new JComboBox(new String[]{"BIC", "AIC"});
         infoCrit.setVisible(false);
-        auto.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent evt) {
-                if (auto.isSelected()) {
-                    infoCrit.setVisible(true);
-                    n_clust.setVisible(false);
-                    clust.setVisible(false);
-                } else {
-                    infoCrit.setVisible(false);
-                    n_clust.setVisible(true);
-                    clust.setVisible(true);
-                }
+        auto.addItemListener((ItemEvent evt) -> {
+            if (auto.isSelected()) {
+                infoCrit.setVisible(true);
+                n_clust.setVisible(false);
+                clust.setVisible(false);
+            } else {
+                infoCrit.setVisible(false);
+                n_clust.setVisible(true);
+                clust.setVisible(true);
             }
         });
         protocol.add(auto);
