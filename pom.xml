@@ -70,7 +70,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>1.5.3</version>
             <type>jar</type>
         </dependency>
-          <dependency>
+        <dependency>
             <groupId>com.github.haifengl</groupId>
             <artifactId>smile-math</artifactId>
             <version>1.5.3</version>
@@ -198,18 +198,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <artifactId>commons-lang3</artifactId>
             <version>3.9</version>
         </dependency>
-<!-- https://mvnrepository.com/artifact/nl.cwts/networkanalysis -->
-<dependency>
-    <groupId>nl.cwts</groupId>
-    <artifactId>networkanalysis</artifactId>
-    <version>1.1.0</version>
-</dependency>
+        <!-- https://mvnrepository.com/artifact/nl.cwts/networkanalysis -->
+        <dependency>
+            <groupId>nl.cwts</groupId>
+            <artifactId>networkanalysis</artifactId>
+            <version>1.1.0</version>
+        </dependency>
         <dependency>
             <groupId>org.la4j</groupId>
             <artifactId>la4j</artifactId>
             <version>0.6.0</version>
             <type>jar</type>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.gephi/gephi-toolkit -->
+        <dependency>
+            <groupId>org.gephi</groupId>
+            <artifactId>gephi-toolkit</artifactId>
+            <version>0.9.3-SNAPSHOT</version>
+        </dependency>
+
+
+
+
+
     </dependencies>
     <build>
         <resources>
@@ -275,50 +286,50 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             </plugin>
             
             <!--
+                   <plugin>
+                       <groupId>org.apache.maven.plugins</groupId>
+                       <artifactId>maven-dependency-plugin</artifactId>
+                       <version>3.1.2</version>
+                       <executions>
+                           <execution>
+                               <id>copy-dependencies</id>
+                               <phase>package</phase>
+                               <goals>
+                                   <goal>analyze-only</goal>
+                               </goals>
+                               <configuration>
+                                   
+                               </configuration>
+                           </execution>
+                       </executions>
+                   </plugin>
+            -->    
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.2</version>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
                 <executions>
                     <execution>
-                        <id>copy-dependencies</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>analyze-only</goal>
+                            <goal>shade</goal>
                         </goals>
                         <configuration>
-                            
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>vtea</shadedClassifierName>
+                            <minimizeJar>false</minimizeJar>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.renjin.*</include>
+                                    <include>org.renjin*</include>
+                                </includes>
+                                <excludes>
+                                </excludes>
+                            </artifactSet> 
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-     -->    
-                  <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>vtea</shadedClassifierName>
-                <minimizeJar>false</minimizeJar>
-                <artifactSet>
-                 <includes>
-                      <include>org.renjin.*</include>
-                      <include>org.renjin*</include>
-                  </includes>
-                  <excludes>
-                  </excludes>
-                </artifactSet> 
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
 
             <!-- any other plugins -->
  
