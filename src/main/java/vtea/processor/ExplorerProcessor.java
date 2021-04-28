@@ -36,17 +36,19 @@ import vteaobjects.MicroObject;
 @Plugin(type = Processor.class)
 public class ExplorerProcessor extends AbstractProcessor {
 
-    ImagePlus impOriginal;
-    ArrayList protocol;  //we may want to turn this into a class...
+    protected ImagePlus impOriginal;
+    protected ArrayList protocol;  //we may want to turn this into a class...
 
-    private ArrayList descriptions;
-    private ArrayList descriptionLabels;
-    private ArrayList measurements;
-    private ArrayList objects;
+    protected ArrayList descriptions;
+    protected ArrayList descriptionLabels;
+    protected ArrayList measurements;
+    protected ArrayList objects;
+    
+    protected boolean collection;
 
-    private String parentKey;
+    protected String parentKey;
 
-    private ArrayList plotValues;
+    protected ArrayList plotValues;
 
     public ExplorerProcessor() {
 
@@ -80,6 +82,7 @@ public class ExplorerProcessor extends AbstractProcessor {
         descriptionLabels = headerLabels;
         key = k;
         parentKey = parentk;
+        
 
     }
 

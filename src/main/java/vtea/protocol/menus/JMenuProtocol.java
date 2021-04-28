@@ -44,6 +44,9 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
 
     JMenuItem SaveAllSteps;
 
+    JMenuItem BuildCollection;
+    
+    JMenuItem LoadCollection;
     JMenuItem LoadExplorer;
 
     JMenu CopySteps;
@@ -134,6 +137,24 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                 notifyFileOperationListener(ae);
             }
         });
+        
+        LoadCollection = new JMenuItem("Load Collection...");
+        LoadCollection.setActionCommand("LoadCollection");
+        LoadCollection.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                notifyFileOperationListener(ae);
+            }
+        });
+        
+        BuildCollection = new JMenuItem("Build Collection...");
+        BuildCollection.setActionCommand("BuildCollection");
+        BuildCollection.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                notifyFileOperationListener(ae);
+            }
+        });
 
         add(LoadProcessSteps);
         add(SaveProcessSteps);
@@ -144,6 +165,9 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
         addSeparator();
         add(SaveAllSteps);
         addSeparator();
+        add(BuildCollection);
+        addSeparator();
+        add(LoadCollection);
         add(LoadExplorer);
 
     }
@@ -240,6 +264,29 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                             JOptionPane.WARNING_MESSAGE);
                     System.out.println("ERROR: " + e.getLocalizedMessage());
                 }
+            } else if (temp.getText().equals("Load Collection...")) {
+                try {
+                    listener.onLoadCollection();
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this.getParent(),
+                            "Could not load collection...\n"
+                            + e.getMessage(),
+                            vtea._vtea.VERSION,
+                            JOptionPane.WARNING_MESSAGE);
+                    System.out.println("ERROR: " + e.getLocalizedMessage());
+                }
+                         } else if (temp.getText().equals("Build Collection...")) {
+                try {
+                    listener.onBuildCollection();
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this.getParent(),
+                            "Could not load collection...\n"
+                            + e.getMessage(),
+                            vtea._vtea.VERSION,
+                            JOptionPane.WARNING_MESSAGE);
+                    System.out.println("ERROR: " + e.getLocalizedMessage());
+                }  
+                
 
             } else if (temp.getText().equals("Load Segmentation...")) {
                 try {

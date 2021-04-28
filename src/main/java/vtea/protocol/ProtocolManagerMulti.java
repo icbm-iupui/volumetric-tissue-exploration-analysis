@@ -59,7 +59,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AbstractDocument;
 import vtea.ImageSelectionListener;
 import vtea.OpenImageWindow;
-import vtea.OpenObxFormat;
+import vtea.ObxFormatIO;
 import vtea._vtea;
 import static vtea._vtea.PROCESSINGMAP;
 import static vtea._vtea.SEGMENTATIONMAP;
@@ -1109,96 +1109,37 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
     public void onLoadDatasets() throws Exception {
         new Thread(() -> {
             try {
-                OpenObxFormat io = new OpenObxFormat();
+                ObxFormatIO io = new ObxFormatIO();
                 io.importObjects(ImageTabs);
 
             } catch (Exception e) {
-                //System.out.println("ERROR: " + e.getLocalizedMessage());
+                
+            }
+        }).start();
+    }
+    @Override
+    public void onLoadCollection() throws Exception {
+        new Thread(() -> {
+            try {
+                ObxFormatIO io = new ObxFormatIO();
+                io.importCollection(ImageTabs);
+
+            } catch (Exception e) {
+                
             }
         }).start();
     }
 
-//    public class ImportOBJ {
-//
-//        public ImportOBJ() {
-//        }
-//        
-//        protected void importObjects() {
-//
-//            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
-//            FileNameExtensionFilter filter = 
-//            new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
-//            jf.addChoosableFileFilter(filter);
-//            jf.setFileFilter(filter);
-//            int returnVal = jf.showOpenDialog(ImageTabs);
-//            File file = jf.getSelectedFile();
-//            
-//
-//            ArrayList result = new ArrayList();
-//
-//            if (returnVal == JFileChooser.APPROVE_OPTION) {
-//                try {
-//                    try {
-//                        FileInputStream fis = new FileInputStream(file);
-//                        ObjectInputStream ois = new ObjectInputStream(fis);
-//                        
-//                        ProgressMonitorInputStream pm = 
-//                        new ProgressMonitorInputStream(ImageTabs,"Reading" + file.getName() ,fis);
-//                        
-//                        result = (ArrayList) ois.readObject();
-//                        ois.close(); 
-//                        } catch (IOException e) {
-//                        System.out.println("ERROR: Could not open the object file.");
-//                        } 
-//                    
-//                        File image = new File(file.getParent(), ((String)result.get(0))+".tif");
-//                      
-//                        if(image.exists()){
-//                            
-//                            Opener op = new Opener();
-//                            ImagePlus imp = op.openImage(file.getParent(), ((String)result.get(0))+".tif");
-//                            
-//                            executeExploring((file.getName()).replace(".obx", ""), result, imp);
-//
-//                        }else{
-//                            
-//                             System.out.println("WARNING: Could not find the image file.");
-//                             
-//                             JFileChooser jf2 = new JFileChooser(_vtea.LASTDIRECTORY);
-//                            
-//                             FileNameExtensionFilter filter2 = 
-//                             new FileNameExtensionFilter("Tiff file.", ".tif", "tif");
-//                             jf2.addChoosableFileFilter(filter2);
-//                             jf2.setFileFilter(filter2);
-//                             int returnVal2 = jf2.showOpenDialog(ImageTabs);
-//                             File file2 = jf2.getSelectedFile();
-//                             //System.out.println("PROFILING: Getting image file: " + file2.getName());
-//                             Opener op = new Opener();
-//                             ImagePlus imp = op.openImage(file2.getParent(), file2.getName());
-//                             //imp.setTitle(file.getName());
-//                             executeExploring((file.getName()).replace(".obx", ""), result, imp);                          
-//                        }
-//                        }catch (Exception e) {
-//                    System.out.println("ERROR: Not Found.");
-// 
-//                    }
-//            
-//            }
-//        }
-//
-//        
-//        private void executeExploring(String name, ArrayList result, ImagePlus imp){
-//
-//        String k = (String)result.get(0);
-//        ArrayList<MicroObject> objects = (ArrayList<MicroObject>)result.get(1);
-//        ArrayList measures = (ArrayList)result.get(2);
-//        ArrayList descriptions = (ArrayList)result.get(3);
-//        ArrayList descriptionLabels = (ArrayList)result.get(4);
-//            
-//        ExplorerProcessor ep = new ExplorerProcessor(name, imp, objects, measures, descriptions, descriptionLabels);
-//        ep.execute();
-//
-//        }
-//
-//    }
+    @Override
+    public void onBuildCollection() throws Exception {
+              new Thread(() -> {
+            try {
+                ObxFormatIO io = new ObxFormatIO();
+                io.buildCollection(ImageTabs);
+
+            } catch (Exception e) {
+                
+            }
+        }).start();
+    }
 }

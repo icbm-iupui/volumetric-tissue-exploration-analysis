@@ -235,7 +235,7 @@ public class H2DatabaseEngine {
     }
 
     //H2 SQL for returning ArrayList of all records for the desired 3 columns
-    public static ArrayList getColumns3D(String table,
+    public static ArrayList getColumns3D(String table, String dataset,
             String column1, String column2, String column3) {
         Connection cn = getDBConnection();
 
@@ -245,14 +245,29 @@ public class H2DatabaseEngine {
         ArrayList measurements = new ArrayList();
 
         try {
+            
+            if(dataset.equals("All")){
+                
+                 String SelectQuery = "select " + column1
+                    + ", " + column2
+                    + ", " + column3 + " from " + table;
+                    selectPreparedStatement = cn.prepareStatement(SelectQuery);
+ 
+                
+            } else {
 
             String SelectQuery = "select " + column1
                     + ", " + column2
-                    + ", " + column3 + " from " + table;
+                    + ", " + column3 + " from " + table + " where Dataset = '" + dataset + "'";
+                    selectPreparedStatement = cn.prepareStatement(SelectQuery);
+                    //selectPreparedStatement.setString(1, dataset);
+                    //System.out.println("PROFILING, SQL query: " + SelectQuery);
+            }
+            
+           
+          
 
-           // System.out.println("PROFILING, SQL query: " + SelectQuery);
 
-            selectPreparedStatement = cn.prepareStatement(SelectQuery);
             rs = selectPreparedStatement.executeQuery();
 
            // System.out.println("Found: " + rs.getFetchSize());

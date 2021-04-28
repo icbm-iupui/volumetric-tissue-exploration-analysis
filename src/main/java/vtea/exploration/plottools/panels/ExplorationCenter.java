@@ -59,11 +59,11 @@ public interface ExplorationCenter {
     
     public JPanel addRectangleToPlot();
 
-    public JPanel addPlot(int x, int y, int l, int size, int LUT, String xText, String yText, String LUTText);
+    public JPanel addPlot(String dataset, int x, int y, int l, int size, int LUT, String xText, String yText, String LUTText);
 
     public void showPlot(int x, int y, int l, int size, String xText, String yText, String lText);
 
-    public void updatePlot(int x, int y, int l, int size);
+    public void updatePlot(String dataset, int x, int y, int l, int size);
     
    // public void changeImageGate(ArrayList<microVolume> al, int x, int y, int l, int size);
     
@@ -77,7 +77,7 @@ public interface ExplorationCenter {
     
     public XYChartPanel getXYChartPanel();
 
-    public XYChartPanel getPanel(int x, int y, int l, int size, String xText, String yText, String lText);
+    public XYChartPanel getPanel(String dataset, int x, int y, int l, int size, String xText, String yText, String lText);
 
     public PolygonGate getGates(int x, int y, int l, int size);
     

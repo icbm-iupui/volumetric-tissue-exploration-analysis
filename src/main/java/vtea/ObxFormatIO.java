@@ -1,0 +1,358 @@
+/* 
+ * Copyright (C) 2020 Indiana University
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package vtea;
+
+import ij.ImagePlus;
+import ij.io.FileSaver;
+import ij.io.Opener;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import org.apache.commons.io.FilenameUtils;
+import vtea.processor.ExplorerProcessor;
+import vteaobjects.MicroObject;
+
+/**
+ *
+ * @author sethwinfree
+ */
+public class ObxFormatIO {
+
+    public ObxFormatIO() {
+    }
+
+    static public void importCollection(JComponent parent) {
+
+        JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+        FileNameExtensionFilter filter
+                = new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
+        jf.addChoosableFileFilter(filter);
+        jf.setFileFilter(filter);
+        int returnVal = jf.showOpenDialog(parent);
+        File file = jf.getSelectedFile();
+
+        ArrayList result = new ArrayList();
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                try {
+
+                    FileInputStream fis = new FileInputStream(file);
+                    BufferedInputStream bis = new BufferedInputStream(fis);
+                    ObjectInputStream ois = new ObjectInputStream(bis);
+                    result = (ArrayList) ois.readObject();
+                    ois.close();
+                    _vtea.LASTDIRECTORY = file.getAbsolutePath();
+                } catch (IOException e) {
+                    System.out.println("ERROR: Could not open the object file.");
+
+                }
+
+                File image = new File(file.getParent(), ((String) result.get(0)) + ".tif");
+
+                if (image.exists()) {
+
+                    Opener op = new Opener();
+                    ImagePlus imp = op.openImage(file.getParent(), ((String) result.get(0)) + ".tif");
+
+                    executeExploring((file.getName()).replace(".obx", ""), result, imp);
+
+                } else {
+
+                    System.out.println("WARNING: Could not find the image file.");
+
+                    JFrame frame = new JFrame();
+                    frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+                    Object[] options = {"Yes", "No"};
+                    int n = JOptionPane.showOptionDialog(frame,
+                            "ERROR: The image file associated with the obx file\n "
+                            + " could not be found.  Manually open image?",
+                            "Image not found...",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.ERROR_MESSAGE,
+                            null,
+                            options,
+                            options[0]);
+                    if (n == JOptionPane.NO_OPTION) {
+
+                    } else {
+                        JFileChooser jf2 = new JFileChooser(_vtea.LASTDIRECTORY);
+
+                        FileNameExtensionFilter filter2
+                                = new FileNameExtensionFilter("Tiff file.", ".tif", "tif");
+                        jf2.addChoosableFileFilter(filter2);
+                        jf2.setFileFilter(filter2);
+                        int returnVal2 = jf2.showOpenDialog(parent);
+                        File file2 = jf2.getSelectedFile();
+                        Opener op = new Opener();
+                        ImagePlus imp = op.openImage(file2.getParent(), file2.getName());
+                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR: Not Found.");
+
+            }
+        }
+    }
+
+    static public void buildCollection(JComponent parent) {
+
+        JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+        FileNameExtensionFilter filter
+                = new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
+        jf.addChoosableFileFilter(filter);
+        jf.setFileFilter(filter);
+        int returnVal = jf.showOpenDialog(parent);
+        File file = jf.getSelectedFile();
+
+        ArrayList result = new ArrayList();
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                try {
+
+                    FileInputStream fis = new FileInputStream(file);
+                    BufferedInputStream bis = new BufferedInputStream(fis);
+                    ObjectInputStream ois = new ObjectInputStream(bis);
+                    result = (ArrayList) ois.readObject();
+                    ois.close();
+                    _vtea.LASTDIRECTORY = file.getAbsolutePath();
+                } catch (IOException e) {
+                    System.out.println("ERROR: Could not open the object file.");
+
+                }
+
+                File image = new File(file.getParent(), ((String) result.get(0)) + ".tif");
+
+                if (image.exists()) {
+
+                    Opener op = new Opener();
+                    ImagePlus imp = op.openImage(file.getParent(), ((String) result.get(0)) + ".tif");
+
+                    executeExploring((file.getName()).replace(".obx", ""), result, imp);
+
+                } else {
+
+                    System.out.println("WARNING: Could not find the image file.");
+
+                    JFrame frame = new JFrame();
+                    frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+                    Object[] options = {"Yes", "No"};
+                    int n = JOptionPane.showOptionDialog(frame,
+                            "ERROR: The image file associated with the obx file\n "
+                            + " could not be found.  Manually open image?",
+                            "Image not found...",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.ERROR_MESSAGE,
+                            null,
+                            options,
+                            options[0]);
+                    if (n == JOptionPane.NO_OPTION) {
+
+                    } else {
+                        JFileChooser jf2 = new JFileChooser(_vtea.LASTDIRECTORY);
+
+                        FileNameExtensionFilter filter2
+                                = new FileNameExtensionFilter("Tiff file.", ".tif", "tif");
+                        jf2.addChoosableFileFilter(filter2);
+                        jf2.setFileFilter(filter2);
+                        int returnVal2 = jf2.showOpenDialog(parent);
+                        File file2 = jf2.getSelectedFile();
+                        Opener op = new Opener();
+                        ImagePlus imp = op.openImage(file2.getParent(), file2.getName());
+                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR: Not Found.");
+
+            }
+        }
+    }
+
+    static public void importObjects(JComponent parent) {
+
+        JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+        FileNameExtensionFilter filter
+                = new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
+        jf.addChoosableFileFilter(filter);
+        jf.setFileFilter(filter);
+        int returnVal = jf.showOpenDialog(parent);
+        File file = jf.getSelectedFile();
+
+        ArrayList result = new ArrayList();
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                try {
+
+                    FileInputStream fis = new FileInputStream(file);
+                    BufferedInputStream bis = new BufferedInputStream(fis);
+                    ObjectInputStream ois = new ObjectInputStream(bis);
+                    //ObjectInputStream ois = new ObjectInputStream(fis);
+
+//                    ProgressMonitorInputStream pm
+//                            = new ProgressMonitorInputStream(parent, "Reading" + file.getName(), fis);
+//                    
+//                    pm.getProgressMonitor().setMillisToPopup(10);
+                    result = (ArrayList) ois.readObject();
+                    ois.close();
+                    _vtea.LASTDIRECTORY = file.getAbsolutePath();
+                } catch (IOException e) {
+                    System.out.println("ERROR: Could not open the object file.");
+
+                }
+
+                File image = new File(file.getParent(), ((String) result.get(0)) + ".tif");
+
+                if (image.exists()) {
+
+                    Opener op = new Opener();
+                    ImagePlus imp = op.openImage(file.getParent(), ((String) result.get(0)) + ".tif");
+
+                    executeExploring((file.getName()).replace(".obx", ""), result, imp);
+
+                } else {
+
+                    System.out.println("WARNING: Could not find the image file.");
+
+                    JFrame frame = new JFrame();
+                    frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
+                    Object[] options = {"Yes", "No"};
+                    int n = JOptionPane.showOptionDialog(frame,
+                            "ERROR: The image file associated with the obx file\n "
+                            + " could not be found.  Manually open image?",
+                            "Image not found...",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.ERROR_MESSAGE,
+                            null,
+                            options,
+                            options[0]);
+                    if (n == JOptionPane.NO_OPTION) {
+
+                    } else {
+                        JFileChooser jf2 = new JFileChooser(_vtea.LASTDIRECTORY);
+
+                        FileNameExtensionFilter filter2
+                                = new FileNameExtensionFilter("Tiff file.", ".tif", "tif");
+                        jf2.addChoosableFileFilter(filter2);
+                        jf2.setFileFilter(filter2);
+                        int returnVal2 = jf2.showOpenDialog(parent);
+                        File file2 = jf2.getSelectedFile();
+                        Opener op = new Opener();
+                        ImagePlus imp = op.openImage(file2.getParent(), file2.getName());
+                        executeExploring((file.getName()).replace(".obx", ""), result, imp);
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR: Not Found.");
+
+            }
+        }
+    }
+
+    static public void exportObjects(String k, ImagePlus imp, ArrayList<MicroObject> objects,
+            ArrayList measurements, ArrayList headers,
+            ArrayList headerLabels, JComponent parent) {
+
+        //Arraylist to save to file
+        //key; Objects; Measurements; headers; headerLabels
+        //string; ImagePlus; ArrayList; ArrayList; ArrayList; ArrayList
+        ArrayList output = new ArrayList();
+
+        output.add(k);
+        output.add(objects);
+        output.add(measurements);
+        output.add(headers);
+        output.add(headerLabels);
+
+        int returnVal = JFileChooser.CANCEL_OPTION;
+        File file;
+        int choice = JOptionPane.OK_OPTION;
+        do {
+            JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+            jf.setDialogTitle("Export VTEA objects...");
+
+            returnVal = jf.showSaveDialog(parent);
+
+            file = jf.getSelectedFile();
+            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
+
+            } else {
+                file = new File(file.toString() + ".obx");
+            }
+            if (file.exists()) {
+                String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                choice = JOptionPane.showConfirmDialog(null, message, "Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+            }
+        } while (choice != JOptionPane.OK_OPTION);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                try {
+                    FileOutputStream fos = new FileOutputStream(file);
+                    BufferedOutputStream bos = new BufferedOutputStream(fos);
+                    ObjectOutputStream oos = new ObjectOutputStream(bos);
+                    oos.writeObject(output);
+                    oos.close();
+
+                    FileSaver fs = new FileSaver(imp);
+                    fs.saveAsTiffStack(file.getParent() + "/" + k + ".tif");
+
+                } catch (IOException e) {
+                    System.out.println("ERROR: Could not save the file" + e);
+                }
+            } catch (NullPointerException ne) {
+                System.out.println("ERROR: NPE in object export");
+            }
+            _vtea.LASTDIRECTORY = file.getAbsolutePath();
+        } else {
+        }
+    }
+
+    static private void executeExploring(String name, ArrayList result, ImagePlus imp) {
+
+        String k = (String) result.get(0);
+        ArrayList<MicroObject> objects = (ArrayList<MicroObject>) result.get(1);
+        ArrayList measures = (ArrayList) result.get(2);
+        ArrayList descriptions = (ArrayList) result.get(3);
+        ArrayList descriptionLabels = (ArrayList) result.get(4);
+
+        ExplorerProcessor ep = new ExplorerProcessor(name, name, imp, objects, measures, descriptions, descriptionLabels);
+        ep.execute();
+
+    }
+
+    static private void executeCollectionExplorer(){}
+    
+    static private void collectionBuilder() {
+    }
+    
+}

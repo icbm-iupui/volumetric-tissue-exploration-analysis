@@ -120,6 +120,8 @@ public class XYChartPanel implements RoiListener {
     private ArrayList<UpdatePlotWindowListener> UpdatePlotWindowListeners = new ArrayList<UpdatePlotWindowListener>();
     private ImagePlus impoverlay;
 
+    
+    private String dataset;
     private int size = 4;
     private int xValues;
     private int yValues;
@@ -141,7 +143,7 @@ public class XYChartPanel implements RoiListener {
 
     }
 
-    public XYChartPanel(ArrayList objects, List measurements, int x, int y, int l, String xText, String yText, String lText, int size, ImagePlus ip, boolean imageGate, Color imageGateColor) {
+    public XYChartPanel(String data, ArrayList objects, List measurements, int x, int y, int l, String xText, String yText, String lText, int size, ImagePlus ip, boolean imageGate, Color imageGateColor) {
 
         impoverlay = ip;
         this.imageGate = imageGate;
@@ -155,12 +157,13 @@ public class XYChartPanel implements RoiListener {
         xValuesText = xText;
         yValuesText = yText;
         lValuesText = lText;
+        dataset = data;
 
         // process(xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
     }
 
     
-    public XYChartPanel(String key, ArrayList objects, int x, int y, int l, 
+    public XYChartPanel(String dataset, String key, ArrayList objects, int x, int y, int l, 
             String xText, String yText, String lText, int size, ImagePlus ip, 
             boolean imageGate, Color imageGateColor, LookupPaintScale lps) {
 
@@ -169,6 +172,7 @@ public class XYChartPanel implements RoiListener {
         this.imageGate = imageGate;
         imageGateOutline = imageGateColor;
         //this.measurements = measurements;
+        this.dataset =  dataset.replace("-", "_");;
         this.objects = objects;
         this.size = size;
         this.keySQLSafe = key;
@@ -179,14 +183,15 @@ public class XYChartPanel implements RoiListener {
         yValuesText = yText;
         lValuesText = lText;
         PS = lps;
+        
 
         //process(xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
-        process(connection, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
+        process(this.dataset, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
     }
 
-    public void process(Connection cn, int x, int y, int l, String xText, String yText, String lText) {
+    public void process(String dataset, int x, int y, int l, String xText, String yText, String lText) {
 
-        chartPanel = createChart(connection, x, y, l, xText, yText, lText, imageGateOutline);
+        chartPanel = createChart(dataset, x, y, l, xText, yText, lText, imageGateOutline);
         
 //        JFrame f = new JFrame(title);
 //        f.setTitle(title);
@@ -258,7 +263,7 @@ public class XYChartPanel implements RoiListener {
 //        f.pack();
     }
 
-    private ChartPanel createChart(Connection connection, int x, int y, int l, String xText, String yText, String lText, Color imageGateColor) {
+    private ChartPanel createChart(String dataset, int x, int y, int l, String xText, String yText, String lText, Color imageGateColor) {
       
         
         XYShapeRenderer renderer = new XYShapeRenderer();
@@ -297,9 +302,9 @@ public class XYChartPanel implements RoiListener {
         xAxis.setAutoRangeIncludesZero(false);
         yAxis.setAutoRangeIncludesZero(false);
         
-        //System.out.println("XYExplorationPanel, start XYPlot:" + System.currentTimeMillis());
+        System.out.println("XYExplorationPanel, start XYPlot, dataset:" + dataset);
 
-        XYPlot plot = new XYPlot(createXYZDataset(H2DatabaseEngine.getColumns3D(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, xText, yText, lText),
+        XYPlot plot = new XYPlot(createXYZDataset(H2DatabaseEngine.getColumns3D(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, dataset, xText, yText, lText),
                 xText, yText, lText, l), xAxis, yAxis, renderer);
         
         //System.out.println("XYExplorationPanel, finish XYPlot:" + System.currentTimeMillis());
@@ -480,7 +485,7 @@ public class XYChartPanel implements RoiListener {
     }
 
     public ChartPanel getUpdatedChartPanel() {
-        process(connection, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
+        process(dataset, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
         return chartPanel;
     }
 
@@ -564,7 +569,7 @@ public class XYChartPanel implements RoiListener {
     public void roiDeleted() {
         ImageGateOverlay.clear();
         this.imageGate = false;
-        process(connection, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
+        process(dataset, xValues, yValues, lValues, xValuesText, yValuesText, lValuesText);
 
     }
 

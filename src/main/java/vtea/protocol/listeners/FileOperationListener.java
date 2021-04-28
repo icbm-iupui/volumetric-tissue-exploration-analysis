@@ -81,5 +81,9 @@ public interface FileOperationListener {
     public void onFileExport() throws Exception;
 
     public void onLoadDatasets() throws Exception;
+    
+    public void onLoadCollection() throws Exception;
+    
+    public void onBuildCollection() throws Exception;
 
 }

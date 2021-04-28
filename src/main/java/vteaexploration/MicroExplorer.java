@@ -70,7 +70,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FilenameUtils;
-import vtea.OpenObxFormat;
+import vtea.ObxFormatIO;
 import vtea._vtea;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.exploration.listeners.AxesChangeListener;
@@ -1007,11 +1007,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private void exportOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportOBJActionPerformed
         new Thread(() -> {
             try {
-
-                ExportOBJ ex = new ExportOBJ();
-                ex.export(key, imp, ec.getObjects(),
+                ObxFormatIO io = new ObxFormatIO();   
+                io.exportObjects(key, imp, ec.getObjects(),
                         measurements, descriptions,
-                        descriptionsLabels);
+                        descriptionsLabels, Main);
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
@@ -1021,9 +1020,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private void importOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importOBJActionPerformed
         new Thread(() -> {
             try {
-                OpenObxFormat io = new OpenObxFormat();
+                ObxFormatIO io = new ObxFormatIO();
                 io.importObjects(Main);
-
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
@@ -1396,7 +1394,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         //System.out.println("MicroExplorer, change plot request start:" + System.currentTimeMillis());
         new Thread(() -> {
             try {
-                ec.updatePlot(x, y, z, size);
+                ec.updatePlot("All", x, y, z, size);
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
@@ -1407,7 +1405,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         new Thread(() -> {
             try {
 
-                ec.updatePlot(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(),
+                ec.updatePlot("All", this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(),
                         this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
 
             } catch (Exception e) {
@@ -1431,7 +1429,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         new Thread(() -> {
             try {
                 Main.removeAll();
-                ec.updatePlot(x, y, -1, size);
+                ec.updatePlot("All", x, y, -1, size);
                 Main.add(ec.getPanel());
                 //updateBorderPanels(DefaultXYPanels);
                 updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), "");
@@ -1483,7 +1481,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         new Thread(() -> {
             try {
                 Main.removeAll();
-                ec.updatePlot(x, y, l, size);
+                ec.updatePlot("All", x, y, l, size);
                 Main.add(ec.getPanel());
 
                 updatePlot = false;
@@ -1531,7 +1529,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }
 
     @Override
-    public void onChangeAxes(int x, int y, int l, int s, boolean imagegate) {
+    public void onChangeAxes(String dataset, int x, int y, int l, int s, boolean imagegate) {
         updatePlotByPopUpMenu(x, y, l, s);
     }
 
@@ -2157,7 +2155,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
                         StringBuilder sb = new StringBuilder();
 
                         ListIterator itr = descriptions.listIterator();
-
+                        
+                        sb.append("Dataset");
+                        sb.append(',');
                         sb.append("Object");
                         sb.append(',');
                         sb.append("PosX,PosY,PosZ,");

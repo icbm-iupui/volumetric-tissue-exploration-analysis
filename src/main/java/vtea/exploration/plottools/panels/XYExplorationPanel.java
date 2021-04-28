@@ -197,6 +197,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     private boolean useCustomY = false;
     int selected = 0;
     int gated = 0;
+    String dataset ="All";
     String key = "";
     String keySQLSafe = "";
     boolean updateimage = true;
@@ -268,7 +269,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         lps = defaultLUT.getPaintScale(min, max);
 
         //default plot 
-        addPlot(MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART,
+        addPlot(dataset, MicroExplorer.XSTART, MicroExplorer.YSTART, MicroExplorer.LUTSTART,
                 MicroExplorer.POINTSIZE, 0, hm.get(1), hm.get(4), hm.get(2));
 
         invokeAxesSettingsDialog(this.getX(), this.getY() + this.getHeight());
@@ -298,10 +299,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     }
 
-    private XYChartPanel createChartPanel(int x, int y, int l, String xText,
+    private XYChartPanel createChartPanel(String dataset, int x, int y, int l, String xText,
             String yText, String lText, int size, ImagePlus ip, boolean imageGate,
             Color imageGateOutline) {
-        return new XYChartPanel(objects, measurements, x, y, l, xText, yText,
+        return new XYChartPanel(dataset, objects, measurements, x, y, l, xText, yText,
                 lText, size, ip, imageGate, imageGateOutline);
     }
 
@@ -324,7 +325,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             StringBuilder sb = new StringBuilder();
 
             ListIterator itr = descriptions.listIterator();
-
+            
+            sb.append("Dataset");
+            sb.append(',');
             sb.append("Object");
             sb.append(',');
             sb.append("PosX,PosY,PosZ,");
@@ -344,6 +347,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 //MicroObject vol = (MicroObject) objects.get(i);
                 ArrayList<Number> measured = measurements.get(i);
 
+                sb.append(key);
+                sb.append(',');
                 sb.append(volume.getSerialID());
                 sb.append(',');
                 sb.append(volume.getCentroidX());
@@ -930,7 +935,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     @Override
-    public JPanel addPlot(int x, int y, int l, int size, int LUT, String xText,
+    public JPanel addPlot(String dataset, int x, int y, int l, int size, int LUT, String xText,
             String yText, String lText) {
         currentX = x;
         currentY = y;
@@ -944,7 +949,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         }
 
         //System.out.println("XYExplorationPanel, addplot:" + System.currentTimeMillis());
-        cpd = new XYChartPanel(keySQLSafe, objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor, lps);
+        cpd = new XYChartPanel(dataset, keySQLSafe, objects, x, y, l, xText, yText, lText, pointsize, impoverlay, imageGate, imageGateColor, lps);
 
         cpd.addUpdatePlotWindowListener(this);
 
@@ -1007,7 +1012,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     @Override
-    public void updatePlot(int x, int y, int l, int size) {
+    public void updatePlot(String dataset, int x, int y, int l, int size) {
         this.explorerXaxisIndex = x;
         this.explorerYaxisIndex = y;
         this.explorerLutIndex = l;
@@ -1023,7 +1028,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         lps = AxesManager.getLookupPaintScale(l);
 
-        addPlot(x, y, l, size, LUT, hm.get(x), hm.get(y), lText);
+        addPlot(dataset, x, y, l, size, LUT, hm.get(x), hm.get(y), lText);
 
 //                if (this.useGlobal) {
 //            cpd.setChartPanelRanges(XYChartPanel.XAXIS, XYChartPanel.xMin, XYChartPanel.xMax, xScaleLinear);
@@ -1069,7 +1074,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     @Override
-    public XYChartPanel getPanel(int x, int y, int l, int size, String xText,
+    public XYChartPanel getPanel(String dataset, int x, int y, int l, int size, String xText,
             String yText, String lText) {
         String key = x + "_" + y + "_" + l;
         if (isMade(x, y, l, size)) {
@@ -1087,7 +1092,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             imageGateColor = impoverlay.getRoi().getStrokeColor();
         }
 
-        return createChartPanel(x, y, l, xText, yText, lText, pointsize,
+        return createChartPanel(dataset, x, y, l, xText, yText, lText, pointsize,
                 impoverlay, imageGate, imageGateColor);
     }
 
@@ -1203,8 +1208,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     @Override
-    public void onChangeAxes(int x, int y, int l, int size, boolean imagegate) {
-        addPlot(x, y, l, size, LUT, hm.get(x), hm.get(y), hm.get(l));
+    public void onChangeAxes(String dataset, int x, int y, int l, int size, boolean imagegate) {
+        addPlot(dataset, x, y, l, size, LUT, hm.get(x), hm.get(y), hm.get(l));
     }
 
     @Override
@@ -1317,21 +1322,21 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 switch (i) {
                     case RoiListener.COMPLETED:
                         imageGate = true;
-                        addPlot(currentX, currentY, currentL, pointsize, LUT,
+                        addPlot(dataset, currentX, currentY, currentL, pointsize, LUT,
                                 hm.get(currentX), hm.get(currentY),
                                 hm.get(currentL));
                         makeOverlayImageAndCalculate(this.gates, 0, 0, currentX, currentY);
                         break;
                     case RoiListener.MOVED:
                         imageGate = true;
-                        addPlot(currentX, currentY, currentL, pointsize, LUT,
+                        addPlot(dataset, currentX, currentY, currentL, pointsize, LUT,
                                 hm.get(currentX), hm.get(currentY),
                                 hm.get(currentL));
                         makeOverlayImageAndCalculate(this.gates, 0, 0, currentX, currentY);
                         break;
                     case RoiListener.DELETED:
                         imageGate = false;
-                        addPlot(currentX, currentY, currentL, pointsize, LUT,
+                        addPlot(dataset, currentX, currentY, currentL, pointsize, LUT,
                                 hm.get(currentX), hm.get(currentY), hm.get(currentL));
                         makeOverlayImageAndCalculate(this.gates, 0, 0, currentX, currentY);
                         break;
@@ -1479,7 +1484,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         lps = AxesManager.getLookupPaintScale(LUT);
 
-        updatePlot(this.explorerXaxisIndex, this.explorerYaxisIndex,
+        updatePlot(dataset, this.explorerXaxisIndex, this.explorerYaxisIndex,
                 this.explorerLutIndex, this.explorerPointSizeIndex);
 
         notifyAxesSetupExplorerPlotUpdateListener(this.explorerXaxisIndex,
