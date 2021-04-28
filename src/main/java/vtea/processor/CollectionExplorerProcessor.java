@@ -50,26 +50,26 @@ public <T extends MicroObject>  CollectionExplorerProcessor(String k,
                 firePropertyChange("progress", 0, 5);
                 firePropertyChange("comment", "", "Starting collection explorer processing on " + objects.size() + " objects...");
 
-                HashMap<Integer, String> hm = new HashMap<Integer, String>();
-
-                for (int i = 0; i < descriptions.size(); i++) {
-                    hm.put(i, descriptions.get(i).toString());
-                }
-
-                Connection connection = H2DatabaseEngine.getDBConnection();
+//                HashMap<Integer, String> hm = new HashMap<Integer, String>();
+//
+//                for (int i = 0; i < descriptions.size(); i++) {
+//                    hm.put(i, descriptions.get(i).toString());
+//                }
+//
+//                Connection connection = H2DatabaseEngine.getDBConnection();
 
                 System.out.println("PROFILING: Exploring on dataset: " + key);
 
-                String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
+//                String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
 
-                XYExplorationPanel XY = new XYExplorationPanel(key, connection, measurements, descriptions, hm, objects, title);
-                DefaultPlotPanels DPP = new DefaultPlotPanels();
-                MicroExplorer explorer = new MicroExplorer();
-
-                explorer.setTitle("Explorer: " + title);
-                impOriginal.deleteRoi();
-                explorer.process(key, impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels);
-                XY.updateMenuPositions(explorer.getX(), explorer.getY() + explorer.getHeight());
+//                XYExplorationPanel XY = new XYExplorationPanel(key, connection, measurements, descriptions, hm, objects, title);
+//                DefaultPlotPanels DPP = new DefaultPlotPanels();
+//                MicroExplorer explorer = new MicroExplorer();
+//
+//                explorer.setTitle("Explorer: " + title);
+//                impOriginal.deleteRoi();
+//                explorer.process(key, impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels);
+//                XY.updateMenuPositions(explorer.getX(), explorer.getY() + explorer.getHeight());
                 setProgress(100);
                 firePropertyChange("comment", "", "Done.");
             } catch (Exception e) {
