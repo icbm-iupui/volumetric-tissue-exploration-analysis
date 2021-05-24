@@ -28,26 +28,28 @@ import org.scijava.plugin.Plugin;
 
 /**
  *
- * @author sethwinfree
+ * @author sethwinfree  This impleents the original apporach iused for the KPMP.
+It is flawed in the analysis and may contain duplicate values diluting means.
  *
  */
 @Plugin(type = Morphology.class)
-public class Grow_6C extends AbstractMorphology {
-
+public class Grow_6C_inclusive extends AbstractMorphology {
+    
     JTextField Distance = new JTextField("1", 5);
 
-    public Grow_6C() {
-        VERSION = "0.2";
+    public Grow_6C_inclusive() {
+        VERSION = "0.1";
         AUTHOR = "Seth Winfree";
-        COMMENT = "Basic dilation";
-        NAME = "Grow 6Cv2";
-        KEY = "GR6Cv2";
+        COMMENT = "Basic dilation inclusive KPMP";
+        NAME = "Grow 6C";
+        KEY = "GR6C";
     }
 
-    //Allowed operations: 6C
+    //Allowed operations: 6C, 8C
     //Allowed arguments:  in String arg.
     @Override
-    public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, List<JComponent> protocol, String operation, String arg) {
+    public ArrayList<ArrayList<Number>> process(int[] x, int[] y, int[] z, 
+List<JComponent> protocol, String operation, String arg) {
 
         JTextField distance = (JTextField) protocol.get(1);
 
@@ -101,7 +103,7 @@ public class Grow_6C extends AbstractMorphology {
             int n = x.length;
 
             //System.out.println("PROFILING:             Expansion time: " + times + ".");
-            //6 connected.
+            //8 connected.
             for (int i = 0; i < n; i++) {
 
                 //same z
@@ -136,15 +138,14 @@ public class Grow_6C extends AbstractMorphology {
                 zArr.add(z[i] + 1);
 
             }
- 
+
         }
         noDups = removeDuplicates(xArr, yArr, zArr);
-        noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
 
         return noDups;
     }
 
-    private ArrayList<ArrayList<Number>> removeDuplicates(ArrayList<Number> x, ArrayList<Number> y, ArrayList<Number> z) {
+private ArrayList<ArrayList<Number>> removeDuplicates(ArrayList<Number> x, ArrayList<Number> y, ArrayList<Number> z) {
 
         Number xPos;
         Number yPos;
@@ -175,28 +176,6 @@ public class Grow_6C extends AbstractMorphology {
         return result;
     }
 
-    private ArrayList<ArrayList<Number>> removeOverlapPixels(ArrayList<Number> x1, ArrayList<Number> y1, ArrayList<Number> z1, ArrayList<Number> x2, ArrayList<Number> y2, ArrayList<Number> z2) {
-       // System.out.println("PROFILING:  Start object size: " + x2.size() + ".");
-        //System.out.println("PROFILING:  Contained object size: " + x1.size() + ".");
 
-        for (int i = 0; i < x1.size(); i++) {
-            for (int j = 0; j < x2.size(); j++) {
-                if ((((Integer)(x1.get(i))).equals(((Integer)(x2.get(j)))) && ((Integer)(y1.get(i))).equals(((Integer)(y2.get(j))))  && ((Integer)(z1.get(i))).equals(((Integer)(z2.get(j)))) )) {
-                    x2.remove(j);
-                    y2.remove(j);
-                    z2.remove(j);
-                    j--;
-                }
-            }
-        }
-        ArrayList<ArrayList<Number>> result = new ArrayList();
-
-        result.add(x2);
-        result.add(y2);
-        result.add(z2);
-
-        //System.out.println("PROFILING:  Final object size: " + x2.size() + ".");
-        return result;
-    }
 
 }
