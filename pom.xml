@@ -211,11 +211,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <type>jar</type>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.gephi/gephi-toolkit -->
-        <dependency>
-            <groupId>org.gephi</groupId>
-            <artifactId>gephi-toolkit</artifactId>
-            <version>0.9.3-SNAPSHOT</version>
-        </dependency>
+        
 
 
 
@@ -375,14 +371,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
-        <repository>
-         <id>oss-sonatype</id>
-         <name>oss-sonatype</name>
-         <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-         <snapshots>
-            <enabled>true</enabled>
-         </snapshots>
-      </repository>
+ 
       <repository>
             <id>netbeans</id>
             <name>NetBeans</name>

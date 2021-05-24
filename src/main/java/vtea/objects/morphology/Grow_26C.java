@@ -37,11 +37,11 @@ public class Grow_26C extends AbstractMorphology {
     JTextField Distance = new JTextField("1", 5);
 
     public Grow_26C() {
-        VERSION = "0.1";
+        VERSION = "0.2";
         AUTHOR = "Seth Winfree";
         COMMENT = "Basic dilation";
-        NAME = "Grow 26C";
-        KEY = "GR26C";
+        NAME = "Grow 26Cv2";
+        KEY = "GR26Cv2";
     }
 
     //Allowed operations: 6C, 8C
@@ -101,7 +101,7 @@ public class Grow_26C extends AbstractMorphology {
             int n = x.length;
 
             //System.out.println("PROFILING:             Expansion time: " + times + ".");
-            //8 connected.
+            //26 connected.
             for (int i = 0; i < n; i++) {
 
                 //same z
@@ -242,15 +242,11 @@ public class Grow_26C extends AbstractMorphology {
         return noDups;
     }
 
-    private ArrayList<ArrayList<Number>> removeDuplicates(ArrayList<Number> x, ArrayList<Number> y, ArrayList<Number> z) {
+   private ArrayList<ArrayList<Number>> removeDuplicates(ArrayList<Number> x, ArrayList<Number> y, ArrayList<Number> z) {
 
         Number xPos;
         Number yPos;
         Number zPos;
-
-        ArrayList<Number> x2 = new ArrayList();
-        ArrayList<Number> y2 = new ArrayList();
-        ArrayList<Number> z2 = new ArrayList();
 
         int count = 0;
 
@@ -259,38 +255,35 @@ public class Grow_26C extends AbstractMorphology {
             yPos = y.get(i);
             zPos = z.get(i);
 
-            x2.add(xPos);
-            y2.add(yPos);
-            z2.add(zPos);
-
             for (int j = 0; j < x.size(); j++) {
-                if ((xPos == x.get(j)) && (yPos == y.get(j)) && ((zPos == z.get(j)))) {
+                if (((Integer)(xPos)).equals(x.get(j)) && ((Integer)(yPos)).equals(y.get(j)) && ((Integer)(zPos)).equals(z.get(j))) {
                     x.remove(j);
                     y.remove(j);
                     z.remove(j);
+                    j--;
                 }
-
             }
-
         }
         ArrayList<ArrayList<Number>> result = new ArrayList();
 
-        result.add(x2);
-        result.add(y2);
-        result.add(z2);
+        result.add(x);
+        result.add(y);
+        result.add(z);
 
         return result;
-
     }
 
     private ArrayList<ArrayList<Number>> removeOverlapPixels(ArrayList<Number> x1, ArrayList<Number> y1, ArrayList<Number> z1, ArrayList<Number> x2, ArrayList<Number> y2, ArrayList<Number> z2) {
+        //System.out.println("PROFILING:  Start object size: " + x2.size() + ".");
+        //System.out.println("PROFILING:  Contained object size: " + x1.size() + ".");
 
         for (int i = 0; i < x1.size(); i++) {
             for (int j = 0; j < x2.size(); j++) {
-                if ((x1.get(i) == x2.get(j)) && (y1.get(i) == y2.get(j)) && ((z1.get(i) == z2.get(j)))) {
+                if ((((Integer)(x1.get(i))).equals(((Integer)(x2.get(j)))) && ((Integer)(y1.get(i))).equals(((Integer)(y2.get(j))))  && ((Integer)(z1.get(i))).equals(((Integer)(z2.get(j)))) )) {
                     x2.remove(j);
                     y2.remove(j);
                     z2.remove(j);
+                    j--;
                 }
             }
         }
@@ -300,7 +293,7 @@ public class Grow_26C extends AbstractMorphology {
         result.add(y2);
         result.add(z2);
 
-        // System.out.println("PROFILING:  Final object size: " + x2.size() + ".");
+        ///System.out.println("PROFILING:  Final object size: " + x2.size() + ".");
         return result;
     }
 

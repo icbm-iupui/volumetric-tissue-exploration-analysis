@@ -1559,7 +1559,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
             if (ip.getID() == impoverlay.getID()) {
                 JFrame frame = new JFrame();
                 frame.setBackground(vtea._vtea.BUTTONBACKGROUND);
-                frame.setAlwaysOnTop(true);
+                frame.setAlwaysOnTop(false);
                 Object[] options = {"Yes", "No", "Restore"};
                 int n = JOptionPane.showOptionDialog(frame,
                         "The overlay image has been closed.  Open a different image?",
