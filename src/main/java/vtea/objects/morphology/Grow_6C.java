@@ -206,6 +206,7 @@ public class Grow_6C extends AbstractMorphology {
     }
 
     private ArrayList<ArrayList<Number>> removeOverlapPixels(ArrayList<Number> x1, ArrayList<Number> y1, ArrayList<Number> z1, ArrayList<Number> x2, ArrayList<Number> y2, ArrayList<Number> z2) {
+        System.out.println("PROFILING:  Final object size: " + x2.size() + ".");
 
         for (int i = 0; i < x1.size(); i++) {
             for (int j = 0; j < x2.size(); j++) {
@@ -222,7 +223,7 @@ public class Grow_6C extends AbstractMorphology {
         result.add(y2);
         result.add(z2);
 
-        // System.out.println("PROFILING:  Final object size: " + x2.size() + ".");
+        System.out.println("PROFILING:  Final object size: " + x2.size() + ".");
         return result;
     }
 

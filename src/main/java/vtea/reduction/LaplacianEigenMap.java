@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import org.scijava.plugin.Plugin;
+import smile.manifold.LaplacianEigenmap;
 import smile.projection.PCA;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
@@ -34,7 +35,7 @@ import vtea.featureprocessing.FeatureProcessing;
  * @author drewmcnutt
  */
 @Plugin(type = FeatureProcessing.class)
-public class PCAReduction extends AbstractFeatureProcessing {
+public class LaplacianEigenMap extends AbstractFeatureProcessing {
 
     public static boolean validate = false;
 
@@ -56,12 +57,12 @@ public class PCAReduction extends AbstractFeatureProcessing {
     /**
      * Basic Constructor. Sets all protected variables
      */
-    public PCAReduction() {
+    public LaplacianEigenMap() {
         VERSION = "0.1";
-        AUTHOR = "Andrew McNutt";
-        COMMENT = "Implements the plugin from SMILE";
-        NAME = "Principal Component Analysis";
-        KEY = "PCA";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Implements Laplacian of EigenMap";
+        NAME = "Laplacian of EigenMap";
+        KEY = "LoE";
         TYPE = "Reduction";
     }
 
@@ -71,7 +72,7 @@ public class PCAReduction extends AbstractFeatureProcessing {
      *
      * @param max the number of objects segmented in the volume
      */
-    public PCAReduction(int max) {
+    public LaplacianEigenMap(int max) {
         this();
 
         protocol = new ArrayList();
@@ -128,6 +129,10 @@ public class PCAReduction extends AbstractFeatureProcessing {
 
         IJ.log(String.format("PROFILING: Finding principal components of the data"));
         PCA pca = new PCA(feature);
+        
+        LaplacianEigenmap le = new LaplacianEigenmap(feature, 10, 2, -1);
+        
+        
 
         if (selection.getSelectedIndex() == 0) {
             newdim = Integer.parseInt(input.getText());
