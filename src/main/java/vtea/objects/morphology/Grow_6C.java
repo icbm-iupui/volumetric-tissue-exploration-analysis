@@ -39,7 +39,7 @@ public class Grow_6C extends AbstractMorphology {
     public Grow_6C() {
         VERSION = "0.2";
         AUTHOR = "Seth Winfree";
-        COMMENT = "Basic dilation version 2";
+        COMMENT = "Basic dilation";
         NAME = "Grow 6Cv2";
         KEY = "GR6Cv2";
     }
