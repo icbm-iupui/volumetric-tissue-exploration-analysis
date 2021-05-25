@@ -73,6 +73,10 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     public void setVisible() {
         this.setVisible(false);
     }
+    
+    public int getNumberOfGates(){
+        return gateList.size();
+    }
 
     private void notifyUpdateNameListeners(String name, int row) {
         for (NameUpdateListener listener : nameUpdateListeners) {
@@ -140,7 +144,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         jRadioButton1.setText("jRadioButton1");
 
         setTitle("Gate Management");
-        setAlwaysOnTop(true);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setFocusTraversalPolicyProvider(true);
         setMaximumSize(new java.awt.Dimension(725, 270));
@@ -148,6 +151,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         setPreferredSize(new java.awt.Dimension(725, 270));
         setResizable(false);
         setSize(new java.awt.Dimension(725, 280));
+        setType(java.awt.Window.Type.UTILITY);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jPanel1.setMaximumSize(new java.awt.Dimension(700, 40));
@@ -400,6 +404,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
 
     public void updateTable(ArrayList<PolygonGate> gates, boolean view) {
         
+        gateList = null;
         gateList = cleanGateList(gates);
 
         if (gateList.size() > 0) {

@@ -140,6 +140,8 @@ public interface ExplorationCenter {
     
     public void updateMenuPositions(int xPos, int yPos);
     
+    public void updateMenuVisible(boolean visible);
+    
     public void closeMenu();
     
     public void addAxesSetpExplorerPlotUpdateListener(AxesSetupExplorerPlotUpdateListener listener);

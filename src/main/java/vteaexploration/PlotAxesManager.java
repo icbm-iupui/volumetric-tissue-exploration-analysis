@@ -143,7 +143,12 @@ public class PlotAxesManager implements AxesChangeListener{
     
     public void updateMenuPosition(int xPos, int yPos){  
         AxesSetup.setLocation(xPos, yPos);
+        AxesSetup.toFront();
         AxesSetup.pack();
+    }
+    
+    public void setVisible(boolean visible){
+        AxesSetup.setVisible(visible);
     }
     
     public void close(){

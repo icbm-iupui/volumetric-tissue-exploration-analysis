@@ -446,7 +446,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         setTitle(getTitle());
-        setAlwaysOnTop(true);
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
         setMaximumSize(getPreferredSize());
@@ -459,9 +458,20 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 formComponentAdded(evt);
             }
         });
+        addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                formFocusGained(evt);
+            }
+        });
         addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentHidden(java.awt.event.ComponentEvent evt) {
+                formComponentHidden(evt);
+            }
             public void componentMoved(java.awt.event.ComponentEvent evt) {
                 formComponentMoved(evt);
+            }
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                formComponentShown(evt);
             }
         });
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -471,7 +481,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
             }
+            public void windowDeiconified(java.awt.event.WindowEvent evt) {
+                formWindowDeiconified(evt);
+            }
+            public void windowIconified(java.awt.event.WindowEvent evt) {
+                formWindowIconified(evt);
+            }
         });
+        getContentPane().setLayout(new java.awt.BorderLayout());
 
         North.setMinimumSize(new java.awt.Dimension(638, 75));
         North.setPreferredSize(new java.awt.Dimension(710, 80));
@@ -480,7 +497,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 NorthMouseClicked(evt);
             }
         });
-        North.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 5));
+        North.setLayout(new java.awt.FlowLayout(0, 2, 5));
 
         toolbarPlot.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         toolbarPlot.setFloatable(false);
@@ -1136,12 +1153,18 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         ec.closeMenu();
+        ec = null;
+        this.imp = null;
+        this.impoverlay = null;
         ff.setVisible(false);
 
     }//GEN-LAST:event_formWindowClosing
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
         ec.closeMenu();
+        ec = null;
+        this.imp = null;
+        this.impoverlay = null;
         ff.setVisible(false);
     }//GEN-LAST:event_formWindowClosed
 
@@ -1154,6 +1177,42 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private void MakeOverlaysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MakeOverlaysActionPerformed
         ec.setMapping(!this.MakeOverlays.isSelected());    
     }//GEN-LAST:event_MakeOverlaysActionPerformed
+
+    private void formComponentHidden(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentHidden
+        if (this.isVisible()) {
+            Point position = evt.getComponent().getLocationOnScreen();
+            ec.updateMenuPositions(position.x, position.y + this.getHeight());
+             ec.updateMenuVisible(false);
+        }
+    }//GEN-LAST:event_formComponentHidden
+
+    private void formComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
+
+    }//GEN-LAST:event_formComponentShown
+
+    private void formFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_formFocusGained
+        if (this.isVisible()) {
+            Point position = evt.getComponent().getLocationOnScreen();
+            ec.updateMenuPositions(position.x, position.y + this.getHeight());
+            ec.updateMenuVisible(true);
+        }
+    }//GEN-LAST:event_formFocusGained
+
+    private void formWindowDeiconified(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowDeiconified
+                      if (this.isVisible()) {
+            Point position = evt.getComponent().getLocationOnScreen();
+            ec.updateMenuPositions(position.x, position.y + this.getHeight());
+            ec.updateMenuVisible(true);
+        }
+    }//GEN-LAST:event_formWindowDeiconified
+
+    private void formWindowIconified(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowIconified
+              if (this.isVisible()) {
+            Point position = evt.getComponent().getLocationOnScreen();
+            ec.updateMenuPositions(position.x, position.y + this.getHeight());
+            ec.updateMenuVisible(true);
+        }
+    }//GEN-LAST:event_formWindowIconified
 
     /**
      * @param args the command line arguments

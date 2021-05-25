@@ -3105,12 +3105,22 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         explorerYposition = yPos;
         AxesManager.updateMenuPosition(xPos, yPos);
         gm.setLocation(xPos, yPos + 96);
+        gm.toFront();
         gm.pack();
     }
-
+    
+    @Override
+    public void updateMenuVisible(boolean visible){
+        AxesManager.setVisible(visible);
+        if(gm.getNumberOfGates() > 0 && !gm.isVisible()){
+        gm.setVisible(visible);}
+    }
+    
+    
     @Override
     public void closeMenu() {
         AxesManager.close();
+        
         gm.setVisible(false);
     }
 
