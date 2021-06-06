@@ -319,6 +319,9 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                 }
             }
         }
+        
+        //imageResult = ConnectedComponents.preProcess(stackResult, watershedImageJ);
+        
         imageResult = new ImagePlus("Mask Result", stackResult);
 
         IJ.run(imageResult, "8-bit", "");
@@ -328,6 +331,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         }
         IJ.run(imageResult, "Invert", "stack");
 
+        //imageResult.show();
         //define the regions
         notifyProgressListeners("Finding regions...", 10.0);
 
@@ -384,7 +388,9 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             
             db = (100 * (j + 1)) / alRegions.size();
             notifyProgressListeners("Building volumes...", (double) db);
-
+                
+            //test is the starting point
+            
             microRegion test = alRegions.get(j);
 
             if (!test.isAMember()) {
@@ -392,8 +398,6 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                 test.setMembership(nVolumesLocal);
                 test.setAMember(true);
                 alRegionsProcessed.add(test);
-//                double[] query = new double[1];
-//                query[0] = j;
                double[] query = new double[3];
                
                query[0] = test.getBoundCenterX();
@@ -402,30 +406,34 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                
                ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
                tree.range(query, minConstants[2], neighbors);  
-               //System.out.println("PROFILING: Found neighbors: " + neighbors.size());
                ListIterator<Neighbor> neighborItr = neighbors.listIterator();
-              
-               while(neighborItr.hasNext()){
-                   Neighbor n = neighborItr.next();
-                   double[] neighborkey = (double[])n.value;
-                   microRegion addRegion = alRegions.get((int)neighborkey[0]);
-                   
-                   if (!addRegion.isAMember()) {
-                       if(addRegion.getZPosition() == test.getZPosition()){
-                        if(n.distance < (minConstants[2]/2)){
-                            addRegion.setMembership(nVolumesLocal);
-                            addRegion.setAMember(true);
-                            alRegionsProcessed.add(addRegion);
-                        }
-                       } else {
-                        addRegion.setMembership(nVolumesLocal);
-                        addRegion.setAMember(true);
-                        alRegionsProcessed.add(addRegion);
-                       }
-                   }
-               }
-            }
+               
+               findConnectedRegions(nVolumesLocal, query, tree);
+
+            } 
         }
+//        
+//        Collections.sort(alRegionsProcessed, new ZComparator());
+//        Collections.sort(alRegionsProcessed, new XComparator());
+//        Collections.sort(alRegionsProcessed, new YComparator());
+//        
+//        for (int j = 0; j < alRegionsProcessed.size(); j++) {
+//            
+//            microRegion test = alRegionsProcessed.get(j);
+//            
+//            db = (100 * (j + 1)) / alRegionsProcessed.size();
+//            notifyProgressListeners("Merging volumes...", (double) db);
+//            
+//                double[] query = new double[3];
+//            
+//               query[0] = test.getBoundCenterX();
+//               query[1] = test.getBoundCenterY();
+//               query[2] = test.getZPosition();
+//            
+//            findConnectedRegions(nVolumesLocal, query, tree);
+//            
+//        }
+        
         
         
         
@@ -441,7 +449,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                     volume.addRegion(region);
                 }
             }
-            if (volume.getNRegions() > 0) {
+            if (volume.getNRegions() > 1) {
                 volume.makePixelArrays();
                 volume.setCentroid();
                 volume.setSerialID(alVolumes.size());
@@ -462,38 +470,44 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         return distance;
     }
 
-    private void findConnectedRegions(int volumeNumber, double[] startRegion, int z) {
+    private void findConnectedRegions(int volumeNumber, double[] query, KDTree tree) {
 
-        double[] testRegion = new double[2];
-        int i = 0;
+     
+        
+        ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
+               tree.range(query, minConstants[2], neighbors);  
+               ListIterator<Neighbor> neighborItr = neighbors.listIterator();
+              
+               while(neighborItr.hasNext()){
+                   Neighbor n = neighborItr.next();
+                   double[] neighborkey = (double[])n.value;
+                   microRegion addRegion = alRegions.get((int)neighborkey[0]);
+                   
+                   
+                   if (n.distance < (minConstants[2])
+                           && Math.abs(addRegion.getZPosition() - query[2]) == 1) {
+                       if (!addRegion.isAMember()) {
+                           addRegion.setMembership(volumeNumber);
+                           addRegion.setAMember(true);
+                           alRegionsProcessed.add(addRegion);
 
-        boolean tooFar = true;
+                           query[0] = addRegion.getBoundCenterX();
+                           query[1] = addRegion.getBoundCenterY();
+                           query[2] = addRegion.getZPosition();
 
-        while (i < alRegions.size()) {
-            microRegion test = new microRegion();
-            test = alRegions.get(i);
-            testRegion[0] = test.getBoundCenterX();
-            testRegion[1] = test.getBoundCenterY();
-            double comparator = lengthCart(startRegion, testRegion);
+                           findConnectedRegions(volumeNumber, query, tree);
+                       } else if (volumeNumber != addRegion.getMembership()) {
+                           addRegion.setMembership(volumeNumber);
+                           query[0] = addRegion.getBoundCenterX();
+                           query[1] = addRegion.getBoundCenterY();
+                           query[2] = addRegion.getZPosition();
+                           findConnectedRegions(volumeNumber, query, tree);
+                       } 
 
-            if (!test.isAMember()) {
-                if (comparator <= minConstants[2] && ((test.getZPosition() - z) == 1)) {
-
-                    test.setMembership(volumeNumber);
-                    test.setAMember(true);
-                    //z = test.getZPosition();
-                    testRegion[0] = (testRegion[0] + startRegion[0]) / 2;
-                    testRegion[1] = (testRegion[1] + startRegion[1]) / 2;
-                    alRegionsProcessed.add(test);
-
-                    //speed it up
-                    alRegions.remove(i);
-                    findConnectedRegions(volumeNumber, testRegion, test.getZPosition());
-                }
-
-            }
-            i++;
-        }
+                   }
+                   
+               }
+            
     }
 
     private class ZComparator implements Comparator<microRegion> {
