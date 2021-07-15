@@ -40,8 +40,8 @@ public class Grow_26C extends AbstractMorphology {
         VERSION = "0.2";
         AUTHOR = "Seth Winfree";
         COMMENT = "Basic dilation";
-        NAME = "Grow 26Cv2";
-        KEY = "GR26Cv2";
+        NAME = "Ring 26C";
+        KEY = "Ring26C";
     }
 
     //Allowed operations: 6C, 8C

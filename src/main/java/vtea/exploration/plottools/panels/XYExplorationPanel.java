@@ -2519,8 +2519,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             Integer feature = Integer.parseInt(settings.get(0));
             String method = settings.get(1);
             String radius = settings.get(2);
-            String kNeighbors = settings.get(3);
-            String interval = settings.get(4);
+            String zScale = settings.get(3);
+            String kNeighbors = settings.get(4);
+            String interval = settings.get(5);
 
             ProgressTracker pt = new ProgressTracker();
             pt.createandshowGUI("Neighborhood Analysis", explorerXposition, explorerYposition);
@@ -2579,8 +2580,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 double[] d = new double[3];
                 d[0] = obj.getCentroidX();
                 d[1] = obj.getCentroidY();
-                d[2] = obj.getCentroidZ();
-
+                d[2] = obj.getCentroidZ()*(Double.parseDouble(zScale));
                 data[i] = d;
                 i++;
             }
@@ -2652,7 +2652,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             } else if (method.equals("Spatial by cell")) {
 
                 firePropertyChange("method", "Spatial by cell.", "Spatial by cell.");
-                //firePropertyChange("progress", "Making kD tree...", 5);
                 firePropertyChange("indeterminant", " setup", "");
 
                 KDTree tree = new KDTree(data, key);
@@ -3243,6 +3242,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         ArrayList<String> settings = new ArrayList<String>();
 
         JComboBox classification = new JComboBox(descriptions.toArray());
+        
+        double[] pixelSize = new double[3];
 
         String[] methods = {"Spatial by cell", "Spatial by position", "Nearest-k"};
 
@@ -3252,7 +3253,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         JComboBox method = new JComboBox(methods);
 
         JLabel radiusLabel = new JLabel("Radius");
-        JTextField radius = new JTextField("30", 5);
+        JTextField radius = new JTextField("50", 5);
+        JLabel zLabel = new JLabel("Voxel Z scale");
+        JTextField zScale = new JTextField("2", 5);
         JLabel kNeighborsLabel = new JLabel("Neighbors");
         JTextField kNeighbors = new JTextField("10", 5);
         JLabel intervalLabel = new JLabel("Interval");
@@ -3342,8 +3345,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 submenu.add(radius, gbc);
                 gbc = new GridBagConstraints(0, 1, 1, 1, 0.2, 1.0,
                         GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-                submenu.add(new JLabel("     "), gbc);
+                submenu.add(zLabel, gbc);
                 gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(zScale, gbc);
+                gbc = new GridBagConstraints(0, 2, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(new JLabel("     "), gbc);
+                gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(new JLabel("     "), gbc);
 
@@ -3356,8 +3365,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 submenu.add(radius, gbc);
                 gbc = new GridBagConstraints(0, 1, 1, 1, 0.2, 1.0,
                         GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-                submenu.add(intervalLabel, gbc);
+                submenu.add(zLabel, gbc);
                 gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(zScale, gbc);
+                gbc = new GridBagConstraints(0, 2, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(intervalLabel, gbc);
+                gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(interval, gbc);
 
@@ -3372,6 +3387,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                         GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(new JLabel("     "), gbc);
                 gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(new JLabel("     "), gbc);
+                gbc = new GridBagConstraints(0, 2, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(new JLabel("     "), gbc);
+                gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(new JLabel("     "), gbc);
 
@@ -3395,6 +3416,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 settings.add(Integer.toString(classification.getSelectedIndex()));
                 settings.add(methods[method.getSelectedIndex()]);
                 settings.add(radius.getText());
+                settings.add(zScale.getText());
                 settings.add(kNeighbors.getText());
                 settings.add(interval.getText());
             } else {

@@ -32,16 +32,16 @@ import org.scijava.plugin.Plugin;
  *
  */
 @Plugin(type = Morphology.class)
-public class Grow_6C extends AbstractMorphology {
+public class Ring extends AbstractMorphology {
 
     JTextField Distance = new JTextField("1", 5);
 
-    public Grow_6C() {
-        VERSION = "0.2";
+    public Ring() {
+        VERSION = "0.1";
         AUTHOR = "Seth Winfree";
-        COMMENT = "Basic dilation";
-        NAME = "Grow 6Cv2";
-        KEY = "GR6Cv2";
+        COMMENT = "Basic ring, IN DEVELOPMENT";
+        NAME = "Ring 6C";
+        KEY = "Ring6C";
     }
 
     //Allowed operations: 6C

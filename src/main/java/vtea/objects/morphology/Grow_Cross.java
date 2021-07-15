@@ -39,7 +39,7 @@ public class Grow_Cross extends AbstractMorphology {
     public Grow_Cross() {
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
-        COMMENT = "Cross 3d probe 6C";
+        COMMENT = "Cross 3D probe 6C";
         NAME = "Cross";
         KEY = "CROSS";
     }
