@@ -412,27 +412,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
 
             } 
         }
-//        
-//        Collections.sort(alRegionsProcessed, new ZComparator());
-//        Collections.sort(alRegionsProcessed, new XComparator());
-//        Collections.sort(alRegionsProcessed, new YComparator());
-//        
-//        for (int j = 0; j < alRegionsProcessed.size(); j++) {
-//            
-//            microRegion test = alRegionsProcessed.get(j);
-//            
-//            db = (100 * (j + 1)) / alRegionsProcessed.size();
-//            notifyProgressListeners("Merging volumes...", (double) db);
-//            
-//                double[] query = new double[3];
-//            
-//               query[0] = test.getBoundCenterX();
-//               query[1] = test.getBoundCenterY();
-//               query[2] = test.getZPosition();
-//            
-//            findConnectedRegions(nVolumesLocal, query, tree);
-//            
-//        }
+
         
         
         
@@ -483,10 +463,10 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                    double[] neighborkey = (double[])n.value;
                    microRegion addRegion = alRegions.get((int)neighborkey[0]);
                    
-                   
-                   if (n.distance < (minConstants[2])
+                if (!addRegion.isAMember()) {   
+                   if (n.distance <= (minConstants[2])
                            && Math.abs(addRegion.getZPosition() - query[2]) == 1) {
-                       if (!addRegion.isAMember()) {
+                       
                            addRegion.setMembership(volumeNumber);
                            addRegion.setAMember(true);
                            alRegionsProcessed.add(addRegion);
@@ -496,13 +476,14 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                            query[2] = addRegion.getZPosition();
 
                            findConnectedRegions(volumeNumber, query, tree);
-                       } else if (volumeNumber != addRegion.getMembership()) {
-                           addRegion.setMembership(volumeNumber);
-                           query[0] = addRegion.getBoundCenterX();
-                           query[1] = addRegion.getBoundCenterY();
-                           query[2] = addRegion.getZPosition();
-                           findConnectedRegions(volumeNumber, query, tree);
                        } 
+//                       else if (volumeNumber != addRegion.getMembership()) {
+//                           addRegion.setMembership(volumeNumber);
+//                           query[0] = addRegion.getBoundCenterX();
+//                           query[1] = addRegion.getBoundCenterY();
+//                           query[2] = addRegion.getZPosition();
+//                           findConnectedRegions(volumeNumber, query, tree);
+//                       } 
 
                    }
                    
