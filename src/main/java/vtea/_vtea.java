@@ -69,7 +69,7 @@ import vtea.services.PlotMakerService;
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
-    public static String VERSION = new String("1.0 alpha r8");
+    public static String VERSION = new String("1.0 alpha r10");
 
     public ProtocolManagerMulti protocolWindow;
 
@@ -158,11 +158,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
             @Override
             public void run() {
 
-//                           try {
-//    UIManager.setLookAndFeel( new FlatLightLaf() );
-//} catch( Exception ex ) {
-//    System.err.println( "Failed to initialize LaF" );
-//}
+
                 new ImageJ();
             }
         });

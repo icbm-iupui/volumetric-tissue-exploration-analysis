@@ -2145,19 +2145,25 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
         JCheckBox zero = new JCheckBox("Zero Order", true);
+        JCheckBox position = new JCheckBox("Use Position", false);
 
         ProgressTracker tracker = new ProgressTracker();
 
         double progress;
+        
+        jf.setDialogTitle("Select CSV file");
 
         JPanel panel1 = (JPanel) jf.getComponent(3);
         JPanel panel2 = (JPanel) panel1.getComponent(3);
+        
         panel2.add(zero);
+        panel2.add(position);
 
         int returnVal = jf.showOpenDialog(CenterPanel);
         File file = jf.getSelectedFile();
 
         boolean zeroOrder = zero.isSelected();
+        boolean positionImport = position.isSelected();
 
         ArrayList<ArrayList<Number>> csvData = new ArrayList();
 
@@ -2220,7 +2226,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
             //build data by column
             for (int c = 0; c < this.objects.size(); c++) {
-                ArrayList<Number> data = this.getObjectDataAll(zeroOrder, csvData, blank, c);
+                
+                String positionText = objects.get(c).getCentroidX() + "_" +
+                        objects.get(c).getCentroidY() + "_" +
+                        objects.get(c).getCentroidZ();      
+                
+                ArrayList<Number> data = this.getObjectDataAll(zeroOrder, positionImport, csvData, blank, c, positionText);
                 for (int b = 0; b < dataColumns; b++) {
                     ArrayList<Number> al = FeatureColumns.get(b);
                     al.add(data.get(b));
@@ -2405,16 +2416,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             for (int k = 0; k < dataColumns; k++) {
                 blank.add(-1);
             }
-
-//            for (int i = 1; i < dataColumns; i++) {
-//                //ArrayList<Number> data = getData(i, csvData);
-//
-////                if (data.size() > 0) {
-////                    paddedTable.add(data);
-////                } else {
-////                    paddedTable.add(blank);
-////                }
-//            }
             String name = file.getName();
             name = name.replace(".", "_");
             this.notifyAddFeatureListener(name, paddedTable);
@@ -2451,15 +2452,29 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         return result;
     }
 
-    private ArrayList<Number> getObjectDataAll(boolean zeroOrder,
-            ArrayList<ArrayList<Number>> data, ArrayList<Number> blank, float id) {
+    private ArrayList<Number> getObjectDataAll(boolean zeroOrder, boolean positionImport,
+            ArrayList<ArrayList<Number>> data, ArrayList<Number> blank, float id, String position) {
         ArrayList<Number> result = new ArrayList<Number>();
         boolean elementFound = false;
-        //for (int objectID = 0; objectID < objects.size(); objectID++) {
         for (int x = 0; x < data.size(); x++) {
 
             ArrayList<Number> test = data.get(x);
+            
+            
+            if(positionImport){
+                String positionText = (Float)(test.get(1)) + "_" +
+                        (Float)(test.get(2)) + "_" +
+                        (Float)(test.get(3)); 
+                if(position.equals(positionText)){
+                    result.addAll(test);
+                    elementFound = true;
+                    data.remove(x);
+                    return result;
+                }
+            } else {
+
             if (zeroOrder) {
+
                 if ((Float) (test.get(0)) == (float) id) {
                     result.addAll(test);
                     elementFound = true;
@@ -2474,9 +2489,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     return result;
                 }
             }
-
         }
-
+        }
         result.addAll(blank);
         return result;
     }

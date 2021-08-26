@@ -704,18 +704,22 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         protected void compute() {
 
             long processors = Runtime.getRuntime().availableProcessors();
+            
+        
 
             long length = stack.getSize() / processors;
+            
+      
 
             if (stack.getSize() < processors) {
-                length = stack.getSize();
+                length = 1;
             }
             if (stop - start > length) {
 
+               
                 invokeAll(new RegionForkPool(stack, original, start, start + ((stop - start) / 2)),
                         new RegionForkPool(stack, original, start + ((stop - start) / 2) + 1, stop));
-
-            } else {
+            } else  {
                 defineRegions();
                 setRegions();
             }

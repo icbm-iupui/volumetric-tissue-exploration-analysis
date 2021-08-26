@@ -488,7 +488,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 formWindowIconified(evt);
             }
         });
-        getContentPane().setLayout(new java.awt.BorderLayout());
 
         North.setMinimumSize(new java.awt.Dimension(638, 75));
         North.setPreferredSize(new java.awt.Dimension(710, 80));
@@ -497,7 +496,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 NorthMouseClicked(evt);
             }
         });
-        North.setLayout(new java.awt.FlowLayout(0, 2, 5));
+        North.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 5));
 
         toolbarPlot.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         toolbarPlot.setFloatable(false);
