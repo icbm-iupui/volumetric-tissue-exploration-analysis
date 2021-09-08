@@ -79,8 +79,8 @@ public class LayerCake3DSingleThreshold extends AbstractSegmentation {
         VERSION = "0.2";
         AUTHOR = "Seth Winfree";
         COMMENT = "Connected components object segmentation.";
-        NAME = "Connect 3D";
-        KEY = "Connect3DSingleThreshold";
+        NAME = "Connect 2D/3D";
+        KEY = "Connect2D3DSingleThreshold";
         TYPE = "Calculated";
 
         protocol = new ArrayList();

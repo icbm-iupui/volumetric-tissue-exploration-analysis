@@ -53,6 +53,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -849,7 +850,14 @@ class ExportObjImgOptions extends JPanel implements ChangeTextListener {
     }
 
     public int showDialog() {
-        return JOptionPane.showOptionDialog(null, this, "Setup Output Images",
+        
+        JFrame options = new JFrame();
+        options.setLocationRelativeTo(null);
+        //options.setVisible(true);
+        options.setAlwaysOnTop(true);
+        
+        
+        return JOptionPane.showOptionDialog(options, this, "Setup Output Images",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
                 null, null);
     }

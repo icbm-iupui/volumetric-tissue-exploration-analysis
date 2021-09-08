@@ -51,7 +51,7 @@ public class Ring extends AbstractMorphology {
 
         JTextField distance = (JTextField) protocol.get(1);
 
-        return growRegion6C(x, y, z, Integer.parseInt(distance.getText()));
+        return Ring6C(x, y, z, Integer.parseInt(distance.getText()));
     }
 
     @Override
@@ -76,7 +76,7 @@ public class Ring extends AbstractMorphology {
         return panel;
     }
 
-    private ArrayList<ArrayList<Number>> growRegion6C(int[] x, int[] y, int[] z, int times) {
+    private ArrayList<ArrayList<Number>> Ring6C(int[] x, int[] y, int[] z, int times) {
 
         //System.out.println("PROFILING:                       Starting object size: " + x.length + ".");
         ArrayList<Number> xArr = new ArrayList();
@@ -195,7 +195,6 @@ public class Ring extends AbstractMorphology {
         result.add(y2);
         result.add(z2);
 
-        //System.out.println("PROFILING:  Final object size: " + x2.size() + ".");
         return result;
     }
 

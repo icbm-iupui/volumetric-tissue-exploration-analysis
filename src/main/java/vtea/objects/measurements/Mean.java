@@ -41,7 +41,7 @@ public class Mean extends AbstractMeasurement {
             }
         }
         return n / values.size();
-
+        
     }
 
     public Mean() {
