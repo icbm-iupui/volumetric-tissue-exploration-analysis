@@ -51,6 +51,7 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
 
         ChannelSelection.setText("Morphology on: ");
         ChannelComboBox.addItem("All");
+        
 
         //setup the method
         super.processComboBox = new DefaultComboBoxModel(vtea._vtea.MORPHOLOGICALOPTIONS);
@@ -75,6 +76,8 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
 
         repaint();
         pack();
+        ChannelComboBox.setSelectedIndex(ChannelComboBox.getItemCount()-1);
+        ProcessSelectComboBox.setSelectedItem("Ring 6C");
     }
 
     @Override

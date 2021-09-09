@@ -137,7 +137,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         exportGates = new javax.swing.JButton();
         LoadGates = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
-        jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         GateDataTable = new javax.swing.JTable();
 
@@ -222,17 +221,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         });
         jToolBar1.add(LoadGates);
         jToolBar1.add(jSeparator1);
-
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Heatmap.png"))); // NOI18N
-        jButton1.setToolTipText("Make a heatmap for a given feature.");
-        jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setMargin(new java.awt.Insets(0, 1, 0, 1));
-        jButton1.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButton1.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButton1.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton1);
 
         jPanel1.add(jToolBar1, new java.awt.GridBagConstraints());
 
@@ -329,7 +317,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     private javax.swing.JButton addMeasurement;
     public javax.swing.JLabel currentMeasure;
     private javax.swing.JButton exportGates;
-    private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JScrollPane jScrollPane1;

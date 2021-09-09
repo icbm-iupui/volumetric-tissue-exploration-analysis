@@ -29,9 +29,9 @@ import org.scijava.plugin.Plugin;
 /**
  *
  * @author sethwinfree
- *
+ * Disabled
  */
-@Plugin(type = Morphology.class)
+//@Plugin(type = Morphology.class)
 public class Grow_26C extends AbstractMorphology {
 
     JTextField Distance = new JTextField("1", 5);

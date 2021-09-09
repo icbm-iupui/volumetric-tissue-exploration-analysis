@@ -76,12 +76,24 @@ public class Ring extends AbstractMorphology {
         return panel;
     }
 
+    private ArrayList<Number> ConvertPrimitiveIntArray(int[] input) {
+        ArrayList<Number> output = new ArrayList<Number>();
+        for (int i = 0; i < input.length; i++) {
+            output.add(Integer.valueOf(input[i]));
+        }
+        return output;
+    }
+
     private ArrayList<ArrayList<Number>> Ring6C(int[] x, int[] y, int[] z, int times) {
 
         //System.out.println("PROFILING:                       Starting object size: " + x.length + ".");
         ArrayList<Number> xArr = new ArrayList();
         ArrayList<Number> yArr = new ArrayList();
         ArrayList<Number> zArr = new ArrayList();
+        
+        ArrayList<Number> xArr_result = new ArrayList();
+        ArrayList<Number> yArr_result = new ArrayList();
+        ArrayList<Number> zArr_result = new ArrayList();
 
         ArrayList<Number> xList = new ArrayList();
         ArrayList<Number> yList = new ArrayList();
@@ -95,51 +107,58 @@ public class Ring extends AbstractMorphology {
 
         ArrayList<ArrayList<Number>> noDups = new ArrayList();
 
+        xArr = ConvertPrimitiveIntArray(x);
+        yArr = ConvertPrimitiveIntArray(y);
+        zArr = ConvertPrimitiveIntArray(z);
+
         //to determine how many expansions
         for (int j = 1; j <= times; j++) {
 
-            int n = x.length;
+            int n = xArr.size();
 
             //System.out.println("PROFILING:             Expansion time: " + times + ".");
             //6 connected.
             for (int i = 0; i < n; i++) {
-
                 //same z
-                xArr.add(x[i]);
-                yArr.add(y[i]);
-                zArr.add(z[i]);
+                // xArr.add(xArr.get(i).intValue());
+                //yArr.add(yArr.get(i).intValue());
+                //zArr.add(zArr.get(i).intValue());
 
-                xArr.add(x[i] - 1);
-                yArr.add(y[i]);
-                zArr.add(z[i]);
+                xArr_result.add(xArr.get(i).intValue() - 1);
+                yArr_result.add(yArr.get(i).intValue());
+                zArr_result.add(zArr.get(i).intValue());
 
-                xArr.add(x[i] + 1);
-                yArr.add(y[i]);
-                zArr.add(z[i]);
+                xArr_result.add(xArr.get(i).intValue() + 1);
+                yArr_result.add(yArr.get(i).intValue());
+                zArr_result.add(zArr.get(i).intValue());
 
-                xArr.add(x[i]);
-                yArr.add(y[i] - 1);
-                zArr.add(z[i]);
+                xArr_result.add(xArr.get(i).intValue());
+                yArr_result.add(yArr.get(i).intValue() - 1);
+                zArr_result.add(zArr.get(i).intValue());
 
-                xArr.add(x[i]);
-                yArr.add(y[i] + 1);
-                zArr.add(z[i]);
+                xArr_result.add(xArr.get(i).intValue());
+                yArr_result.add(yArr.get(i).intValue() + 1);
+                zArr_result.add(zArr.get(i).intValue());
 
                 //z below
-                xArr.add(x[i]);
-                yArr.add(y[i]);
-                zArr.add(z[i] - 1);
+                xArr_result.add(xArr.get(i).intValue());
+                yArr_result.add(yArr.get(i).intValue());
+                zArr_result.add(zArr.get(i).intValue() - 1);
 
                 //z above
-                xArr.add(x[i]);
-                yArr.add(y[i]);
-                zArr.add(z[i] + 1);
+                xArr_result.add(xArr.get(i).intValue());
+                yArr_result.add(yArr.get(i).intValue());
+                zArr_result.add(zArr.get(i).intValue() + 1);
 
             }
- 
+            noDups = removeDuplicates(xArr_result, yArr_result, zArr_result);
+            xArr = noDups.get(0);
+            yArr = noDups.get(1);
+            zArr = noDups.get(2);
         }
-        noDups = removeDuplicates(xArr, yArr, zArr);
-        noDups = removeOverlapPixels(xList, yList, zList, noDups.get(0), noDups.get(1), noDups.get(2));
+       
+
+        noDups = removeOverlapPixels(xList, yList, zList, xArr, yArr, zArr);
 
         return noDups;
     }
@@ -150,38 +169,49 @@ public class Ring extends AbstractMorphology {
         Number yPos;
         Number zPos;
 
+        ArrayList<Number> x_result = new ArrayList<Number>();
+        ArrayList<Number> y_result = new ArrayList<Number>();
+        ArrayList<Number> z_result = new ArrayList<Number>();
+
         int count = 0;
+        
+        
 
         for (int i = 0; i < x.size(); i++) {
             xPos = x.get(i);
             yPos = y.get(i);
             zPos = z.get(i);
+            
+            x_result.add(xPos.intValue());
+            y_result.add(yPos.intValue());
+            z_result.add(zPos.intValue());
 
-            for (int j = 0; j < x.size(); j++) {
-                if (((Integer)(xPos)).equals(x.get(j)) && ((Integer)(yPos)).equals(y.get(j)) && ((Integer)(zPos)).equals(z.get(j))) {
+            for (int j = i+1; j < x.size(); j++) {
+                if (((Integer) (xPos)).equals(x.get(j)) && ((Integer) (yPos)).equals(y.get(j)) && ((Integer) (zPos)).equals(z.get(j))) {
                     x.remove(j);
                     y.remove(j);
                     z.remove(j);
-                    j--;
                 }
+
             }
+
         }
         ArrayList<ArrayList<Number>> result = new ArrayList();
 
-        result.add(x);
-        result.add(y);
-        result.add(z);
+        result.add(x_result);
+        result.add(y_result);
+        result.add(z_result);
 
         return result;
     }
 
     private ArrayList<ArrayList<Number>> removeOverlapPixels(ArrayList<Number> x1, ArrayList<Number> y1, ArrayList<Number> z1, ArrayList<Number> x2, ArrayList<Number> y2, ArrayList<Number> z2) {
-       // System.out.println("PROFILING:  Start object size: " + x2.size() + ".");
+        // System.out.println("PROFILING:  Start object size: " + x2.size() + ".");
         //System.out.println("PROFILING:  Contained object size: " + x1.size() + ".");
 
         for (int i = 0; i < x1.size(); i++) {
             for (int j = 0; j < x2.size(); j++) {
-                if ((((Integer)(x1.get(i))).equals(((Integer)(x2.get(j)))) && ((Integer)(y1.get(i))).equals(((Integer)(y2.get(j))))  && ((Integer)(z1.get(i))).equals(((Integer)(z2.get(j)))) )) {
+                if ((((Integer) (x1.get(i))).equals(((Integer) (x2.get(j)))) && ((Integer) (y1.get(i))).equals(((Integer) (y2.get(j)))) && ((Integer) (z1.get(i))).equals(((Integer) (z2.get(j)))))) {
                     x2.remove(j);
                     y2.remove(j);
                     z2.remove(j);

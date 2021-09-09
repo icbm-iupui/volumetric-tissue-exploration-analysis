@@ -631,6 +631,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                 g2.setColor(gate.getColor());
                                 g2.drawRect(x_pixels[c], y_pixels[c], 1, 1);
                             }
+                            //add morphology
+                            if(vol.getMorphologicalCount() > 0){
+                            int[] x_pixels_morph = vol.getMorphPixelsX(0);
+                            int[] y_pixels_morph = vol.getMorphPixelsY(0);
+                            int[] z_pixels_morph = vol.getMorphPixelsZ(0);
+                            for (int c = 0; c < x_pixels_morph.length; c++) {
+                                if(z_pixels_morph[c] == i){
+                                g2.setColor(Color.GREEN);
+                                g2.drawRect(x_pixels_morph[c], y_pixels_morph[c], 1, 1);
+                                }
+                            }
+                            }
                             ir = new ImageRoi(0, 0, selections);
                             count++;
                         } catch (NullPointerException e) {

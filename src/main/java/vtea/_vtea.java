@@ -69,7 +69,7 @@ import vtea.services.PlotMakerService;
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
-    public static String VERSION = new String("1.0 alpha r10");
+    public static String VERSION = new String("1.0 alpha r11");
 
     public ProtocolManagerMulti protocolWindow;
 

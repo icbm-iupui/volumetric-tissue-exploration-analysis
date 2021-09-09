@@ -429,7 +429,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                     volume.addRegion(region);
                 }
             }
-            if (volume.getNRegions() > 1) {
+            if (volume.getNRegions() > 1 || imageResult.getNSlices() == 1) {
                 volume.makePixelArrays();
                 volume.setCentroid();
                 volume.setSerialID(alVolumes.size());
