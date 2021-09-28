@@ -416,7 +416,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jSeparator1 = new javax.swing.JToolBar.Separator();
         jLabel3 = new javax.swing.JLabel();
         AutoScaleAxes = new javax.swing.JButton();
-        AxesSettings = new javax.swing.JButton();
         SetGlobalToLocal = new javax.swing.JButton();
         UseGlobal = new javax.swing.JToggleButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
@@ -425,6 +424,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         getMask = new javax.swing.JButton();
         getSegmentation = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
+        jButton1 = new javax.swing.JButton();
         jButtonMeas = new javax.swing.JButton();
         jButtonFeature = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
@@ -657,21 +657,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarGate.add(AutoScaleAxes);
 
-        AxesSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/emblem-system.png"))); // NOI18N
-        AxesSettings.setToolTipText("Axes settings");
-        AxesSettings.setFocusable(false);
-        AxesSettings.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        AxesSettings.setMaximumSize(new java.awt.Dimension(35, 40));
-        AxesSettings.setMinimumSize(new java.awt.Dimension(35, 40));
-        AxesSettings.setPreferredSize(new java.awt.Dimension(35, 40));
-        AxesSettings.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        AxesSettings.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                AxesSettingsActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(AxesSettings);
-
         SetGlobalToLocal.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/setGlobal copy.png"))); // NOI18N
         SetGlobalToLocal.setToolTipText("Set global axes");
         SetGlobalToLocal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -761,6 +746,15 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarGate.add(getSegmentation);
         toolbarGate.add(jSeparator7);
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/addImageDataImage_32.png"))); // NOI18N
+        jButton1.setToolTipText("Import image and measure...");
+        jButton1.setFocusable(false);
+        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton1.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButton1.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        toolbarGate.add(jButton1);
 
         jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/FeaturesAdd_2.png"))); // NOI18N
         jButtonMeas.setToolTipText("Import features from CSV...");
@@ -1046,11 +1040,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         }).start();
     }//GEN-LAST:event_importOBJActionPerformed
 
-    private void AxesSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AxesSettingsActionPerformed
-        ec.invokeAxesSettingsDialog(this.getX(), this.getY() + this.getHeight());
-        //System.out.println("PROFILING: Axes setup at: " + this.getX() + " and " + (this.getY()+this.getHeight()));
-    }//GEN-LAST:event_AxesSettingsActionPerformed
-
     private void AutoScaleAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutoScaleAxesActionPerformed
         ec.setCustomRange(this.XAXIS, false);
         ec.setCustomRange(this.YAXIS, false);
@@ -1249,7 +1238,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
 //    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AutoScaleAxes;
-    private javax.swing.JButton AxesSettings;
     private javax.swing.JMenu Edit;
     private javax.swing.JButton ExportGraph;
     private javax.swing.JButton FlipAxes;
@@ -1271,6 +1259,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private javax.swing.JButton getMask;
     private javax.swing.JButton getSegmentation;
     private javax.swing.JButton importOBJ;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonFeature;
     private javax.swing.JButton jButtonMeas;
     private javax.swing.JButton jButtonPlots;
