@@ -49,6 +49,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.TableColumn;
 import static vtea._vtea.SEGMENTATIONMAP;
+import vtea.morphology.ImageFeatureAddFrame;
 import vtea.morphology.MorphologyFrame;
 import vtea.objects.Segmentation.AbstractSegmentation;
 import vtea.processor.ImageProcessingProcessor;

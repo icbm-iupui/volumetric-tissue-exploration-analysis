@@ -17,24 +17,45 @@
  */
 package vtea.morphology;
 
+import ij.ImagePlus;
+import ij.io.Opener;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import static java.awt.event.WindowEvent.WINDOW_CLOSED;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.ListIterator;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.feature.listeners.RepaintFeatureListener;
+import vtea.processor.AddImageFeatureMeasurementProcessor;
+import vtea.processor.AddImageFeatureSegmentationProcessor;
+import vtea.processor.ExplorerProcessor;
+import vtea.processor.MeasurementProcessor;
+import vtea.processor.SegmentationProcessor;
+import vtea.protocol.SingleImageProcessing;
+import static vtea.protocol.SingleImageProcessing.OBJECTBLOCKS;
+import static vtea.protocol.SingleImageProcessing.extractSteps;
 import vtea.protocol.blockstepgui.MorphologyStepBlockGUI;
+import vtea.protocol.listeners.AddImageFrameListener;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MorphologyFrameListener;
 import vtea.protocol.listeners.RebuildPanelListener;
 import vtea.protocol.listeners.UpdateProgressListener;
+import vteaobjects.MicroObject;
 
 /**
  * Window for analysis methods. Keeps track of analysis methods that are added
@@ -42,17 +63,30 @@ import vtea.protocol.listeners.UpdateProgressListener;
  *
  * @author drewmcnutt
  */
-public class MorphologyFrame extends javax.swing.JFrame implements WindowStateListener, AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener {
+public class ImageFeatureAddFrame extends javax.swing.JFrame implements
+        WindowStateListener, AddFeaturesListener, PropertyChangeListener,
+        UpdateProgressListener, RebuildPanelListener, DeleteBlockListener,
+        RepaintFeatureListener {
 
     protected ArrayList<MorphologyStepBlockGUI> MorphologicalStepsList;
     ArrayList channels;
     ArrayList descriptions;
     double[][] features;
+    File location;
+    String key;
+    ImagePlus image;
     int nvol;           //number of volumes
+
+    Connection connection;
 
     ArrayList<AddFeaturesListener> listeners = new ArrayList<AddFeaturesListener>();
 
-    ArrayList<MorphologyFrameListener> morphologylisteners = new ArrayList<MorphologyFrameListener>();
+    ArrayList<AddImageFrameListener> morphologylisteners = new ArrayList<AddImageFrameListener>();
+
+    private ArrayList<AddImageFeatureSegmentationProcessor> addImageFeatureSegmentationProcessors = new ArrayList();
+    private ArrayList<AddImageFeatureMeasurementProcessor> addImageFeatureMeasurementProcessors = new ArrayList();
+
+    ArrayList<MicroObject> objects = new ArrayList();
 
     protected GridLayout MorphologyLayout = new GridLayout(4, 1, 0, 0);
 
@@ -62,7 +96,12 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
      * @param descriptions
      * @param table
      */
-    public MorphologyFrame(ArrayList channels) {
+    public ImageFeatureAddFrame(String k, ArrayList channels, ImagePlus imp, ArrayList<MicroObject> obj, Connection cn) {
+        this.addPropertyChangeListener(this);
+        image = imp;
+        connection = cn;
+        objects = obj;
+        key = k;
         MorphologicalStepsList = new ArrayList<MorphologyStepBlockGUI>();
         this.channels = channels;
         initComponents();
@@ -84,15 +123,16 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         FeatureAnalysis = new javax.swing.JPanel();
         Feature_Header = new javax.swing.JPanel();
         FeatureLabel = new javax.swing.JLabel();
-        AddStep = new javax.swing.JButton();
         DeleteAllSteps = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        exploreText = new javax.swing.JLabel();
+        ImportImageLabel = new javax.swing.JLabel();
+        LoadedState = new javax.swing.JLabel();
+        AddStep = new javax.swing.JButton();
+        OpenImage = new javax.swing.JButton();
         Feature_Panel = new javax.swing.JPanel();
         MorphologicalStepsPanel = new javax.swing.JPanel();
         FeatureGo = new javax.swing.JButton();
         ProgressPanel = new javax.swing.JPanel();
-        FeatureComment = new javax.swing.JLabel();
+        ProgressComment = new javax.swing.JLabel();
         VTEAProgressBar = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -103,7 +143,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
 
         jPanel1.setMaximumSize(new java.awt.Dimension(445, 381));
         jPanel1.setMinimumSize(new java.awt.Dimension(445, 381));
-        jPanel1.setPreferredSize(new java.awt.Dimension(380, 381));
+        jPanel1.setPreferredSize(new java.awt.Dimension(380, 430));
         jPanel1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jPanel1formKeyPressed(evt);
@@ -119,36 +159,23 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         Feature_Header.setForeground(new java.awt.Color(102, 102, 102));
         Feature_Header.setAlignmentX(0.0F);
         Feature_Header.setAlignmentY(0.0F);
-        Feature_Header.setMaximumSize(new java.awt.Dimension(440, 36));
-        Feature_Header.setMinimumSize(new java.awt.Dimension(440, 36));
-        Feature_Header.setPreferredSize(new java.awt.Dimension(440, 36));
+        Feature_Header.setMaximumSize(new java.awt.Dimension(440, 72));
+        Feature_Header.setMinimumSize(new java.awt.Dimension(440, 72));
+        Feature_Header.setPreferredSize(new java.awt.Dimension(440, 72));
         Feature_Header.setLayout(new java.awt.GridBagLayout());
 
         FeatureLabel.setBackground(new java.awt.Color(0, 0, 0));
         FeatureLabel.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        FeatureLabel.setText("Morphology");
+        FeatureLabel.setText("Add Image Feature");
         FeatureLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         FeatureLabel.setMaximumSize(new java.awt.Dimension(290, 28));
         FeatureLabel.setMinimumSize(new java.awt.Dimension(290, 28));
-        FeatureLabel.setPreferredSize(new java.awt.Dimension(290, 28));
+        FeatureLabel.setPreferredSize(new java.awt.Dimension(260, 28));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
         Feature_Header.add(FeatureLabel, gridBagConstraints);
-
-        AddStep.setBackground(new java.awt.Color(204, 204, 204));
-        AddStep.setForeground(new java.awt.Color(102, 102, 102));
-        AddStep.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
-        AddStep.setToolTipText("Add an analysis method.");
-        AddStep.setMaximumSize(new java.awt.Dimension(34, 34));
-        AddStep.setMinimumSize(new java.awt.Dimension(34, 34));
-        AddStep.setPreferredSize(new java.awt.Dimension(34, 34));
-        AddStep.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                AddStepActionPerformed(evt);
-            }
-        });
-        Feature_Header.add(AddStep, new java.awt.GridBagConstraints());
 
         DeleteAllSteps.setBackground(new java.awt.Color(204, 204, 204));
         DeleteAllSteps.setForeground(new java.awt.Color(102, 102, 102));
@@ -164,31 +191,72 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         Feature_Header.add(DeleteAllSteps, gridBagConstraints);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
+        ImportImageLabel.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        ImportImageLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        ImportImageLabel.setText("Image data:");
+        ImportImageLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ImportImageLabelMouseClicked(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        Feature_Header.add(ImportImageLabel, gridBagConstraints);
 
-        Feature_Header.add(jPanel2, new java.awt.GridBagConstraints());
+        LoadedState.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        LoadedState.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        LoadedState.setText("Current Data");
+        LoadedState.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        LoadedState.setMaximumSize(new java.awt.Dimension(240, 17));
+        LoadedState.setName(""); // NOI18N
+        LoadedState.setPreferredSize(new java.awt.Dimension(240, 17));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.ipadx = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        Feature_Header.add(LoadedState, gridBagConstraints);
 
-        exploreText.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        exploreText.setForeground(new java.awt.Color(153, 153, 153));
-        exploreText.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        exploreText.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        exploreText.setPreferredSize(new java.awt.Dimension(20, 40));
-        exploreText.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        Feature_Header.add(exploreText, new java.awt.GridBagConstraints());
+        AddStep.setBackground(new java.awt.Color(204, 204, 204));
+        AddStep.setForeground(new java.awt.Color(102, 102, 102));
+        AddStep.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
+        AddStep.setToolTipText("Add a morphology.");
+        AddStep.setMaximumSize(new java.awt.Dimension(34, 34));
+        AddStep.setMinimumSize(new java.awt.Dimension(34, 34));
+        AddStep.setPreferredSize(new java.awt.Dimension(34, 34));
+        AddStep.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AddStepActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        Feature_Header.add(AddStep, gridBagConstraints);
+
+        OpenImage.setBackground(new java.awt.Color(204, 204, 204));
+        OpenImage.setForeground(new java.awt.Color(102, 102, 102));
+        OpenImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-open-folder_24.png"))); // NOI18N
+        OpenImage.setToolTipText("Open image file...");
+        OpenImage.setMaximumSize(new java.awt.Dimension(34, 34));
+        OpenImage.setMinimumSize(new java.awt.Dimension(34, 34));
+        OpenImage.setPreferredSize(new java.awt.Dimension(34, 34));
+        OpenImage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                OpenImageActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        Feature_Header.add(OpenImage, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -221,7 +289,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         );
 
         FeatureGo.setBackground(vtea._vtea.BUTTONBACKGROUND);
-        FeatureGo.setText("Done");
+        FeatureGo.setText("Add Data");
         FeatureGo.setToolTipText("Find segmented objects.");
         FeatureGo.setEnabled(false);
         FeatureGo.addActionListener(new java.awt.event.ActionListener() {
@@ -251,7 +319,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
                 .addComponent(MorphologicalStepsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(FeatureGo)
-                .addContainerGap(68, Short.MAX_VALUE))
+                .addContainerGap(70, Short.MAX_VALUE))
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -271,8 +339,9 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         flowLayout1.setAlignOnBaseline(true);
         ProgressPanel.setLayout(flowLayout1);
 
-        FeatureComment.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        ProgressPanel.add(FeatureComment);
+        ProgressComment.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        ProgressComment.setPreferredSize(new java.awt.Dimension(150, 35));
+        ProgressPanel.add(ProgressComment);
 
         VTEAProgressBar.setPreferredSize(new java.awt.Dimension(200, 20));
         ProgressPanel.add(VTEAProgressBar);
@@ -283,40 +352,6 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * Adds analysis step.
-     *
-     * @param evt clicking of AddStep button
-     */
-    private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
-
-        MorphologicalStepsPanel.repaint();
-
-        MorphologyStepBlockGUI block = new MorphologyStepBlockGUI("Feature Step", "", new Color(204,204,204), MorphologicalStepsList.size() + 1, channels);
-        block.addDeleteBlockListener(this);
-        block.addRebuildPanelListener(this);
-        //this.notifyRepaintFeatureListeners();
-
-        MorphologicalStepsPanel.add(block.getPanel());
-        MorphologicalStepsPanel.repaint();
-
-        MorphologicalStepsList.add(block);
-
-        if (MorphologicalStepsList.size() <= 2) {
-            AddStep.setEnabled(true);
-        }
-        if (MorphologicalStepsList.size() >= 4) {
-            AddStep.setEnabled(false);
-        }
-        if (!MorphologicalStepsList.isEmpty()) {
-            DeleteAllSteps.setEnabled(true);
-        }
-        repaintFeature();
-        this.setVisible(true);
-
-        FeatureGo.setEnabled(true);
-    }//GEN-LAST:event_AddStepActionPerformed
 
     /**
      * Delete all analysis steps.
@@ -334,6 +369,84 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         //pack();
     }//GEN-LAST:event_DeleteAllStepsActionPerformed
 
+    private void jPanel1formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPanel1formKeyPressed
+
+    }//GEN-LAST:event_jPanel1formKeyPressed
+
+    private void AddStepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStepActionPerformed
+
+        MorphologicalStepsPanel.repaint();
+
+        MorphologyStepBlockGUI block = new MorphologyStepBlockGUI("Feature Step", "", new Color(204, 204, 204), MorphologicalStepsList.size() + 1, channels);
+        block.addDeleteBlockListener(this);
+        block.addRebuildPanelListener(this);
+        //this.notifyRepaintFeatureListeners();
+
+        MorphologicalStepsPanel.add(block.getPanel());
+        MorphologicalStepsPanel.repaint();
+
+        MorphologicalStepsList.add(block);
+
+        if (MorphologicalStepsList.size() <= 0) {
+            AddStep.setEnabled(true);
+        }
+        if (MorphologicalStepsList.size() >= 1) {
+            AddStep.setEnabled(false);
+        }
+        if (!MorphologicalStepsList.isEmpty()) {
+            DeleteAllSteps.setEnabled(true);
+        }
+        repaintFeature();
+        this.setVisible(true);
+
+        FeatureGo.setEnabled(true);
+    }//GEN-LAST:event_AddStepActionPerformed
+
+    private void OpenImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenImageActionPerformed
+        JFileChooser objectimagejfc = new JFileChooser(vtea._vtea.LASTDIRECTORY);
+        FileNameExtensionFilter filter2
+                = new FileNameExtensionFilter("TIFF image file.", ".tif", "tif");
+        objectimagejfc.addChoosableFileFilter(filter2);
+        objectimagejfc.setFileFilter(filter2);
+
+        int returnVal = objectimagejfc.showOpenDialog(this);
+        location = objectimagejfc.getSelectedFile();
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+            new Thread(() -> {
+                Opener op = new Opener();
+                //setText("Loading image...");
+                this.LoadedState.setText("Loading...");
+                this.setFocusable(false);
+                image = op.openImage(location.getParent(), location.getName());
+                String[] channels = new String[image.getNChannels()];
+                for (int i = 1; i <= image.getNChannels(); i++) {
+                    channels[i - 1] = "Channel " + i;
+
+                }
+                this.channels = new ArrayList(Arrays.asList(channels));
+                int size = 50;
+                if (location.getName().length() < 25) {
+                    size = location.getName().length();
+                }
+
+                LoadedState.setText(location.getName().substring(0, size) + "...");
+                LoadedState.setToolTipText(location.getName());
+
+            }).start();
+            this.setFocusable(true);
+
+        } else {
+            LoadedState.setText("Current data");
+        }
+
+    }//GEN-LAST:event_OpenImageActionPerformed
+
+    private void ImportImageLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ImportImageLabelMouseClicked
+
+    }//GEN-LAST:event_ImportImageLabelMouseClicked
+
     /**
      * Sets up for analysis.
      *
@@ -341,14 +454,11 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
      */
     private void FeatureGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FeatureGoActionPerformed
 
-        addMorphology();
+        addMorphology(image);
+        ProgressComment.setText("Starting analysis... useing " + image.getTitle());
+        System.out.println("PROFILING: Adding new image features... useing " + image.getTitle());
         VTEAProgressBar.setValue(0);
-
     }//GEN-LAST:event_FeatureGoActionPerformed
-
-    private void jPanel1formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPanel1formKeyPressed
-
-    }//GEN-LAST:event_jPanel1formKeyPressed
 
     /**
      * Rebuilds the panel.
@@ -387,7 +497,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         VTEAProgressBar.setMinimum(min);
         VTEAProgressBar.setMaximum(max);
         VTEAProgressBar.setValue(position);
-        FeatureComment.setText(text);
+        ProgressComment.setText(text);
     }
 
     /**
@@ -400,15 +510,152 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         if (evt.getPropertyName().equals("progress")) {
             int progress = (Integer) evt.getNewValue();
             VTEAProgressBar.setValue(progress);
-            FeatureComment.setText(String.format(
+            ProgressComment.setText(String.format(
                     "Completed %d%%...\n", progress));
         }
         if (evt.getPropertyName().equals("comment")) {
-            FeatureComment.setText((String) evt.getNewValue());
+            ProgressComment.setText((String) evt.getNewValue());
         }
         if (evt.getPropertyName().equals("escape") && !(Boolean) evt.getNewValue()) {
             System.out.println("PROFILING: Error is processing, thread terminated early...");
         }
+
+        if (evt.getPropertyName().equals("progress")) {
+            int progress = (Integer) evt.getNewValue();
+            VTEAProgressBar.setValue(progress);
+            ProgressComment.setText(String.format(
+                    "Completed %d%%...\n", progress));
+        }
+
+        if (evt.getPropertyName().equals("segmentationDone")) {
+            ProgressComment.setText((String) evt.getNewValue());
+            String key = (String) evt.getOldValue();
+            ListIterator itr = addImageFeatureSegmentationProcessors.listIterator();
+
+            while (itr.hasNext()) {
+                AddImageFeatureSegmentationProcessor sp = (AddImageFeatureSegmentationProcessor) itr.next();
+                if (sp.getUIDKey().equals(key)) {
+                    executeMeasuring(key, sp.getObjects(), sp.getProtocol());
+                }
+            }
+        }
+        if (evt.getPropertyName().equals("measurementDone")) {
+            ProgressComment.setText((String) evt.getNewValue());
+            String key = (String) evt.getOldValue();
+            addNewDataToDatabase();
+
+        }
+        if (evt.getPropertyName().equals("comment")) {
+            ProgressComment.setText((String) evt.getNewValue());
+        }
+
+        if (evt.getPropertyName().equals("escape") && !(Boolean) evt.getNewValue()) {
+
+            System.out.println("PROFILING: Error in processing, thread terminated early...");
+
+        }
+    }
+
+    private synchronized void addNewDataToDatabase() {
+        ListIterator<AddImageFeatureMeasurementProcessor> itr = addImageFeatureMeasurementProcessors.listIterator();
+
+        this.addPropertyChangeListener(this);
+
+        while (itr.hasNext()) {
+
+            AddImageFeatureMeasurementProcessor aifmp = itr.next();
+
+            ArrayList<String> descriptions = aifmp.getDescriptions();
+            ArrayList<String> descriptionsLabels = aifmp.getDescriptionLabels();
+            ArrayList<ArrayList<Number>> columns = new ArrayList<ArrayList<Number>>();
+            ArrayList<ArrayList<Number>> features = aifmp.getFeatures();
+
+            //build columnwise arraylist
+            int count = 0;
+            double progress = 0;
+
+            ListIterator<ArrayList<Number>> itr_features = features.listIterator();
+            
+            for (int i = 0; i < descriptions.size(); i++)  {
+                columns.add(new ArrayList<Number>());
+            }
+
+            while (itr_features.hasNext()) {
+
+                ArrayList<Number> feature = itr_features.next();
+              
+                count++;
+                progress = 100 * ((double) count / (double) features.size());
+                firePropertyChange("progress", 0, ((int) progress));
+                firePropertyChange("comment", key, ("Building columns...  "));
+                
+                
+               // System.out.println("PROFILING: cell# " + count + " features: " +  feature);
+               
+
+                for (int i = 0; i < columns.size(); i++) {
+                    ArrayList<Number> ar = columns.get(i);
+                     
+                    ar.add(feature.get(i));
+                    //System.out.println("PROFILING: building features# " +  ar);
+                }
+                
+               
+
+            }
+            
+            for (int i = 0; i < columns.size(); i++) {
+                progress = 100 * ((double) count / (double) descriptions.size());
+                firePropertyChange("progress", 0, ((int) progress));
+                firePropertyChange("comment", key, ("Importing columns...  "));
+                ArrayList<ArrayList<Number>> result = new ArrayList<ArrayList<Number>>();         
+                result.add(columns.get(i));
+                
+                //System.out.println("PROFILING: Outputting features: " + descriptions.get(i) + ", " + descriptionsLabels.get(i) + ", " +result);
+                notifyListeners(descriptions.get(i), descriptionsLabels.get(i), result);
+
+            }
+            
+                firePropertyChange("comment", key, ("Done...  "));
+            
+            
+
+           
+
+        }
+    }
+
+    private synchronized void executeSegmentation() {
+        
+        addImageFeatureSegmentationProcessors = new ArrayList<AddImageFeatureSegmentationProcessor>();
+        ArrayList<ArrayList> protocol = new ArrayList();
+        protocol = extractSteps(MorphologicalStepsList);
+        //segmentationCount = 0;
+
+        for (int i = 0; i < MorphologicalStepsList.size(); i++) {
+            //String key = ((ObjectStepBlockGUI) ObjectStepsList.get(i)).getUID() + "_" + System.currentTimeMillis();
+
+            System.out.println("PROFILING: Segmentation on dataset: " + key);
+
+            AddImageFeatureSegmentationProcessor aifsp
+                = new AddImageFeatureSegmentationProcessor(key, image, (ArrayList) protocol.get(i), objects);
+            aifsp.addPropertyChangeListener(this);
+            addImageFeatureSegmentationProcessors.add(aifsp);
+            aifsp.execute();
+        }
+    }
+
+    private void executeMeasuring(String key, ArrayList<MicroObject> vols, ArrayList protocol) {
+
+        System.out.println("PROFILING: Measuring on new morphology for dataset: " + key);
+        
+        addImageFeatureMeasurementProcessors = new ArrayList<AddImageFeatureMeasurementProcessor>();
+
+        AddImageFeatureMeasurementProcessor aifmp
+                = new AddImageFeatureMeasurementProcessor(key, image, vols, protocol);
+        aifmp.addPropertyChangeListener(this);
+        addImageFeatureMeasurementProcessors.add(aifmp);
+        aifmp.execute();
     }
 
     /**
@@ -422,17 +669,18 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
     private javax.swing.JButton AddStep;
     private javax.swing.JButton DeleteAllSteps;
     private javax.swing.JPanel FeatureAnalysis;
-    public javax.swing.JLabel FeatureComment;
-    public javax.swing.JButton FeatureGo;
+    private javax.swing.JButton FeatureGo;
     private javax.swing.JLabel FeatureLabel;
     private javax.swing.JPanel Feature_Header;
     private javax.swing.JPanel Feature_Panel;
-    public javax.swing.JPanel MorphologicalStepsPanel;
+    private javax.swing.JLabel ImportImageLabel;
+    private javax.swing.JLabel LoadedState;
+    private javax.swing.JPanel MorphologicalStepsPanel;
+    private javax.swing.JButton OpenImage;
+    private javax.swing.JLabel ProgressComment;
     private javax.swing.JPanel ProgressPanel;
-    public javax.swing.JProgressBar VTEAProgressBar;
-    private javax.swing.JLabel exploreText;
+    private javax.swing.JProgressBar VTEAProgressBar;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -517,9 +765,12 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
 
     }
 
-    private void addMorphology() {
-        notifyMorphologyListeners(getMorphologies());
-        setVisible(false);
+    private void addMorphology(ImagePlus imp) {
+        //notifyMorphologyListeners(getMorphologies(), imp);
+        //setVisible(false);
+
+        executeSegmentation();
+
     }
 
     private ArrayList<Integer> examineColumns() {
@@ -623,7 +874,7 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
     @Override
     public void addFeatures(String description, String descriptionLabel, ArrayList<ArrayList<Number>> result) {
 
-        notifyListeners(description, descriptionLabel, result);
+        notifyListeners(description,descriptionLabel, result);
 
     }
 
@@ -637,13 +888,13 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
         }
     }
 
-    public void addMorphologyListener(MorphologyFrameListener listener) {
+    public void addAddImageFrameListenerListener(AddImageFrameListener listener) {
         morphologylisteners.add(listener);
     }
 
-    private void notifyMorphologyListeners(ArrayList<ArrayList> result) {
-        for (MorphologyFrameListener listener : morphologylisteners) {
-            listener.addMorphology(result);
+    private void notifyMorphologyListeners(ArrayList<ArrayList> result, ImagePlus imp) {
+        for (AddImageFrameListener listener : morphologylisteners) {
+            listener.addMorphology(result, imp);
         }
     }
 
@@ -653,4 +904,90 @@ public class MorphologyFrame extends javax.swing.JFrame implements WindowStateLi
             this.setVisible(false);
         }
     }
+}
+
+class JTextAreaFile extends JTextArea {
+
+    private File location;
+    ImagePlus image;
+
+    ArrayList<ChangeTextListener> ChangeTextListeners = new ArrayList<ChangeTextListener>();
+
+    public JTextAreaFile(String s) {
+        super(s);
+    }
+
+    @Override
+    public void setSize(Dimension d) {
+        setSize(d.width, d.height); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setSize(int width, int height) {
+        super.setSize(100, 30); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public ImagePlus getRedirectImage() {
+        return image;
+    }
+
+    public File getRedirectSource() {
+        return location;
+    }
+
+    public void addChangeTextListener(ChangeTextListener listener) {
+        ChangeTextListeners.add(listener);
+    }
+
+    private void notifyChangeTextListeners(String[] channels) {
+        for (ChangeTextListener listener : ChangeTextListeners) {
+            listener.textChanged(channels);
+        }
+    }
+
+    @Override
+    protected void processMouseEvent(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+            JFileChooser objectimagejfc = new JFileChooser(vtea._vtea.LASTDIRECTORY);
+            FileNameExtensionFilter filter2
+                    = new FileNameExtensionFilter("TIFF image file.", ".tif", "tif");
+            objectimagejfc.addChoosableFileFilter(filter2);
+            objectimagejfc.setFileFilter(filter2);
+
+            int returnVal = objectimagejfc.showOpenDialog(this);
+            location = objectimagejfc.getSelectedFile();
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+                new Thread(() -> {
+                    Opener op = new Opener();
+                    //setText("Loading image...");
+                    this.setFocusable(false);
+                    image = op.openImage(location.getParent(), location.getName());
+                    String[] channels = new String[image.getNChannels()];
+                    for (int i = 1; i <= image.getNChannels(); i++) {
+                        channels[i - 1] = "Channel " + i;
+                        notifyChangeTextListeners(channels);
+                    }
+                }).start();
+                this.setFocusable(true);
+                int size = 15;
+                if (location.getName().length() < 15) {
+                    size = location.getName().length();
+                }
+
+                setText(location.getName().substring(0, size) + "...");
+            } else {
+
+                setText("Current data");
+            }
+        }
+    }
+
+};
+
+interface ChangeTextListener {
+
+    public void textChanged(String[] channels);
+
 }

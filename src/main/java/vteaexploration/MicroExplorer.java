@@ -37,6 +37,8 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -97,9 +99,13 @@ import vtea.exploration.plottools.panels.VerticalLabelUI;
 import vtea.exploration.plottools.panels.XYPanels;
 import vtea.feature.FeatureFrame;
 import vtea.measurement.MeasurementFrame;
+import vtea.morphology.ImageFeatureAddFrame;
 import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
 import vtea.plot.PlotOutputFrame;
+import vtea.protocol.listeners.AddImageFrameListener;
+
+import vtea.protocol.setup.MicroBlockMorphologySetup;
 import vteaobjects.MicroObject;
 
 /**
@@ -112,7 +118,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
         RoiListener, LinkedKeyListener, PlotUpdateListener, MakeImageOverlayListener,
         ChangePlotAxesListener, ImageListener, ResetSelectionListener,
         PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener,
-        UpdatePlotWindowListener, AxesChangeListener, AxesSetupExplorerPlotUpdateListener, UpdateExplorerGuiListener, Runnable {
+        UpdatePlotWindowListener, AxesChangeListener, 
+        AxesSetupExplorerPlotUpdateListener, UpdateExplorerGuiListener, 
+        Runnable {
 
     private XYPanels DefaultXYPanels;
     private static final Dimension MAINPANELSIZE = new Dimension(630, 640);
@@ -150,6 +158,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
     ArrayList<String> descriptionsLabels = new ArrayList<String>();
     ArrayList<MicroObject> Objects = new ArrayList<MicroObject>();
     ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
+    
+
 
     private boolean all = false;
 
@@ -195,6 +205,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     public MicroExplorer() {
 
         Roi.addRoiListener(this);
+        
 
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
@@ -424,7 +435,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         getMask = new javax.swing.JButton();
         getSegmentation = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
-        jButton1 = new javax.swing.JButton();
+        jButtonImage = new javax.swing.JButton();
         jButtonMeas = new javax.swing.JButton();
         jButtonFeature = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
@@ -747,14 +758,19 @@ public class MicroExplorer extends javax.swing.JFrame implements
         toolbarGate.add(getSegmentation);
         toolbarGate.add(jSeparator7);
 
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/addImageDataImage_32.png"))); // NOI18N
-        jButton1.setToolTipText("Import image and measure...");
-        jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButton1.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        toolbarGate.add(jButton1);
+        jButtonImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/addImageDataImage_32.png"))); // NOI18N
+        jButtonImage.setToolTipText("Import image and measure...");
+        jButtonImage.setFocusable(false);
+        jButtonImage.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonImage.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonImage.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonImage.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonImage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonImageActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(jButtonImage);
 
         jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/FeaturesAdd_2.png"))); // NOI18N
         jButtonMeas.setToolTipText("Import features from CSV...");
@@ -1202,6 +1218,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
         }
     }//GEN-LAST:event_formWindowIconified
 
+    private void jButtonImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonImageActionPerformed
+        ec.importImageFeatures();
+    }//GEN-LAST:event_jButtonImageActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1259,8 +1279,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private javax.swing.JButton getMask;
     private javax.swing.JButton getSegmentation;
     private javax.swing.JButton importOBJ;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonFeature;
+    private javax.swing.JButton jButtonImage;
     private javax.swing.JButton jButtonMeas;
     private javax.swing.JButton jButtonPlots;
     private javax.swing.JComboBox jComboBox1;
@@ -1813,14 +1833,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }
 
     @Override
-    public void addFeatures(String name, ArrayList<ArrayList<Number>> results) {
+    public void addFeatures(String description, String descriptionLabel, ArrayList<ArrayList<Number>> results) {
 
         int xsel = jComboBoxXaxis.getSelectedIndex();
         int ysel = jComboBoxYaxis.getSelectedIndex();
         int zsel = jComboBoxLUTPlot.getSelectedIndex();
         int ssel = jComboBoxPointSize.getSelectedIndex();
 
-        int hasColumn = hasColumn(name);
+        int hasColumn = hasColumn(description);
 
         if (hasColumn > -1) {
 
@@ -1843,20 +1863,20 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         String descr;
 
-        //add desrciptions, grab for SQL column name additions
+        //add desrciptions, grab for SQL column description additions
         //add results as columns,  need to check size.
         for (int i = startSize; i < newFeatures + startSize; i++) {
             descr = "";
             if (results.size() > 1) {
-                descr = name + "_" + (i - startSize);
+                descr = description + "_" + (i - startSize);
                 descriptionsLabels.add(descr);
             } else {
-                descr = name;
+                descr = description;
                 descriptionsLabels.add(descr);
             }
 
             if (descr.length() > 10) {
-                String truncated = name.substring(0, 8) + "__" + name.substring(name.length() - 5, name.length());
+                String truncated = description.substring(0, 8) + "__" + description.substring(description.length() - 5, description.length());
                 descr = truncated + "_" + (i - startSize);
             }
 
@@ -1867,12 +1887,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
         }
         for (int j = 0; j < results.size(); j++) {
 
-            ArrayList<Number> features = results.get(j);   //the list of a single feature  
-
+            ArrayList<Number> features = results.get(j);   
             for (int k = 0; k < features.size(); k++) {
 
                 Number feature = (Number) features.get(k);
-
                 ArrayList<Number> object = (ArrayList) measurements.get(k);
                 object.add(feature);
             }
@@ -2011,7 +2029,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     @Override
     public void addFeatureMap(String name, ArrayList<ArrayList<Number>> al) {
         System.out.println("PROFILING: Adding distance map measurements");
-        addFeatures(name, al);
+        addFeatures(name, "Spatial Map", al);
     }
 
     @Override
@@ -2023,6 +2041,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     public void addLinkedKey(String linkedKey) {
         this.childKeys.add(linkedKey);
     }
+
 
 //    public class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
 //
@@ -2096,6 +2115,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
 //        }
 //    }
 //    //this needs to be runnable
+
+    
+
 
     public class ExportOBJ {
 

@@ -135,14 +135,13 @@ public class densityMap3d {
         //IJ.run(resultImage, "Fire", "");
         return resultImage;
     }
-    
+
     public ImagePlus makeRandomMap(ImagePlus imp, ArrayList<MicroObject> al) {
 
         ArrayList<String> settings = new ArrayList<String>();
 
         //settings = sd.getSettings();
         //sd.showDialog();
-
         settings = sd.getSettings();
 
         int radius = Integer.parseInt((String) settings.get(0));
@@ -161,7 +160,7 @@ public class densityMap3d {
 
         int total = al.size();
         int step = 1;
-        
+
         Random random = new Random();
         int offsetX;
         int offsetY;
@@ -174,7 +173,7 @@ public class densityMap3d {
             IJ.showProgress(step, total);
             step++;
             try {
-                
+
                 offsetX = random.nextInt(imp.getWidth());
                 offsetY = random.nextInt(imp.getHeight());
                 offsetZ = random.nextInt(imp.getNSlices());
@@ -182,7 +181,7 @@ public class densityMap3d {
                 int x0 = (int) vol.getCentroidX();
                 int y0 = (int) vol.getCentroidY();
                 int z0 = (int) vol.getCentroidZ();
-                
+
                 x0 = offsetX;
                 y0 = offsetY;
                 z0 = offsetZ;
@@ -209,7 +208,14 @@ public class densityMap3d {
                     for (int y = yStart; y < yStop; y++) {
                         for (int z = zStart; z < zStop; z++) {
                             if (Math.pow(x - x0, 2) + Math.pow(y - y0, 2) + Math.pow(z - z0, 2) <= R) {
-                                resultStack.setVoxel(x, y, z, resultStack.getVoxel(x, y, z) + weight);
+
+                                if (imp.getRoi() == null) {
+                                    resultStack.setVoxel(x, y, z, resultStack.getVoxel(x, y, z) + weight);
+                                } else {
+                                    if (imp.getRoi().contains(x, y)) {
+                                        resultStack.setVoxel(x, y, z, resultStack.getVoxel(x, y, z) + weight);
+                                    }
+                                }
                             }
                         }
                     }
@@ -277,7 +283,7 @@ public class densityMap3d {
 
     public void notifyaddFeatureListeners(String name, ArrayList<ArrayList<Number>> al) {
         for (AddFeaturesListener listener : addfeaturelistener) {
-            listener.addFeatures(name, al);
+            listener.addFeatures(name, "Calculated 3D density map", al);
         }
     }
 

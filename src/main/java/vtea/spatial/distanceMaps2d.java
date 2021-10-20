@@ -20,6 +20,7 @@ package vtea.spatial;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.Roi;
 import ij.plugin.ZProjector;
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -85,7 +86,16 @@ public class distanceMaps2d {
          ImagePlus resultImage = IJ.createImage("DistanceMap_Random", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
        
           ImageStack resultStack = resultImage.getStack();
-        
+          Roi r;
+          
+          boolean roiPresent = false;
+          
+        if (imp.getRoi() == null) {
+            roiPresent = false;
+        } else {
+            roiPresent = true;
+        }
+
         
         int startX;
         int startY;
@@ -108,20 +118,25 @@ public class distanceMaps2d {
                     int[] y_pixels = vol.getYPixelsInRegion(i);
 
                     if (x_pixels.length > 0) {
-
-                        //System.out.println("PROFILING: on object: " + vol.getSerialID());
-
-                        //System.out.println("PROFILING: X start " + x_pixels[0] + ", " + startX + ", " + offsetX);
-                        //System.out.println("PROFILING: Y start " + y_pixels[0] + ", " + startY + ", " + offsetY);
                         for (int c = 0; c < x_pixels.length; c++) {
                             int newX = x_pixels[c] - offsetX;
                             int newY = y_pixels[c] - offsetY;
-                            //System.out.println("PROFILING: " + x_pixels[c] + ", " + y_pixels[c] + ", " + newX + ", " + newY);
+
                             if ((newX > -1 && newX < imp.getWidth())
                                     && (newY > -1 && newY < imp.getHeight())) {
-                                resultStack.setVoxel(newX, newY, i, 255);
-                                //System.out.println("PROFILING: added pixel.");
+
+                                if (roiPresent) {
+                                    r = imp.getRoi();
+                                    if (r.contains(newX, newY)) {
+                                        resultStack.setVoxel(newX, newY, i, 255);
+                                    }
+
+                                } else {
+                                    resultStack.setVoxel(newX, newY, i, 255);
+                                }
+
                             }
+
                         }
                     }
                 }
@@ -186,7 +201,7 @@ public class distanceMaps2d {
 
     public void notifyaddFeatureListeners(String name, ArrayList<ArrayList<Number>> al) {
         for (AddFeaturesListener listener : addfeaturelistener) {
-            listener.addFeatures(name, al);
+            listener.addFeatures(name, "Calculated 2D distance map",al);
         }
     }
 

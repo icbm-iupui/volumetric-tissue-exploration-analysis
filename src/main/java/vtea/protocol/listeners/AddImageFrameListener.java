@@ -15,16 +15,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.exploration.listeners;
+package vtea.protocol.listeners;
 
+import ij.ImagePlus;
 import java.util.ArrayList;
 
 /**
  *
  * @author sethwinfree
  */
-public interface AddFeaturesListener {
+public interface AddImageFrameListener {
 
-    public void addFeatures(String description, String descriptionLabel, ArrayList<ArrayList<Number>> al);
+    public void addMorphology(ArrayList<ArrayList> al, ImagePlus imp);
 
 }

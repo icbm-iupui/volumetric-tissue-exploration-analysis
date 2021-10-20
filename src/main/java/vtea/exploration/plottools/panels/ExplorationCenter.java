@@ -127,7 +127,8 @@ public interface ExplorationCenter {
  
     public void addFeatureListener(AddFeaturesListener listener);
     
-    public void notifyAddFeatureListener(String name, ArrayList<ArrayList<Number>> feature);
+   public void notifyAddFeatureListener(String description, String descriptionLabel,
+            ArrayList<ArrayList<Number>> feature);
     
     public BufferedImage getBufferedImage();
     
@@ -155,5 +156,7 @@ public interface ExplorationCenter {
     public void addFromCSV(String s);
     
     public void setMapping(boolean map);
+    
+    public void importImageFeatures();
 
 }

@@ -240,7 +240,6 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         ProcessNotes.setMinimumSize(new java.awt.Dimension(358, 45));
         ProcessNotes.setName(""); // NOI18N
         ProcessNotes.setPreferredSize(new java.awt.Dimension(358, 45));
-        ProcessNotes.setViewportView(null);
 
         jTextPane1.setBorder(null);
         jTextPane1.setText("Enter notes here...");

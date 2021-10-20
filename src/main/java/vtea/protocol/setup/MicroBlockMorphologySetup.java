@@ -95,7 +95,11 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
 
         MethodDetails.setVisible(false);
         MethodDetails.removeAll();
+        
+       // System.out.println("ERROR: " + (String) ProcessSelectComboBox.getSelectedItem());
+        
         makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());
+        
         MethodDetails.revalidate();
         MethodDetails.repaint();
         MethodDetails.setVisible(true);

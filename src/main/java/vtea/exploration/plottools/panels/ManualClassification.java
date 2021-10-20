@@ -220,7 +220,7 @@ public class ManualClassification implements WindowListener{
     public void notifyAddFeatureListener(String name,
             ArrayList<ArrayList<Number>> feature) {
         for (AddFeaturesListener listener : addfeaturelisteners) {
-            listener.addFeatures(name, feature);
+            listener.addFeatures(name, "Manual classification", feature);
         }
     }
 

@@ -645,8 +645,8 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
     }
 
     @Override
-    public void addFeatures(String name, ArrayList<ArrayList<Number>> result) {
-        notifyListeners(name, result);
+    public void addFeatures(String description, String descriptionLabel, ArrayList<ArrayList<Number>> result) {
+        notifyListeners(description, descriptionLabel, result);
 
     }
 
@@ -654,9 +654,9 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         listeners.add(listener);
     }
 
-    private void notifyListeners(String name, ArrayList<ArrayList<Number>> result) {
+    private void notifyListeners(String description, String descriptionLabel, ArrayList<ArrayList<Number>> result) {
         for (AddFeaturesListener listener : listeners) {
-            listener.addFeatures(name, result);
+            listener.addFeatures(description, descriptionLabel, result);
         }
     }
 }

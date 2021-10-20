@@ -117,6 +117,7 @@ import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
 import vtea.gui.ComboboxToolTipRenderer;
 import vtea.jdbc.H2DatabaseEngine;
 import vtea.lut.Black;
+import vtea.morphology.ImageFeatureAddFrame;
 import vtea.neighbors.NeighborhoodFactory;
 import vtea.processor.GateMathProcessor;
 import vtea.spatial.densityMap3d;
@@ -2266,7 +2267,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 firePropertyChange("progress", "Importing table...", (int) progress);
 
                 result.add(FeatureColumns.get(m));
-                this.notifyAddFeatureListener((columnTitles[m].replace(".", "_")).replace("/", "_"), result);
+                this.notifyAddFeatureListener((columnTitles[m].replace(".", "_")).replace("/", "_"),(columnTitles[m].replace(".", "_")).replace("/", "_"), result);
 
             }
         }
@@ -2377,7 +2378,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 firePropertyChange("progress", "Importing table...", (int) progress);
 
                 result.add(paddedTable.get(m));
-                this.notifyAddFeatureListener((columnTitles[m + 1].replace(".", "_")).replace("/", "_"), result);
+                this.notifyAddFeatureListener((columnTitles[m + 1].replace(".", "_")).replace("/", "_"),(columnTitles[m + 1].replace(".", "_")).replace("/", "_"), result);
 
             }
         }
@@ -2430,7 +2431,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             }
             String name = file.getName();
             name = name.replace(".", "_");
-            this.notifyAddFeatureListener(name, paddedTable);
+            //this.notifyAddFeatureListener(name, paddedTable);
         }
     }
 
@@ -2523,13 +2524,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         measurementsFinal = densityMaps3D.getDistance(objects, map);
 
-        this.notifyAddFeatureListener(s, measurementsFinal);
+        this.notifyAddFeatureListener(s, "3D density map", measurementsFinal);
 
         densityMaps3D.addMap(mapRandom, s + "_Random");
 
         measurementsFinal = densityMaps3D.getDistance(objects, mapRandom);
 
-        this.notifyAddFeatureListener(s + "_Random", measurementsFinal);
+        this.notifyAddFeatureListener(s + "_Random", "Random 3D density map",measurementsFinal);
     }
 
     @Override
@@ -2979,14 +2980,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         measurementsFinal = distanceMaps2D.getDistance(objects, map);
 
-        this.notifyAddFeatureListener(s, measurementsFinal);
+        this.notifyAddFeatureListener(s, "2D distance map", measurementsFinal);
 
         measurementsFinal
                 = new ArrayList<ArrayList<Number>>();
 
         measurementsFinal = distanceMaps2D.getDistance(objects, mapRandom);
 
-        this.notifyAddFeatureListener(s + "_Random", measurementsFinal);
+        this.notifyAddFeatureListener(s + "_Random", "Random 2D distance map", measurementsFinal);
     }
 
     @Override
@@ -2995,10 +2996,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     @Override
-    public void notifyAddFeatureListener(String name,
+    public void notifyAddFeatureListener(String description, String descriptionLabel,
             ArrayList<ArrayList<Number>> feature) {
         for (AddFeaturesListener listener : addfeaturelisteners) {
-            listener.addFeatures(name, feature);
+            listener.addFeatures(description,descriptionLabel, feature);
         }
     }
 
@@ -3112,8 +3113,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     @Override
-    public void addFeatures(String name, ArrayList<ArrayList<Number>> al) {
-        this.notifyAddFeatureListener(name, al);
+    public void addFeatures(String description, String descriptionLabel, ArrayList<ArrayList<Number>> al) {
+        this.notifyAddFeatureListener(description, descriptionLabel, al);
     }
 
     @Override
@@ -3209,6 +3210,17 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void addGateMathObjects(ArrayList<MicroObject> gatedObjects, int classAssigned) {
        
+    }
+
+    @Override
+    public void importImageFeatures() {
+                   ArrayList<String> Channels = new ArrayList<String>();
+            for (int i = 0; i <= impoverlay.getNChannels() - 1; i++) {
+                Channels.add("Channel_" + (i + 1));
+            }  
+            ImageFeatureAddFrame mf = new ImageFeatureAddFrame(key, Channels, impoverlay, objects, connection);
+            mf.addListener(this);
+            mf.setVisible(true);
     }
 
     class ExportGates {

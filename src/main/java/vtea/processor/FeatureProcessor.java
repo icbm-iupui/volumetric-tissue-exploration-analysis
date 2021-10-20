@@ -192,7 +192,7 @@ public class FeatureProcessor extends AbstractProcessor {
 
     private void notifyListeners(String name) {
         for (AddFeaturesListener listener : listeners) {
-            listener.addFeatures(name, result);
+            listener.addFeatures(name, "", result);
         }
     }
 
