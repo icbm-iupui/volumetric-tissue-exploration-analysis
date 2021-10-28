@@ -62,6 +62,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.ListIterator;
+import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
@@ -637,18 +638,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                 g2.setColor(gate.getColor());
                                 g2.drawRect(x_pixels[c], y_pixels[c], 1, 1);
                             }
-                            //add morphology
-                            if(vol.getMorphologicalCount() > 0){
-                            int[] x_pixels_morph = vol.getMorphPixelsX(0);
-                            int[] y_pixels_morph = vol.getMorphPixelsY(0);
-                            int[] z_pixels_morph = vol.getMorphPixelsZ(0);
-                            for (int c = 0; c < x_pixels_morph.length; c++) {
-                                if(z_pixels_morph[c] == i){
-                                g2.setColor(Color.GREEN);
-                                g2.drawRect(x_pixels_morph[c], y_pixels_morph[c], 1, 1);
-                                }
-                            }
-                            }
+                            //add morphology, need to add selectable gui v2
+//                            if(vol.getMorphologicalCount() > 0){
+//                            int[] x_pixels_morph = vol.getMorphPixelsX(0);
+//                            int[] y_pixels_morph = vol.getMorphPixelsY(0);
+//                            int[] z_pixels_morph = vol.getMorphPixelsZ(0);
+//                            for (int c = 0; c < x_pixels_morph.length; c++) {
+//                                if(z_pixels_morph[c] == i){
+//                                g2.setColor(Color.GREEN);
+//                                g2.drawRect(x_pixels_morph[c], y_pixels_morph[c], 1, 1);
+//                                }
+//                            }
+//                            }
                             ir = new ImageRoi(0, 0, selections);
                             count++;
                         } catch (NullPointerException e) {
@@ -844,17 +845,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     gateOverlay.addSlice(ir.getProcessor());
                 }
 
-                //impoverlay.setOverlay(overlay);
-                //gate.setGateOverlayStack(gateOverlay);
+  
                 alIs.add(gateOverlay);
                 gatecount++;
             }
-            //impoverlay.draw();
-//            if (impoverlay.getDisplayMode() != IJ.COMPOSITE) {
-//                impoverlay.setDisplayMode(IJ.COMPOSITE);
-//            } 
+
         }
-//        impoverlay.show();
+
         return alIs;
     }
 
@@ -2556,6 +2553,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             String zScale = settings.get(3);
             String kNeighbors = settings.get(4);
             String interval = settings.get(5);
+            String randomize = settings.get(6);
+            
+            boolean random = false;
+            
+            if(randomize.equals("Y")){random = true;}
+
 
             ProgressTracker pt = new ProgressTracker();
             pt.createandshowGUI("Neighborhood Analysis", explorerXposition, explorerYposition);
@@ -2603,6 +2606,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             double[][] data = new double[objectsTemp.size()][3];
 
             int i = 0;
+            
+            ArrayList<ArrayList<Integer>> randomized = this.randomize(objectsTemp.size());
 
             while (itrName.hasNext()) {
                 MicroObject obj = (MicroObject) itrName.next();
@@ -2610,15 +2615,26 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 k[0] = obj.getSerialID();
                 //System.out.println("PROFILING: Adding object(node): " + k[0]);
                 key[i] = k;
-
                 double[] d = new double[3];
+                if(random){
+                   
+                d[0] = (double)randomized.get(0).get(i);
+                d[1] = (double)randomized.get(1).get(i);
+                d[2] = (double)randomized.get(2).get(i)*(Double.parseDouble(zScale));
+                    
+//                d[0] = obj.getCentroidX();
+//                d[1] = obj.getCentroidY();
+//                d[2] = obj.getCentroidZ()*(Double.parseDouble(zScale));
+                data[i] = d;
+                i++;
+                } else {
                 d[0] = obj.getCentroidX();
                 d[1] = obj.getCentroidY();
                 d[2] = obj.getCentroidZ()*(Double.parseDouble(zScale));
                 data[i] = d;
                 i++;
             }
-
+            }
             //String str = "";
             //int randomKey = Math.abs(Random.nextInt(objectsTemp.size()-1));
             ArrayList<ArrayList<Neighbor>> neighborhoods = new ArrayList<ArrayList<Neighbor>>();
@@ -2919,6 +2935,81 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         }
 
+    }
+    
+       public ArrayList<ArrayList<Integer>> randomize(int count){
+          
+        Roi pr = impoverlay.getRoi();
+        boolean roi = false;
+        int maxX = impoverlay.getWidth();
+        int maxY = impoverlay.getHeight();
+        int maxZ = impoverlay.getNSlices();
+        
+        
+        if(pr == null){
+            roi = false;
+        } else {
+            roi = true;
+        }
+        
+        ProgressTracker tracker = new ProgressTracker();
+        
+        double progress = 0;
+        
+        //System.out.println("PROFILING: Object positions to randomize:  " + count);
+        
+        tracker.createandshowGUI("Randomizing positions...", 0, 0);
+        addPropertyChangeListener(tracker);
+        
+        
+        Random randX = new Random();
+        Random randY = new Random();
+        Random randZ = new Random();
+        
+        int nextRandomX = 0;
+        int nextRandomY = 0;
+        int nextRandomZ = 0;
+        
+        ArrayList<Integer> randomizedX = new ArrayList<Integer>();
+        ArrayList<Integer> randomizedY = new ArrayList<Integer>();
+        ArrayList<Integer> randomizedZ = new ArrayList<Integer>();
+
+        for (int i = 0; i < count; i++) {
+            
+            progress = 100 * ((double) i / (double) count);
+
+            firePropertyChange("method", "", "Randomizing positions");
+            firePropertyChange("progress", "Randomizing...", (int) progress);
+
+            boolean repeat = true;
+
+            while (repeat) {
+                nextRandomX = randX.nextInt(maxX);
+                nextRandomY = randY.nextInt(maxY);
+                nextRandomZ = randZ.nextInt(maxZ);
+                if (roi) {
+                    if (pr.contains(nextRandomX, nextRandomY)) {
+                        randomizedX.add(nextRandomX);
+                        randomizedY.add(nextRandomY);
+                        randomizedZ.add(nextRandomZ);
+                        repeat = false;
+                    }
+                } else {
+                    randomizedX.add(nextRandomX);
+                    randomizedY.add(nextRandomY);
+                    randomizedZ.add(nextRandomZ);
+                    repeat = false;
+                }
+            }
+        }
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        
+        result.add(randomizedX);
+        result.add(randomizedY);
+        result.add(randomizedZ);
+        tracker.setVisible(false);
+        
+        return result;
     }
 
     private HashMap<Double, Integer> getSerialIDHashMap(ArrayList<MicroObject> objs) {
@@ -3235,9 +3326,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         if(type.equals("position")){
             PositionRandomization pr = new PositionRandomization(objects.size(), impoverlay);
             pr.addFeatureListener(this);
+            pr.process();
         } else if(type.equals("class")){
-            ClassRandomization cr = new ClassRandomization(H2DatabaseEngine.getColumn(key, "Assigned"));
+            ClassRandomization cr = new ClassRandomization(H2DatabaseEngine.getColumnInt(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, "Assigned"));
             cr.addFeatureListener(this);
+            cr.process();
         }
     }
 
@@ -3317,6 +3410,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         JLabel intervalLabel = new JLabel("Interval");
         JTextField interval = new JTextField(radius.getText(), 5);
         JLabel warning = new JLabel("CAUTION: Use a discrete feature.");
+        JLabel randomize = new JLabel("Randomize");
+        String[] choice = {"Y", "N"};
+        JComboBox random = new JComboBox(choice);
 
         JPanel menu = new JPanel();
         JPanel submenu = new JPanel();
@@ -3370,6 +3466,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
             menu.add(submenu, gbc);
+            gbc = new GridBagConstraints(0, 3, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(randomize, gbc);
+            gbc = new GridBagConstraints(0, 4, 1, 1, 1, 1.0, GridBagConstraints.WEST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(random, gbc);
 
             method.setSelectedIndex(0);
 
@@ -3405,10 +3507,19 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(zScale, gbc);
-                gbc = new GridBagConstraints(0, 2, 1, 1, 0.2, 1.0,
+                
+                gbc = new GridBagConstraints(0, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(randomize, gbc);
+                gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.WEST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(random, gbc);
+                
+
+                gbc = new GridBagConstraints(0, 3, 1, 1, 0.2, 1.0,
                         GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(new JLabel("     "), gbc);
-                gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                gbc = new GridBagConstraints(1, 3, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(new JLabel("     "), gbc);
 
@@ -3425,10 +3536,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(zScale, gbc);
-                gbc = new GridBagConstraints(0, 2, 1, 1, 0.2, 1.0,
+                gbc = new GridBagConstraints(0, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(randomize, gbc);
+                gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.WEST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(random, gbc);
+                gbc = new GridBagConstraints(0, 3, 1, 1, 0.2, 1.0,
                         GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(intervalLabel, gbc);
-                gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                gbc = new GridBagConstraints(1, 3, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(interval, gbc);
 
@@ -3439,16 +3556,22 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 gbc = new GridBagConstraints(1, 0, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(kNeighbors, gbc);
-                gbc = new GridBagConstraints(0, 1, 1, 1, 0.2, 1.0,
-                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
-                submenu.add(new JLabel("     "), gbc);
-                gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
-                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
-                submenu.add(new JLabel("     "), gbc);
+                gbc = new GridBagConstraints(0, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(randomize, gbc);
+                gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.WEST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(random, gbc);    
                 gbc = new GridBagConstraints(0, 2, 1, 1, 0.2, 1.0,
                         GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(new JLabel("     "), gbc);
                 gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(new JLabel("     "), gbc);
+                gbc = new GridBagConstraints(0, 3, 1, 1, 0.2, 1.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+                submenu.add(new JLabel("     "), gbc);
+                gbc = new GridBagConstraints(1, 3, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                         GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
                 submenu.add(new JLabel("     "), gbc);
 
@@ -3475,6 +3598,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 settings.add(zScale.getText());
                 settings.add(kNeighbors.getText());
                 settings.add(interval.getText());
+                settings.add((String)random.getSelectedItem());
             } else {
                 return false;
             }

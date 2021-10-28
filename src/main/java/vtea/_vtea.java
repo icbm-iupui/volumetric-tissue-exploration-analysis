@@ -84,6 +84,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static Dimension SMALLBUTTONSIZE = new Dimension(32, 32);
     public static Dimension BLOCKSETUP = new Dimension(370, 350);
     public static Dimension BLOCKSETUPPANEL = new Dimension(340, 100);
+    
+    public static int COUNTRANDOM = 0;
 
     public static String TEMP_DIRECTORY = new String(ij.Prefs.getImageJDir()
             + System.getProperty("file.separator") + "VTEA"

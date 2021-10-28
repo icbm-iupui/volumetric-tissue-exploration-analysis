@@ -878,13 +878,29 @@ public class GateLayer implements ActionListener, ItemListener {
 
             
         }else if (e.getActionCommand().equals("Randomize classes...")) {
+                           new Thread(() -> {
+                    try {
 
-            notifyRandomizationListener("class");
+                        notifyRandomizationListener("class");
+
+                    } catch (Exception ex) {
+                        System.out.println("ERROR: " + ex.getLocalizedMessage());
+                    }
+                }).start(); 
+            
 
         }else if (e.getActionCommand().equals("Randomize positions...")) {
+                           new Thread(() -> {
+                    try {
 
-            notifyRandomizationListener("position");
+                        notifyRandomizationListener("position");
 
+
+                    } catch (Exception ex) {
+                        System.out.println("ERROR: " + ex.getLocalizedMessage());
+                    }
+                }).start(); 
+           
         } else if (e.getActionCommand().equals("Classify by Gate Math...")) {
 
             notifyAssignmentListeners("gatemath");

@@ -19,38 +19,58 @@ package vtea.exploration.util;
 
 import java.util.ArrayList;
 import java.util.Random;
+import javax.swing.JComponent;
 import vtea.exploration.listeners.AddFeaturesListener;
+import vteaexploration.ProgressTracker;
 
 /**
  *
  * @author Seth
  */
-public class ClassRandomization {
+public class ClassRandomization extends JComponent {
     
-    ArrayList<Number> classes;
+    ArrayList<ArrayList<Number>> classes;
     ArrayList<Number> randomizedClasses;
     
     ArrayList<AddFeaturesListener> addfeaturelisteners = new ArrayList<AddFeaturesListener>();
     
-    public ClassRandomization(ArrayList<Number> cl){
+    public ClassRandomization(ArrayList<ArrayList<Number>> cl){
         classes = cl;
-        process();
+        randomizedClasses = new ArrayList<Number>();
     }
     
-    private void process() {
+    public void process() {
        Random rand = new Random();
-        int nextRandom = rand.nextInt(classes.size());
+       //need to catch no "Assigned" feature here
+        int nextRandom;
+        int start = classes.size();
+        ProgressTracker tracker = new ProgressTracker();
+        double progress = 0;
+        
+         //System.out.println("PROFILING: Object classes to randomize:  " + classes.size());
+         
+        tracker.createandshowGUI("Randomize postions...", 0, 0);
+        addPropertyChangeListener(tracker);
+        
         while(!classes.isEmpty())
         {
-            randomizedClasses.add(classes.get(nextRandom));
+            progress = 100 * ((double) classes.size()/ (double) start);
+            firePropertyChange("method", "", "Randomizing positions");
+            firePropertyChange("progress", "Randomizing...", (int) progress);
+            
+            nextRandom = rand.nextInt(classes.size());
+            ArrayList<Number>  c = classes.get(nextRandom);
+            randomizedClasses.add(c.get(0));
             classes.remove(nextRandom);
-        }
+            //System.out.println("PROFILING: Reassigning object " + nextRandom);
+        }  
         
-        ArrayList<ArrayList<Number>> result = new ArrayList<>();
-        
+        ArrayList result = new ArrayList();
         result.add(randomizedClasses);
         
-        notifyAddFeatureListener("Assigned_Random", result);
+        notifyAddFeatureListener("Assigned_Random_" + vtea._vtea.COUNTRANDOM, result);
+         tracker.setVisible(false);
+        vtea._vtea.COUNTRANDOM++;
     }
     
     public void addFeatureListener(AddFeaturesListener listener) {

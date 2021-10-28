@@ -212,6 +212,42 @@ public class H2DatabaseEngine {
         }
         return measurements;
     }
+    
+        //H2 SQL get a column as Int
+    public static ArrayList getColumnInt(String table,
+            String column1) {
+        Connection cn = getDBConnection();
+
+        PreparedStatement selectPreparedStatement = null;
+        ResultSet rs = null;
+
+        ArrayList measurements = new ArrayList();
+
+        try {
+
+            String SelectQuery = "select " + column1
+                    + " from " + table;
+
+            selectPreparedStatement = cn.prepareStatement(SelectQuery);
+            rs = selectPreparedStatement.executeQuery();
+
+            while (rs.next()) {
+                ArrayList al = new ArrayList();
+                //al.add(rs.getDouble(0));
+                al.add(rs.getInt(1));
+                measurements.add(al);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("PROFILING: getColumn Exception Message: " + e.getLocalizedMessage());
+            StackTraceElement[] st = e.getStackTrace();
+            System.out.println("PROFILING:, stack trace:");
+            for (int i = 0; i < st.length; i++) {
+                System.out.println("PROFILING:" + st[i].getClassName() + "," + st[i].getLineNumber());
+            }
+        }
+        return measurements;
+    }
 
     //H2 SQL to drop a column, for use with Manual Assignment of Classes
     public static boolean dropColumn(String table,

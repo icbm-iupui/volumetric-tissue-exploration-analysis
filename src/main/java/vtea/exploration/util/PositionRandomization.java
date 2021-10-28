@@ -23,14 +23,16 @@ import ij.gui.Roi;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.Random;
+import javax.swing.JComponent;
 import vtea.exploration.listeners.AddFeaturesListener;
+import vteaexploration.ProgressTracker;
 import vteaobjects.MicroObject;
 
 /**
  *
  * @author Seth
  */
-public class PositionRandomization {
+public class PositionRandomization extends JComponent {
   
 
     ArrayList<Number> randomizedX;
@@ -44,29 +46,37 @@ public class PositionRandomization {
         int count;
     
     Roi pr;
-    boolean roi = false;
+    boolean roi;
     
     ArrayList<AddFeaturesListener> addfeaturelisteners = new ArrayList<AddFeaturesListener>();  
     
-    public PositionRandomization(int c, ImagePlus imp){
-        
+    public PositionRandomization(int c, ImagePlus imp) {
+
         count = c;
-        
-        if(imp.getRoi() != null){
+
+        if (imp.getRoi() == null) {
+            roi = false;
+        } else {
             roi = true;
             pr = imp.getRoi();
         }
-        
         maxX = imp.getWidth();
         maxY = imp.getHeight();
         maxZ = imp.getNSlices();
-        
-        process();
     }
     
 
     
-    private void process(){
+    public void process(){
+        
+        ProgressTracker tracker = new ProgressTracker();
+        
+        double progress = 0;
+        
+        //System.out.println("PROFILING: Object positions to randomize:  " + count);
+        
+        tracker.createandshowGUI("Randomizing positions...", 0, 0);
+        addPropertyChangeListener(tracker);
         
         
         Random randX = new Random();
@@ -76,33 +86,53 @@ public class PositionRandomization {
         int nextRandomX = 0;
         int nextRandomY = 0;
         int nextRandomZ = 0;
-                
-
         
-        for(int i = 0; i < count; i++){
+        randomizedX = new ArrayList<Number>();
+        randomizedY = new ArrayList<Number>();
+        randomizedZ = new ArrayList<Number>();
+
+        for (int i = 0; i < count; i++) {
             
-            nextRandomX = randX.nextInt(maxX);
-            nextRandomY = randY.nextInt(maxY);
-            nextRandomZ = randZ.nextInt(maxZ);
-            
-            //while()
-      
-            randomizedX.add(nextRandomX);
-            randomizedY.add(nextRandomY);
-            randomizedZ.add(nextRandomZ);
+            progress = 100 * ((double) i / (double) count);
+
+            firePropertyChange("method", "", "Randomizing positions");
+            firePropertyChange("progress", "Randomizing...", (int) progress);
+
+            boolean repeat = true;
+
+            while (repeat) {
+                nextRandomX = randX.nextInt(maxX);
+                nextRandomY = randY.nextInt(maxY);
+                nextRandomZ = randZ.nextInt(maxZ);
+                if (roi) {
+                    if (pr.contains(nextRandomX, nextRandomY)) {
+                        randomizedX.add(nextRandomX);
+                        randomizedY.add(nextRandomY);
+                        randomizedZ.add(nextRandomZ);
+                        repeat = false;
+                    }
+                } else {
+                    randomizedX.add(nextRandomX);
+                    randomizedY.add(nextRandomY);
+                    randomizedZ.add(nextRandomZ);
+                    repeat = false;
+                }
+            }
         }
         ArrayList<ArrayList<Number>> result = new ArrayList<>();
         
         result.add(randomizedX);
-        notifyAddFeatureListener("PosX_Random", result);
+        notifyAddFeatureListener("PosX_Random_" + vtea._vtea.COUNTRANDOM, result);
         
         result = new ArrayList<>();
         result.add(randomizedY);
-        notifyAddFeatureListener("PosY_Random", result);
+        notifyAddFeatureListener("PosY_Random_" + vtea._vtea.COUNTRANDOM, result);
         
         result = new ArrayList<>();
         result.add(randomizedZ);
-        notifyAddFeatureListener("PosX_Random", result);
+        notifyAddFeatureListener("PosZ_Random_" + vtea._vtea.COUNTRANDOM, result);
+        vtea._vtea.COUNTRANDOM++;
+        tracker.setVisible(false);
     }
             
     public void addFeatureListener(AddFeaturesListener listener) {
