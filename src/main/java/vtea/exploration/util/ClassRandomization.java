@@ -39,6 +39,7 @@ public class ClassRandomization {
     
     private void process() {
        Random rand = new Random();
+       //need to catch no "Assigned" feature here
         int nextRandom = rand.nextInt(classes.size());
         while(!classes.isEmpty())
         {

@@ -79,17 +79,23 @@ public class PositionRandomization {
                 
 
         
-        for(int i = 0; i < count; i++){
-            
-            nextRandomX = randX.nextInt(maxX);
-            nextRandomY = randY.nextInt(maxY);
-            nextRandomZ = randZ.nextInt(maxZ);
-            
-            //while()
-      
-            randomizedX.add(nextRandomX);
-            randomizedY.add(nextRandomY);
-            randomizedZ.add(nextRandomZ);
+        for (int i = 0; i < count; i++) {
+
+            boolean repeat = true;
+
+            while (repeat == true) {
+
+                nextRandomX = randX.nextInt(maxX);
+                nextRandomY = randY.nextInt(maxY);
+                nextRandomZ = randZ.nextInt(maxZ);
+
+                if (pr.contains(nextRandomX, nextRandomY)) {
+                    randomizedX.add(nextRandomX);
+                    randomizedY.add(nextRandomY);
+                    randomizedZ.add(nextRandomZ);
+                    repeat = false;
+                }
+            }
         }
         ArrayList<ArrayList<Number>> result = new ArrayList<>();
         
