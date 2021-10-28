@@ -211,7 +211,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <type>jar</type>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.gephi/gephi-toolkit -->
-        
+        <dependency>
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple-xml</artifactId>
+            <version>2.7.1</version>
+        </dependency>
 
 
 

@@ -113,7 +113,10 @@ import vtea.exploration.plotgatetools.listeners.ImageHighlightSelectionListener;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.PolygonSelectionListener;
 import vtea.exploration.plotgatetools.listeners.QuadrantSelectionListener;
+import vtea.exploration.plotgatetools.listeners.RandomizationListener;
 import vtea.exploration.plotgatetools.listeners.ResetSelectionListener;
+import vtea.exploration.util.ClassRandomization;
+import vtea.exploration.util.PositionRandomization;
 import vtea.gui.ComboboxToolTipRenderer;
 import vtea.jdbc.H2DatabaseEngine;
 import vtea.lut.Black;
@@ -144,7 +147,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         SubGateListener, PlotAxesPreviewButtonListener, ImageListener,
         NameUpdateListener, colorUpdateListener, remapOverlayListener,
         ManualClassListener, AssignmentListener, UpdateFeaturesListener,
-        GateManagerActionListener, AddClassByMathListener, GateMathObjectListener {
+        GateManagerActionListener, AddClassByMathListener, GateMathObjectListener,
+        RandomizationListener{
 
     static String printResult = "";
     static public int testCounter = 0;
@@ -296,6 +300,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addNeighborhoodListener(this);
         gl.addClassificationListener(this);
         gl.addAssignmentListener(this);
+        gl.addRandomizationListener(this);
 
     }
 
@@ -997,6 +1002,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addNeighborhoodListener(this);
         gl.addClassificationListener(this);
         gl.addAssignmentListener(this);
+        gl.addRandomizationListener(this);
 
         gl.msActive = false;
 
@@ -1298,6 +1304,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addNeighborhoodListener(this);
         gl.addClassificationListener(this);
         gl.addAssignmentListener(this);
+        gl.addRandomizationListener(this);
 
         gl.msActive = false;
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates, hm.get(currentX), hm.get(currentY));
@@ -3221,6 +3228,17 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             ImageFeatureAddFrame mf = new ImageFeatureAddFrame(key, Channels, impoverlay, objects, connection);
             mf.addListener(this);
             mf.setVisible(true);
+    }
+
+    @Override
+    public void addRandomization(String type) {
+        if(type.equals("position")){
+            PositionRandomization pr = new PositionRandomization(objects.size(), impoverlay);
+            pr.addFeatureListener(this);
+        } else if(type.equals("class")){
+            ClassRandomization cr = new ClassRandomization(H2DatabaseEngine.getColumn(key, "Assigned"));
+            cr.addFeatureListener(this);
+        }
     }
 
     class ExportGates {
