@@ -20,10 +20,15 @@ package vtea.objects.Segmentation;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.Roi;
 import ij.io.Opener;
+import ij.plugin.frame.RoiManager;
+import ij.process.ImageProcessor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -131,8 +136,6 @@ public class PreLabelled extends AbstractSegmentation {
         panel.setLayout(new GridBagLayout());
         file.setPreferredSize(new Dimension(240, 30));
         file.setMinimumSize(new Dimension(240, 30));
-        
-        
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
@@ -168,7 +171,6 @@ public class PreLabelled extends AbstractSegmentation {
         layoutConstraints.gridwidth = 1;
         uniqueID.setSelectedIndex(1);
         panel.add(uniqueID, layoutConstraints);
-
 
 //        
 //        layoutConstraints.fill = GridBagConstraints.CENTER;
@@ -362,59 +364,122 @@ public class PreLabelled extends AbstractSegmentation {
 
     private void findNonUnique(ImagePlus imp) {
         ImageStack stack = imp.getImageStack();
-
-        //this.progress = IJ.createImage("Segmentation", "32-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
-        //ImageStack progressStack = progress.getImageStack();
-        //progress.show();
-        //double object = 0;
-        //double objectCount = 0;
-         int width = stack.getWidth();
+        int width = stack.getWidth();
         int height = stack.getHeight();
         int size = stack.getSize();
-        double max = width * height * size;
+        int max = width * height * size;
 
+        ArrayList<Roi> rois = new ArrayList<>();
+        ArrayList<Float> colors = new ArrayList<>();
+        ArrayList<Integer> slices = new ArrayList<>();
+     
+        int v = 1;
+        int db = 0;
 
-        for (int z = 0; z < stack.getSize(); z++) {
-            for (int x = 0; x < stack.getWidth(); x++) {
-                for (int y = 0; y < stack.getHeight(); y++) {
-                    double v = (z + x + y);
-                    double db = 100 * (v / max);
-                    double color = stack.getVoxel(x, y, z);
-                    notifyProgressListeners("Parsing pixels...", (double) db);
+        for (int z = 0; z < imp.getNSlices(); z++) {
+            for (int x = 0; x < imp.getWidth(); x++) {
+                for (int y = 0; y < imp.getHeight(); y++) {
+
+                    v = (z + x + y);
+                    db = 100 * (v / max);
+                    notifyProgressListeners("Parsing pixels...", (double)db);
+                    
+                    //double color = stack.getVoxel(x, y, z);
+                    imp.setZ(z+1);
+                    ImageProcessor ip = imp.getProcessor();
+                    float color = ip.getPixelValue(x, y);
+                            
                     if (color > 0) {
-
-                        System.out.println("PROFILING: next object: " + stack.getVoxel(x, y, z));
-
-                        ArrayList<int[]> pixels = new ArrayList<int[]>();
-
                         
-                        pixels = floodfill_6C_3D(imp.getImageStack(), x, y, z, imp.getWidth(), imp.getHeight(), imp.getNSlices(), pixels, color, 0);
-
-                        color = 0;
-
-                        MicroObject obj = new MicroObject();
-                        int[] xPos = new int[pixels.size()];
-                        int[] yPos = new int[pixels.size()];
-                        int[] zPos = new int[pixels.size()];
-
-                        for (int c = 0; c < pixels.size(); c++) {
-                            int p[] = new int[3];
-                            p = pixels.get(c);
-                            xPos[c] = p[0];
-                            yPos[c] = p[1];
-                            zPos[c] = p[2];
+                        IJ.doWand(imp, x, y, 0, "8-connected");
+                        Roi r = imp.getRoi();
+                        
+                        if (imp.getBitDepth() == 32) {
+                            ip.setColor(0.0);
+                        } else {
+                            ip.setColor(0);
                         }
-
-                        obj.setPixelsX(xPos);
-                        obj.setPixelsY(yPos);
-                        obj.setPixelsZ(zPos);
-                        obj.setCentroid();
-                        obj.setSerialID(alVolumes.size());
-                        alVolumes.add(obj);
-                    } 
+                        ip.fill(r);
+                        rois.add(r);
+                        colors.add(color);
+                        slices.add(z);
+                    }
                 }
             }
         }
+       System.out.println("PROFILING: Total rois identified: " + rois.size());
+       System.out.println("PROFILING: Building by CC...");
+        int z = 0;
+        
+        RoiManager manager = new RoiManager();
+        manager.setVisible(false);
+
+        for (int i = 0; i < colors.size(); i++) {
+            Roi startRoi = rois.get(i);
+            Float startColor = colors.get(i);
+            if (startColor.intValue() > -1) {
+                
+                ArrayList<Point> points = new ArrayList<>();
+                points = addPoints(points, startRoi.getContainedPoints());
+                ArrayList<Integer> slice = new ArrayList<>();
+                
+
+                db = 100 * (i / colors.size());
+                notifyProgressListeners("Parsing rois...", (double) db);
+                
+                for (int c = 0; c < startRoi.getContainedPoints().length; c++) {
+                        slice.add(slices.get(i));
+                } 
+
+                for (int j = 0; j < colors.size(); j++) {
+                    Float compareColor = colors.get(j);
+                    if (startColor.intValue() == compareColor.intValue() && i != j) {
+                        Roi compareRoi = rois.get(j);          
+                        Polygon start = startRoi.getPolygon();
+                        if (start.intersects(compareRoi.getBounds())) {
+                            Point[] p = compareRoi.getContainedPoints();
+                            for (int c = 0; c < compareRoi.getContainedPoints().length; c++) {
+                                slice.add(slices.get(j));
+                                points.add(p[c]);
+                            } 
+                            colors.set(j, new Float(-1));
+                        }
+                    }
+                }
+
+                //build point arrays
+                MicroObject obj = new MicroObject();
+                int[] xPos = new int[points.size()];
+                int[] yPos = new int[points.size()];
+                int[] zPos = new int[points.size()];
+
+                for (int c = 0; c < points.size(); c++) {
+                    Point p = points.get(c);
+                    Double x = p.getX();
+                    Double y = p.getY();
+                    z = slice.get(c);
+                    
+                    xPos[c] = x.intValue();
+                    yPos[c] = y.intValue();
+                    zPos[c] = z;
+                }
+                obj.setPixelsX(xPos);
+                obj.setPixelsY(yPos);
+                obj.setPixelsZ(zPos);
+                obj.setCentroid();
+                obj.setSerialID(alVolumes.size());
+                alVolumes.add(obj);
+                //System.out.println("PROFILING: adding object: " + alVolumes.size());
+            }
+        }
+    }
+
+    private ArrayList<Point> addPoints(ArrayList<Point> points, Point[] p) {
+
+        for (int i = 0; i < p.length; i++) {
+            points.add(p[i]);
+        }
+        return points;
     }
 
     private void findUnique(ImagePlus imp) {
@@ -512,7 +577,7 @@ public class PreLabelled extends AbstractSegmentation {
             return pixels;
         }
 
-        if (is.getVoxel(x, y, z) == color && is.getVoxel(x,y,z) > 0) {
+        if (is.getVoxel(x, y, z) == color && is.getVoxel(x, y, z) > 0) {
             int[] pixel = new int[3];
 
             depth++;
@@ -525,28 +590,25 @@ public class PreLabelled extends AbstractSegmentation {
 
             is.setVoxel(x, y, z, 0);
 
-     
-                    pixels = floodfill_6C_3D(is, x + 1, y, z, width, height, size, pixels, color, depth);
-                    System.out.println("PROFILING: x+1, depth: " + depth+ ", object: " + color);
-         
-                    pixels = floodfill_6C_3D(is, x - 1, y, z, width, height, size, pixels, color, depth);
-                    System.out.println("PROFILING: x-1, depth: " + depth+ ", object: " + color);
-        
-                    pixels = floodfill_6C_3D(is, x, y + 1, z, width, height, size, pixels, color, depth);
-                    System.out.println("PROFILING: y+1, depth: " + depth+ ", object: " + color);
-        
-                    pixels = floodfill_6C_3D(is, x, y - 1, z, width, height, size, pixels, color, depth);
-                    System.out.println("PROFILING: y-1, depth: " + depth+ ", object: " + color);
-                
-        
-                    pixels = floodfill_6C_3D(is, x, y, z + 1, width, height, size, pixels, color, depth);
-                    System.out.println("PROFILING: z+1, depth: " + depth+ ", object: " + color);
+            pixels = floodfill_6C_3D(is, x + 1, y, z, width, height, size, pixels, color, depth);
+            System.out.println("PROFILING: x+1, depth: " + depth + ", object: " + color);
 
-                    pixels = floodfill_6C_3D(is, x, y, z - 1, width, height, size, pixels, color, depth);
-                    System.out.println("PROFILING: z-1, depth: " + depth + ", object: " + color);
-                }
-            
-        
+            pixels = floodfill_6C_3D(is, x - 1, y, z, width, height, size, pixels, color, depth);
+            System.out.println("PROFILING: x-1, depth: " + depth + ", object: " + color);
+
+            pixels = floodfill_6C_3D(is, x, y + 1, z, width, height, size, pixels, color, depth);
+            System.out.println("PROFILING: y+1, depth: " + depth + ", object: " + color);
+
+            pixels = floodfill_6C_3D(is, x, y - 1, z, width, height, size, pixels, color, depth);
+            System.out.println("PROFILING: y-1, depth: " + depth + ", object: " + color);
+
+            pixels = floodfill_6C_3D(is, x, y, z + 1, width, height, size, pixels, color, depth);
+            System.out.println("PROFILING: z+1, depth: " + depth + ", object: " + color);
+
+            pixels = floodfill_6C_3D(is, x, y, z - 1, width, height, size, pixels, color, depth);
+            System.out.println("PROFILING: z-1, depth: " + depth + ", object: " + color);
+        }
+
         return pixels;
     }
 
