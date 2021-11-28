@@ -3411,7 +3411,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         JTextField interval = new JTextField(radius.getText(), 5);
         JLabel warning = new JLabel("CAUTION: Use a discrete feature.");
         JLabel randomize = new JLabel("Randomize");
-        String[] choice = {"Y", "N"};
+        String[] choice = {"N", "Y"};
         JComboBox random = new JComboBox(choice);
 
         JPanel menu = new JPanel();
