@@ -111,8 +111,6 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
         Morphology = new ArrayList<ArrayList>();
 
-        //setup the image
-        //ThresholdOriginal = imp.duplicate();
         ThresholdOriginal = imp;
         ThresholdPreview = getThresholdPreview();
 
@@ -123,13 +121,12 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         IJ.run(ThresholdPreview, "Grays", "");
 
         //setup the method
-        super.processComboBox = new DefaultComboBoxModel(vtea._vtea.SEGMENTATIONOPTIONS);
+        processComboBox = new DefaultComboBoxModel(vtea._vtea.SEGMENTATIONOPTIONS);
+        processComboBox.setSelectedItem("Connect 2D/3D with kDTree");
 
         ProcessSelectComboBox.setModel(processComboBox);
         ProcessSelectComboBox.setVisible(true);
-
-        //ProcessVariables = new String[vtea._vtea.SEGMENTATIONOPTIONS.length][10];        
-        //setup thresholder       
+    
         makeProtocolPanel((String) ProcessSelectComboBox.getSelectedItem());
 
         setBounds(new java.awt.Rectangle(500, 160, 378, 282));

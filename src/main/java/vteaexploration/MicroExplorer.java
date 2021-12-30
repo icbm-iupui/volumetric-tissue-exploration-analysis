@@ -166,6 +166,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
     boolean imageGate = false;
     boolean noLUT = false;
     boolean updatePlot = true;
+    
+    boolean multiDataSet = false;
 
     ResultsTable rt = new ResultsTable();
 

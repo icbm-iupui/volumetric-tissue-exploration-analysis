@@ -425,6 +425,8 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
         if (ImageTabs.getTabCount() > 2) {
             refreshMenuItems();
+        } else {
+            addMenuItems();
         }
         //createPopUpMenu();
 

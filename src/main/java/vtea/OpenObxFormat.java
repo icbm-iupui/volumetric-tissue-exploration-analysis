@@ -133,7 +133,8 @@ public class OpenObxFormat {
         ArrayList descriptions = (ArrayList) result.get(3);
         ArrayList descriptionLabels = (ArrayList) result.get(4);
 
-        ExplorerProcessor ep = new ExplorerProcessor(name, name, imp, objects, measures, descriptions, descriptionLabels);
+        ExplorerProcessor ep = new ExplorerProcessor(name, name, imp, objects, 
+                measures, descriptions, descriptionLabels);
         ep.execute();
 
     }

@@ -69,9 +69,8 @@ public class densityMap3d {
 
         int radius = Integer.parseInt((String) settings.get(0));
         int weight = Integer.parseInt((String) settings.get(1));
-
-        System.out.println("PROFILING: Generating density map, radius: " + radius + " and weight:" + weight);
-
+        int sigma = Integer.parseInt((String) settings.get(2));
+        
         ImagePlus resultImage = IJ.createImage("Density Map_Real", "8-bit black",
                 imp.getWidth(), imp.getHeight(), imp.getNSlices());
         ImageStack resultStack = resultImage.getStack();
@@ -117,8 +116,10 @@ public class densityMap3d {
                 for (int x = xStart; x < xStop; x++) {
                     for (int y = yStart; y < yStop; y++) {
                         for (int z = zStart; z < zStop; z++) {
-                            if (Math.pow(x - x0, 2) + Math.pow(y - y0, 2) + Math.pow(z - z0, 2) <= R) {
-                                resultStack.setVoxel(x, y, z, resultStack.getVoxel(x, y, z) + weight);
+                            if (Math.pow(x - x0, 2) + Math.pow(y - y0, 2) 
+                                    + Math.pow(z - z0, 2) <= R) {
+                                resultStack.setVoxel(x, y, z, 
+                                        resultStack.getVoxel(x, y, z) + weight);
                             }
                         }
                     }
@@ -129,7 +130,8 @@ public class densityMap3d {
         }
 
         //IJ.run(resultImage,"Invert", "stack");
-        IJ.run(resultImage, "Gaussian Blur 3D...", "x=2 y=2 z=2");
+        IJ.run(resultImage, "Gaussian Blur 3D...", " x=" + sigma + " y=" +sigma +" z=" + sigma);
+
 
         resultImage.show();
         //IJ.run(resultImage, "Fire", "");
@@ -139,23 +141,16 @@ public class densityMap3d {
     public ImagePlus makeRandomMap(ImagePlus imp, ArrayList<MicroObject> al) {
 
         ArrayList<String> settings = new ArrayList<String>();
-
-        //settings = sd.getSettings();
-        //sd.showDialog();
         settings = sd.getSettings();
 
         int radius = Integer.parseInt((String) settings.get(0));
         int weight = Integer.parseInt((String) settings.get(1));
-
-        System.out.println("PROFILING: Generating random density map, radius: " + radius + " and weight:" + weight);
+        int sigma = Integer.parseInt((String) settings.get(2));
 
         ImagePlus resultImage = IJ.createImage("Density Map_Random", "8-bit black",
                 imp.getWidth(), imp.getHeight(), imp.getNSlices());
         ImageStack resultStack = resultImage.getStack();
-
-        //ArrayList<Integer> xPos = new ArrayList<Integer>();
-        //ArrayList<Integer> yPos = new ArrayList<Integer>();
-        //ArrayList<Integer> zPos = new ArrayList<Integer>();
+        
         int R = (int) Math.pow(radius, 2);
 
         int total = al.size();
@@ -169,7 +164,7 @@ public class densityMap3d {
         ListIterator<MicroObject> itr = al.listIterator();
         while (itr.hasNext()) {
             MicroObject vol = (MicroObject) itr.next();
-            IJ.showStatus("Calculating distance map on random...");
+            IJ.showStatus("Calculating density map on random...");
             IJ.showProgress(step, total);
             step++;
             try {
@@ -185,8 +180,35 @@ public class densityMap3d {
                 x0 = offsetX;
                 y0 = offsetY;
                 z0 = offsetZ;
+                
+                if (imp.getRoi() == null) {
+                            addDensity(R, weight, x0, y0, z0, resultStack, imp);
+                } else 
+                    while(!imp.getRoi().contains(x0, y0)){
+                        x0 = random.nextInt(imp.getWidth());
+                        y0 = random.nextInt(imp.getHeight());
+                        z0 = random.nextInt(imp.getNSlices());
+                    }
+                     if (imp.getRoi().contains(x0, y0)) {
+                            addDensity(R, weight, x0, y0, z0, resultStack, imp);         
+                } 
 
-                int xStart = x0 - R - 1;
+            } catch (NullPointerException e) {
+            }
+        }
+
+        //IJ.run(resultImage,"Invert", "stack");
+        IJ.run(resultImage, "Gaussian Blur 3D...", " x=" + sigma + " y=" 
+                +sigma +" z=" + sigma);
+
+        resultImage.show();
+        //IJ.run(resultImage, "Fire", "");
+        return resultImage;
+    }
+        
+    private void addDensity(int R, int weight, int x0, int y0, int z0, 
+            ImageStack resultStack, ImagePlus imp){
+        int xStart = x0 - R - 1;
                 int xStop = x0 + R + 1;
 
                 xStart = lowBounds(xStart, 0);
@@ -207,30 +229,14 @@ public class densityMap3d {
                 for (int x = xStart; x < xStop; x++) {
                     for (int y = yStart; y < yStop; y++) {
                         for (int z = zStart; z < zStop; z++) {
-                            if (Math.pow(x - x0, 2) + Math.pow(y - y0, 2) + Math.pow(z - z0, 2) <= R) {
-
-                                if (imp.getRoi() == null) {
-                                    resultStack.setVoxel(x, y, z, resultStack.getVoxel(x, y, z) + weight);
-                                } else {
-                                    if (imp.getRoi().contains(x, y)) {
-                                        resultStack.setVoxel(x, y, z, resultStack.getVoxel(x, y, z) + weight);
-                                    }
-                                }
+                            if (Math.pow(x - x0, 2) + Math.pow(y - y0, 2) 
+                                    + Math.pow(z - z0, 2) <= R) {
+                                    resultStack.setVoxel(x, y, 
+                                    z, resultStack.getVoxel(x, y, z) + weight);
                             }
                         }
                     }
                 }
-
-            } catch (NullPointerException e) {
-            }
-        }
-
-        //IJ.run(resultImage,"Invert", "stack");
-        IJ.run(resultImage, "Gaussian Blur 3D...", "x=2 y=2 z=2");
-
-        resultImage.show();
-        //IJ.run(resultImage, "Fire", "");
-        return resultImage;
     }
 
     private int lowBounds(int value, int min) {
@@ -265,12 +271,9 @@ public class densityMap3d {
         ListIterator<MicroObject> itr = objects.listIterator();
 
         while (itr.hasNext()) {
-
             MicroObject object = itr.next();
-
-            //System.out.println("PROFILING: map value: " + imp.getProcessor().getPixel((int)object.getCentroidX(), (int)object.getCentroidY()));
-            result.add(imp.getProcessor().getPixel((int) object.getCentroidX(), (int) object.getCentroidY()));
-
+            result.add(imp.getProcessor().getPixel((int) object.getCentroidX(),
+                    (int) object.getCentroidY()));
         }
         al.add(result);
 
@@ -281,7 +284,8 @@ public class densityMap3d {
         addfeaturelistener.add(listener);
     }
 
-    public void notifyaddFeatureListeners(String name, ArrayList<ArrayList<Number>> al) {
+    public void notifyaddFeatureListeners(String name, 
+            ArrayList<ArrayList<Number>> al) {
         for (AddFeaturesListener listener : addfeaturelistener) {
             listener.addFeatures(name, "Calculated 3D density map", al);
         }
@@ -303,6 +307,7 @@ public class densityMap3d {
         //weight,
         JTextArea size = new JTextArea("10");
         JTextArea weight = new JTextArea("5");
+        JTextArea sigma = new JTextArea("20");
 
         JPanel menu = new JPanel();
 
@@ -314,23 +319,33 @@ public class densityMap3d {
 
             settings.add("10");
             settings.add("5");
+            settings.add("20");
 
             menu.setLayout(new GridBagLayout());
 
             GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
-                    GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH, 
+                    new Insets(0, 0, 0, 5), 0, 0);
             menu.add(new JLabel("Radius"), gbc);
             gbc = new GridBagConstraints(1, 0, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
             menu.add(size, gbc);
 
             gbc = new GridBagConstraints(0, 1, 1, 1, 0.2, 1.0,
-                    GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH, 
+                    new Insets(0, 0, 0, 5), 0, 0);
             menu.add(new JLabel("Weight"), gbc);
             gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
                     GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
             menu.add(weight, gbc);
-
+            
+            gbc = new GridBagConstraints(0, 2, 1, 1, 0.2, 1.0,
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH, 
+                    new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(new JLabel("Sigma"), gbc);
+            gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(sigma, gbc);
         }
 
         public void showDialog() {
@@ -339,21 +354,18 @@ public class densityMap3d {
                     null, null);
 
             if (x == JOptionPane.OK_OPTION) {
-                //System.out.println("PROFILING: radius: " + size.getText() + " and weight:" + weight.getText());
                 result = true;
                 settings.clear();
                 settings.add(size.getText());
                 settings.add(weight.getText());
+                settings.add(sigma.getText());
             } else {
                 result = false;
             }
-
         }
 
         public ArrayList<String> getSettings() {
-
             return settings;
         }
     }
-
 }

@@ -226,7 +226,9 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public void run(String str) {
 
         //getUIValues();
-        context = new Context(LogService.class, PluginService.class, UIService.class);
+        //context = new Context(LogService.class, PluginService.class, UIService.class);
+        context = (Context)IJ.runPlugIn("org.scijava.Context", "");
+        
         priority = Priority.HIGH;
 
         STARTUPTIME = new Date(System.currentTimeMillis());

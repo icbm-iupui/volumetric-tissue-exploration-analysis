@@ -10,7 +10,7 @@
   <groupId>icbm-iupui</groupId>
   <artifactId>vtea</artifactId>
   <name>VTEA master</name>
-  <version>1.0alpha8-SNAPSHOT</version>
+  <version>1.0.0</version>
   <description>Volumetric analysis</description>
   <developers>
     <developer>
@@ -91,11 +91,14 @@
         <version>3.2.4</version>
         <executions>
           <execution>
+            <id>0</id>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
             <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>vtea</shadedClassifierName>
               <minimizeJar>false</minimizeJar>
               <artifactSet>
                 <includes>
@@ -103,6 +106,23 @@
                   <include>org.renjin*</include>
                 </includes>
                 <excludes />
+              </artifactSet>
+            </configuration>
+          </execution>
+          <execution>
+            <id>1</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>false</shadedArtifactAttached>
+              <shadedClassifierName>imageprocessor</shadedClassifierName>
+              <minimizeJar>true</minimizeJar>
+              <artifactSet>
+                <excludes>
+                  <exclude>vtea.*</exclude>
+                </excludes>
               </artifactSet>
             </configuration>
           </execution>
@@ -132,165 +152,12 @@
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
+    <repository>
+      <id>netbeans</id>
+      <name>NetBeans</name>
+      <url>http://netbeans.apidesign.org/maven2/</url>
+    </repository>
   </repositories>
-  <dependencies>
-    <dependency>
-      <groupId>com.github.lejon.T-SNE-Java</groupId>
-      <artifactId>tsne</artifactId>
-      <version>v2.5.0</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>all</artifactId>
-          <groupId>com.github.fommil.netlib</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.github.haifengl</groupId>
-      <artifactId>smile-netlib</artifactId>
-      <version>1.5.3</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>all</artifactId>
-          <groupId>com.github.fommil.netlib</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.github.haifengl</groupId>
-      <artifactId>smile-core</artifactId>
-      <version>1.5.3</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.haifengl</groupId>
-      <artifactId>smile-plot</artifactId>
-      <version>1.5.3</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.imagej</groupId>
-      <artifactId>ij</artifactId>
-      <version>1.53f</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>tools</artifactId>
-          <groupId>com.sun</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.swinglabs</groupId>
-      <artifactId>swing-layout</artifactId>
-      <version>1.0.3</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jfree</groupId>
-      <artifactId>jfreechart</artifactId>
-      <version>1.5.0</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>xml-apis</artifactId>
-          <groupId>xml-apis</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.jfree</groupId>
-      <artifactId>jcommon</artifactId>
-      <version>1.0.21</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>1.4.198</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.swinglabs</groupId>
-      <artifactId>jxlayer</artifactId>
-      <version>3.0.4</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.imglib2</groupId>
-      <artifactId>imglib2</artifactId>
-      <version>5.8.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.scijava</groupId>
-      <artifactId>scijava-common</artifactId>
-      <version>2.85.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.imglib2</groupId>
-      <artifactId>imglib2-ij</artifactId>
-      <version>2.0.0-beta-46</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.imagej</groupId>
-      <artifactId>imagej</artifactId>
-      <version>2.0.0-rc-55</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.imagej</groupId>
-      <artifactId>imagej-deprecated</artifactId>
-      <version>0.1.1</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.5</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.haifengl</groupId>
-      <artifactId>smile-math</artifactId>
-      <version>1.5.3</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.ijpb</groupId>
-      <artifactId>MorphoLibJ</artifactId>
-      <version>v1.4.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.netbeans.external</groupId>
-      <artifactId>AbsoluteLayout</artifactId>
-      <version>RELEASE113</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.formdev</groupId>
-      <artifactId>flatlaf</artifactId>
-      <version>0.44</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>3.9</version>
-      <scope>compile</scope>
-    </dependency>
-  </dependencies>
   <properties>
     <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
     <netbeans.hint.license>gpl20</netbeans.hint.license>

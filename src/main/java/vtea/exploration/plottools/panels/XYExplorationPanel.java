@@ -97,6 +97,7 @@ import vtea.exploration.listeners.NeighborhoodListener;
 import vtea.exploration.listeners.PlotAxesPreviewButtonListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SaveGatedImagesListener;
+import vtea.exploration.listeners.SpatialListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.SubGateListener;
 import vtea.exploration.listeners.UpdateExplorerGuiListener;
@@ -149,7 +150,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         NameUpdateListener, colorUpdateListener, remapOverlayListener,
         ManualClassListener, AssignmentListener, UpdateFeaturesListener,
         GateManagerActionListener, AddClassByMathListener, GateMathObjectListener,
-        RandomizationListener{
+        RandomizationListener, SpatialListener{
 
     static String printResult = "";
     static public int testCounter = 0;
@@ -302,6 +303,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addClassificationListener(this);
         gl.addAssignmentListener(this);
         gl.addRandomizationListener(this);
+        gl.addSpatialListener(this);
 
     }
 
@@ -1000,6 +1002,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addClassificationListener(this);
         gl.addAssignmentListener(this);
         gl.addRandomizationListener(this);
+        gl.addSpatialListener(this);
 
         gl.msActive = false;
 
@@ -1302,6 +1305,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addClassificationListener(this);
         gl.addAssignmentListener(this);
         gl.addRandomizationListener(this);
+        gl.addSpatialListener(this);
 
         gl.msActive = false;
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates, hm.get(currentX), hm.get(currentY));
@@ -1896,7 +1900,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                                     objectsFinal.add(object);
 
-                                    measurementsFinal.add(cloneMeasurements(measurementsGated.get(i)));
+                                    measurementsFinal.add(
+                                            cloneMeasurements(
+                                                    measurementsGated.get(i)));
                                     position++;
                                 }
 
@@ -1908,7 +1914,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                                 objectsFinal.add(object);
 
-                                measurementsFinal.add(cloneMeasurements(measurementsGated.get(i)));
+                                measurementsFinal.add(
+                                        cloneMeasurements(
+                                                measurementsGated.get(i)));
                                 position++;
                             }
                         }
@@ -2018,7 +2026,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 //                                    }
                                     objectsFinal.add(object);
 
-                                    measurementsFinal.add(cloneMeasurements(measurementsGated.get(i)));
+                                    measurementsFinal.add(
+                                            cloneMeasurements(
+                                                    measurementsGated.get(i)));
                                     position++;
                                 }
 
@@ -2030,7 +2040,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                                 objectsFinal.add(object);
 
-                                measurementsFinal.add(cloneMeasurements(measurementsGated.get(i)));
+                                measurementsFinal.add(
+                                        cloneMeasurements(
+                                                measurementsGated.get(i)));
                                 position++;
                             }
                         }
@@ -2248,7 +2260,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                         objects.get(c).getCentroidY() + "_" +
                         objects.get(c).getCentroidZ();      
                 
-                ArrayList<Number> data = this.getObjectDataAll(zeroOrder, positionImport, csvData, blank, c, positionText);
+                ArrayList<Number> data = this.getObjectDataAll(zeroOrder, 
+                        positionImport, csvData, blank, c, positionText);
                 for (int b = 0; b < dataColumns; b++) {
                     ArrayList<Number> al = FeatureColumns.get(b);
                     al.add(data.get(b));
@@ -2271,7 +2284,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 firePropertyChange("progress", "Importing table...", (int) progress);
 
                 result.add(FeatureColumns.get(m));
-                this.notifyAddFeatureListener((columnTitles[m].replace(".", "_")).replace("/", "_"),(columnTitles[m].replace(".", "_")).replace("/", "_"), result);
+                this.notifyAddFeatureListener(
+                        (columnTitles[m].replace(".", "_")).replace("/", "_"),
+                        (columnTitles[m].replace(".", "_")).replace("/", "_"), 
+                        result);
 
             }
         }
@@ -2435,7 +2451,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             }
             String name = file.getName();
             name = name.replace(".", "_");
-            //this.notifyAddFeatureListener(name, paddedTable);
         }
     }
 
@@ -2536,6 +2551,201 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         this.notifyAddFeatureListener(s + "_Random", "Random 3D density map",measurementsFinal);
     }
+    
+    @Override
+    public void addSpatialFromGate(String name){
+        
+       SpatialSettingsDialog settingsDialog = new SpatialSettingsDialog();
+        settingsDialog.setFocusable(false);
+
+        if (settingsDialog.showDialog()) {
+
+            ArrayList<String> settings = settingsDialog.getSettings();
+
+            //String method = settings.get(1);
+            String zScale = settings.get(1);
+            String interval = settings.get(2);
+            //String randomize = settings.get(3);
+            
+            //boolean random = false;
+            
+            //if(randomize.equals("Y")){random = true;}
+        
+        
+        ProgressTracker pt = new ProgressTracker();
+            
+            pt.createandshowGUI("Calculating Spatial Feature", explorerXposition, explorerYposition);
+            addPropertyChangeListener(pt);
+            
+            firePropertyChange("method", "", "Ripley's K");
+            firePropertyChange("indeterminant", " setup", "");
+            
+            
+            
+
+            
+            //1) get gated cells x,y,z, include rois (use px)
+            
+            ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
+
+            //start factory
+            ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
+            objectsTemp = al.get(0);
+            
+            if(objectsTemp.size() > 0){
+
+            ListIterator itrName = objectsTemp.listIterator();
+
+            double[][] key = new double[objectsTemp.size()][1];
+            double[][] data = new double[objectsTemp.size()][3];
+            
+            //2) get randomized x,y,z in roi if exists (use px)
+            
+
+            
+            //3) calculate area of roi or whole image (use px)
+            
+            double A = 0;
+            double n = objectsTemp.size();
+            int distance_max = 0;
+             int distance_inc = 5;
+            
+            if(impoverlay.getRoi() != null){
+                A = impoverlay.getRoi().size();
+                Roi r = impoverlay.getRoi();
+                distance_max = 
+                        (int)Math.sqrt(Math.pow(r.getBounds().getHeight(), n) + 
+                        Math.pow(r.getBounds().getWidth(), n));
+            } else {
+                A = impoverlay.getWidth() * impoverlay.getHeight();
+                                distance_max = 
+                        (int)Math.sqrt(Math.pow(impoverlay.getHeight(), n) + 
+                        Math.pow(impoverlay.getWidth(), n));
+            }
+            
+            //4) build knn test and random
+            
+            KDTree kd_test = new KDTree(data,key);
+            KDTree[] kd_MC = new KDTree[10];
+            
+            //Monte Carlo of random for 95 CI calculation
+            
+            for(int i = 0; i < 9; i++){
+                
+                double progress = 100 * ((double) (i+1)/ (double) (10));
+                firePropertyChange("method", "", "Running Monte Carlo...");
+                firePropertyChange("progress", " Running Monte Carlo...", (int) progress);
+                    
+                
+                    double[][] keyMC = new double[objectsTemp.size()][1];
+                    double[][] dataMC = new double[objectsTemp.size()][3];
+
+                    ArrayList<ArrayList<Integer>> randomized = this.randomize(objectsTemp.size());
+                    
+                for(int j = 0; j < objectsTemp.size(); j++){
+                    
+
+                    MicroObject obj = objectsTemp.get(j);
+                    
+                    double[] k = new double[1];
+                    double[] d = new double[3];
+                      
+                    k[0] = obj.getSerialID();
+                    key[j] = k;
+                    
+                    d[0] = (double)randomized.get(0).get(j);
+                    d[1] = (double)randomized.get(1).get(j);
+                    d[2] = (double)randomized.get(2).get(j)*(Double.parseDouble(zScale));
+                    
+                    data[j] = d;
+
+                }
+                
+                kd_MC[i] = new KDTree(dataMC,keyMC);
+  
+            }
+            
+            ArrayList<Float> K_test = new ArrayList<Float>();
+            ArrayList<ArrayList<Float>> K_MC = new ArrayList<ArrayList<Float>>();
+            
+            
+           
+            
+            //5) loop for distance up to max for test,
+            // 
+            //   calculate K, K = A/n * Sum of (distance/n)
+           
+            // distance max = distance_max;
+            // distance step = interval;
+            
+            //6) loop through randomized and for distance up to max for random, calculate K
+            //  Calculatea aK = A/n * Sum distance/n
+            // 
+               
+            
+          
+            
+            
+
+            ArrayList<Integer> classes = new ArrayList<>();
+
+//            ArrayList<ArrayList<Number>> features
+//                    = H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_"
+//                            + keySQLSafe, this.descriptions.get(feature));
+////
+//            double maxClass = this.getMaximumOfData(features, 0);
+//            double minClass = this.getMinimumOfData(features, 0);
+//
+//            for (int i = (int) minClass; i <= (int) maxClass; i++) {
+//                classes.add(i);        
+//            }
+
+//            HashMap<String, String> objFeature = new HashMap<>();
+//
+//            for (int c = 0; c < this.objects.size(); c++) {
+//                objFeature.put(String.valueOf((objects.get(c)).getSerialID()), String.valueOf(features.get(c).get(0)));
+//            }
+
+ 
+//            ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
+//            objectsTemp = al.get(0);
+//            measurementsFinal = al.get(1);
+//
+//
+//            int i = 0;
+//            
+//            ArrayList<ArrayList<Integer>> randomized = this.randomize(objectsTemp.size());
+//
+//            while (itrName.hasNext()) {
+//                MicroObject obj = (MicroObject) itrName.next();
+//                double[] k = new double[1];
+//                k[0] = obj.getSerialID();
+//           
+//                key[i] = k;
+//                double[] d = new double[3];
+//                
+                
+//                if(random){
+//                   
+//                d[0] = (double)randomized.get(0).get(i);
+//                d[1] = (double)randomized.get(1).get(i);
+//                d[2] = (double)randomized.get(2).get(i)*(Double.parseDouble(zScale));
+//                    
+//                data[i] = d;
+//                i++;
+//                } else {
+//                d[0] = obj.getCentroidX();
+//                d[1] = obj.getCentroidY();
+//                d[2] = obj.getCentroidZ()*(Double.parseDouble(zScale));
+//                data[i] = d;
+//                i++;
+//            }
+           // }
+        }
+        } else {
+            
+        }
+    }
 
     @Override
     public void addNeighborhoodFromGate(String name) {
@@ -2559,15 +2769,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             
             if(randomize.equals("Y")){random = true;}
 
-
             ProgressTracker pt = new ProgressTracker();
             pt.createandshowGUI("Neighborhood Analysis", explorerXposition, explorerYposition);
             addPropertyChangeListener(pt);
             firePropertyChange("method", "", method);
-
             firePropertyChange("indeterminant", " setup", "");
 
-            //determine classes
             ArrayList<Integer> classes = new ArrayList<>();
 
             ArrayList<ArrayList<Number>> features
@@ -2578,17 +2785,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             double minClass = this.getMinimumOfData(features, 0);
 
             for (int i = (int) minClass; i <= (int) maxClass; i++) {
-                classes.add(i);
-                //System.out.println("PROFILING: Adding class: " + i);
+                classes.add(i);        
             }
 
             HashMap<String, String> objFeature = new HashMap<>();
 
             for (int c = 0; c < this.objects.size(); c++) {
-                //System.out.println("PROFILING: Adding hash: " + (objects.get(c)).getSerialID() +
-                //        ", " + features.get(c).get(0));
                 objFeature.put(String.valueOf((objects.get(c)).getSerialID()), String.valueOf(features.get(c).get(0)));
-
             }
 
             ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
@@ -2602,7 +2805,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             ListIterator itrName = objectsTemp.listIterator();
 
             double[][] key = new double[objectsTemp.size()][1];
-
             double[][] data = new double[objectsTemp.size()][3];
 
             int i = 0;
@@ -2613,7 +2815,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 MicroObject obj = (MicroObject) itrName.next();
                 double[] k = new double[1];
                 k[0] = obj.getSerialID();
-                //System.out.println("PROFILING: Adding object(node): " + k[0]);
+           
                 key[i] = k;
                 double[] d = new double[3];
                 if(random){
@@ -2622,9 +2824,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 d[1] = (double)randomized.get(1).get(i);
                 d[2] = (double)randomized.get(2).get(i)*(Double.parseDouble(zScale));
                     
-//                d[0] = obj.getCentroidX();
-//                d[1] = obj.getCentroidY();
-//                d[2] = obj.getCentroidZ()*(Double.parseDouble(zScale));
                 data[i] = d;
                 i++;
                 } else {
@@ -2635,11 +2834,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 i++;
             }
             }
-            //String str = "";
-            //int randomKey = Math.abs(Random.nextInt(objectsTemp.size()-1));
+     
             ArrayList<ArrayList<Neighbor>> neighborhoods = new ArrayList<ArrayList<Neighbor>>();
 
-            //final result
+          
             ArrayList<MicroNeighborhoodObject> n_objs = new ArrayList<>();
 
             if (method.equals("Nearest-k")) {
@@ -2870,9 +3068,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     c++;
                 }
 
-                //key needs to be same length,  set a non
                 firePropertyChange("method", "", "Spatial by point..");
-                //firePropertyChange("comment", "", "Making kD tree...");
                 firePropertyChange("indeterminant", " setup", "");
 
                 KDTree tree = new KDTree(dataReference, key);
@@ -2937,7 +3133,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     }
     
-       public ArrayList<ArrayList<Integer>> randomize(int count){
+    public ArrayList<ArrayList<Integer>> randomize(int count){
           
         Roi pr = impoverlay.getRoi();
         boolean roi = false;
@@ -3149,8 +3345,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         double max = 0;
         double min = 0;
         if (MicroExplorer.LUTSTART >= 0) {
-            max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, selectedIndexText), 0));
-            min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, selectedIndexText), 0));
+            max = Math.round(getMaximumOfData(H2DatabaseEngine.getColumn(
+                    vtea._vtea.H2_MEASUREMENTS_TABLE + "_" 
+                            + keySQLSafe, selectedIndexText), 0));
+            min = Math.round(getMinimumOfData(H2DatabaseEngine.getColumn(
+                    vtea._vtea.H2_MEASUREMENTS_TABLE + "_" 
+                            + keySQLSafe, selectedIndexText), 0));
 
             if (max == 0) {
                 max = 1;
@@ -3180,7 +3380,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void imageUpdated(ImagePlus ip) {
 
-        if (ip.getID() == impoverlay.getID() && updateimage && impZ != impoverlay.getCurrentSlice()) {
+        if (ip.getID() == impoverlay.getID() && updateimage && 
+                impZ != impoverlay.getCurrentSlice()) {
             impZ = impoverlay.getCurrentSlice();
             makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
         }
@@ -3211,7 +3412,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     @Override
-    public void addFeatures(String description, String descriptionLabel, ArrayList<ArrayList<Number>> al) {
+    public void addFeatures(String description, String descriptionLabel, 
+            ArrayList<ArrayList<Number>> al) {
         this.notifyAddFeatureListener(description, descriptionLabel, al);
     }
 
@@ -3316,7 +3518,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             for (int i = 0; i <= impoverlay.getNChannels() - 1; i++) {
                 Channels.add("Channel_" + (i + 1));
             }  
-            ImageFeatureAddFrame mf = new ImageFeatureAddFrame(key, Channels, impoverlay, objects, connection);
+            ImageFeatureAddFrame mf = new ImageFeatureAddFrame(key, Channels, 
+                    impoverlay, objects, connection);
             mf.addListener(this);
             mf.setVisible(true);
     }
@@ -3324,11 +3527,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void addRandomization(String type) {
         if(type.equals("position")){
-            PositionRandomization pr = new PositionRandomization(objects.size(), impoverlay);
+            PositionRandomization pr = new PositionRandomization(objects.size(), 
+                    impoverlay);
             pr.addFeatureListener(this);
             pr.process();
         } else if(type.equals("class")){
-            ClassRandomization cr = new ClassRandomization(H2DatabaseEngine.getColumnInt(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, "Assigned"));
+            ClassRandomization cr = new ClassRandomization(H2DatabaseEngine.getColumnInt(
+                    vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, "Assigned"));
             cr.addFeatureListener(this);
             cr.process();
         }
@@ -3610,7 +3815,222 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             return settings;
         }
     }
+    
+    class SpatialSettingsDialog extends JOptionPane {
 
+        ArrayList<String> settings = new ArrayList<String>();
+
+//        JComboBox classification = new JComboBox(descriptions.toArray());
+        
+        double[] pixelSize = new double[3];
+
+        String[] methods = {"Ripley's K"};
+
+        String[] methodsDetail = {"Calculate self-association with distance.",};
+        JLabel intervalLabel = new JLabel("Step");
+        JTextField interval = new JTextField("5", 5);
+        JComboBox method = new JComboBox(methods);
+        JLabel zLabel = new JLabel("Voxel Z scale");
+        JTextField zScale = new JTextField("2", 5);
+        //JLabel randomize = new JLabel("Randomize");
+        //String[] choice = {"N", "Y"};
+        //JComboBox random = new JComboBox(choice);
+
+        JPanel menu = new JPanel();
+        JPanel submenu = new JPanel();
+
+        boolean result = false;
+
+        public SpatialSettingsDialog() {
+
+            super();
+
+//            classification.setSelectedIndex(descriptions.size() - 1);
+//
+//            classification.addActionListener(new java.awt.event.ActionListener() {
+//                public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                    CheckRangeOfValues(classification.getSelectedIndex());
+//                }
+//            });
+    
+
+            ArrayList<String> tips = new ArrayList<String>();
+
+            tips.add(methodsDetail[0]);
+
+            ComboboxToolTipRenderer renderer = new ComboboxToolTipRenderer();
+            renderer.setTooltips(tips);
+
+            method.setRenderer(renderer);
+
+            method.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    ProcessSelectComboBoxActionPerformed(evt);
+                }
+            });
+
+            menu.setLayout(new GridBagLayout());
+
+            GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(intervalLabel, gbc);
+
+            gbc = new GridBagConstraints(1, 0, 1, 1, 0.2, 1.0,
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(interval, gbc);
+
+            gbc = new GridBagConstraints(0,1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(new JLabel("    "), gbc);
+            gbc = new GridBagConstraints(1,1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+            menu.add(method, gbc);
+//            gbc = new GridBagConstraints(0, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+//                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+//            menu.add(randomize, gbc);
+//            gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.WEST,
+//                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+//            menu.add(random, gbc);
+
+            method.setSelectedIndex(0);
+
+        }
+
+        private void ProcessSelectComboBoxActionPerformed(java.awt.event.ActionEvent evt) {
+
+            submenu.setVisible(false);
+            submenu.removeAll();
+
+            submenu.setLayout(new GridBagLayout());
+
+            String methodString = (String) method.getSelectedItem();
+
+//            if (methodString.equals("Ripley's K")) {
+//
+//                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+//                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+//
+////                gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+////                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(radiusLabel);
+////                gbc = new GridBagConstraints(1, 0, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+////                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(radius, gbc);
+//                gbc = new GridBagConstraints(0, 3, 1, 1, 0.2, 1.0,
+//                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+//                submenu.add(intervalLabel, gbc);
+//                
+//                gbc = new GridBagConstraints(0, 1, 1, 1, 0.2, 1.0,
+//                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+//                submenu.add(zLabel, gbc);
+//                gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+//                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+//                submenu.add(zScale, gbc);
+//                
+//                gbc = new GridBagConstraints(0, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+//                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+//                submenu.add(randomize, gbc);
+//                gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.WEST,
+//                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+//                submenu.add(random, gbc);
+//                
+//
+//                gbc = new GridBagConstraints(0, 3, 1, 1, 0.2, 1.0,
+//                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+//                submenu.add(new JLabel("     "), gbc);
+//                gbc = new GridBagConstraints(1, 3, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+//                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+//                submenu.add(new JLabel("     "), gbc);
+//
+////            } else if (methodString.equals("Spatial by position")) {
+////                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+////                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(radiusLabel);
+////                gbc = new GridBagConstraints(1, 0, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+////                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(radius, gbc);
+////                gbc = new GridBagConstraints(0, 1, 1, 1, 0.2, 1.0,
+////                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(zLabel, gbc);
+////                gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+////                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(zScale, gbc);
+////                gbc = new GridBagConstraints(0, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+////                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(randomize, gbc);
+////                gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.WEST,
+////                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(random, gbc);
+////                gbc = new GridBagConstraints(0, 3, 1, 1, 0.2, 1.0,
+////                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(intervalLabel, gbc);
+////                gbc = new GridBagConstraints(1, 3, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+////                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(interval, gbc);
+////
+////            } else {
+////                GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.2, 1.0,
+////                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(kNeighborsLabel, gbc);
+////                gbc = new GridBagConstraints(1, 0, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+////                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(kNeighbors, gbc);
+////                gbc = new GridBagConstraints(0, 1, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+////                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(randomize, gbc);
+////                gbc = new GridBagConstraints(1, 1, 1, 1, 1, 1.0, GridBagConstraints.WEST,
+////                    GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(random, gbc);    
+////                gbc = new GridBagConstraints(0, 2, 1, 1, 0.2, 1.0,
+////                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(new JLabel("     "), gbc);
+////                gbc = new GridBagConstraints(1, 2, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+////                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(new JLabel("     "), gbc);
+////                gbc = new GridBagConstraints(0, 3, 1, 1, 0.2, 1.0,
+////                        GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(new JLabel("     "), gbc);
+////                gbc = new GridBagConstraints(1, 3, 1, 1, 1, 1.0, GridBagConstraints.EAST,
+////                        GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 5), 0, 0);
+////                submenu.add(new JLabel("     "), gbc);
+////
+//           }
+
+            submenu.revalidate();
+            submenu.repaint();
+            submenu.setVisible(true);
+
+        }
+
+        public boolean showDialog() {
+            int x = showOptionDialog(null, menu, "Setup Neighborhoods",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+                    null, null);
+
+            if (x == JOptionPane.OK_OPTION) {
+                //System.out.println("PROFILING: radius: " + size.getText() + " and weight:" + weight.getText());
+                result = true;
+                settings.clear();
+                //settings.add(Integer.toString(classification.getSelectedIndex()));
+                settings.add(methods[method.getSelectedIndex()]);
+                //settings.add(radius.getText());
+                settings.add(zScale.getText());
+                //settings.add(kNeighbors.getText());
+                settings.add(interval.getText());
+                //settings.add((String)random.getSelectedItem());
+            } else {
+                return false;
+            }
+            return true;
+        }
+
+        public ArrayList<String> getSettings() {
+
+            return settings;
+        }
+    }
+    
+    
     class ImportGates {
 
         public ImportGates() {
@@ -3665,3 +4085,4 @@ class ZComparator implements Comparator<MicroObject> {
         }
     }
 }
+

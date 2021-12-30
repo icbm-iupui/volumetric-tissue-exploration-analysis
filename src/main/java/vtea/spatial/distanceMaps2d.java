@@ -37,7 +37,8 @@ public class distanceMaps2d {
     ArrayList<ImagePlus> distanceMap2d = new ArrayList<ImagePlus>();
     ArrayList<String> map2dName = new ArrayList<String>();
 
-    ArrayList<AddFeaturesListener> addfeaturelistener = new ArrayList<AddFeaturesListener>();
+    ArrayList<AddFeaturesListener> addfeaturelistener = 
+            new ArrayList<AddFeaturesListener>();
 
     public void distanceMaps2d() {
 
@@ -52,7 +53,8 @@ public class distanceMaps2d {
 
     public ImagePlus makeMap(ImagePlus imp, ArrayList<MicroObject> al) {
 
-        ImagePlus resultImage = IJ.createImage("DistanceMap_Real", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
+        ImagePlus resultImage = IJ.createImage("DistanceMap_Real", 
+                "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
         ImageStack resultStack = resultImage.getStack();
         int value = 1;
 
@@ -77,17 +79,16 @@ public class distanceMaps2d {
         IJ.run(resultImage, "Distance Map", "");
 
         resultImage.show();
-        //IJ.run(resultImage, "3-3-2 RGB", "");
         return resultImage;
     }
     
     public ImagePlus makeRandomMap(ImagePlus imp, ArrayList<MicroObject> al) {
         
-         ImagePlus resultImage = IJ.createImage("DistanceMap_Random", "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
+         ImagePlus resultImage = IJ.createImage("DistanceMap_Random", 
+                 "8-bit black", imp.getWidth(), imp.getHeight(), imp.getNSlices());
        
           ImageStack resultStack = resultImage.getStack();
           Roi r;
-          
           boolean roiPresent = false;
           
         if (imp.getRoi() == null) {
@@ -96,7 +97,6 @@ public class distanceMaps2d {
             roiPresent = true;
         }
 
-        
         int startX;
         int startY;
         
@@ -161,7 +161,8 @@ public class distanceMaps2d {
         return this.distanceMap2d.get(i);
     }
 
-    public ArrayList<ArrayList<Number>> getDistance(ArrayList<MicroObject> objects, ImagePlus imp) {
+    public ArrayList<ArrayList<Number>> getDistance(
+            ArrayList<MicroObject> objects, ImagePlus imp) {
 
         ArrayList<ArrayList<Number>> al = new ArrayList<ArrayList<Number>>();
 
@@ -172,9 +173,8 @@ public class distanceMaps2d {
         while (itr.hasNext()) {
 
             MicroObject object = itr.next();
-
-            //System.out.println("PROFILING: map value: " + imp.getProcessor().getPixel((int)object.getCentroidX(), (int)object.getCentroidY()));
-            result.add(imp.getProcessor().getPixel((int) object.getCentroidX(), (int) object.getCentroidY()));
+            result.add(imp.getProcessor().getPixel((int) object.getCentroidX(), 
+                    (int) object.getCentroidY()));
 
         }
         al.add(result);
@@ -182,24 +182,12 @@ public class distanceMaps2d {
         return al;
     }
 
-//    public void process(ArrayList<MicroObject> objects){
-//        
-//        ArrayList<Number> result = new ArrayList<Number>();
-//        
-//        ListIterator<ImagePlus> itr = distanceMap2d.listIterator();
-//        int i = 0;
-//        while(itr.hasNext()){         
-//            ImagePlus imp = itr.next();
-//            getDistance(objects, imp, map2dName.get(i));
-//            i++;
-//        }
-//       
-//    }
     public void addFeatureListener(AddFeaturesListener listener) {
         addfeaturelistener.add(listener);
     }
 
-    public void notifyaddFeatureListeners(String name, ArrayList<ArrayList<Number>> al) {
+    public void notifyaddFeatureListeners(String name, 
+            ArrayList<ArrayList<Number>> al) {
         for (AddFeaturesListener listener : addfeaturelistener) {
             listener.addFeatures(name, "Calculated 2D distance map",al);
         }

@@ -528,7 +528,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         AddStep_Object.setEnabled(true);
         if (ObjectStepsList.size() > 0) {
             ObjectGo.setEnabled(true);
+        } else {
+            addObjectBlock();
         }
+        
     }//GEN-LAST:event_PreProcessingGoActionPerformed
 
     private void AddStep_ObjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddStep_ObjectActionPerformed

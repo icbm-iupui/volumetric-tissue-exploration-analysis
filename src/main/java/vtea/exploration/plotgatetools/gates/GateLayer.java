@@ -17,6 +17,8 @@
  */
 package vtea.exploration.plotgatetools.gates;
 
+import ij.gui.Roi;
+import ij.plugin.frame.RoiManager;
 import vtea.exploration.listeners.ManualClassListener;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -39,6 +41,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -57,6 +60,7 @@ import vtea.exploration.listeners.DensityMapListener;
 import vtea.exploration.listeners.DistanceMapListener;
 import vtea.exploration.listeners.NeighborhoodListener;
 import vtea.exploration.listeners.SaveGatedImagesListener;
+import vtea.exploration.listeners.SpatialListener;
 import vtea.exploration.listeners.SubGateListener;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.DeleteGateListener;
@@ -112,6 +116,8 @@ public class GateLayer implements ActionListener, ItemListener {
     private ArrayList<RandomizationListener> randomizationListeners = new ArrayList<>();
     private ArrayList<DensityMapListener> densityMapListeners = new ArrayList<>();
     private ArrayList<NeighborhoodListener> neighborhoodListeners = new ArrayList<>();
+    private ArrayList<SpatialListener> spatialListeners = new ArrayList<>();
+
 
     private ArrayList<PolygonGate> gates = new ArrayList<PolygonGate>();
 
@@ -772,6 +778,14 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem = new JMenuItem("Add Density Map...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
+        
+//        menuItem = new JMenuItem("Calculate K...");
+//        menuItem.addActionListener(this);
+//        menu.add(menuItem);
+        
+//        menuItem = new JMenuItem("Get Moran's I...");
+//        menuItem.addActionListener(this);
+//        menu.add(menuItem);
 
         menu.add(new JSeparator());
         
@@ -904,6 +918,18 @@ public class GateLayer implements ActionListener, ItemListener {
         } else if (e.getActionCommand().equals("Classify by Gate Math...")) {
 
             notifyAssignmentListeners("gatemath");
+            
+        } else if (e.getActionCommand().equals("Calculate K...")) { 
+            
+            notifySpatialListeners("Ripley's K");
+ 
+        } else if (e.getActionCommand().equals("Get Moran's I...")) { 
+            
+            notifySpatialListeners("Moran's I");
+            
+        } else if (e.getActionCommand().equals("Add Distance Map...")) {   
+            
+            
 
         } else if (e.getActionCommand().equals("Add Distance Map...")) {
             //Used to subgate to a new MicroExplorer
@@ -918,6 +944,8 @@ public class GateLayer implements ActionListener, ItemListener {
                 }
             }
             if (path != null) {
+                
+
 
                 String s = (String) JOptionPane.showInputDialog(
                         null,
@@ -1178,6 +1206,24 @@ public class GateLayer implements ActionListener, ItemListener {
     public void addDensityMapListener(DensityMapListener listener) {
         densityMapListeners.add(listener);
     }
+    
+        /**
+     * Notify the SaveGatedImagesListeners to save the gated nuclei
+     *
+     * @param path
+     */
+    private void notifySpatialListeners(String name) {
+        for (SpatialListener listener : spatialListeners) {
+            listener.addSpatialFromGate(name);
+        }
+    }
+    
+    public void addSpatialListener(SpatialListener listener) {
+        spatialListeners.add(listener);
+    }
+
+
+ 
 
     /**
      * Notify the SaveGatedImagesListeners to save the gated nuclei

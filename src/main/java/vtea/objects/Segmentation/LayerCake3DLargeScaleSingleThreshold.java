@@ -88,7 +88,7 @@ public class LayerCake3DLargeScaleSingleThreshold extends AbstractSegmentation i
         VERSION = "0.1";
         AUTHOR = "Seth Winfree";
         COMMENT = "Connected components object segmentation for large-scale images.";
-        NAME = "LS Connect 3D";
+        NAME = "LS Connect 2D/3D";
         KEY = "Connect3DSingleThresholdLS";
         TYPE = "Calculated";
 
