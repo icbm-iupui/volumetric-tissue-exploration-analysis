@@ -26,6 +26,6 @@ import vtea.exploration.plotgatetools.gates.PolygonGate;
  */
 public interface AddGateListener {
 
-    public void onPasteGate(ArrayList<PolygonGate> gt);
+    public void onPasteGate(PolygonGate gt);
 
 }

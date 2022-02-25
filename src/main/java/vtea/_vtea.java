@@ -60,7 +60,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
 import org.apache.commons.io.FileUtils;
+import vtea.jdbc.H2DatabaseEngine;
 import vtea.services.GateMathService;
 import vtea.services.PlotMakerService;
 
@@ -70,7 +72,7 @@ import vtea.services.PlotMakerService;
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
     public static String VERSION = new String("1.0.0");
-
+    //public static Connection connection = H2DatabaseEngine.getDBConnection();
     public ProtocolManagerMulti protocolWindow;
 
     public static Context context;

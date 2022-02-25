@@ -656,9 +656,9 @@ public class GateLayer implements ActionListener, ItemListener {
         addgatelisteners.add(listener);
     }
 
-    public void notifyPasteGateListeners() {
+    public void notifyPasteGateListeners(PolygonGate gate) {
         for (AddGateListener listener : addgatelisteners) {
-            listener.onPasteGate(gates);
+            listener.onPasteGate(gate);
         }
     }
 
@@ -762,7 +762,6 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         menu.add(menuItem);
 
-
         menu.add(new JSeparator());
 
         menuItem = new JMenuItem("Subgate Selection...");
@@ -779,9 +778,9 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
-//        menuItem = new JMenuItem("Calculate K...");
-//        menuItem.addActionListener(this);
-//        menu.add(menuItem);
+        menuItem = new JMenuItem("Calculate K...");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
         
 //        menuItem = new JMenuItem("Get Moran's I...");
 //        menuItem.addActionListener(this);
@@ -838,8 +837,8 @@ public class GateLayer implements ActionListener, ItemListener {
                 newgate.setYAxis(yAxis);
                 newgate.createInChartSpace(chart);
                 newgate.createPath2D();
-                gates.add(newgate);
-                notifyPasteGateListeners();
+                //gates.add(newgate);
+                notifyPasteGateListeners(newgate);
             } catch (NullPointerException n) {
             }
         } else if (e.getActionCommand().equals("Delete All")) {

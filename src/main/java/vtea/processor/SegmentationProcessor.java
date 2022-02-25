@@ -178,8 +178,6 @@ public class SegmentationProcessor extends AbstractProcessor {
 
     @Override
     public void FireProgressChange(String str, double db) {
-
-        //System.out.println("Building progress..." + db);
         firePropertyChange("progress", 0, (int) db);
         firePropertyChange("comment", key, str);
     }
@@ -229,7 +227,7 @@ public class SegmentationProcessor extends AbstractProcessor {
              * determination
              *
              * // ArrayList for morphology: 0: method(as String), 1: channel,
-             * // 2: ArrayList of JComponents for method
+             * // 2: ArrayList of JComponents for method 3: UID
              */
             //descriptors for derived volumes
             firePropertyChange("reset", 0, 0);
@@ -252,6 +250,8 @@ public class SegmentationProcessor extends AbstractProcessor {
 
                 //components for method approach
                 ArrayList<JComponent> components = (ArrayList<JComponent>) morphology.get(2);
+                
+                
 
                 //System.out.println("PROFILING: Morphological processing: " + (String) morphology.get(0) + ", on " + volumes.size() + " volumes.");
                 try {
@@ -266,6 +266,8 @@ public class SegmentationProcessor extends AbstractProcessor {
 
                     con = c.getConstructor();
                     iImp = con.newInstance();
+                    
+                    morphology.add(((AbstractMorphology) iImp).getUID(components));
 
                     ArrayList<ArrayList<Number>> result;
                     int morph = 0;
@@ -302,7 +304,8 @@ public class SegmentationProcessor extends AbstractProcessor {
 
                         int same_morphology = obj.checkMorphological(current_UID);
 
-                        //System.out.println("PROFILING: Checked for morphology: " + current_UID + ", result: " + same_morphology);
+                        //System.out.println("PROFILING: Checked for morphology,  result: " + same_morphology);
+                        
                         //grab the morphology results
                         //System.out.println("PROFILING: Object size: " + (obj.getPixelsX()).length);
                         //String Derived_UID = iImp.getClass().getName();
@@ -330,7 +333,7 @@ public class SegmentationProcessor extends AbstractProcessor {
                         } else {
 
                             //System.out.println("PROFILING: Skipping morphology and copying");
-                            obj.setMorphological(current_UID, obj.getMorphPixelsX(same_morphology), obj.getMorphPixelsY(same_morphology), obj.getMorphPixelsZ(same_morphology));
+                            //obj.setMorphological(current_UID, obj.getMorphPixelsX(same_morphology), obj.getMorphPixelsY(same_morphology), obj.getMorphPixelsZ(same_morphology));
 
                         }
 

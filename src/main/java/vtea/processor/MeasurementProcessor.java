@@ -284,16 +284,22 @@ public class MeasurementProcessor extends AbstractProcessor {
              * morphological protocol in morphologies. morphological
              * determinants 0:Channel 1:Operation 2:Value
              */
+            
+            //System.out.println("PROFILING: Processing morphologies... " + morphologies.size());
+                
+            
             for (int l = 0; l < morphologies.size(); l++) {
 
                 ArrayList morphology = (ArrayList) morphologies.get(l);
 
                 //get derived_values by referencing morphologies and "is" 
                 int channel = ((int) morphology.get(1)) - 1;
-
-                int[] x = obj.getMorphPixelsX(l);
-                int[] y = obj.getMorphPixelsY(l);
-                int[] z = obj.getMorphPixelsZ(l);
+                
+                String UID = (String)morphology.get(3);
+                
+                int[] x = obj.getMorphPixelsX(obj.checkMorphological(UID));
+                int[] y = obj.getMorphPixelsY(obj.checkMorphological(UID));
+                int[] z = obj.getMorphPixelsZ(obj.checkMorphological(UID));
 
                 //System.out.println("PROFILING: morphology measure on channel: "+ channel + " for length: " + x.length );
                 ArrayList<Number> values = new ArrayList();
@@ -408,6 +414,10 @@ public class MeasurementProcessor extends AbstractProcessor {
 
     public ArrayList<MicroObject> getObjects() {
         return objects;
+    }
+    
+    public ArrayList getMorphologies() {
+        return (ArrayList)protocol.get(4);
     }
 
 }

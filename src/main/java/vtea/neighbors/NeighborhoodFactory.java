@@ -71,7 +71,7 @@ public void makeNeighborhoodAnalysis(ImagePlus imp, String k, String parentk,
         //System.out.println("PROFILING: Found " + objects.size() + " neighborhoods, with " + nmp.getFeatures().size() + " measurements.");
    
            ExplorerProcessor ep = new ExplorerProcessor(key, parentKey, image, objects, nmp.getFeatures(), 
-           nmp.getDescriptions(), nmp.getDescriptionLabels());
+           nmp.getDescriptions(), nmp.getDescriptionLabels(), new ArrayList());
            ep.execute();
         }
         if (evt.getPropertyName().equals("progress")) {

@@ -466,7 +466,7 @@
               </StatementProvider>
               <Parameters>
                 <CodeExpression id="7_ProgressComment">
-                  <CodeVariable name="ProgressComment" type="8194" declaredType="javax.swing.JLabel"/>
+                  <CodeVariable name="ProgressComment" type="8193" declaredType="javax.swing.JLabel"/>
                   <ExpressionOrigin>
                     <ExpressionProvider type="ComponentRef">
                       <ComponentRef name="ProgressComment"/>
@@ -482,7 +482,7 @@
               </StatementProvider>
               <Parameters>
                 <CodeExpression id="8_VTEAProgressBar">
-                  <CodeVariable name="VTEAProgressBar" type="8194" declaredType="javax.swing.JProgressBar"/>
+                  <CodeVariable name="VTEAProgressBar" type="8193" declaredType="javax.swing.JProgressBar"/>
                   <ExpressionOrigin>
                     <ExpressionProvider type="ComponentRef">
                       <ComponentRef name="VTEAProgressBar"/>

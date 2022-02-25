@@ -197,7 +197,7 @@ public class AddImageFeatureSegmentationProcessor extends AbstractProcessor {
              * determination
              *
              * // ArrayList for morphology: 0: method(as String), 1: channel,
-             * // 2: ArrayList of JComponents for method
+             * // 2: ArrayList of JComponents for method 3: UID
              */
             //descriptors for derived volumes
             firePropertyChange("reset", 0, 0);
@@ -236,6 +236,8 @@ public class AddImageFeatureSegmentationProcessor extends AbstractProcessor {
 
                     con = c.getConstructor();
                     iImp = con.newInstance();
+                    
+                    morphology.add(((AbstractMorphology) iImp).getUID(components));
 
                     ArrayList<ArrayList<Number>> result;
 
@@ -262,7 +264,21 @@ public class AddImageFeatureSegmentationProcessor extends AbstractProcessor {
                          *
                          */
                         //test for existing morphology
-                       String current_UID = ((AbstractMorphology) iImp).getUID(components);
+                        String current_UID = ((AbstractMorphology) iImp).getUID(components);
+                        
+        
+                        //System.out.println("PROFILING: Current morphology: " + current_UID);
+                        
+                        current_UID.concat(str);
+
+                        int same_morphology = obj.checkMorphological(current_UID);
+
+                        //System.out.println("PROFILING: Checked for morphology,  result: " + same_morphology);
+                        
+                            //grab the morphology results
+                        //System.out.println("PROFILING: Object size: " + (obj.getPixelsX()).length);
+                        //String Derived_UID = iImp.getClass().getName();
+                        if (same_morphology == -1) {
 
                             result = ((AbstractMorphology) iImp).process(obj.getPixelsX(), obj.getPixelsY(), obj.getPixelsZ(), components, "", String.valueOf(channel));
 
@@ -280,9 +296,12 @@ public class AddImageFeatureSegmentationProcessor extends AbstractProcessor {
                                 z[j] = zAr.get(j).intValue();
                             }
                            //System.out.println("PROFILING: Generating morphology, size: " + xAr.size());
-                            obj.setMorphological(current_UID + "_" + (obj.getMorphologicalCount()+1), x, y, z);
+                            //obj.setMorphological(current_UID + "_" + (obj.getMorphologicalCount()+1), x, y, z);   
+                            obj.setMorphological(current_UID, x, y, z);   
+                        } 
                         i++;
                     }
+                        
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -293,3 +312,4 @@ public class AddImageFeatureSegmentationProcessor extends AbstractProcessor {
         }
     }
 }
+    

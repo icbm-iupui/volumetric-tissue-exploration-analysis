@@ -43,6 +43,7 @@ public class ExplorerProcessor extends AbstractProcessor {
     private ArrayList descriptionLabels;
     private ArrayList measurements;
     private ArrayList objects;
+    private ArrayList morphologies;
 
     private String parentKey;
 
@@ -65,7 +66,7 @@ public class ExplorerProcessor extends AbstractProcessor {
     once SegmentationProcessor exists on its own.
     
      */
-    public <T extends MicroObject> ExplorerProcessor(String k, String parentk, ImagePlus imp, ArrayList<T> volumes, ArrayList measurements, ArrayList headers, ArrayList headerLabels) {
+    public <T extends MicroObject> ExplorerProcessor(String k, String parentk, ImagePlus imp, ArrayList<T> volumes, ArrayList measurements, ArrayList headers, ArrayList headerLabels, ArrayList m) {
 
         VERSION = "0.0";
         AUTHOR = "Seth Winfree";
@@ -80,6 +81,7 @@ public class ExplorerProcessor extends AbstractProcessor {
         descriptionLabels = headerLabels;
         key = k;
         parentKey = parentk;
+        morphologies = m;
 
     }
 
@@ -102,6 +104,8 @@ public class ExplorerProcessor extends AbstractProcessor {
                 }
 
                 Connection connection = H2DatabaseEngine.getDBConnection();
+                
+                
 
                 System.out.println("PROFILING: Exploring on dataset: " + key);
 
@@ -113,10 +117,17 @@ public class ExplorerProcessor extends AbstractProcessor {
 
                 explorer.setTitle("Explorer: " + title);
                 impOriginal.deleteRoi();
-                explorer.process(key, impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels);
+                explorer.process(key, impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels, morphologies);
                 XY.updateMenuPositions(explorer.getX(), explorer.getY() + explorer.getHeight());
                 setProgress(100);
                 firePropertyChange("comment", "", "Done.");
+                
+//                ArrayList tables = H2DatabaseEngine.getListOfTables(connection);
+//                if(tables.size() > 0){
+//                    for(int i = 0; i < tables.size(); i++){
+//                    System.out.println("PROFILING: Table: " + i + ", name:" + tables.get(i));
+//                    }}
+                
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -137,89 +148,3 @@ public class ExplorerProcessor extends AbstractProcessor {
 
 }
 
-/**
- *
- * @author sethwinfree
- */
-class LocalCustomTableModel extends AbstractTableModel {
-
-    private String[] columnNames = {"Type",
-        "Proj", "Do"};
-    private Object[][] data = {
-        {"Kathy", new Boolean(true)},
-        {"John", new Boolean(false)},
-        {"Sue", new Boolean(false)},
-        {"Jane", new Boolean(false)},
-        {"Joe", new Boolean(false)}
-    };
-
-    public Object[][] getData() {
-        return data;
-    }
-
-    public void setColumnNames(String[] columns) {
-        columnNames = columns;
-    }
-
-    public void setData(Object[][] content) {
-        data = content;
-    }
-
-    public int getColumnCount() {
-        return columnNames.length;
-    }
-
-    public int getRowCount() {
-        return data.length;
-    }
-
-    @Override
-    public String getColumnName(int col) {
-        return columnNames[col];
-    }
-
-    @Override
-    public Object getValueAt(int row, int col) {
-        return data[row][col];
-    }
-
-    /*
-         * JTable uses this method to determine the default renderer/
-         * editor for each cell.  If we didn't implement this method,
-         * then the last column would contain text ("true"/"false"),
-         * rather than a check box.
-     */
-    @Override
-    public Class getColumnClass(int c) {
-        if (c == 2) {
-            return Boolean.class;
-        }
-        return getValueAt(0, c).getClass();
-    }
-
-    /*
-         * Don't need to implement this method unless your table's
-         * editable.
-     */
-    @Override
-    public boolean isCellEditable(int row, int col) {
-        //Note that the data/cell address is constant,
-        //no matter where the cell appears onscreen.
-        if (col < 1) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    /*
-         * Don't need to implement this method unless your table's
-         * data can change.
-     */
-    @Override
-    public void setValueAt(Object value, int row, int col) {
-        data[row][col] = value;
-        fireTableCellUpdated(row, col);
-    }
-
-}

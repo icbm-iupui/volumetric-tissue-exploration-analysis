@@ -126,26 +126,27 @@ public class AddImageFeatureMeasurementProcessor extends AbstractProcessor {
             
         int morphcount = obj_test.getMorphologicalCount();
 
-        
-        
-
         /**
          * segmentation and measurement protocol redefining. 0: title text, 1:
          * method (as String), 2: channel, 3: ArrayList of JComponents used for
          * analysis 4: ArrayList of Arraylist for morphology determination
          */
+        
         /**
          * morphological protocol in morphologies. morphological determinants
          * 0:Channel 1:Operation 2:Value
          *
          *
          */
+        
         // ArrayList for morphology:  0: method(as String), 1: channel, 
         // 2: ArrayList of JComponents for method
         //descriptors for derived volumes  this needs to be:
         //ArrayList 0: channel  1: derivedRegion position for  derived region 
         //ArrayList in the MicroObjects.
+        
         ArrayList morphologies = (ArrayList) protocol;
+        
         //ArrayList morphologies = (ArrayList) protocol.get(4);
       
         
@@ -166,20 +167,24 @@ public class AddImageFeatureMeasurementProcessor extends AbstractProcessor {
                     Object iImp = new Object();
 
                     try {
-
                         con = c.getConstructor();
                         iImp = con.newInstance();
-
-                        String descr = "Img_Ch_" + morphology.get(1) + "_" + morphology.get(0) + "_" + ((AbstractMeasurement) iImp).getName() + "_" + morphcount;
-                        
-           
+                        String descr = "Img_Ch_" + morphology.get(1) + "_" + 
+                                morphology.get(0) + "_" + 
+                                ((AbstractMeasurement) iImp).getName() + "_" + 
+                                morphcount;
 
                         if (descr.length() > 10) {
-                            descr = descr.substring(0, 8) + "_" + descr.substring(descr.length() - 5, descr.length());
+                            descr = descr.substring(0, 8) + "_" + 
+                                    descr.substring(descr.length() - 5, descr.length());
                         }
 
                         description.add(descr);
-                        descriptionLabels.add("Added image feature. Row: " + l + ", Channel: " + morphology.get(1) + ", Morphology: " + morphology.get(0) + ", Measurement: " + ((AbstractMeasurement) iImp).getName());
+                        descriptionLabels.add("Added image feature. Row: " + 
+                                l + ", Channel: " + morphology.get(1) + 
+                                ", Morphology: " + morphology.get(0) + 
+                                ", Measurement: " + 
+                                ((AbstractMeasurement) iImp).getName());
 
                     } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                         System.out.println("EXCEPTION: new instance decleration error... NPE etc.");
@@ -211,26 +216,30 @@ public class AddImageFeatureMeasurementProcessor extends AbstractProcessor {
             //loop through derived morphology settings
             /**
              * morphological protocol in morphologies. morphological
-             * determinants 0:Channel 1:Operation 2:Value
+             * determinants 0:Channel 1:Operation 2:Value 3:UID
              */
-            
-            
-            
+
             int start = obj.getMorphologicalCount()-morphologies.size();
             int morphcounter = 0;
             
             for (int l = start; l < obj.getMorphologicalCount(); l++) {
-
+                
                 ArrayList morphology = (ArrayList) morphologies.get(morphcounter);
                 morphcounter++;
                 //get derived_values by referencing morphologies and "is" 
                 int channel = ((int) morphology.get(1)) - 1;
 
-                int[] x = obj.getMorphPixelsX(l);
-                int[] y = obj.getMorphPixelsY(l);
-                int[] z = obj.getMorphPixelsZ(l);
+                String UID = (String)morphology.get(3);
                 
+                //System.out.println("PROFILING: UID: " + UID);
                 
+                int[] x = obj.getMorphPixelsX(obj.checkMorphological(UID));
+                int[] y = obj.getMorphPixelsY(obj.checkMorphological(UID));
+                int[] z = obj.getMorphPixelsZ(obj.checkMorphological(UID));
+
+//                int[] x = obj.getMorphPixelsX(l);
+//                int[] y = obj.getMorphPixelsY(l);
+//                int[] z = obj.getMorphPixelsZ(l);
 
                 //System.out.println("PROFILING: morphology measure on channel: "+ channel + " for length: " + x.length );
                 ArrayList<Number> values = new ArrayList();
@@ -250,18 +259,13 @@ public class AddImageFeatureMeasurementProcessor extends AbstractProcessor {
                 while (itr.hasNext()) {
                     try {
                         Class<?> c;
-
                         String str = (String) itr.next();
-
                         c = Class.forName(str);
                         Constructor<?> con;
-
                         Object iImp = new Object();
-
                         try {
                             con = c.getConstructor();
                             iImp = con.newInstance();
-
                             results.add(((AbstractMeasurement) iImp).process(new ArrayList(), (ArrayList<Number>) values));
 
                         } catch (NullPointerException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
@@ -270,10 +274,7 @@ public class AddImageFeatureMeasurementProcessor extends AbstractProcessor {
                     } catch (NullPointerException | ClassNotFoundException ex) {
                         System.out.println("EXCEPTION: new class decleration error... Class not found.");
                     }
-
-                }
-                
-                
+                } 
             }
                     measurements.add(results);
         }
