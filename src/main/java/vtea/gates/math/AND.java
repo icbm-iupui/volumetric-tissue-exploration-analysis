@@ -20,6 +20,7 @@ package vtea.gates.math;
 import ij.gui.Roi;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ListIterator;
 import org.scijava.plugin.Plugin;
 import vtea.exploration.plotgatetools.gates.Gate;
@@ -42,6 +43,7 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
     ArrayList<ArrayList<Number>> measurements;
     ArrayList<String> descriptions;
     String keySQLSafe;
+    HashMap<Double, Integer> objPositions;
 
     public AND() {
         VERSION = "0.0";
@@ -59,6 +61,7 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
         this.measurements = measurements;
         this.descriptions = descriptions;
         this.keySQLSafe = keySQLSafe;
+        objPositions = getSerialIDHashMap(this.objects);
     }
 
     @Override
@@ -102,9 +105,9 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
 
         while (itr.hasNext()) {
             ArrayList al = itr.next();
-            int object = ((Number) (al.get(0))).intValue();
-            objectsTemp.add(objects.get(object));
-            measurementsTemp.add(this.measurements.get(object));
+            double object = (Double)al.get(0);
+            objectsTemp.add(objects.get(objPositions.get(object)));
+            measurementsTemp.add(this.measurements.get(objPositions.get(object)));
             sortTemp.add(al);
         }
 
@@ -174,10 +177,8 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
         ArrayList<ArrayList<Number>> measurementsGated
                 = new ArrayList<ArrayList<Number>>();
 
-
         double xValue = 0;
         double yValue = 0;
-
 
         ArrayList<ArrayList> resultKey
                 = H2DatabaseEngine.getObjectsInRange2D(path,
@@ -191,12 +192,13 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
         ListIterator<ArrayList> itr = resultKey.listIterator();
         
         //System.out.println("PROFILING: First gate: " + resultKey.get(0).size());
-
+        
+      
         while (itr.hasNext()) {
             ArrayList al = itr.next();
-            int object = ((Number) (al.get(0))).intValue();
-            objectsTemp.add(objects.get(object));
-            measurementsTemp.add(this.measurements.get(object));
+            double object = (Double)al.get(0);
+            objectsTemp.add(objects.get(objPositions.get(object)));
+            measurementsTemp.add(this.measurements.get(objPositions.get(object)));
             sortTemp.add(al);
         }
 
@@ -231,7 +233,7 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
             
             int counter = 0;
             
-            System.out.println("PROFILING: First gate: " + objectsFinal.size());
+            //System.out.println("PROFILING: First gate: " + objectsFinal.size());
 
             while (itr1.hasNext()) {
                 MicroObject o = itr1.next();
@@ -245,7 +247,7 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
 
             objectsFinal = objectsGated;
             
-            System.out.println("PROFILING: Second gate: " + objectsFinal.size());
+           // System.out.println("PROFILING: Second gate: " + objectsFinal.size());
 
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -272,8 +274,8 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
             MicroObject o = itr.next();
             if (g1.contains((int) o.getCentroidX(), (int) o.getCentroidY())
                     && g2.contains((int) o.getCentroidX(), (int) o.getCentroidY())) {
-                objectsGated.add(o);
-                measurementsGated.add(measurements.get(measurement));
+                objectsGated.add(objects.get(objPositions.get(o.getSerialID())));
+                measurementsGated.add(measurements.get(objPositions.get(o.getSerialID())));
                 measurement++;
             }
         }
@@ -324,8 +326,8 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
                 if (path2.contains(
                         (float) (measurementsGated.get(counter)).get(descriptions.indexOf(g1.getXAxis())), 
                         (float) (measurementsGated.get(counter)).get(descriptions.indexOf(g1.getYAxis())))) {
-                    objectsFinal.add(o);
-                    measurementsFinal.add(measurementsGated.get(counter));
+                    objectsFinal.add(objects.get(objPositions.get(o.getSerialID())));
+                    measurementsFinal.add(measurements.get(objPositions.get(o.getSerialID())));
                 }
                 counter++;
             }
@@ -358,8 +360,8 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
             while (itr1.hasNext()) {
                 MicroObject o = itr1.next();
                 if(g1.contains((int)o.getCentroidX(),(int)o.getCentroidY())) {
-                    objectsFinal.add(o);
-                    measurementsFinal.add(measurementsGated.get(counter));
+                    objectsFinal.add(objects.get(objPositions.get(o.getSerialID())));
+                    measurementsFinal.add(measurements.get(objPositions.get(o.getSerialID())));
                 }
                 counter++;
             }
@@ -368,6 +370,24 @@ public class AND<T extends Gate, A extends Roi, K extends MicroObject> extends A
          result.add(measurementsFinal);
          
          return result;
+    }
+    
+           private HashMap<Double, Integer> getSerialIDHashMap(ArrayList<MicroObject> objs) {
+
+        HashMap<Double, Integer> lookup = new HashMap();
+
+        int position = 0;
+
+        ListIterator<MicroObject> itr = objs.listIterator();
+
+        while (itr.hasNext()) {
+            MicroObject obj = itr.next();
+            lookup.put(obj.getSerialID(), position);
+            position++;
+        }
+
+        return lookup;
+
     }
 
 }

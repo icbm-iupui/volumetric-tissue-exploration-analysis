@@ -38,14 +38,14 @@ private ArrayList<NeighborhoodMeasurementsProcessor> neighborhoodProcessors = ne
 String key;
 String parentKey;
 ArrayList<MicroNeighborhoodObject> objects;
-ArrayList<Integer> classes;
+ArrayList<Number> classes;
 HashMap<String, String> objectClasses;
 ImagePlus image;
 ProgressTracker progress;
 
     
 public void makeNeighborhoodAnalysis(ImagePlus imp, String k, String parentk, 
-        ArrayList<MicroNeighborhoodObject> obj, ArrayList<Integer> c, HashMap<String, String> v, ProgressTracker pt){
+        ArrayList<MicroNeighborhoodObject> obj, ArrayList<Number> c, HashMap<String, String> v, ProgressTracker pt){
    
    image = imp;
    key = k;
@@ -71,7 +71,7 @@ public void makeNeighborhoodAnalysis(ImagePlus imp, String k, String parentk,
         //System.out.println("PROFILING: Found " + objects.size() + " neighborhoods, with " + nmp.getFeatures().size() + " measurements.");
    
            ExplorerProcessor ep = new ExplorerProcessor(key, parentKey, image, objects, nmp.getFeatures(), 
-           nmp.getDescriptions(), nmp.getDescriptionLabels());
+           nmp.getDescriptions(), nmp.getDescriptionLabels(), new ArrayList());
            ep.execute();
         }
         if (evt.getPropertyName().equals("progress")) {

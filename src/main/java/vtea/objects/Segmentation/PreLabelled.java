@@ -372,7 +372,8 @@ public class PreLabelled extends AbstractSegmentation {
         ArrayList<Roi> rois = new ArrayList<>();
         ArrayList<Float> colors = new ArrayList<>();
         ArrayList<Integer> slices = new ArrayList<>();
-     
+        ArrayList<Float> member = new ArrayList<>();
+
         int v = 1;
         int db = 0;
 
@@ -382,18 +383,17 @@ public class PreLabelled extends AbstractSegmentation {
 
                     v = (z + x + y);
                     db = 100 * (v / max);
-                    notifyProgressListeners("Parsing pixels...", (double)db);
-                    
+                    notifyProgressListeners("Parsing pixels...", (double) db);
+
                     //double color = stack.getVoxel(x, y, z);
-                    imp.setZ(z+1);
+                    imp.setZ(z + 1);
                     ImageProcessor ip = imp.getProcessor();
                     float color = ip.getPixelValue(x, y);
-                            
+
                     if (color > 0) {
-                        
-                        IJ.doWand(imp, x, y, 0, "8-connected");
+                        IJ.doWand(imp, x, y, 0, "4-connected");
                         Roi r = imp.getRoi();
-                        
+
                         if (imp.getBitDepth() == 32) {
                             ip.setColor(0.0);
                         } else {
@@ -403,76 +403,115 @@ public class PreLabelled extends AbstractSegmentation {
                         rois.add(r);
                         colors.add(color);
                         slices.add(z);
+                        member.add(new Float(-1));
                     }
                 }
             }
         }
-       System.out.println("PROFILING: Total rois identified: " + rois.size());
-       System.out.println("PROFILING: Building by CC...");
+        System.out.println("PROFILING: Total rois identified: " + rois.size());
+        System.out.println("PROFILING: Building by CC...");
         int z = 0;
         
-        RoiManager manager = new RoiManager();
-        manager.setVisible(false);
+        float memberNumber = 0;
 
         for (int i = 0; i < colors.size(); i++) {
+            
+            db = 100 * (i / colors.size());
+            notifyProgressListeners("Parsing rois...", (double) db);
+
             Roi startRoi = rois.get(i);
             Float startColor = colors.get(i);
-            if (startColor.intValue() > -1) {
-                
-                ArrayList<Point> points = new ArrayList<>();
-                points = addPoints(points, startRoi.getContainedPoints());
-                ArrayList<Integer> slice = new ArrayList<>();
-                
+            if (member.get(i).intValue() == -1) {
+                regionCC(startRoi, startColor, memberNumber, rois, colors, slices, member);
+            }    
+            memberNumber++;
+        }
 
-                db = 100 * (i / colors.size());
-                notifyProgressListeners("Parsing rois...", (double) db);
-                
-                for (int c = 0; c < startRoi.getContainedPoints().length; c++) {
-                        slice.add(slices.get(i));
-                } 
+            
 
+            
+
+            //parse member list build object list   
+
+
+        for (int j = 0; j < colors.size(); j++) {
+         
+        if (member.get(j) > -1){    
+            
+        Roi startRoi = rois.get(j);
+        db = 100 * (j / colors.size());
+        notifyProgressListeners("Building objects...", (double) db);
+
+        ArrayList<Point> points = new ArrayList<>();
+        ArrayList<Integer> slice = new ArrayList<>();
+        
+        points = addPoints(points, startRoi.getContainedPoints());
+         for(int a = 0; a < startRoi.getContainedPoints().length; a++){
+                 slice.add(slices.get(j));
+          }
+
+                
+                for (int k = 0; k < colors.size(); k++) {
+                        Roi testRoi = rois.get(k);
+                if (member.get(j).intValue() == member.get(k).intValue() && j != k) {
+                    points = addPoints(points, testRoi.getContainedPoints());
+                    for(int a = 0; a < testRoi.getContainedPoints().length; a++){
+                        slice.add(slices.get(k));
+                    }
+                    member.set(k,new Float(-1));
+                }
+                }
+            //build point arrays
+            MicroObject obj = new MicroObject();
+            int[] xPos = new int[points.size()];
+            int[] yPos = new int[points.size()];
+            int[] zPos = new int[points.size()];
+
+            for (int c = 0; c < points.size(); c++) {
+                Point p = points.get(c);
+                Double x = p.getX();
+                Double y = p.getY();
+                z = slice.get(c);
+
+                xPos[c] = x.intValue();
+                yPos[c] = y.intValue();
+                zPos[c] = z;
+            }
+            obj.setPixelsX(xPos);
+            obj.setPixelsY(yPos);
+            obj.setPixelsZ(zPos);
+            obj.setCentroid();
+            obj.setSerialID(alVolumes.size());
+            alVolumes.add(obj);
+            //System.out.println("PROFILING: adding object: " + alVolumes.size());
+        member.set(j,new Float(-1));
+        }
+        }
+    }
+
+
+private void regionCC(Roi startRoi, Float startColor,Float memberNumber,ArrayList<Roi> rois,
+        ArrayList<Float> colors,
+        ArrayList<Integer> slices,
+        ArrayList<Float> member){
                 for (int j = 0; j < colors.size(); j++) {
                     Float compareColor = colors.get(j);
-                    if (startColor.intValue() == compareColor.intValue() && i != j) {
+                    if (startColor.intValue() == compareColor.intValue() && 
+                            member.get(j).intValue() == -1) {
                         Roi compareRoi = rois.get(j);          
                         Polygon start = startRoi.getPolygon();
                         if (start.intersects(compareRoi.getBounds())) {
-                            Point[] p = compareRoi.getContainedPoints();
-                            for (int c = 0; c < compareRoi.getContainedPoints().length; c++) {
-                                slice.add(slices.get(j));
-                                points.add(p[c]);
-                            } 
-                            colors.set(j, new Float(-1));
+                            member.set(j, memberNumber);
+                            regionCC(compareRoi, startColor,memberNumber, rois, colors,slices,member);
                         }
                     }
                 }
+                
 
-                //build point arrays
-                MicroObject obj = new MicroObject();
-                int[] xPos = new int[points.size()];
-                int[] yPos = new int[points.size()];
-                int[] zPos = new int[points.size()];
-
-                for (int c = 0; c < points.size(); c++) {
-                    Point p = points.get(c);
-                    Double x = p.getX();
-                    Double y = p.getY();
-                    z = slice.get(c);
-                    
-                    xPos[c] = x.intValue();
-                    yPos[c] = y.intValue();
-                    zPos[c] = z;
-                }
-                obj.setPixelsX(xPos);
-                obj.setPixelsY(yPos);
-                obj.setPixelsZ(zPos);
-                obj.setCentroid();
-                obj.setSerialID(alVolumes.size());
-                alVolumes.add(obj);
-                //System.out.println("PROFILING: adding object: " + alVolumes.size());
             }
-        }
-    }
+
+    
+
 
     private ArrayList<Point> addPoints(ArrayList<Point> points, Point[] p) {
 
@@ -480,6 +519,13 @@ public class PreLabelled extends AbstractSegmentation {
             points.add(p[i]);
         }
         return points;
+    }
+    
+    private boolean roiOverlap(Roi r1, Roi r2){
+        
+      
+        
+        return false;
     }
 
     private void findUnique(ImagePlus imp) {
@@ -610,40 +656,44 @@ public class PreLabelled extends AbstractSegmentation {
         }
 
         return pixels;
-    }
+    
+
+}
 
     class JComboBoxCustom extends JComboBox implements ItemListener {
 
-        String[] ActionStrings;
+    String[] ActionStrings;
 
-        public JComboBoxCustom() {
-            super();
-
-        }
-
-        public JComboBoxCustom​(String[] actions) {
-            super(actions);
-            ActionStrings = actions;
-            uniqueID.addItemListener(this);
-            this.setEnabled(false);
-        }
-
-        @Override
-
-        public void itemStateChanged(ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                String item = (String) e.getItem();
-                if (item.equals(ActionStrings[0])) {
-                    this.setEnabled(true);
-                }
-                if (item.equals(ActionStrings[1])) {
-                    this.setSelectedIndex(0);
-                    this.setEnabled(false);
-                }
-            }
-        }
+    public JComboBoxCustom() {
+        super();
 
     }
+
+    public JComboBoxCustom​(String[] actions) {
+        super(actions);
+        ActionStrings = actions;
+        uniqueID.addItemListener(this);
+        this.setEnabled(false);
+    }
+
+    @Override
+
+    public void itemStateChanged(ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            String item = (String) e.getItem();
+            if (item.equals(ActionStrings[0])) {
+                this.setEnabled(true);
+            }
+            if (item.equals(ActionStrings[1])) {
+                this.setSelectedIndex(0);
+                this.setEnabled(false);
+            }
+        }
+    }
+
+}
+
+
 
 }
 

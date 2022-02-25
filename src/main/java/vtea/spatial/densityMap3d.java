@@ -134,7 +134,7 @@ public class densityMap3d {
 
 
         resultImage.show();
-        //IJ.run(resultImage, "Fire", "");
+        IJ.run(resultImage, "Fire", "");
         return resultImage;
     }
 

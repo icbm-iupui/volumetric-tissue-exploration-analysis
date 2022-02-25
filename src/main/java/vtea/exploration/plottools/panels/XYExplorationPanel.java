@@ -318,7 +318,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         try {
             Connection cn = H2DatabaseEngine.getDBConnection();
-
+            //Connection cn = _vtea.connection;
             H2DatabaseEngine.insertFromCSV(new File(file), cn, table);
             cn.commit();
 
@@ -351,6 +351,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 MicroObject volume = objects.get(i);
 
                 //MicroObject vol = (MicroObject) objects.get(i);
+                
+                
                 ArrayList<Number> measured = measurements.get(i);
 
                 sb.append(volume.getSerialID());
@@ -594,12 +596,24 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                     path.getBounds2D().getY() + path.getBounds2D().getHeight());
 
                     ListIterator<ArrayList> itr = resultKey.listIterator();
+                    
+                    //make a Hashmap 
+                    
+//                    HashMap<Integer, Integer> lookupPosition = new HashMap();
+//                    
+//                    
+//                    
+//                    for(int k = 0; k < resultKey.size(); k++) {
+//                        ArrayList al = resultKey.get(k);
+//                        int object = ((Double)al.get(0)).intValue();
+//                        lookupPosition.put(object, k);
+//                    }
 
-                    //System.out.println("PROFILING: Returned object count: " + resultKey.size());
                     while (itr.hasNext()) {
                         ArrayList al = itr.next();
-                        int object = ((Number) (al.get(0))).intValue();
+                        int object = ((Double)(al.get(3))).intValue();
                         result.add(volumes.get(object));
+                        //result.add(volumes.get((lookupPosition.get(object))));
                     }
                     try {
                         for (int j = 0; j < result.size(); j++) {
@@ -725,19 +739,20 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         this.updateimage = true;
 
     }
-    
+
 
     public ArrayList<ImageStack> makeOverlayVolume(ArrayList<PolygonGate> gates, int x, int y,
             int xAxis, int yAxis) {
 
         ArrayList<ImageStack> alIs = new ArrayList<>();
+        
+        HashMap<Double, Integer> objPositions = new HashMap();
+        
+        objPositions = getSerialIDHashMap(objects);
 
         PolygonGate gate;
         ListIterator<PolygonGate> gate_itr = gates.listIterator();
 
-//        int total = 0;
-//        int gated = 0;
-//        int selected = 0;
         int gatedSelected = 0;
         int gatecount = gates.size();
 
@@ -749,7 +764,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 Path2D.Double path = gate.createPath2DInChartSpace();
 
                 ArrayList<MicroObject> result = new ArrayList<MicroObject>();
-                ArrayList<MicroObject> volumes = (ArrayList) objects;
+              ///  ArrayList<MicroObject> volumes = (ArrayList) objects;
                 MicroObjectModel volume;
 
                 double xValue = 0;
@@ -776,17 +791,17 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                 while (itr.hasNext()) {
                     ArrayList al = itr.next();
-                    int object = ((Number) (al.get(0))).intValue();
-                    MicroObject obj = volumes.get(object);
+                    double object = (double) (al.get(0));
+
+                    MicroObject obj = objects.get(objPositions.get(object));
 
                     if (impoverlay.getRoi() != null) {
                         if (impoverlay.getRoi().contains((int) obj.getCentroidX(),
                                 (int) obj.getCentroidY())) {
-                            result.add(volumes.get(object));
-
+                            result.add(objects.get(objPositions.get(object)));
                         }
                     } else {
-                        result.add(volumes.get(object));
+                        result.add(objects.get(objPositions.get(object)));
                     }
                 }
 
@@ -838,7 +853,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                         } catch (NullPointerException e) {
                         }
                     }
-
                     ir.setPosition(0, i, 0);
                     ir.setOpacity(0.4);
                     overlay.selectable(false);
@@ -846,14 +860,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                     gateOverlay.addSlice(ir.getProcessor());
                 }
-
-  
                 alIs.add(gateOverlay);
                 gatecount++;
             }
-
         }
-
         return alIs;
     }
 
@@ -913,7 +923,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                     result.add(objects.get(i));
                                 }
                             }
-
                         }
                     } catch (NullPointerException e) {
                         return 0;
@@ -1448,12 +1457,16 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     @Override
-    public void onPasteGate(ArrayList<PolygonGate> gt) {
-        gates = gt;
+    public void onPasteGate(PolygonGate gt) {
+        //gates = gt;
         //gm.updateTable(gates);
-        gm.addGateToTable(gates.get(gates.size() - 1));
-        gm.pack();
-        gm.repaint();
+        //gt.setSelected(true);
+        gl.importGate(gt);
+        gm.updateTable(gates, mapGates);
+        gm.setVisible(true);
+//        gm.addGateToTable(gates.get(gates.size() - 1));
+//        gm.pack();
+//        gm.repaint();
         makeOverlayImageAndCalculate(gates, 0, 0, currentX, currentY);
     }
 
@@ -1784,12 +1797,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         new Thread(() -> {
             try {
-
-                ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(true);
+                //position Serial ID connection FIXED
+                ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
                 if (al.size() > 0) {
                     ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
                     ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
-
                     objectsTemp = al.get(0);
                     measurementsFinal = al.get(1);
                     System.out.println("Launching new explorer window... \n with "
@@ -1805,137 +1817,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     }
 
-    private ArrayList<ArrayList> calculateGatingStrategy(ArrayList<String> gates, ArrayList<String> operators, boolean renumber) {
-
-        //convert strings to gates
-        //handoff gates as gat, objects, measurements and descriptions to GateMathProcessor
-        PolygonGate gate;
-        ListIterator<PolygonGate> gate_itr = this.gates.listIterator();
-
-        int total = 0;
-        int gated = 0;
-        int selected = 0;
-        int gatedSelected = 0;
-        int gatecount = gates.size();
-
-        ArrayList<ArrayList> result = new ArrayList<>();
-
-        while (gate_itr.hasNext()) {
-            gate = gate_itr.next();
-
-            if (gate.getSelected()) {
-
-                Path2D.Double path = gate.createPath2DInChartSpace();
-
-                ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
-                ArrayList<MicroObject> objectsGated = new ArrayList<MicroObject>();
-                ArrayList<MicroObject> objectsFinal = new ArrayList<MicroObject>();
-
-                ArrayList<ArrayList<Number>> sortTemp
-                        = new ArrayList<ArrayList<Number>>();
-
-                ArrayList<ArrayList<Number>> measurementsTemp
-                        = new ArrayList<ArrayList<Number>>();
-                ArrayList<ArrayList<Number>> measurementsFinal
-                        = new ArrayList<ArrayList<Number>>();
-                ArrayList<ArrayList<Number>> measurementsGated
-                        = new ArrayList<ArrayList<Number>>();
-
-                //ArrayList<String> description = new ArrayList<String>();
-                double xValue = 0;
-                double yValue = 0;
-
-                //description.add(this.descriptions.get(currentX));
-                //description.add(this.descriptions.get(currentY));
-                //description.add(this.descriptions.get(currentL));
-                //System.out.println("PROFILING: Measurements length, " + measurements.size());
-                //this is where we need to add logic for polygons...  this is tripping up things
-                ArrayList<ArrayList> resultKey
-                        = H2DatabaseEngine.getObjectsInRange2D(path,
-                                vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
-                                this.descriptions.get(currentX), path.getBounds2D().getX(),
-                                path.getBounds2D().getX() + path.getBounds2D().getWidth(),
-                                this.descriptions.get(currentY), path.getBounds2D().getY(),
-                                path.getBounds2D().getY() + path.getBounds2D().getHeight(),
-                                this.descriptions.get(currentL));
-
-                ListIterator<ArrayList> itr = resultKey.listIterator();
-
-                while (itr.hasNext()) {
-                    ArrayList al = itr.next();
-                    int object = ((Number) (al.get(0))).intValue();
-                    objectsTemp.add(objects.get(object));
-                    measurementsTemp.add(this.measurements.get(object));
-                    sortTemp.add(al);
-                }
-
-                measurementsGated = measurementsTemp;
-                objectsGated = objectsTemp;
-
-                try {
-                    int position = 0;
-                    for (int i = 0; i < objectsGated.size(); i++) {
-
-                        MicroObject object = ((MicroObject) objectsGated.get(i));
-
-                        ArrayList<Number> sorted = (ArrayList<Number>) sortTemp.get(i);
-
-                        xValue = sorted.get(1).doubleValue();
-                        yValue = sorted.get(2).doubleValue();
-
-                        if (path.contains(xValue, yValue)) {
-
-                            if (this.imageGate) {
-
-                                float PosX = object.getCentroidX();
-                                float PosY = object.getCentroidY();
-
-                                Roi r = impoverlay.getRoi();
-
-                                if (r.containsPoint((double) PosX, (double) PosY)) {
-
-                                    if (renumber) {
-                                        object.setSerialID(objectsFinal.size());
-                                    }
-
-                                    objectsFinal.add(object);
-
-                                    measurementsFinal.add(
-                                            cloneMeasurements(
-                                                    measurementsGated.get(i)));
-                                    position++;
-                                }
-
-                            } else {
-
-                                if (renumber) {
-                                    object.setSerialID(objectsFinal.size());
-                                }
-
-                                objectsFinal.add(object);
-
-                                measurementsFinal.add(
-                                        cloneMeasurements(
-                                                measurementsGated.get(i)));
-                                position++;
-                            }
-                        }
-
-                    }
-                } catch (NullPointerException e) {
-                }
-                result.add(objectsFinal);
-                result.add(measurementsFinal);
-            }
-
-        }
-        return result;
-    }
-
+    
     private ArrayList<ArrayList> cloneGatedObjectsMeasurements(boolean renumber) {
 
         PolygonGate gate;
         ListIterator<PolygonGate> gate_itr = gates.listIterator();
+        
+
 
         int total = 0;
         int gated = 0;
@@ -1983,14 +1871,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                                 this.descriptions.get(currentX), path.getBounds2D().getX(),
                                 path.getBounds2D().getX() + path.getBounds2D().getWidth(),
                                 this.descriptions.get(currentY), path.getBounds2D().getY(),
-                                path.getBounds2D().getY() + path.getBounds2D().getHeight(),
-                                this.descriptions.get(currentL));
+                                path.getBounds2D().getY() + path.getBounds2D().getHeight());
 
                 ListIterator<ArrayList> itr = resultKey.listIterator();
 
                 while (itr.hasNext()) {
                     ArrayList al = itr.next();
-                    int object = ((Number) (al.get(0))).intValue();
+                    int object = ((Number) (al.get(3))).intValue();
                     objectsTemp.add(objects.get(object));
                     measurementsTemp.add(this.measurements.get(object));
                     sortTemp.add(al);
@@ -2052,7 +1939,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 }
                 result.add(objectsFinal);
                 result.add(measurementsFinal);
-
+               
             }
 
         }
@@ -2529,8 +2416,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void addDensityMapFromGate(String s) {
-
-        ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(true);
+//position Serial ID connection FIXED
+        ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
         ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
         ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
 
@@ -2562,31 +2449,23 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
             ArrayList<String> settings = settingsDialog.getSettings();
 
-            //String method = settings.get(1);
             String zScale = settings.get(1);
             String interval = settings.get(2);
-            //String randomize = settings.get(3);
-            
-            //boolean random = false;
-            
-            //if(randomize.equals("Y")){random = true;}
-        
-        
-        ProgressTracker pt = new ProgressTracker();
+            ProgressTracker pt = new ProgressTracker();
             
             pt.createandshowGUI("Calculating Spatial Feature", explorerXposition, explorerYposition);
             addPropertyChangeListener(pt);
             
             firePropertyChange("method", "", "Ripley's K");
             firePropertyChange("indeterminant", " setup", "");
-            
-            
-            
 
-            
             //1) get gated cells x,y,z, include rois (use px)
             
             ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
+            
+            HashMap<Double, Integer> objPositions = new HashMap();
+        
+            objPositions = getSerialIDHashMap(objects);
 
             //start factory
             ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
@@ -2628,15 +2507,14 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             KDTree kd_test = new KDTree(data,key);
             KDTree[] kd_MC = new KDTree[10];
             
-            //Monte Carlo of random for 95 CI calculation
+            //Monte Carlo of random for 95 CI estimation
             
             for(int i = 0; i < 9; i++){
                 
                 double progress = 100 * ((double) (i+1)/ (double) (10));
                 firePropertyChange("method", "", "Running Monte Carlo...");
                 firePropertyChange("progress", " Running Monte Carlo...", (int) progress);
-                    
-                
+
                     double[][] keyMC = new double[objectsTemp.size()][1];
                     double[][] dataMC = new double[objectsTemp.size()][3];
 
@@ -2664,16 +2542,36 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 kd_MC[i] = new KDTree(dataMC,keyMC);
   
             }
-            
+            //each entry is an interval
             ArrayList<Float> K_test = new ArrayList<Float>();
+            
+            //each arraylist is a imulation, each entry is an interval
             ArrayList<ArrayList<Float>> K_MC = new ArrayList<ArrayList<Float>>();
             
-            
-           
             
             //5) loop for distance up to max for test,
             // 
             //   calculate K, K = A/n * Sum of (distance/n)
+            
+            int step = Integer.parseInt(interval);
+            
+            int max_distance = impoverlay.getWidth();
+            if(max_distance > impoverlay.getHeight()){
+                max_distance = impoverlay.getHeight();
+            }
+            
+            //////////KDTree kd_test = new KDTree(data,key);
+            //KDTree[] kd_MC = new KDTree[10];
+            
+            for(int i = step; i < max_distance; i =+ step){
+                
+                //parse all objects
+                
+                for(int j = 0; j < kd_MC.length; j++){
+                    
+                }
+                
+            }
            
             // distance max = distance_max;
             // distance step = interval;
@@ -2689,58 +2587,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
             ArrayList<Integer> classes = new ArrayList<>();
 
-//            ArrayList<ArrayList<Number>> features
-//                    = H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_"
-//                            + keySQLSafe, this.descriptions.get(feature));
-////
-//            double maxClass = this.getMaximumOfData(features, 0);
-//            double minClass = this.getMinimumOfData(features, 0);
-//
-//            for (int i = (int) minClass; i <= (int) maxClass; i++) {
-//                classes.add(i);        
-//            }
 
-//            HashMap<String, String> objFeature = new HashMap<>();
-//
-//            for (int c = 0; c < this.objects.size(); c++) {
-//                objFeature.put(String.valueOf((objects.get(c)).getSerialID()), String.valueOf(features.get(c).get(0)));
-//            }
-
- 
-//            ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
-//            objectsTemp = al.get(0);
-//            measurementsFinal = al.get(1);
-//
-//
-//            int i = 0;
-//            
-//            ArrayList<ArrayList<Integer>> randomized = this.randomize(objectsTemp.size());
-//
-//            while (itrName.hasNext()) {
-//                MicroObject obj = (MicroObject) itrName.next();
-//                double[] k = new double[1];
-//                k[0] = obj.getSerialID();
-//           
-//                key[i] = k;
-//                double[] d = new double[3];
-//                
-                
-//                if(random){
-//                   
-//                d[0] = (double)randomized.get(0).get(i);
-//                d[1] = (double)randomized.get(1).get(i);
-//                d[2] = (double)randomized.get(2).get(i)*(Double.parseDouble(zScale));
-//                    
-//                data[i] = d;
-//                i++;
-//                } else {
-//                d[0] = obj.getCentroidX();
-//                d[1] = obj.getCentroidY();
-//                d[2] = obj.getCentroidZ()*(Double.parseDouble(zScale));
-//                data[i] = d;
-//                i++;
-//            }
-           // }
         }
         } else {
             
@@ -2775,7 +2622,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             firePropertyChange("method", "", method);
             firePropertyChange("indeterminant", " setup", "");
 
-            ArrayList<Integer> classes = new ArrayList<>();
+            ArrayList<Number> classes = new ArrayList<>();
 
             ArrayList<ArrayList<Number>> features
                     = H2DatabaseEngine.getColumn(vtea._vtea.H2_MEASUREMENTS_TABLE + "_"
@@ -2783,7 +2630,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
             double maxClass = this.getMaximumOfData(features, 0);
             double minClass = this.getMinimumOfData(features, 0);
-
+            
+            if(minClass > 0){
+                minClass = 0;
+            }
+            
+          
             for (int i = (int) minClass; i <= (int) maxClass; i++) {
                 classes.add(i);        
             }
@@ -2793,7 +2645,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             for (int c = 0; c < this.objects.size(); c++) {
                 objFeature.put(String.valueOf((objects.get(c)).getSerialID()), String.valueOf(features.get(c).get(0)));
             }
-
+            //position Serial ID connection FIXED
             ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
 
             //start factory
@@ -2803,6 +2655,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             measurementsFinal = al.get(1);
 
             ListIterator itrName = objectsTemp.listIterator();
+            
+            HashMap<Double, Integer> objIDLookUp = new HashMap<>();
 
             double[][] key = new double[objectsTemp.size()][1];
             double[][] data = new double[objectsTemp.size()][3];
@@ -2815,6 +2669,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 MicroObject obj = (MicroObject) itrName.next();
                 double[] k = new double[1];
                 k[0] = obj.getSerialID();
+                
+                objIDLookUp.put(k[0], i);
+                
+                //System.out.println("PROFILING: key, " + k[0] + ", position: " + i);
            
                 key[i] = k;
                 double[] d = new double[3];
@@ -2837,7 +2695,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
      
             ArrayList<ArrayList<Neighbor>> neighborhoods = new ArrayList<ArrayList<Neighbor>>();
 
-          
             ArrayList<MicroNeighborhoodObject> n_objs = new ArrayList<>();
 
             if (method.equals("Nearest-k")) {
@@ -2862,23 +2719,21 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     }
                     neighborhoods.add(neighbors);
 
-                    //System.out.println("Query object : " + key[objectKey][0] + ", " + neighbors.size() + " objects.");
-                    //str = "   Objects: ";
+
                     ArrayList<Double> neighborhoodObjects = new ArrayList<>();
 
                     neighborhoodObjects.add(key[objectKey][0]);
 
                     ArrayList<MicroObject> localObjects = new ArrayList<>();
 
-                    localObjects.add(objects.get(((int) key[objectKey][0])));
-                    //str = str + (int) key[objectKey][0];
-                    //str = str + "(" + objects.get(((int) key[objectKey][0])).getPixelsX().length + ")";
+                    localObjects.add(objectsTemp.get((objIDLookUp.get(key[objectKey][0]))));
+
 
                     for (int l = 0; l < neighbors.size(); l++) {
                         double[] id = (double[]) ((Neighbor) neighbors.get(l)).value;
                         // str = str + "," + id[0];
                         neighborhoodObjects.add(id[0]);
-                        MicroObject objectAdd = (objects.get((int) id[0]));
+                        MicroObject objectAdd = (objectsTemp.get(objIDLookUp.get(id[0])));
                         localObjects.add(objectAdd);
                         // str = str + "(" + ((objectAdd.getPixelsX()).length) + ")";
                     }
@@ -2920,13 +2775,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     neighborhoodObjects.add(key[objectKey][0]);
 
                     ArrayList<MicroObject> localObjects = new ArrayList<>();
+                    
+                    //System.out.println("PROFILING: lookingup: " + key[objectKey][0]);
 
-                    localObjects.add(objects.get(((int) key[objectKey][0])));
+                    localObjects.add(objectsTemp.get(objIDLookUp.get(key[objectKey][0])));
 
                     for (int l = 0; l < neighbors.size(); l++) {
                         double[] id = (double[]) ((Neighbor) neighbors.get(l)).value;
                         neighborhoodObjects.add(id[0]);
-                        MicroObject objectAdd = (objects.get((int) id[0]));
+                        MicroObject objectAdd = (objectsTemp.get(objIDLookUp.get(id[0])));
                         localObjects.add(objectAdd);
                     }
                     //System.out.println(str);
@@ -2949,8 +2806,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 firePropertyChange("method", "Spatial by point.", "Spatial by point.");
                 firePropertyChange("indeterminant", " setup", "");
 
-                HashMap<Double, Integer> objectPosition = this.getSerialIDHashMap(objects);
-                double maxSerialID = this.getSerialIDMax(objects);
+                HashMap<Double, Integer> objectPosition = this.getSerialIDHashMap(objectsTemp);
+                double maxSerialID = this.getSerialIDMax(objectsTemp);
 
                 int width = impoverlay.getWidth();
                 int height = impoverlay.getHeight();
@@ -3006,7 +2863,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 key = new double[xPos.length * yPos.length * zPos.length + data.length][1];
 
                 int c = 0;
-                int referenceKey = (int) this.getSerialIDMax(objects) + 1;
+                int referenceKey = (int) this.getSerialIDMax(objectsTemp) + 1;
 
                 ImagePlus resultImage = IJ.createImage("Sampling Volumes", "8-bit black", impoverlay.getWidth(), impoverlay.getHeight(), impoverlay.getNSlices());
                 ImageStack resultStack = resultImage.getStack();
@@ -3095,7 +2952,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                         if ((int) id[0] <= maxSerialID) {
 
-                            MicroObject objectAdd = objects.get((int) id[0]);
+                            MicroObject objectAdd = objectsTemp.get(objIDLookUp.get(id[0]));
 
 //System.out.println("PROFILING: Adding object: " + objectAdd.getSerialID());
                             //str = str +(id[0] - refLength - 1) + ",";
@@ -3121,6 +2978,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                 }
             }
+            
+            
             if (n_objs.size() > 0) {
                 firePropertyChange("comment", "", "Calculating...");
                 String newKey = this.key + "_" + System.currentTimeMillis();
@@ -3258,6 +3117,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void addDistanceMapFromGate(String s) {
+        
+        System.out.println("PROFILING: calculating distance.");
 
         ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(true);
         ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
@@ -3452,10 +3313,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void assignClassification(String cmd) {
-
+        
         ArrayList<ArrayList> al = new ArrayList<>();
 
         if (cmd.equals("gate")) {
+            //position Serial ID connection FIXED
             al = cloneGatedObjectsMeasurements(false);
             AssignClassification ac
                     = new AssignClassification(al.get(0), objects, keySQLSafe, descriptions);

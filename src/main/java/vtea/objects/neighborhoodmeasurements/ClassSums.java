@@ -41,6 +41,7 @@ public class ClassSums extends AbstractNeighborhoodMeasurement {
     @Override
     public ArrayList<Double> process(ArrayList<MicroObject> objects, ArrayList classes, HashMap<String, String> values) {
         
+        //System.out.println("EXCEPTION: Calculating sum cell type...");
         ArrayList<Double> results = new ArrayList<>();
         
         double[] result = new double[classes.size()];
@@ -48,6 +49,8 @@ public class ClassSums extends AbstractNeighborhoodMeasurement {
         for(int j = 0; j < result.length; j++){
             result[j] = 0;
         }
+        
+        //this doesment work with class sschemes not 0 ordered
         
         for(int i = 0; i < objects.size(); i++){  
               MicroObject o = (MicroObject)objects.get(i);

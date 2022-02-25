@@ -38,7 +38,7 @@ import vteaobjects.MicroObject;
 public class NeighborhoodMeasurementsProcessor extends AbstractProcessor {
 
     private ArrayList<MicroNeighborhoodObject> objects;
-    private ArrayList<Integer> classes;
+    private ArrayList<Number> classes;
     private HashMap<String, String> objectClasses;
 
     //first entry in ArrayList<Number> is the object UID.
@@ -60,7 +60,7 @@ public class NeighborhoodMeasurementsProcessor extends AbstractProcessor {
         KEY = "NeighborhoodMeasurementProcessor";
     }
 
-    public NeighborhoodMeasurementsProcessor(String k, ArrayList<MicroNeighborhoodObject> obj, ArrayList<Integer> c, HashMap<String, String> v) {
+    public NeighborhoodMeasurementsProcessor(String k, ArrayList<MicroNeighborhoodObject> obj, ArrayList<Number> c, HashMap<String, String> v) {
 
         VERSION = "0.0";
         AUTHOR = "Seth Winfree";
@@ -91,6 +91,8 @@ public class NeighborhoodMeasurementsProcessor extends AbstractProcessor {
         firePropertyChange("comment", key, "Starting measurements...  ");
 
         //ImageStack[] is = getInterleavedStacks(impOriginal);
+        
+        System.out.println("PROFILING: Starting measurments on neighborhoods...");
 
         Iterator<MicroNeighborhoodObject> itr_vol = objects.iterator();
         //loop through volumes

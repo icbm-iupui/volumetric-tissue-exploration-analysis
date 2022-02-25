@@ -33,7 +33,6 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.ListIterator;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -43,16 +42,9 @@ import vtea.exploration.listeners.AddFeaturesListener;
 import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.processor.AddImageFeatureMeasurementProcessor;
 import vtea.processor.AddImageFeatureSegmentationProcessor;
-import vtea.processor.ExplorerProcessor;
-import vtea.processor.MeasurementProcessor;
-import vtea.processor.SegmentationProcessor;
-import vtea.protocol.SingleImageProcessing;
-import static vtea.protocol.SingleImageProcessing.OBJECTBLOCKS;
-import static vtea.protocol.SingleImageProcessing.extractSteps;
 import vtea.protocol.blockstepgui.MorphologyStepBlockGUI;
 import vtea.protocol.listeners.AddImageFrameListener;
 import vtea.protocol.listeners.DeleteBlockListener;
-import vtea.protocol.listeners.MorphologyFrameListener;
 import vtea.protocol.listeners.RebuildPanelListener;
 import vtea.protocol.listeners.UpdateProgressListener;
 import vteaobjects.MicroObject;
@@ -426,17 +418,17 @@ public class ImageFeatureAddFrame extends javax.swing.JFrame implements
 
                 }
                 this.channels = new ArrayList(Arrays.asList(channels));
-                int size = 50;
-                if (location.getName().length() < 25) {
-                    size = location.getName().length();
+                int size = location.getName().length();
+                if (location.getName().length() > 25) {
+                    size = 24;
                 }
 
                 LoadedState.setText(location.getName().substring(0, size) + "...");
                 LoadedState.setToolTipText(location.getName());
 
             }).start();
+            
             this.setFocusable(true);
-
         } else {
             LoadedState.setText("Current data");
         }
@@ -588,22 +580,15 @@ public class ImageFeatureAddFrame extends javax.swing.JFrame implements
                 progress = 100 * ((double) count / (double) features.size());
                 firePropertyChange("progress", 0, ((int) progress));
                 firePropertyChange("comment", key, ("Building columns...  "));
-                
-                
-               // System.out.println("PROFILING: cell# " + count + " features: " +  feature);
-               
 
                 for (int i = 0; i < columns.size(); i++) {
                     ArrayList<Number> ar = columns.get(i);
                      
                     ar.add(feature.get(i));
-                    //System.out.println("PROFILING: building features# " +  ar);
+         
                 }
-                
-               
-
             }
-            
+           
             for (int i = 0; i < columns.size(); i++) {
                 progress = 100 * ((double) count / (double) descriptions.size());
                 firePropertyChange("progress", 0, ((int) progress));
@@ -613,32 +598,24 @@ public class ImageFeatureAddFrame extends javax.swing.JFrame implements
                 
                 //System.out.println("PROFILING: Outputting features: " + descriptions.get(i) + ", " + descriptionsLabels.get(i) + ", " +result);
                 notifyListeners(descriptions.get(i), descriptionsLabels.get(i), result);
-
-            }
-            
+            }         
                 firePropertyChange("comment", key, ("Done...  "));
-            
-            
-
-           
-
         }
     }
 
     private synchronized void executeSegmentation() {
         
-        addImageFeatureSegmentationProcessors = new ArrayList<AddImageFeatureSegmentationProcessor>();
+        addImageFeatureSegmentationProcessors = 
+                new ArrayList<AddImageFeatureSegmentationProcessor>();
         ArrayList<ArrayList> protocol = new ArrayList();
         protocol = extractSteps(MorphologicalStepsList);
         //segmentationCount = 0;
 
         for (int i = 0; i < MorphologicalStepsList.size(); i++) {
-            //String key = ((ObjectStepBlockGUI) ObjectStepsList.get(i)).getUID() + "_" + System.currentTimeMillis();
-
             System.out.println("PROFILING: Segmentation on dataset: " + key);
-
             AddImageFeatureSegmentationProcessor aifsp
-                = new AddImageFeatureSegmentationProcessor(key, image, (ArrayList) protocol.get(i), objects);
+                = new AddImageFeatureSegmentationProcessor(key, image, 
+                        (ArrayList) protocol.get(i), objects);
             aifsp.addPropertyChangeListener(this);
             addImageFeatureSegmentationProcessors.add(aifsp);
             aifsp.execute();
@@ -766,8 +743,6 @@ public class ImageFeatureAddFrame extends javax.swing.JFrame implements
     }
 
     private void addMorphology(ImagePlus imp) {
-        //notifyMorphologyListeners(getMorphologies(), imp);
-        //setVisible(false);
 
         executeSegmentation();
 

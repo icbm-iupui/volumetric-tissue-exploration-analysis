@@ -44,7 +44,7 @@ public class ClassFraction extends AbstractNeighborhoodMeasurement {
     @Override
     public ArrayList<Double> process(ArrayList<MicroObject> objects, ArrayList classes, HashMap<String, String> values) {
         
- 
+
         
         ArrayList<Double> results = new ArrayList<>();
         
@@ -64,10 +64,6 @@ public class ClassFraction extends AbstractNeighborhoodMeasurement {
             double b = Double.parseDouble(a);
             int d = (int)b;
 
-            //System.out.println("PROFILING: getting object: " +o.getSerialID()  
-            //        + ", class(Double) " +Double.parseDouble(a)
-            //        + ", class(int) " + d);
-         
             result[d]++;
             count++;
 
@@ -75,7 +71,10 @@ public class ClassFraction extends AbstractNeighborhoodMeasurement {
         }
         
         //make arraylist
+       
+        
         for(int k = 0; k < result.length; k++){
+            
            results.add(100*(result[k]/count));
         }
         

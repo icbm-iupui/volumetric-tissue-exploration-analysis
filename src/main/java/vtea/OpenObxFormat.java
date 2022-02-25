@@ -132,9 +132,14 @@ public class OpenObxFormat {
         ArrayList measures = (ArrayList) result.get(2);
         ArrayList descriptions = (ArrayList) result.get(3);
         ArrayList descriptionLabels = (ArrayList) result.get(4);
+        ArrayList morphologies = new ArrayList();
+        
+        if(result.size() == 6){
+            morphologies = (ArrayList) result.get(5);
+        } 
 
         ExplorerProcessor ep = new ExplorerProcessor(name, name, imp, objects, 
-                measures, descriptions, descriptionLabels);
+                measures, descriptions, descriptionLabels, morphologies);
         ep.execute();
 
     }

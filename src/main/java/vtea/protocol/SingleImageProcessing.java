@@ -752,7 +752,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
                 MeasurementProcessor mp = (MeasurementProcessor) itr.next();
                 if (mp.getUIDKey().equals(key)) {
                     executeExploring(key, mp.getObjects(), mp.getFeatures(),
-                            mp.getDescriptions(), mp.getDescriptionLabels());
+                            mp.getDescriptions(), mp.getDescriptionLabels(), mp.getMorphologies());
                 }
             }
         }
@@ -1249,10 +1249,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         mp.execute();
     }
 
-    private void executeExploring(String key, ArrayList<MicroObject> vols, ArrayList measurements, ArrayList headers, ArrayList headerLabels) {
+    private void executeExploring(String key, ArrayList<MicroObject> vols, ArrayList measurements, ArrayList headers, ArrayList headerLabels, ArrayList morphologies) {
 
         //ij.ImageStack[] test = vols.get(0).exportObjImage(); for debugging
-        ExplorerProcessor ep = new ExplorerProcessor(key, key, ProcessedImage, vols, measurements, headers, headerLabels);
+        ExplorerProcessor ep = new ExplorerProcessor(key, key, ProcessedImage, vols, measurements, headers, headerLabels, morphologies);
         ep.addPropertyChangeListener(this);
         explorerProcessors.add(ep);
         ep.execute();

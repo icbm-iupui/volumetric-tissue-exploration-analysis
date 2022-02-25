@@ -78,8 +78,14 @@ public class H2DatabaseEngine {
 
         try {
             connection.setAutoCommit(false);
-            String ImportQuery = "CREATE TABLE " + table + " AS SELECT * FROM CSVREAD('" + csvFile.getAbsolutePath() + "')";
+            String ImportQuery = "CREATE TABLE " + table + 
+                    " AS SELECT * FROM CSVREAD('" + csvFile.getAbsolutePath() + "')";
             createPreparedStatement = connection.prepareStatement(ImportQuery);
+            createPreparedStatement.executeUpdate();
+            createPreparedStatement.close();
+            String AddID = "ALTER TABLE "+ table +
+                    " ADD COLUMN ID BIGINT NOT NULL AUTO_INCREMENT FIRST;";
+            createPreparedStatement = connection.prepareStatement(AddID);
             createPreparedStatement.executeUpdate();
             createPreparedStatement.close();
         } catch (SQLException e) {
@@ -516,7 +522,7 @@ public class H2DatabaseEngine {
         try {
 
             String SelectQuery = "select Object," + column1 + "," + column2
-                    + " from " + table + " WHERE ("
+                    + ",ID from " + table + " WHERE ("
                     + column1 + " BETWEEN " + low1 + " AND "
                     + high1 + ") AND ("
                     + column2 + " BETWEEN " + low2 + " AND "
@@ -534,7 +540,9 @@ public class H2DatabaseEngine {
                     al.add(rs.getDouble(1));
                     al.add(rs.getDouble(2));
                     al.add(rs.getDouble(3));
+                    al.add(rs.getDouble(4)-1);
                     result.add(al);
+                    
                 }
             }
 

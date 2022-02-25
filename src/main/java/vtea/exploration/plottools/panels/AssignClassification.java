@@ -96,16 +96,54 @@ public class AssignClassification {
         } 
         //cycle through arraylist and replace per position...
         
+        HashMap<Double, Integer> objPositions = new HashMap();
+        
+        objPositions = getSerialIDHashMap(objects);
+        
 
-        for(int i = 0; i < gatedobjects.size(); i++){
-            
+        for(int i = 0; i < gatedobjects.size(); i++){            
             MicroObject obj = gatedobjects.get(i);
-            this.result.put(obj.getSerialID(), nClasses);
-            
+            this.result.put((double)objPositions.get(obj.getSerialID()), nClasses);
         }
 
         addFeature();
  
+    }
+    
+        private HashMap<Double, Integer> getSerialIDHashMap(ArrayList<MicroObject> objs) {
+
+        HashMap<Double, Integer> lookup = new HashMap();
+
+        int position = 0;
+
+        ListIterator<MicroObject> itr = objs.listIterator();
+
+        while (itr.hasNext()) {
+            MicroObject obj = itr.next();
+            lookup.put(obj.getSerialID(), position);
+            position++;
+        }
+
+        return lookup;
+
+    }
+    
+        private HashMap<Integer, Double> getPositionHashMap(ArrayList<MicroObject> objs) {
+
+        HashMap<Integer, Double> lookup = new HashMap();
+
+        int position = 0;
+
+        ListIterator<MicroObject> itr = objs.listIterator();
+
+        while (itr.hasNext()) {
+            MicroObject obj = itr.next();
+            lookup.put(position, obj.getSerialID());
+            position++;
+        }
+
+        return lookup;
+
     }
     
         protected void addFeature(){
@@ -113,14 +151,16 @@ public class AssignClassification {
         ArrayList<ArrayList<Number>> paddedTable = new ArrayList();
         ArrayList<Number> r = new ArrayList();
         
+        HashMap<Double, Integer> objPositions = new HashMap();
+        objPositions = getSerialIDHashMap(objects);
+        
+        
         for(int i = 0; i < objects.size(); i++){
-            
-            
+
             MicroObject m = objects.get(i);
-       
-           
-           result.putIfAbsent(m.getSerialID(), -1);
-           r.add(result.get(m.getSerialID()));
+
+           result.putIfAbsent((double)objPositions.get(m.getSerialID()), -1);
+           r.add(result.get((double)objPositions.get(m.getSerialID())));
           
             }
 

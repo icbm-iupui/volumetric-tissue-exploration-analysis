@@ -55,6 +55,8 @@ public class GateMathProcessor extends AbstractProcessor {
     private ArrayList<MicroObject> gatedObjects;
 
     HashMap<Double, Integer> result = new HashMap();
+    
+    private HashMap<Double, Integer> objPositions;
 
     ArrayList<AddFeaturesListener> addfeaturelisteners = new ArrayList<AddFeaturesListener>();
 
@@ -92,6 +94,7 @@ public class GateMathProcessor extends AbstractProcessor {
         this.descriptions = descriptions;
         this.keySQLSafe = keySQLSafe;
         this.classAssigned = classAssigned;
+        this.objPositions = getSerialIDHashMap(this.objects);
     }
 
     @Override
@@ -196,7 +199,7 @@ public class GateMathProcessor extends AbstractProcessor {
         while (itr.hasNext()) {
 
             MicroObject obj = itr.next();
-            result.put(obj.getSerialID(), classAssigned);
+            result.put((double)objPositions.get(obj.getSerialID()), classAssigned);
 
         }
 
@@ -204,11 +207,13 @@ public class GateMathProcessor extends AbstractProcessor {
         ArrayList<Number> r = new ArrayList();
 
         for (int i = 0; i < objects.size(); i++) {
+            
+            
 
             MicroObject m = objects.get(i);
 
-            result.putIfAbsent(m.getSerialID(), -1);
-            r.add(result.get(m.getSerialID()));
+            result.putIfAbsent((double)objPositions.get(m.getSerialID()), -1);
+            r.add(result.get((double)objPositions.get(m.getSerialID())));
 
         }
 
@@ -216,6 +221,24 @@ public class GateMathProcessor extends AbstractProcessor {
         notifyAddFeatureListener("Assigned", paddedTable);
 
         return null;
+    }
+    
+    private HashMap<Double, Integer> getSerialIDHashMap(ArrayList<MicroObject> objs) {
+
+        HashMap<Double, Integer> lookup = new HashMap();
+
+        int position = 0;
+
+        ListIterator<MicroObject> itr = objs.listIterator();
+
+        while (itr.hasNext()) {
+            MicroObject obj = itr.next();
+            lookup.put(obj.getSerialID(), position);
+            position++;
+        }
+
+        return lookup;
+
     }
 
     @Override

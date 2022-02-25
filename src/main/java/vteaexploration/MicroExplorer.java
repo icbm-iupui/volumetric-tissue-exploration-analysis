@@ -155,6 +155,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     ArrayList<String> childKeys = new ArrayList<String>();
     String parentKey;
     ArrayList descriptions;
+    ArrayList morphologies;
     ArrayList<String> descriptionsLabels = new ArrayList<String>();
     ArrayList<MicroObject> Objects = new ArrayList<MicroObject>();
     ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
@@ -219,7 +220,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     }
 
-    public void process(String key, ImagePlus imp, String title, ArrayList plotvalues, AbstractExplorationPanel aep, PlotAxesPanels pap, ArrayList AvailableData, ArrayList descriptionLabel) {
+    public void process(String key, ImagePlus imp, String title, ArrayList plotvalues, 
+            AbstractExplorationPanel aep, PlotAxesPanels pap, ArrayList AvailableData, 
+            ArrayList descriptionLabel, ArrayList morphologies) {
         //Needs to be converted to a Factory metaphor.
 
         //Setup base dataseta
@@ -229,6 +232,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         this.descriptions = AvailableData;
         this.descriptionsLabels = descriptionLabel;
+        this.morphologies = morphologies;
         //as taken from stackoverflow
 
         ComboboxToolTipRenderer renderer = new ComboboxToolTipRenderer();
@@ -1143,7 +1147,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 ec.getZProjection();
                 java.lang.Thread.sleep(100);
                 String image = "Gates_" + impoverlay.getTitle();
-
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
@@ -1310,7 +1313,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     // End of variables declaration//GEN-END:variables
 
     @Override
-    public void makeSubGateExplorer(ArrayList<MicroObject> objects, ArrayList<ArrayList<Number>> measurements) {
+    public void makeSubGateExplorer(ArrayList<MicroObject> obj, ArrayList<ArrayList<Number>> meas) {
         new Thread(() -> {
             try {
 
@@ -1331,8 +1334,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
                 impoverlay.setLuts(imageLUTs);
                 
-                ExplorerProcessor ep = new ExplorerProcessor("Subgate_" + subgateSerial + "_" + this.key, this.key, impoverlay, objects,
-                        measurements, newDescriptions, newDescriptionsLabels);
+                ExplorerProcessor ep = new ExplorerProcessor(
+                        "Subgate_" + subgateSerial + "_" + this.key, this.key, 
+                        impoverlay, obj, meas, newDescriptions, 
+                        newDescriptionsLabels, morphologies);
                 ep.execute();
 
                 subgateSerial++;
