@@ -71,7 +71,7 @@ import vtea.services.PlotMakerService;
 //@Plugin(type= RichPlugin.class, priority=Priority.HIGH_PRIORITY, menuPath = "Plugins>IU_Tools>VTEA")
 public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener {
 
-    public static String VERSION = new String("1.0.0");
+    public static String VERSION = new String("1.0.2");
     //public static Connection connection = H2DatabaseEngine.getDBConnection();
     public ProtocolManagerMulti protocolWindow;
 

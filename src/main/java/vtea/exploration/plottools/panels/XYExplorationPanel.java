@@ -740,7 +740,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     }
 
-
     public ArrayList<ImageStack> makeOverlayVolume(ArrayList<PolygonGate> gates, int x, int y,
             int xAxis, int yAxis) {
 
@@ -1797,7 +1796,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         new Thread(() -> {
             try {
+
                 //position Serial ID connection FIXED
+
                 ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
                 if (al.size() > 0) {
                     ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
@@ -2416,7 +2417,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     @Override
     public void addDensityMapFromGate(String s) {
+
 //position Serial ID connection FIXED
+
         ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
         ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
         ArrayList<ArrayList<Number>> measurementsFinal = new ArrayList<ArrayList<Number>>();
@@ -3120,7 +3123,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         
         System.out.println("PROFILING: calculating distance.");
 
-        ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(true);
+        ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
         ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
         ArrayList<ArrayList<Number>> measurementsFinal
                 = new ArrayList<ArrayList<Number>>();
