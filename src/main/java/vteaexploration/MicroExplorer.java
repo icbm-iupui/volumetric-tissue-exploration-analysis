@@ -54,6 +54,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -107,6 +108,7 @@ import vtea.protocol.listeners.AddImageFrameListener;
 
 import vtea.protocol.setup.MicroBlockMorphologySetup;
 import vteaobjects.MicroObject;
+import vteaobjects.ReduceObjectSizeProcessor;
 
 /**
  *
@@ -2138,15 +2140,13 @@ public class MicroExplorer extends javax.swing.JFrame implements
             //Arraylist to save to file
             //key; Objects; Measurements; headers; headerLabels
             //string; ImagePlus; ArrayList; ArrayList; ArrayList; ArrayList
-           
+            JCheckBox reduceSize = new JCheckBox("Reduce size", false);
             
-            ArrayList output = new ArrayList();
-
-            output.add(k);
-            output.add(objects);
-            output.add(measurements);
-            output.add(headers);
-            output.add(headerLabels);
+            MicroObject obj = objects.get(0);
+            
+            if(obj.getMorphologicalCount() <= 1){
+                reduceSize.setEnabled(false);
+            }
 
             int returnVal = JFileChooser.CANCEL_OPTION;
             File file;
@@ -2154,8 +2154,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
             do {
                 JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
                 jf.setDialogTitle("Export VTEA objects...");
+                
+                
+                JPanel panel1 = (JPanel) jf.getComponent(3);
+                JPanel panel2 = (JPanel) panel1.getComponent(3);
+                panel2.add(reduceSize);
 
                 returnVal = jf.showSaveDialog(Main);
+                
 
                 file = jf.getSelectedFile();
                 if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
@@ -2171,6 +2177,20 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
+                    ArrayList output = new ArrayList();
+                    output.add(k);
+                    if(reduceSize.isSelected()){
+                        ReduceObjectSizeProcessor reducer = 
+                            new ReduceObjectSizeProcessor(objects);
+                        reducer.process(new ArrayList());   
+                        output.add(reducer.getObjects());
+                    } else {
+                    output.add(objects);
+                    }
+                    output.add(measurements);
+                    output.add(headers);
+                    output.add(headerLabels);
+                    
                     try {
                         FileOutputStream fos = new FileOutputStream(file);
                         BufferedOutputStream bos = new BufferedOutputStream(fos);

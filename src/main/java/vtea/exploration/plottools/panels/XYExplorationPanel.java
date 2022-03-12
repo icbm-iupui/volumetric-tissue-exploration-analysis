@@ -135,6 +135,7 @@ import vteaexploration.TableWindow;
 import vteaobjects.MicroNeighborhoodObject;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
+import vtea.exploration.listeners.GatePlotListener;
 
 /**
  *
@@ -150,7 +151,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         NameUpdateListener, colorUpdateListener, remapOverlayListener,
         ManualClassListener, AssignmentListener, UpdateFeaturesListener,
         GateManagerActionListener, AddClassByMathListener, GateMathObjectListener,
-        RandomizationListener, SpatialListener{
+        RandomizationListener, SpatialListener, GatePlotListener{
 
     static String printResult = "";
     static public int testCounter = 0;
@@ -226,6 +227,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         super();
 
         gm = new TableWindow(title);
+        
+        gm.addGatePlotListener(this);
 
         configureListeners();
 
@@ -3402,6 +3405,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             cr.addFeatureListener(this);
             cr.process();
         }
+    }
+
+    @Override
+    public void onGatePlot(String StringX, String StringY) {
+        
+        
+        
+        
+      //  updatePlot(int x, int y, int l, int size);
     }
 
     class ExportGates {
