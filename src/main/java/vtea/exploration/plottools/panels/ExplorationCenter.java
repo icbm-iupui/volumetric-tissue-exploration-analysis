@@ -63,7 +63,7 @@ public interface ExplorationCenter {
 
     public void showPlot(int x, int y, int l, int size, String xText, String yText, String lText);
 
-    public void updatePlot(int x, int y, int l, int size);
+    public void updatePlot(int x, int y, int l, int size, boolean gatePlot);
     
    // public void changeImageGate(ArrayList<microVolume> al, int x, int y, int l, int size);
     

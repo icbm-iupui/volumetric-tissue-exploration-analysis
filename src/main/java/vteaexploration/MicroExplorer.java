@@ -1472,7 +1472,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         //System.out.println("MicroExplorer, change plot request start:" + System.currentTimeMillis());
         new Thread(() -> {
             try {
-                ec.updatePlot(x, y, z, size);
+                ec.updatePlot(x, y, z, size, false);
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
@@ -1484,7 +1484,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
             try {
 
                 ec.updatePlot(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(),
-                        this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
+                        this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex(), false);
 
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
@@ -1493,13 +1493,31 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }
 
     @Override
-    public void rebuildExplorerGUI() {
+    public void rebuildExplorerGUI(String x, String y, String l, String size, boolean gateSelect) {
 
         Main.removeAll();
         Main.add(ec.getPanel());
+        
+        updatePlot = false;
+        
         updateBorderPanels(DefaultXYPanels);
+
+        jComboBoxXaxis.setSelectedItem(x);
+        jComboBoxYaxis.setSelectedItem(y);
+        jComboBoxLUTPlot.setSelectedItem(l);
+        jComboBoxPointSize.setSelectedItem(size);
+        
         updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+        
+        if(gateSelect){
+        ec.setCustomRange(XAXIS, false);
+        ec.setCustomRange(YAXIS, false);
+        }
+        
         pack();
+        
+        updatePlot = true;
+        
         //System.out.println("MicroExplorer, plot updated:" + System.currentTimeMillis());
     }
 
@@ -1507,7 +1525,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         new Thread(() -> {
             try {
                 Main.removeAll();
-                ec.updatePlot(x, y, -1, size);
+                ec.updatePlot(x, y, -1, size, false);
                 Main.add(ec.getPanel());
                 //updateBorderPanels(DefaultXYPanels);
                 updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), "");
@@ -1559,7 +1577,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         new Thread(() -> {
             try {
                 Main.removeAll();
-                ec.updatePlot(x, y, l, size);
+                ec.updatePlot(x, y, l, size, false);
                 Main.add(ec.getPanel());
 
                 updatePlot = false;

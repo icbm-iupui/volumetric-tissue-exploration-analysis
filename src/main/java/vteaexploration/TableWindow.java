@@ -160,8 +160,9 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         setTitle("Gate Management");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setFocusTraversalPolicyProvider(true);
-        setMaximumSize(new java.awt.Dimension(700, 500));
-        setMinimumSize(new java.awt.Dimension(700, 240));
+        setMaximumSize(new java.awt.Dimension(725, 500));
+        setMinimumSize(new java.awt.Dimension(725, 240));
+        setPreferredSize(new java.awt.Dimension(725, 235));
         setSize(new java.awt.Dimension(725, 280));
         setType(java.awt.Window.Type.UTILITY);
 
@@ -232,9 +233,9 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
 
         getContentPane().add(jToolBar1, java.awt.BorderLayout.NORTH);
 
-        jScrollPane1.setMaximumSize(new java.awt.Dimension(700, 200));
-        jScrollPane1.setMinimumSize(new java.awt.Dimension(700, 200));
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(700, 200));
+        jScrollPane1.setMaximumSize(new java.awt.Dimension(725, 200));
+        jScrollPane1.setMinimumSize(new java.awt.Dimension(725, 200));
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(725, 200));
 
         GateDataTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -274,9 +275,10 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
             }
         });
         GateDataTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-        GateDataTable.setMaximumSize(new java.awt.Dimension(630, 200));
-        GateDataTable.setMinimumSize(new java.awt.Dimension(630, 200));
-        GateDataTable.setPreferredSize(new java.awt.Dimension(640, 200));
+        GateDataTable.setMaximumSize(new java.awt.Dimension(665, 200));
+        GateDataTable.setMinimumSize(new java.awt.Dimension(665, 200));
+        GateDataTable.setPreferredSize(new java.awt.Dimension(665, 200));
+        GateDataTable.setSize(new java.awt.Dimension(665, 200));
         jScrollPane1.setViewportView(GateDataTable);
 
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.LINE_END);
@@ -476,9 +478,9 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                 String stringX = GateDataTable.getValueAt(row, 3).toString();
                 String stringY = GateDataTable.getValueAt(row, 4).toString();
                 
-                System.out.println("PROFILING: " + stringX + ", " + stringY);
+                //System.out.println("PROFILING: " + stringX + ", " + stringY);
                 
-                
+                notifyGatePlotListeners(stringX, stringY);
                 
                 }catch(Exception ex){}
             }

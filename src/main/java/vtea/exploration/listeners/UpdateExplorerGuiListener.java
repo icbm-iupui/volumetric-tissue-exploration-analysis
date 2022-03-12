@@ -22,5 +22,5 @@ package vtea.exploration.listeners;
  * @author Seth
  */
 public interface UpdateExplorerGuiListener {
-    public void rebuildExplorerGUI();
+    public void rebuildExplorerGUI(String x, String y, String l, String size, boolean b);
 }

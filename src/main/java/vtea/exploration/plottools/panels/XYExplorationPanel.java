@@ -227,7 +227,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         super();
 
         gm = new TableWindow(title);
-        
         gm.addGatePlotListener(this);
 
         configureListeners();
@@ -1037,7 +1036,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     @Override
-    public void updatePlot(int x, int y, int l, int size) {
+    public void updatePlot(int x, int y, int l, int size, boolean gatePlot) {
         this.explorerXaxisIndex = x;
         this.explorerYaxisIndex = y;
         this.explorerLutIndex = l;
@@ -1516,7 +1515,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         lps = AxesManager.getLookupPaintScale(LUT);
 
         updatePlot(this.explorerXaxisIndex, this.explorerYaxisIndex,
-                this.explorerLutIndex, this.explorerPointSizeIndex);
+                this.explorerLutIndex, this.explorerPointSizeIndex, false);
 
         notifyAxesSetupExplorerPlotUpdateListener(this.explorerXaxisIndex,
                 this.explorerYaxisIndex, this.explorerLutIndex,
@@ -3172,7 +3171,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void notifyUpdateExplorerGUIListener() {
         for (UpdateExplorerGuiListener listener : updateexlporerguilisteners) {
-            listener.rebuildExplorerGUI();
+            listener.rebuildExplorerGUI(descriptions.get(currentX), 
+                    descriptions.get(currentY), descriptions.get(currentL), "15", false);
         }
     }
 
@@ -3410,10 +3410,24 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void onGatePlot(String StringX, String StringY) {
         
+        ListIterator<String> itr = descriptions.listIterator();
         
+        int xPos = this.currentX;
+        int yPos = this.currentY;
+        int count = 0;
         
-        
-      //  updatePlot(int x, int y, int l, int size);
+        while(itr.hasNext()){
+            String str = itr.next();
+            if(str.equals(StringX)){
+                xPos = count;
+            }
+            if(str.equals(StringY)){
+                yPos = count;
+            }
+            count++;
+        }
+        //System.out.println("PROFILING: " + xPos +", " + yPos + ".");
+      updatePlot(xPos, yPos, this.currentL, 4, true);
     }
 
     class ExportGates {
