@@ -44,6 +44,7 @@ import vtea.exploration.listeners.colorUpdateListener;
 import vtea.exploration.listeners.remapOverlayListener;
 import vtea.exploration.listeners.GateManagerActionListener;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
+import vtea.exploration.listeners.GatePlotListener;
 
 /**
  *
@@ -57,8 +58,10 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     private ArrayList<remapOverlayListener> remapOverlayListeners = new ArrayList<>();
     private ArrayList<colorUpdateListener> UpdateColorListeners = new ArrayList<>();
     
+    private ArrayList<GatePlotListener> gatePlotListeners = new ArrayList<>();
+
     private ArrayList<GateManagerActionListener> gateManagerListeners = new ArrayList<>();
-    
+
     private ArrayList<PolygonGate> gateList = new ArrayList();
 
     /**
@@ -67,14 +70,18 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     public TableWindow(String name) {
         initComponents();
         GateDataTable.getModel().addTableModelListener(this);
-        setTitle(getTitle()+": "+name);
+        setTitle(getTitle() + ": " + name);
+
+
+  
     }
+    
     
     public void setVisible() {
         this.setVisible(false);
     }
-    
-    public int getNumberOfGates(){
+
+    public int getNumberOfGates() {
         return gateList.size();
     }
 
@@ -93,6 +100,16 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
             listener.onRemapOverlay(b, row);
         }
     }
+    
+    public void addGatePlotListener(GatePlotListener listener) {
+        gatePlotListeners.add(listener);
+    }
+
+    private void notifyGatePlotListeners(String x, String y) {
+        for (GatePlotListener listener : gatePlotListeners) {
+            listener.onGatePlot(x, y);
+        }
+    }
 
     public void addRemapOverlayListener(remapOverlayListener listener) {
         remapOverlayListeners.add(listener);
@@ -103,7 +120,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
             listener.onColorUpdate(color, row);
         }
     }
-    
+
     public void addGateActionListener(GateManagerActionListener listener) {
         gateManagerListeners.add(listener);
     }
@@ -126,12 +143,10 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         jRadioButton1 = new javax.swing.JRadioButton();
-        jPanel1 = new javax.swing.JPanel();
-        currentMeasure = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
+        currentMeasure = new javax.swing.JLabel();
         addMeasurement = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JToolBar.Separator();
         exportGates = new javax.swing.JButton();
@@ -145,19 +160,18 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         setTitle("Gate Management");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setFocusTraversalPolicyProvider(true);
-        setMaximumSize(new java.awt.Dimension(725, 270));
-        setMinimumSize(new java.awt.Dimension(725, 270));
-        setPreferredSize(new java.awt.Dimension(725, 270));
-        setResizable(false);
+        setMaximumSize(new java.awt.Dimension(725, 500));
+        setMinimumSize(new java.awt.Dimension(725, 240));
+        setPreferredSize(new java.awt.Dimension(725, 235));
         setSize(new java.awt.Dimension(725, 280));
         setType(java.awt.Window.Type.UTILITY);
-        getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        jPanel1.setMaximumSize(new java.awt.Dimension(700, 40));
-        jPanel1.setMinimumSize(new java.awt.Dimension(700, 40));
-        jPanel1.setPreferredSize(new java.awt.Dimension(700, 40));
-        jPanel1.setRequestFocusEnabled(false);
-        jPanel1.setLayout(new java.awt.GridBagLayout());
+        jToolBar1.setFloatable(false);
+        jToolBar1.setRollover(true);
+        jToolBar1.setBorderPainted(false);
+        jToolBar1.setMaximumSize(new java.awt.Dimension(700, 35));
+        jToolBar1.setMinimumSize(new java.awt.Dimension(700, 35));
+        jToolBar1.setPreferredSize(new java.awt.Dimension(700, 35));
 
         currentMeasure.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
         currentMeasure.setText("Gating Statistics");
@@ -166,12 +180,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         currentMeasure.setMaximumSize(new java.awt.Dimension(670, 20));
         currentMeasure.setMinimumSize(new java.awt.Dimension(520, 20));
         currentMeasure.setPreferredSize(new java.awt.Dimension(580, 20));
-        jPanel1.add(currentMeasure, new java.awt.GridBagConstraints());
-
-        jToolBar1.setFloatable(false);
-        jToolBar1.setRollover(true);
-        jToolBar1.setBorderPainted(false);
-        jToolBar1.setPreferredSize(new java.awt.Dimension(156, 35));
+        jToolBar1.add(currentMeasure);
 
         addMeasurement.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
         addMeasurement.setToolTipText("Add measurement to ImageJ log.");
@@ -222,13 +231,11 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         jToolBar1.add(LoadGates);
         jToolBar1.add(jSeparator1);
 
-        jPanel1.add(jToolBar1, new java.awt.GridBagConstraints());
+        getContentPane().add(jToolBar1, java.awt.BorderLayout.NORTH);
 
-        getContentPane().add(jPanel1, new java.awt.GridBagConstraints());
-
-        jScrollPane1.setMaximumSize(new java.awt.Dimension(700, 200));
-        jScrollPane1.setMinimumSize(new java.awt.Dimension(700, 200));
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(700, 200));
+        jScrollPane1.setMaximumSize(new java.awt.Dimension(725, 200));
+        jScrollPane1.setMinimumSize(new java.awt.Dimension(725, 200));
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(725, 200));
 
         GateDataTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -268,47 +275,45 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
             }
         });
         GateDataTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-        GateDataTable.setMaximumSize(new java.awt.Dimension(630, 200));
-        GateDataTable.setMinimumSize(new java.awt.Dimension(630, 200));
-        GateDataTable.setPreferredSize(new java.awt.Dimension(640, 200));
+        GateDataTable.setMaximumSize(new java.awt.Dimension(665, 200));
+        GateDataTable.setMinimumSize(new java.awt.Dimension(665, 200));
+        GateDataTable.setPreferredSize(new java.awt.Dimension(665, 200));
+        GateDataTable.setSize(new java.awt.Dimension(665, 200));
         jScrollPane1.setViewportView(GateDataTable);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        getContentPane().add(jScrollPane1, gridBagConstraints);
+        getContentPane().add(jScrollPane1, java.awt.BorderLayout.LINE_END);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void addMeasurementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMeasurementActionPerformed
-       IJ.log(this.getTitle());
-       System.out.println(this.getTitle());
-       
+        IJ.log(this.getTitle());
+        System.out.println(this.getTitle());
+
         ListIterator<PolygonGate> itr = gateList.listIterator();
 
-            while (itr.hasNext()) {
-                PolygonGate pg = (PolygonGate) itr.next();
-                if(pg.getSelected()){
+        while (itr.hasNext()) {
+            PolygonGate pg = (PolygonGate) itr.next();
+            if (pg.getSelected()) {
 //                 System.out.println("Gating results: Name: " + pg.getName() + ", " +
 //                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
 //                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
 //                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects())); 
 //                 
-                 IJ.log("Gating results: Name: " + pg.getName() + ", " +
-                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
-                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
-                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects()));
-                }
+                IJ.log("Gating results: Name: " + pg.getName() + ", "
+                        + pg.getColor().toString() + ", " + pg.getXAxis() + ", " + pg.getYAxis() + ", "
+                        + pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", "
+                        + (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects()));
             }
+        }
     }//GEN-LAST:event_addMeasurementActionPerformed
 
     private void exportGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGatesActionPerformed
-    notifyGateActionListeners("export");
+        notifyGateActionListeners("export");
     }//GEN-LAST:event_exportGatesActionPerformed
 
     private void LoadGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadGatesActionPerformed
-    notifyGateActionListeners("import");
+        notifyGateActionListeners("import");
     }//GEN-LAST:event_LoadGatesActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -317,7 +322,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     private javax.swing.JButton addMeasurement;
     public javax.swing.JLabel currentMeasure;
     private javax.swing.JButton exportGates;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar.Separator jSeparator1;
@@ -336,61 +340,59 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         this.currentMeasure.setToolTipText(st);
         this.currentMeasure.setText(st);
     }
-    
+
     public void addGateToTable(PolygonGate g) {
         //if (gateList.size() > 0) {
-            if (g.getGateAsPoints().size() > 2) {
-                ((DefaultTableModel) GateDataTable.getModel()).addRow(
-                        new Object[]{g.getSelected(),
-                            g.getColor(),
-                            g.getName(),
-                            g.getXAxis(),
-                            g.getYAxis(),
-                            g.getObjectsInGate(),
-                            g.getTotalObjects(),
-                            (float) 100 * ((int) g.getObjectsInGate()) / ((int) g.getTotalObjects())
-                        });
+        if (g.getGateAsPoints().size() > 2) {
+            ((DefaultTableModel) GateDataTable.getModel()).addRow(
+                    new Object[]{g.getSelected(),
+                        g.getColor(),
+                        g.getName(),
+                        g.getXAxis(),
+                        g.getYAxis(),
+                        g.getObjectsInGate(),
+                        g.getTotalObjects(),
+                        (float) 100 * ((int) g.getObjectsInGate()) / ((int) g.getTotalObjects())
+                    });
 
         }
-            pack();
-            repaint();
-            
+        pack();
+        repaint();
+
     }
-    
-    public void updateGateSelection(ArrayList<PolygonGate> gates){
-        
+
+    public void updateGateSelection(ArrayList<PolygonGate> gates) {
+
         ListIterator<PolygonGate> itr = gates.listIterator();
         int i = 0;
-         while (itr.hasNext()) {
-             PolygonGate pg = (PolygonGate) itr.next();
-             boolean selected = pg.getSelected();
-             GateDataTable.getModel().setValueAt(selected, i, 0);
-             i++;
-         }
-            pack();
+        while (itr.hasNext()) {
+            PolygonGate pg = (PolygonGate) itr.next();
+            boolean selected = pg.getSelected();
+            GateDataTable.getModel().setValueAt(selected, i, 0);
+            i++;
+        }
+        pack();
         repaint();
-        
+
     }
-    
-    private ArrayList<PolygonGate> cleanGateList(ArrayList<PolygonGate> gates){
+
+    private ArrayList<PolygonGate> cleanGateList(ArrayList<PolygonGate> gates) {
         ListIterator<PolygonGate> itr = gates.listIterator();
-        
+
         ArrayList<PolygonGate> result = new ArrayList<>();
 
-            int i = 0;
-            while (itr.hasNext()) {
-                PolygonGate g = itr.next();
-                if(g.getGateAsPoints().size() > 2){
-                    result.add(g);
-                }
+        int i = 0;
+        while (itr.hasNext()) {
+            PolygonGate g = itr.next();
+            if (g.getGateAsPoints().size() > 2) {
+                result.add(g);
             }
-            return result;
+        }
+        return result;
     }
-    
-       
 
     public void updateTable(ArrayList<PolygonGate> gates, boolean view) {
-        
+
         gateList = null;
         gateList = cleanGateList(gates);
 
@@ -404,8 +406,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                 Object[] gateData = new Object[9];
 
                 PolygonGate pg = (PolygonGate) itr.next();
-                
-                
 
                 gateData[0] = pg.getSelected();
                 gateData[1] = pg.getColor();
@@ -452,9 +452,9 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
 
                 @Override
                 public Class getColumnClass(int c) {
-                    
+
                     return getValueAt(0, c).getClass();
-      
+
                 }
 
                 @Override
@@ -468,6 +468,25 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                 }
 
             });
+            
+                    GateDataTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                try{
+                int row = GateDataTable.rowAtPoint(e.getPoint());
+                int col = GateDataTable.columnAtPoint(e.getPoint());
+
+                String stringX = GateDataTable.getValueAt(row, 3).toString();
+                String stringY = GateDataTable.getValueAt(row, 4).toString();
+                
+                //System.out.println("PROFILING: " + stringX + ", " + stringY);
+                
+                notifyGatePlotListeners(stringX, stringY);
+                
+                }catch(Exception ex){}
+            }
+        }
+            
+        );
 
             GateDataTable.setDefaultRenderer(Color.class,
                     new ColorRenderer(true, new Color(255, 0, 0)));
@@ -560,7 +579,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
                 public Class getColumnClass(int columnIndex) {
                     return types[columnIndex];
                 }
-                
+
                 @Override
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -568,7 +587,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
             });
 
             jScrollPane1.setViewportView(GateDataTable);
-        }     
+        }
     }
 
     @Override
@@ -587,7 +606,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         if (column == 1) {
             notifyUpdateColorListeners((Color) data, row);
         }
-        
+
         // System.out.println("DEBUGGING: Gate Percentages, tableChanged" + e.toString());
     }
 

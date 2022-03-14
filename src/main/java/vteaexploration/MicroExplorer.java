@@ -54,6 +54,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -107,6 +108,7 @@ import vtea.protocol.listeners.AddImageFrameListener;
 
 import vtea.protocol.setup.MicroBlockMorphologySetup;
 import vteaobjects.MicroObject;
+import vteaobjects.ReduceObjectSizeProcessor;
 
 /**
  *
@@ -1470,7 +1472,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         //System.out.println("MicroExplorer, change plot request start:" + System.currentTimeMillis());
         new Thread(() -> {
             try {
-                ec.updatePlot(x, y, z, size);
+                ec.updatePlot(x, y, z, size, false);
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
@@ -1482,7 +1484,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
             try {
 
                 ec.updatePlot(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(),
-                        this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
+                        this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex(), false);
 
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
@@ -1491,13 +1493,31 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }
 
     @Override
-    public void rebuildExplorerGUI() {
+    public void rebuildExplorerGUI(String x, String y, String l, String size, boolean gateSelect) {
 
         Main.removeAll();
         Main.add(ec.getPanel());
+        
+        updatePlot = false;
+        
         updateBorderPanels(DefaultXYPanels);
+
+        jComboBoxXaxis.setSelectedItem(x);
+        jComboBoxYaxis.setSelectedItem(y);
+        jComboBoxLUTPlot.setSelectedItem(l);
+        jComboBoxPointSize.setSelectedItem(size);
+        
         updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
+        
+        if(gateSelect){
+        ec.setCustomRange(XAXIS, false);
+        ec.setCustomRange(YAXIS, false);
+        }
+        
         pack();
+        
+        updatePlot = true;
+        
         //System.out.println("MicroExplorer, plot updated:" + System.currentTimeMillis());
     }
 
@@ -1505,7 +1525,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         new Thread(() -> {
             try {
                 Main.removeAll();
-                ec.updatePlot(x, y, -1, size);
+                ec.updatePlot(x, y, -1, size, false);
                 Main.add(ec.getPanel());
                 //updateBorderPanels(DefaultXYPanels);
                 updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), "");
@@ -1557,7 +1577,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         new Thread(() -> {
             try {
                 Main.removeAll();
-                ec.updatePlot(x, y, l, size);
+                ec.updatePlot(x, y, l, size, false);
                 Main.add(ec.getPanel());
 
                 updatePlot = false;
@@ -2138,15 +2158,13 @@ public class MicroExplorer extends javax.swing.JFrame implements
             //Arraylist to save to file
             //key; Objects; Measurements; headers; headerLabels
             //string; ImagePlus; ArrayList; ArrayList; ArrayList; ArrayList
-           
+            JCheckBox reduceSize = new JCheckBox("Reduce size", false);
             
-            ArrayList output = new ArrayList();
-
-            output.add(k);
-            output.add(objects);
-            output.add(measurements);
-            output.add(headers);
-            output.add(headerLabels);
+            MicroObject obj = objects.get(0);
+            
+            if(obj.getMorphologicalCount() <= 1){
+                reduceSize.setEnabled(false);
+            }
 
             int returnVal = JFileChooser.CANCEL_OPTION;
             File file;
@@ -2154,8 +2172,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
             do {
                 JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
                 jf.setDialogTitle("Export VTEA objects...");
+                
+                
+                JPanel panel1 = (JPanel) jf.getComponent(3);
+                JPanel panel2 = (JPanel) panel1.getComponent(3);
+                panel2.add(reduceSize);
 
                 returnVal = jf.showSaveDialog(Main);
+                
 
                 file = jf.getSelectedFile();
                 if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
@@ -2171,6 +2195,20 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
+                    ArrayList output = new ArrayList();
+                    output.add(k);
+                    if(reduceSize.isSelected()){
+                        ReduceObjectSizeProcessor reducer = 
+                            new ReduceObjectSizeProcessor(objects);
+                        reducer.process(new ArrayList());   
+                        output.add(reducer.getObjects());
+                    } else {
+                    output.add(objects);
+                    }
+                    output.add(measurements);
+                    output.add(headers);
+                    output.add(headerLabels);
+                    
                     try {
                         FileOutputStream fos = new FileOutputStream(file);
                         BufferedOutputStream bos = new BufferedOutputStream(fos);

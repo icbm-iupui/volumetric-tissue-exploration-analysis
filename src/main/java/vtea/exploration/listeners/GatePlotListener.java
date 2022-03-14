@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 SciJava
+ * Copyright (C) 2022 SciJava
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,10 +17,14 @@
  */
 package vtea.exploration.listeners;
 
+
+
 /**
  *
- * @author Seth
+ * @author sethwinfree
  */
-public interface UpdateExplorerGuiListener {
-    public void rebuildExplorerGUI(String x, String y, String l, String size, boolean b);
+public interface GatePlotListener {
+    
+    public void onGatePlot(String StringX, String StringY);
+    
 }

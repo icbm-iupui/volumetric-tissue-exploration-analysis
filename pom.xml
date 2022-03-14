@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <artifactId>vtea</artifactId>
     <version>1.0.2</version>
 
-    <name>VTEA master</name>
+    <name>VTEA master gui fixes</name>
     <description>Volumetric analysis</description>
     
     <properties>
