@@ -120,8 +120,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
         RoiListener, LinkedKeyListener, PlotUpdateListener, MakeImageOverlayListener,
         ChangePlotAxesListener, ImageListener, ResetSelectionListener,
         PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener,
-        UpdatePlotWindowListener, AxesChangeListener, 
-        AxesSetupExplorerPlotUpdateListener, UpdateExplorerGuiListener, 
+        UpdatePlotWindowListener, AxesChangeListener,
+        AxesSetupExplorerPlotUpdateListener, UpdateExplorerGuiListener,
         Runnable {
 
     private XYPanels DefaultXYPanels;
@@ -142,7 +142,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     public static final int POINTSIZE = 4;
 
     int featureCount = 0;
-    
+
     LUT[] imageLUTs;
 
     ArrayList measurements;
@@ -161,15 +161,13 @@ public class MicroExplorer extends javax.swing.JFrame implements
     ArrayList<String> descriptionsLabels = new ArrayList<String>();
     ArrayList<MicroObject> Objects = new ArrayList<MicroObject>();
     ArrayList<MicroObject> ImageGatedObjects = new ArrayList<MicroObject>();
-    
-
 
     private boolean all = false;
 
     boolean imageGate = false;
     boolean noLUT = false;
     boolean updatePlot = true;
-    
+
     boolean multiDataSet = false;
 
     ResultsTable rt = new ResultsTable();
@@ -210,7 +208,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
     public MicroExplorer() {
 
         Roi.addRoiListener(this);
-        
 
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
@@ -222,8 +219,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     }
 
-    public void process(String key, ImagePlus imp, String title, ArrayList plotvalues, 
-            AbstractExplorationPanel aep, PlotAxesPanels pap, ArrayList AvailableData, 
+    public void process(String key, ImagePlus imp, String title, ArrayList plotvalues,
+            AbstractExplorationPanel aep, PlotAxesPanels pap, ArrayList AvailableData,
             ArrayList descriptionLabel, ArrayList morphologies) {
         //Needs to be converted to a Factory metaphor.
 
@@ -241,11 +238,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
         renderer.setTooltips(descriptionsLabels);
 
         this.imp = imp;
-        
-        this.imageLUTs = imp.getLuts();
-        
-        //this.impoverlay = (VTEAImagePlus)imp;
 
+        this.imageLUTs = imp.getLuts();
+
+        //this.impoverlay = (VTEAImagePlus)imp;
         this.impoverlay = new VTEAImagePlus("string", imp);
 
         this.impoverlay.addImageListener(this);
@@ -1186,14 +1182,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_jButtonPlotsActionPerformed
 
     private void MakeOverlaysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MakeOverlaysActionPerformed
-        ec.setMapping(!this.MakeOverlays.isSelected());    
+        ec.setMapping(!this.MakeOverlays.isSelected());
     }//GEN-LAST:event_MakeOverlaysActionPerformed
 
     private void formComponentHidden(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentHidden
         if (this.isVisible()) {
             Point position = evt.getComponent().getLocationOnScreen();
             ec.updateMenuPositions(position.x, position.y + this.getHeight());
-             ec.updateMenuVisible(false);
+            ec.updateMenuVisible(false);
         }
     }//GEN-LAST:event_formComponentHidden
 
@@ -1210,7 +1206,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_formFocusGained
 
     private void formWindowDeiconified(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowDeiconified
-                      if (this.isVisible()) {
+        if (this.isVisible()) {
             Point position = evt.getComponent().getLocationOnScreen();
             ec.updateMenuPositions(position.x, position.y + this.getHeight());
             ec.updateMenuVisible(true);
@@ -1218,7 +1214,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_formWindowDeiconified
 
     private void formWindowIconified(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowIconified
-              if (this.isVisible()) {
+        if (this.isVisible()) {
             Point position = evt.getComponent().getLocationOnScreen();
             ec.updateMenuPositions(position.x, position.y + this.getHeight());
             ec.updateMenuVisible(true);
@@ -1335,10 +1331,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 }
 
                 impoverlay.setLuts(imageLUTs);
-                
+
                 ExplorerProcessor ep = new ExplorerProcessor(
-                        "Subgate_" + subgateSerial + "_" + this.key, this.key, 
-                        impoverlay, obj, meas, newDescriptions, 
+                        "Subgate_" + subgateSerial + "_" + this.key, this.key,
+                        impoverlay, obj, meas, newDescriptions,
                         newDescriptionsLabels, morphologies);
                 ep.execute();
 
@@ -1431,7 +1427,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
 //        ec.addQuadrantToPlot();
 //        pack();
 //    }
-
     private HashMap makeAvailableDataHM(ArrayList al) {
         HashMap<Integer, String> hm = new HashMap<Integer, String>();
         ListIterator<String> itr = al.listIterator();
@@ -1497,27 +1492,27 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         Main.removeAll();
         Main.add(ec.getPanel());
-        
+
         updatePlot = false;
-        
+
         updateBorderPanels(DefaultXYPanels);
 
         jComboBoxXaxis.setSelectedItem(x);
         jComboBoxYaxis.setSelectedItem(y);
         jComboBoxLUTPlot.setSelectedItem(l);
         jComboBoxPointSize.setSelectedItem(size);
-        
+
         updateAxesLabels(jComboBoxXaxis.getSelectedItem().toString(), jComboBoxYaxis.getSelectedItem().toString(), jComboBoxLUTPlot.getSelectedItem().toString());
-        
-        if(gateSelect){
-        ec.setCustomRange(XAXIS, false);
-        ec.setCustomRange(YAXIS, false);
+
+        if (gateSelect) {
+            ec.setCustomRange(XAXIS, false);
+            ec.setCustomRange(YAXIS, false);
         }
-        
+
         pack();
-        
+
         updatePlot = true;
-        
+
         //System.out.println("MicroExplorer, plot updated:" + System.currentTimeMillis());
     }
 
@@ -1604,19 +1599,16 @@ public class MicroExplorer extends javax.swing.JFrame implements
         this.jMenuBar.removeAll();
         this.jMenuBar.setVisible(false);
     }
-    
-    
+
     public void addPlotSettingsListener(UpdatePlotSettingsListener listener) {
         this.PlotSettingListeners.add(listener);
     }
 
-    
     public void notifyResetSelectionListeners() {
         for (UpdatePlotSettingsListener listener : PlotSettingListeners) {
             listener.updateDescriptions(descriptions, descriptionsLabels);
         }
     }
-
 
     @Override
     @SuppressWarnings("empty-statementget3DProjection.setEnabled(true);")
@@ -1914,7 +1906,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         }
         for (int j = 0; j < results.size(); j++) {
 
-            ArrayList<Number> features = results.get(j);   
+            ArrayList<Number> features = results.get(j);
             for (int k = 0; k < features.size(); k++) {
 
                 Number feature = (Number) features.get(k);
@@ -2044,7 +2036,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         makeDataTable();
         ff.updateColumns(ObjectIDs, descriptions);
         ff.pack();
-        
+
         this.notifyResetSelectionListeners();
 
         updatePlot = true;
@@ -2068,7 +2060,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
     public void addLinkedKey(String linkedKey) {
         this.childKeys.add(linkedKey);
     }
-
 
 //    public class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
 //
@@ -2142,10 +2133,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
 //        }
 //    }
 //    //this needs to be runnable
-
-    
-
-
     public class ExportOBJ {
 
         public ExportOBJ() {
@@ -2159,10 +2146,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
             //key; Objects; Measurements; headers; headerLabels
             //string; ImagePlus; ArrayList; ArrayList; ArrayList; ArrayList
             JCheckBox reduceSize = new JCheckBox("Reduce size", false);
-            
+
             MicroObject obj = objects.get(0);
-            
-            if(obj.getMorphologicalCount() <= 1){
+
+            if (obj.getMorphologicalCount() <= 1) {
                 reduceSize.setEnabled(false);
             }
 
@@ -2172,14 +2159,12 @@ public class MicroExplorer extends javax.swing.JFrame implements
             do {
                 JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
                 jf.setDialogTitle("Export VTEA objects...");
-                
-                
+
                 JPanel panel1 = (JPanel) jf.getComponent(3);
                 JPanel panel2 = (JPanel) panel1.getComponent(3);
                 panel2.add(reduceSize);
 
                 returnVal = jf.showSaveDialog(Main);
-                
 
                 file = jf.getSelectedFile();
                 if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("obx")) {
@@ -2194,44 +2179,55 @@ public class MicroExplorer extends javax.swing.JFrame implements
             } while (choice != JOptionPane.OK_OPTION);
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                try {
-                    ArrayList output = new ArrayList();
-                    output.add(k);
-                    if(reduceSize.isSelected()){
-                        ReduceObjectSizeProcessor reducer = 
-                            new ReduceObjectSizeProcessor(objects);
-                        reducer.process(new ArrayList());   
-                        output.add(reducer.getObjects());
-                    } else {
-                    output.add(objects);
-                    }
-                    output.add(measurements);
-                    output.add(headers);
-                    output.add(headerLabels);
-                    
+
+                if (reduceSize.isSelected()) {
+                    exportReduced(k, imp, objects,
+                 measurements,  headers,
+                 headerLabels, file);
+                } else {
+
                     try {
-                        FileOutputStream fos = new FileOutputStream(file);
-                        BufferedOutputStream bos = new BufferedOutputStream(fos);
-                        ObjectOutputStream oos = new ObjectOutputStream(bos);
-                        oos.writeObject(output);
-                        oos.close();
+                        ArrayList output = new ArrayList();
+                        output.add(k);
+                        output.add(objects);
+                        output.add(measurements);
+                        output.add(headers);
+                        output.add(headerLabels);
 
-                                FileSaver fs = new FileSaver(imp);
-                                fs.saveAsTiffStack(file.getParent() + "/" + key + ".tif");
+                        try {
+                            FileOutputStream fos = new FileOutputStream(file);
+                            BufferedOutputStream bos = new BufferedOutputStream(fos);
+                            ObjectOutputStream oos = new ObjectOutputStream(bos);
+                            oos.writeObject(output);
+                            oos.close();
 
-                    } catch (IOException e) {
-                        System.out.println("ERROR: Could not save the file" + e);
+                            FileSaver fs = new FileSaver(imp);
+                            fs.saveAsTiffStack(file.getParent() + "/" + key + ".tif");
+
+                        } catch (IOException e) {
+                            System.out.println("ERROR: Could not save the file" + e);
+                        }
+                    } catch (NullPointerException ne) {
+                        System.out.println("ERROR: NPE in object export");
                     }
-                } catch (NullPointerException ne) {
-                    System.out.println("ERROR: NPE in object export");
                 }
                 _vtea.LASTDIRECTORY = file.getAbsolutePath();
             } else {
             }
         }
 
-    }
+        public void exportReduced(String k, ImagePlus imp, ArrayList<MicroObject> objects,
+                ArrayList measurements, ArrayList headers,
+                ArrayList headerLabels, File file) {
 
+            ReduceObjectSizeProcessor reducer
+                    = new ReduceObjectSizeProcessor(k, imp, objects,
+                 measurements,  headers,headerLabels, file);
+            reducer.execute();
+
+        }
+
+    }
 
     class ExportCSV {
 
