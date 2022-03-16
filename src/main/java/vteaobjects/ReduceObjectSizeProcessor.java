@@ -51,6 +51,7 @@ public class ReduceObjectSizeProcessor extends AbstractProcessor {
 
     public ReduceObjectSizeProcessor(String k, ImagePlus imp, ArrayList<MicroObject> obj,
             ArrayList meas, ArrayList head, ArrayList headLab, File f) {
+
         key = k;
         objects = obj;
         image = imp;
@@ -92,9 +93,12 @@ public class ReduceObjectSizeProcessor extends AbstractProcessor {
             newObject.setGated(obj.getGated());
            
             for (int i = 0; i < morphology.size(); i++) {
+
                 //System.out.println("PROFILING: Adding morphology " + i);
                 //newObject.setMorphological(keysArr[morphology.get(i)], obj.getMorphPixelsX(morphology.get(i)),
                 //       obj.getMorphPixelsY(morphology.get(i)), obj.getMorphPixelsZ(morphology.get(i)));
+               // newObject.setMorphological(Integer.toString(i), obj.getMorphPixelsX(morphology.get(i)),
+
                 newObject.setMorphological(Integer.toString(i), obj.getMorphPixelsX(morphology.get(i)),
                         obj.getMorphPixelsY(morphology.get(i)), obj.getMorphPixelsZ(morphology.get(i)));
             }
@@ -144,14 +148,21 @@ public class ReduceObjectSizeProcessor extends AbstractProcessor {
         
         int morphCount = obj.getMorphologicalCount();
 
+
         //System.out.println("PROFILING: Found " + morphCount+ " total morphologies... "
         //       );
         
+
+        //System.out.println("PROFILING: Total morphologies: "
+        //       + morphCount);
+
         ArrayList<int[]> morphs = obj.getMorphological(0);
         
         int[] pixels_x = morphs.get(0);
         int[] pixels_y = morphs.get(1);
+
         //int[] pixels_z = morphs.get(2);
+
 
         int morphSize_x = pixels_x.length;
         int morphSize_y = pixels_y.length;
@@ -163,8 +174,14 @@ public class ReduceObjectSizeProcessor extends AbstractProcessor {
             ArrayList<int[]> testmorphs = obj.getMorphological(j);
             int[] x = testmorphs.get(0);
             int[] y = testmorphs.get(1);
+
             //int[] z = testmorphs.get(2);
             if (morphSize_x != x.length | morphSize_y != y.length) {
+
+            int[] z = testmorphs.get(2);
+          //  if (morphSize_x != x.length | morphSize_y != y.length
+           //         | morphSize_z != z.length) {
+
                 morphSize_x = x.length;
                 morphSize_y = y.length;
                 //morphSize_z = z.length;
