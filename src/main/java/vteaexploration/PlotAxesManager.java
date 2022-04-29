@@ -61,16 +61,7 @@ public class PlotAxesManager implements AxesChangeListener{
         AxesSetup.setLocation(xPos, yPos);
         AxesSetup.setVisible(true); 
         AxesSetup.setContent(settingsContent);
-        
-        ArrayList<Component> al = new ArrayList<Component>();
-        
-        al.add(new JLabel("Graph LUT:"));
-        JButton editCustomLut = new JButton();
-        editCustomLut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4_small.png")));
-        al.add(editCustomLut);
-        al.add(new JComboBox(vtea._vtea.LUTOPTIONS));
-
-        AxesSetup.setLUT(al);
+        AxesSetup.setLUT();
         AxesSetup.addAxesChangeListener(this);
         
     }

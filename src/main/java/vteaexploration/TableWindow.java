@@ -52,17 +52,17 @@ import vtea.exploration.listeners.GatePlotListener;
  */
 public class TableWindow extends javax.swing.JFrame implements TableModelListener {
 
-    private Object[][] DataTableArray = new Object[4][15];
+    protected Object[][] DataTableArray = new Object[4][15];
 
-    private ArrayList<NameUpdateListener> nameUpdateListeners = new ArrayList<>();
-    private ArrayList<remapOverlayListener> remapOverlayListeners = new ArrayList<>();
-    private ArrayList<colorUpdateListener> UpdateColorListeners = new ArrayList<>();
+    protected ArrayList<NameUpdateListener> nameUpdateListeners = new ArrayList<>();
+    protected ArrayList<remapOverlayListener> remapOverlayListeners = new ArrayList<>();
+    protected ArrayList<colorUpdateListener> UpdateColorListeners = new ArrayList<>();
     
-    private ArrayList<GatePlotListener> gatePlotListeners = new ArrayList<>();
+    protected ArrayList<GatePlotListener> gatePlotListeners = new ArrayList<>();
 
-    private ArrayList<GateManagerActionListener> gateManagerListeners = new ArrayList<>();
+    protected ArrayList<GateManagerActionListener> gateManagerListeners = new ArrayList<>();
 
-    private ArrayList<PolygonGate> gateList = new ArrayList();
+    protected ArrayList<PolygonGate> gateList = new ArrayList();
 
     /**
      * Creates new form gatePercentages
@@ -85,7 +85,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         return gateList.size();
     }
 
-    private void notifyUpdateNameListeners(String name, int row) {
+    protected void notifyUpdateNameListeners(String name, int row) {
         for (NameUpdateListener listener : nameUpdateListeners) {
             listener.onUpdateName(name, row);
         }
@@ -95,7 +95,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         nameUpdateListeners.add(listener);
     }
 
-    private void notifyRemapOverlayListeners(boolean b, int row) {
+    protected void notifyRemapOverlayListeners(boolean b, int row) {
         for (remapOverlayListener listener : remapOverlayListeners) {
             listener.onRemapOverlay(b, row);
         }
@@ -105,7 +105,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         gatePlotListeners.add(listener);
     }
 
-    private void notifyGatePlotListeners(String x, String y) {
+    protected void notifyGatePlotListeners(String x, String y) {
         for (GatePlotListener listener : gatePlotListeners) {
             listener.onGatePlot(x, y);
         }
@@ -115,7 +115,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         remapOverlayListeners.add(listener);
     }
 
-    private void notifyUpdateColorListeners(Color color, int row) {
+    protected void notifyUpdateColorListeners(Color color, int row) {
         for (colorUpdateListener listener : UpdateColorListeners) {
             listener.onColorUpdate(color, row);
         }
@@ -125,7 +125,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         gateManagerListeners.add(listener);
     }
 
-    private void notifyGateActionListeners(String st) {
+    protected void notifyGateActionListeners(String st) {
         for (GateManagerActionListener listener : gateManagerListeners) {
             listener.doGates(st);
         }
@@ -162,7 +162,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         setFocusTraversalPolicyProvider(true);
         setMaximumSize(new java.awt.Dimension(725, 500));
         setMinimumSize(new java.awt.Dimension(725, 240));
-        setPreferredSize(new java.awt.Dimension(725, 235));
         setSize(new java.awt.Dimension(725, 280));
         setType(java.awt.Window.Type.UTILITY);
 
@@ -376,7 +375,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
 
     }
 
-    private ArrayList<PolygonGate> cleanGateList(ArrayList<PolygonGate> gates) {
+    protected ArrayList<PolygonGate> cleanGateList(ArrayList<PolygonGate> gates) {
         ListIterator<PolygonGate> itr = gates.listIterator();
 
         ArrayList<PolygonGate> result = new ArrayList<>();

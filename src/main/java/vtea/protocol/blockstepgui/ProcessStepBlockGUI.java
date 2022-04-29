@@ -59,6 +59,7 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
     String ProcessString;
     int processChannel;
     boolean ProcessTypeSet = false;
+    
 //    int position;
 //    int type;
 //    ArrayList<String> Channels;
@@ -162,6 +163,7 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
         mbs = new vtea.protocol.setup.MicroBlockProcessSetup(position, Channels, protocol, OriginalImage);
 
         mbs.setVisible(false);
+        mbs.setLocation(385, 100 +(10*(position-2)));
         mbs.addMicroBlockSetupListener(this);
 
         JButton DeleteButton = new JButton();
@@ -451,7 +453,6 @@ public class ProcessStepBlockGUI extends AbstractMicroBlockStepGUI implements Se
 
     @Override
     public void onChangeSetup(ArrayList al) {
-
         Process.setText(al.get(0).toString());
         processChannel = (Integer) al.get(1);
         Comment.setText("On channel: " + ((Integer) al.get(1) + 1));

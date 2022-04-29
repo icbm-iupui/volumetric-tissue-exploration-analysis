@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package vtea.measurement;
+package vtea.dataset.normalization;
 
 import ij.ImagePlus;
 import java.awt.Color;
@@ -38,7 +38,7 @@ import vteaobjects.MicroObject;
  *
  * @author drewmcnutt
  */
-public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener {
+public class NormalizationFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener {
 
     protected ArrayList<MeasurementStepBlockGUI> FeatureStepsList;
     ArrayList descriptions;
@@ -55,7 +55,7 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
      * @param descriptions
      * @param table
      */
-    public MeasurementFrame(ArrayList descriptions, ArrayList<MicroObject> obj, ImagePlus imp) {
+    public NormalizationFrame(ArrayList measurements, ArrayList<MicroObject> obj) {
 
         this.descriptions = new ArrayList<String>();
 
@@ -71,9 +71,7 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         FeatureStepsList = new ArrayList<>();
 
         initComponents();
-
-        exploreText.setVisible(false);
-        FeatureGo.setText("Calculate");
+        FeatureGo.setText("Normalize");
         FeatureStepsPanel.setLayout(FeatureLayout);
     }
 
@@ -90,12 +88,10 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         jPanel1 = new javax.swing.JPanel();
         FeatureAnalysis = new javax.swing.JPanel();
         Feature_Header = new javax.swing.JPanel();
-        AnalyzeDataText = new javax.swing.JLabel();
         FeatureLabel = new javax.swing.JLabel();
         AddStep = new javax.swing.JButton();
         DeleteAllSteps = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
-        exploreText = new javax.swing.JLabel();
         Feature_Panel = new javax.swing.JPanel();
         FeatureStepsPanel = new javax.swing.JPanel();
         FeatureGo = new javax.swing.JButton();
@@ -132,21 +128,14 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         Feature_Header.setPreferredSize(new java.awt.Dimension(440, 36));
         Feature_Header.setLayout(new java.awt.GridBagLayout());
 
-        AnalyzeDataText.setText("Analyze Data...");
-        AnalyzeDataText.setMaximumSize(new java.awt.Dimension(120, 16));
-        AnalyzeDataText.setMinimumSize(new java.awt.Dimension(100, 16));
-        AnalyzeDataText.setPreferredSize(new java.awt.Dimension(100, 16));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        Feature_Header.add(AnalyzeDataText, gridBagConstraints);
-
         FeatureLabel.setBackground(new java.awt.Color(0, 0, 0));
         FeatureLabel.setFont(new java.awt.Font("Helvetica Neue", 0, 24)); // NOI18N
-        FeatureLabel.setText("Measure");
+        FeatureLabel.setText("Normalization");
         FeatureLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        FeatureLabel.setMaximumSize(new java.awt.Dimension(250, 28));
+        FeatureLabel.setMaximumSize(new java.awt.Dimension(360, 28));
         FeatureLabel.setMinimumSize(new java.awt.Dimension(120, 28));
-        FeatureLabel.setPreferredSize(new java.awt.Dimension(120, 28));
+        FeatureLabel.setName(""); // NOI18N
+        FeatureLabel.setPreferredSize(new java.awt.Dimension(280, 28));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -198,15 +187,6 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
 
         Feature_Header.add(jPanel2, new java.awt.GridBagConstraints());
 
-        exploreText.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        exploreText.setForeground(new java.awt.Color(153, 153, 153));
-        exploreText.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        exploreText.setText("...explore");
-        exploreText.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        exploreText.setPreferredSize(new java.awt.Dimension(85, 40));
-        exploreText.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        Feature_Header.add(exploreText, new java.awt.GridBagConstraints());
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -239,7 +219,7 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
         );
 
         FeatureGo.setBackground(vtea._vtea.BUTTONBACKGROUND);
-        FeatureGo.setText("Find Features");
+        FeatureGo.setText("Normalize");
         FeatureGo.setToolTipText("Find segmented objects.");
         FeatureGo.setEnabled(false);
         FeatureGo.addActionListener(new java.awt.event.ActionListener() {
@@ -437,7 +417,6 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddStep;
-    private javax.swing.JLabel AnalyzeDataText;
     private javax.swing.JButton DeleteAllSteps;
     private javax.swing.JPanel FeatureAnalysis;
     public javax.swing.JLabel FeatureComment;
@@ -448,7 +427,6 @@ public class MeasurementFrame extends javax.swing.JFrame implements AddFeaturesL
     private javax.swing.JPanel Feature_Panel;
     private javax.swing.JPanel ProgressPanel;
     public javax.swing.JProgressBar VTEAProgressBar;
-    private javax.swing.JLabel exploreText;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables

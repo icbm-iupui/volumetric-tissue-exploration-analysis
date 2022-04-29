@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.imglib2.RealPoint;
+import org.scijava.plugin.Plugin;
 import static vtea._vtea.OBJECTMEASUREMENTMAP;
 import static vtea._vtea.getInterleavedStacks;
 import vtea.objects.measurements.AbstractMeasurement;
@@ -36,6 +37,7 @@ import vteaobjects.MicroObject;
  *
  * @author sethwinfree
  */
+@Plugin(type = Processor.class)
 public class AddImageFeatureMeasurementProcessor extends AbstractProcessor {
 
     private ArrayList<MicroObject> objects;
