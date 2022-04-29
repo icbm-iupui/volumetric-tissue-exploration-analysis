@@ -680,18 +680,18 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
                     BigDecimal percentage = new BigDecimal(selected);
                     BigDecimal totalBD = new BigDecimal(total);
-                    percentage = percentage.divide(totalBD, 3, BigDecimal.ROUND_UP);
+                    percentage = percentage.divide(totalBD, 3, BigDecimal.ROUND_HALF_UP);
 
                     BigDecimal percentageGated = new BigDecimal(gated);
                     BigDecimal totalGatedBD = new BigDecimal(total);
                     percentageGated = percentageGated.divide(totalGatedBD, 3,
-                            BigDecimal.ROUND_UP);
+                            BigDecimal.ROUND_HALF_UP);
 
                     BigDecimal percentageGatedSelected = new BigDecimal(gatedSelected);
                     BigDecimal totalGatedSelectedBD = new BigDecimal(total);
                     percentageGatedSelected
                             = percentageGatedSelected.divide(totalGatedSelectedBD,
-                                    3, BigDecimal.ROUND_UP);
+                                    3, BigDecimal.ROUND_HALF_UP);
                     TextRoi textTotal = new TextRoi(5, 10, selected
                             + "/" + total + " gated ("
                             + 100 * percentage.floatValue() + "%)");
