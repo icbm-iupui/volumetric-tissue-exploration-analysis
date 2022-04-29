@@ -570,7 +570,11 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
     @Override
     public void blockSetupOKAction() {
         CurrentStepProtocol = CurrentProcessList;
+        if(CurrentStepProtocol == null){
+            //DO NOTHING
+        }else{
         super.notifyMicroBlockSetupListeners(CurrentStepProtocol);
+        }
         this.setVisible(false);
     }
 

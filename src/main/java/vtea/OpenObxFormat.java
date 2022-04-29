@@ -29,6 +29,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.ProgressMonitorInputStream;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import vtea.processor.ExplorerProcessor;
 import vteaobjects.MicroObject;
@@ -45,6 +46,7 @@ public class OpenObxFormat {
     public void importObjects(JComponent parent) {
 
         JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+        jf.setDialogTitle("Open VTEA dataset...");
         FileNameExtensionFilter filter
                 = new FileNameExtensionFilter("VTEA object file.", ".obx", "obx");
         jf.addChoosableFileFilter(filter);
@@ -60,15 +62,22 @@ public class OpenObxFormat {
             try {
                 try {
                     
+                     //PLACE OPEN IN NEW THREAD FOR UPDATING IMPORT       
+                    
                     FileInputStream fis = new FileInputStream(file);
+                    
+                    ProgressMonitorInputStream pm
+                            = new ProgressMonitorInputStream(parent, "Reading" + file.getName(), fis);
+                    
+                    pm.getProgressMonitor().setMillisToPopup(1);
+                   
                     BufferedInputStream bis = new BufferedInputStream(fis);
                     ObjectInputStream ois = new ObjectInputStream(bis);
                     //ObjectInputStream ois = new ObjectInputStream(fis);
 
-//                    ProgressMonitorInputStream pm
-//                            = new ProgressMonitorInputStream(parent, "Reading" + file.getName(), fis);
-//                    
-//                    pm.getProgressMonitor().setMillisToPopup(10);
+
+                   
+                    
                     result = (ArrayList) ois.readObject();
                     ois.close();
                     _vtea.LASTDIRECTORY = file.getAbsolutePath();

@@ -17,7 +17,10 @@
  */
 package vtea.protocol;
 
+import ij.IJ;
 import ij.ImagePlus;
+import ij.WindowManager;
+import ij.plugin.Duplicator;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -119,6 +122,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
     private int[] thread = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     private boolean imageLoaded = false;
+    
+    
 
     /**
      * Creates new form NewJPanel
@@ -128,6 +133,11 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         this.ObjectStepsList = new ArrayList<>();
         this.addPropertyChangeListener(this);
         initComponents();
+        if(WindowManager.getImageCount() > 0){
+            this.LoadImage.setEnabled(true);
+        } else {
+            this.LoadImage.setEnabled(false);
+        }
     }
 
     /**
@@ -144,6 +154,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         Preprocessing_Header = new javax.swing.JPanel();
         PreProcessingLabel = new javax.swing.JLabel();
         OpenImage = new javax.swing.JButton();
+        LoadImage = new javax.swing.JButton();
         AddStep_Preprocessing = new javax.swing.JButton();
         DeleteAllSteps_PreProcessing = new javax.swing.JButton();
         PreProcessing_Panel = new javax.swing.JPanel();
@@ -190,20 +201,21 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         PreProcessingLabel.setBackground(new java.awt.Color(204, 204, 204));
         PreProcessingLabel.setFont(new java.awt.Font("Helvetica", 0, 24)); // NOI18N
         PreProcessingLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        PreProcessingLabel.setText("Process");
+        PreProcessingLabel.setText("PreProcess");
         PreProcessingLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        PreProcessingLabel.setPreferredSize(new java.awt.Dimension(155, 25));
         PreProcessingLabel.setRequestFocusEnabled(false);
         Preprocessing_Header.add(PreProcessingLabel, new java.awt.GridBagConstraints());
 
         OpenImage.setBackground(vtea._vtea.BUTTONBACKGROUND);
         OpenImage.setFont(new java.awt.Font("Helvetica", 0, 14)); // NOI18N
-        OpenImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/go-down-7.png"))); // NOI18N
-        OpenImage.setText("Load Image");
-        OpenImage.setToolTipText("Load image for processing.");
-        OpenImage.setMargin(new java.awt.Insets(2, 5, 2, 5));
-        OpenImage.setMaximumSize(new java.awt.Dimension(80, 34));
-        OpenImage.setMinimumSize(new java.awt.Dimension(80, 34));
-        OpenImage.setPreferredSize(new java.awt.Dimension(120, 34));
+        OpenImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-open-folder_24.png"))); // NOI18N
+        OpenImage.setToolTipText("Open and load image with ImageJ.");
+        OpenImage.setActionCommand("OpenImage");
+        OpenImage.setMaximumSize(new java.awt.Dimension(34, 34));
+        OpenImage.setMinimumSize(new java.awt.Dimension(34, 34));
+        OpenImage.setPreferredSize(new java.awt.Dimension(34, 34));
+        OpenImage.setRequestFocusEnabled(false);
         OpenImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 OpenImageActionPerformed(evt);
@@ -211,14 +223,28 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         });
         Preprocessing_Header.add(OpenImage, new java.awt.GridBagConstraints());
 
+        LoadImage.setBackground(vtea._vtea.BUTTONBACKGROUND);
+        LoadImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/insert-image-3_24.png"))); // NOI18N
+        LoadImage.setToolTipText("Load an image open in ImageJ.");
+        LoadImage.setActionCommand("LoadImage");
+        LoadImage.setMaximumSize(new java.awt.Dimension(34, 34));
+        LoadImage.setMinimumSize(new java.awt.Dimension(34, 34));
+        LoadImage.setPreferredSize(new java.awt.Dimension(34, 34));
+        LoadImage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LoadImageActionPerformed(evt);
+            }
+        });
+        Preprocessing_Header.add(LoadImage, new java.awt.GridBagConstraints());
+
         AddStep_Preprocessing.setBackground(vtea._vtea.BUTTONBACKGROUND);
         AddStep_Preprocessing.setForeground(new java.awt.Color(102, 102, 102));
         AddStep_Preprocessing.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
-        AddStep_Preprocessing.setToolTipText("Adds a processing step.");
+        AddStep_Preprocessing.setToolTipText("Adds a image preprocessing step.");
         AddStep_Preprocessing.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         AddStep_Preprocessing.setEnabled(false);
-        AddStep_Preprocessing.setMaximumSize(new java.awt.Dimension(32, 32));
-        AddStep_Preprocessing.setMinimumSize(new java.awt.Dimension(32, 32));
+        AddStep_Preprocessing.setMaximumSize(new java.awt.Dimension(34, 34));
+        AddStep_Preprocessing.setMinimumSize(new java.awt.Dimension(34, 34));
         AddStep_Preprocessing.setName(""); // NOI18N
         AddStep_Preprocessing.setPreferredSize(new java.awt.Dimension(34, 34));
         AddStep_Preprocessing.addActionListener(new java.awt.event.ActionListener() {
@@ -233,8 +259,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         DeleteAllSteps_PreProcessing.setBackground(vtea._vtea.BUTTONBACKGROUND);
         DeleteAllSteps_PreProcessing.setForeground(new java.awt.Color(102, 102, 102));
         DeleteAllSteps_PreProcessing.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-clear-list_24.png"))); // NOI18N
-        DeleteAllSteps_PreProcessing.setToolTipText("Delete all processing");
+        DeleteAllSteps_PreProcessing.setToolTipText("Delete all processing steps.");
         DeleteAllSteps_PreProcessing.setEnabled(false);
+        DeleteAllSteps_PreProcessing.setMaximumSize(new java.awt.Dimension(34, 34));
+        DeleteAllSteps_PreProcessing.setMinimumSize(new java.awt.Dimension(34, 34));
         DeleteAllSteps_PreProcessing.setPreferredSize(new java.awt.Dimension(34, 34));
         DeleteAllSteps_PreProcessing.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -498,8 +526,23 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
 
     private void OpenImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenImageActionPerformed
 
-        this.notifyRequestImageListeners(tab);
-        this.notifyRepaintTabListeners();
+        
+         try{
+            
+            ImagePlus i = IJ.openImage();
+            i.show();
+            i.getWindow().setLocation(770, 100);
+            Duplicator dup = new Duplicator();
+            ImagePlus imp = dup.run(i);
+            if (imp.getType() == ImagePlus.COLOR_RGB) {
+                IJ.run("Make Composite", "");
+            }
+            onSelect(imp, tab);
+            
+            this.setVisible(false);
+            } catch(NullPointerException e){
+                
+            }
 
     }//GEN-LAST:event_OpenImageActionPerformed
 
@@ -517,6 +560,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         PreProcessingStepsPanel.repaint();
         this.OriginalImage = new ImagePlus();
         System.gc();
+        this.DeleteAllSteps_PreProcessing.setEnabled(false);
 
     }//GEN-LAST:event_DeleteAllSteps_PreProcessingActionPerformed
 
@@ -573,11 +617,19 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
 
     }//GEN-LAST:event_formKeyPressed
 
+    private void LoadImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadImageActionPerformed
+        if(WindowManager.getImageCount() > 0){
+        this.notifyRequestImageListeners(tab);
+        this.notifyRepaintTabListeners();
+        }
+    }//GEN-LAST:event_LoadImageActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddStep_Object;
     public javax.swing.JButton AddStep_Preprocessing;
     private javax.swing.JButton DeleteAllSteps_Object;
     private javax.swing.JButton DeleteAllSteps_PreProcessing;
+    public javax.swing.JButton LoadImage;
     public javax.swing.JButton ObjectGo;
     public javax.swing.JPanel ObjectStepsPanel;
     private javax.swing.JPanel Object_Header;
@@ -768,6 +820,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
 
             ProgressComment.setText("Processing complete...");
             ProcessedShow.show();
+            
 
             if (ObjectStepsList.size() > 0) {
                 notifyUpdatedImageListeners(ProcessedImage);
@@ -1210,9 +1263,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
             ImagePlus ProcessedShow = new ImagePlus("Processed");
             ProcessedShow = UtilityMethods.makeThumbnail(ProcessedImage);
             ProcessedShow.setTitle(this.getName() + "_Processed");
-
             ProgressComment.setText("Processing complete...");
             ProcessedShow.show();
+            ProcessedShow.getWindow().setLocation(770, 120);
         }
 
         if (ObjectStepsList.size() > 0) {

@@ -118,6 +118,11 @@ public class OpenImageWindow extends javax.swing.JFrame {
         }
     );
     OpenImages.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+    OpenImages.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            OpenImagesMouseClicked(evt);
+        }
+    });
     OpenImages.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
         public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
             OpenImagesValueChanged(evt);
@@ -205,13 +210,34 @@ public class OpenImageWindow extends javax.swing.JFrame {
     private void OpenImagesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_OpenImagesValueChanged
         if (!OpenImages.isSelectionEmpty() && WindowManager.getImageCount() > 0) {
             this.SelectImage.setEnabled(true);
+            return;
         } else {
             this.SelectImage.setEnabled(false);
         }
     }//GEN-LAST:event_OpenImagesValueChanged
 
+    private void OpenImagesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_OpenImagesMouseClicked
+           
+        if(evt.getClickCount() == 2 & WindowManager.getImageCount() == 0){
+            try{
+            this.comment.setText("Openning...");
+            ImagePlus imp = IJ.openImage();
+            imp.show();
+            imp.getWindow().setLocation(770, 100);
+            notifyImageSelectionListeners(0, this.tab);
+            this.comment.setText("");
+            this.setVisible(false);
+            } catch(NullPointerException e){
+                this.comment.setText("Cancelled...");
+            }
+        }
+    }//GEN-LAST:event_OpenImagesMouseClicked
+
     protected void ListActionPerformed(ActionEvent evt) {
         new Thread(() -> {
+            
+            int[] windowList = WindowManager.getIDList();
+ 
             try {
                 comment.setText("Loading...");
                 comment.setVisible(true);
@@ -221,7 +247,9 @@ public class OpenImageWindow extends javax.swing.JFrame {
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
             }
+            
         }).start();
+        
     }
 
     protected void openImage() {
@@ -238,7 +266,7 @@ public class OpenImageWindow extends javax.swing.JFrame {
 
         if (windowList == null) {
             String[] titles = new String[1];
-            titles[0] = "NO OPEN IMAGES";
+            titles[0] = "Open an image with ImageJ...";
             //IJ.log("NO IMAGES...  :(");
             return titles;
         }

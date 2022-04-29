@@ -32,8 +32,10 @@ import static java.lang.Boolean.TRUE;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ListIterator;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import vtea.lut.*;
 import javax.swing.JComboBox;
@@ -60,6 +62,8 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
     ArrayList<AxesChangeListener> AxesChangeListeners = new ArrayList();
     ArrayList<Component> ContentList = new ArrayList();
     ArrayList<Component> LUTList = new ArrayList();
+   
+           
     HashMap<Integer, String> availableDataHM = new HashMap<Integer, String>();
     private Connection connection;
     String keySQLSafe = "";
@@ -311,77 +315,79 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         pack();
     }
 
-    public void setLUT(ArrayList<Component> al) {
+    public void setLUT() {
 
-        //Content = new JPanel();       
+        JLabel lutLabel = new JLabel("Graph LUT:");
+        JButton editCustomLut = new JButton();
+        editCustomLut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-4_small.png")));
+        JComboBox jcb = new JComboBox(new DefaultComboBoxModel(vtea._vtea.LUTOPTIONS));
+
+        jcb.setSelectedIndex(0);
+        editCustomLut.setEnabled(FALSE);
+
+        editCustomLut.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCustomLutActionPerformed(evt);
+            }
+        });
+
+        jcb.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxLutActionPerformed(evt);
+            }
+        });
+
+        jcb.setModel(new DefaultComboBoxModel(vtea._vtea.LUTOPTIONS));
+
         LUT.setSize(new Dimension(350, 350));
         LUT.setLayout(new GridBagLayout());
-
         LUT.removeAll();
 
         LUTList.clear();
-        LUTList.addAll(al);
+        LUTList.add(lutLabel);
+        LUTList.add(editCustomLut);
+        LUTList.add(jcb);
 
         GridBagConstraints layoutConstraints = new GridBagConstraints();
 
-        //MethodDetail
-        if (al.size() > 0) {
+        if (LUTList.size() > 0) {
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 0;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
             messageLabel = new JLabel();
-            messageLabel.setSize(new Dimension(300,40));
-            messageLabel.setPreferredSize(new Dimension(300,40));
-            messageLabel.setMinimumSize(new Dimension(300,40));
-           
-            
-            
+            messageLabel.setSize(new Dimension(300, 40));
+            messageLabel.setPreferredSize(new Dimension(300, 40));
+            messageLabel.setMinimumSize(new Dimension(300, 40));
+
             LUT.add(messageLabel, layoutConstraints);
             layoutConstraints.fill = GridBagConstraints.CENTER;
             layoutConstraints.gridx = 1;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
-            LUT.add((Component) al.get(0), layoutConstraints);
+            LUT.add((Component) LUTList.get(0), layoutConstraints);
         }
         layoutConstraints.fill = GridBagConstraints.CENTER;
         layoutConstraints.gridx = 2;
         layoutConstraints.gridy = 0;
         layoutConstraints.weightx = 1;
         layoutConstraints.weighty = 1;
-        LUT.add((Component) al.get(1), layoutConstraints);
-        if (al.size() > 1) {
+        LUT.add((Component) LUTList.get(1), layoutConstraints);
+        if (LUTList.size() > 1) {
             layoutConstraints.fill = GridBagConstraints.HORIZONTAL;
             layoutConstraints.gridx = 3;
             layoutConstraints.gridy = 0;
             layoutConstraints.weightx = 1;
             layoutConstraints.weighty = 1;
-            ((JComboBox) al.get(2)).addActionListener(this);
-            LUT.add((Component) al.get(2), layoutConstraints);
+            ((JComboBox) LUTList.get(2)).addActionListener(this);
+            LUT.add((Component) LUTList.get(2), layoutConstraints);
         }
 
-        
-        
-        ((JComboBox)LUT.getComponent(3)).setSelectedItem("Black");
-        LUT.setVisible(true);
-        
         pack();
-        
-        ((JButton)al.get(1)).addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonCustomLutActionPerformed(evt);
-            }
-        });
-        
-        ((JComboBox)al.get(2)).addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBoxLutActionPerformed(evt);
-            }
-        });
-        
-        ((JButton)LUT.getComponent(2)).setEnabled(FALSE);
+
+        LUT.setVisible(true);
     }
 
     public void addAxesChangeListener(AxesChangeListener listener) {
@@ -410,12 +416,15 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
         JComboBox lutChoiceComboBox = (JComboBox)evt.getSource();
         Object selectedItem = lutChoiceComboBox.getSelectedItem();
         
+      // System.out.println("PRoFILING: " + selectedItem);
+        
         if(selectedItem == "Custom LUT"){
             ((JButton)LUT.getComponent(2)).setEnabled(TRUE);
         }
         else{
             ((JButton)LUT.getComponent(2)).setEnabled(FALSE);
         }
+        
     }
     
     private void jButtonCustomLutActionPerformed(java.awt.event.ActionEvent evt){
@@ -490,9 +499,9 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
             } catch (NullPointerException e) {
             }
         }
-        //System.out.println("PROFILING: The low value is: " + low);
+       
         return low.longValue();
-        //return low.doubleValue();
+       
     }
     
     public void shareConnection(Connection connection, String keySQLSafe, HashMap<Integer, String> hm){
@@ -512,9 +521,7 @@ public class PlotAxesSetup extends javax.swing.JFrame implements ActionListener,
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        
-     
-        
+
         int xMin = Integer.parseInt(((JTextField)ContentList.get(1)).getText());
         int xMax = Integer.parseInt(((JTextField)ContentList.get(3)).getText());
         int yMin = Integer.parseInt(((JTextField)ContentList.get(6)).getText());

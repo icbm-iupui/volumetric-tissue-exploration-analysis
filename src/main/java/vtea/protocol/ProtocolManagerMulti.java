@@ -19,6 +19,7 @@ package vtea.protocol;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import ij.ImagePlus;
+import ij.WindowManager;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -620,10 +621,21 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
     public void UpdateImageList() {
         openerWindow.updateImages();
+        if(WindowManager.getImageCount()==0){
+            setEnabledLoadButtons(false);
+        } else {
+            setEnabledLoadButtons(true);
+        }
+    }
+    
+    private void setEnabledLoadButtons(boolean b) {  
+      for(int i = 0; i < Tabs.size(); i++){
+        SingleImageProcessing p = (SingleImageProcessing)Tabs.get(i);
+        p.LoadImage.setEnabled(b);
+      }
     }
 
     public void openImage(int tab) {
-        //this.openerWindow.setVisible(true);
         this.openerWindow.getImageFile(tab);
     }
 

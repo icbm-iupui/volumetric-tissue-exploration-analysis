@@ -61,6 +61,7 @@ import java.nio.file.Paths;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
+import javax.swing.JPanel;
 import org.apache.commons.io.FileUtils;
 import vtea.jdbc.H2DatabaseEngine;
 import vtea.services.GateMathService;
@@ -77,6 +78,8 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
     public static Context context;
     public double priority;
+    
+    public String mode;
 
     public static Color BACKGROUND = new Color(204, 204, 204);
     public static Color BUTTONBACKGROUND = new Color(200, 200, 200);
@@ -226,6 +229,10 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
     @Override
     public void run(String str) {
+        
+        mode = str;
+        
+        IJ.showStatus("Starting up VTEA...");
 
         //getUIValues();
         //context = new Context(LogService.class, PluginService.class, UIService.class);
@@ -307,9 +314,10 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         }
 
         System.out.println("-------------------------------- ");
+        //System.out.println("Source: " + str);
+        //System.out.println("-------------------------------- ");
 
-        protocolWindow = new ProtocolManagerMulti();
-        protocolWindow.setVisible(true);
+
 
         PROCESSINGMAP = new ConcurrentHashMap<String, String>();
         SEGMENTATIONMAP = new ConcurrentHashMap<String, String>();
@@ -628,7 +636,19 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
         System.out.println("-------------------------------- ");
         
-        
+        if(str.equals("load")){
+                    new Thread(() -> {
+            try {
+                OpenObxFormat io = new OpenObxFormat();
+                io.importObjects(new JPanel());
+            } catch (Exception e) {
+               
+            }
+        }).start();
+        }else{
+        protocolWindow = new ProtocolManagerMulti();
+        protocolWindow.setVisible(true);
+        }
         
 //        try {
 //            TestRenjin tr = new TestRenjin();
@@ -648,17 +668,29 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
 
     @Override
     public void imageOpened(ImagePlus imp) {
+                if(mode.equals("load")){
+            
+        } else {
         protocolWindow.UpdateImageList();
+        }
     }
 
     @Override
     public void imageClosed(ImagePlus imp) {
+                if(mode.equals("load")){
+            
+        } else {
         protocolWindow.UpdateImageList();
+        }
     }
 
     @Override
     public void imageUpdated(ImagePlus imp) {
+        if(mode.equals("load")){
+            
+        } else {
         protocolWindow.UpdateImageList();
+        }
     }
 
     @Override

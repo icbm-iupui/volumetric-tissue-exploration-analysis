@@ -103,6 +103,7 @@ public abstract class AbstractMicroBlockStepGUI<T extends AbstractMicroBlockStep
         EditButton.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
+                mbs.setLocation(385, 100 +(10*(position-1)));
                 mbs.setVisible(true);
             }
         });

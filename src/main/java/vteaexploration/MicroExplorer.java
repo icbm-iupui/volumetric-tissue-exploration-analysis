@@ -99,7 +99,7 @@ import vtea.exploration.plottools.panels.PlotAxesPanels;
 import vtea.exploration.plottools.panels.VerticalLabelUI;
 import vtea.exploration.plottools.panels.XYPanels;
 import vtea.feature.FeatureFrame;
-import vtea.measurement.MeasurementFrame;
+import vtea.dataset.normalization.NormalizationFrame;
 import vtea.morphology.ImageFeatureAddFrame;
 import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
@@ -193,7 +193,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     FeatureFrame ff;
     boolean ffchecked = false;
 
-    MeasurementFrame mf;
+    NormalizationFrame nf;
     boolean mfchecked = false;
 
     String[] sizes = {"4", "6", "8", "10", "15", "20"};
@@ -395,8 +395,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
         ff = new FeatureFrame(descriptions, ObjectIDs, imp);
         ff.addListener(this);
 
-        mf = new MeasurementFrame(descriptions, aep.getObjects(), imp);
-        mf.addListener(this);
+        nf = new NormalizationFrame(measurements, aep.getObjects());
+        nf.addListener(this);
 
     }
 
@@ -1619,6 +1619,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
     @Override
     public void onChangeAxes(int x, int y, int l, int s, boolean imagegate) {
         updatePlotByPopUpMenu(x, y, l, s);
+        
+        //onPlotChangeRequest(x, y, l,s, imagegate);
     }
 
     @Override
@@ -1858,6 +1860,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
         int ysel = jComboBoxYaxis.getSelectedIndex();
         int zsel = jComboBoxLUTPlot.getSelectedIndex();
         int ssel = jComboBoxPointSize.getSelectedIndex();
+        
+        
 
         int hasColumn = hasColumn(description);
 
@@ -1884,14 +1888,18 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         //add desrciptions, grab for SQL column description additions
         //add results as columns,  need to check size.
+        
+        
         for (int i = startSize; i < newFeatures + startSize; i++) {
             descr = "";
             if (results.size() > 1) {
                 descr = description + "_" + (i - startSize);
-                descriptionsLabels.add(descr);
+                //descriptionsLabels.add(descr);
+                descriptionsLabels.add(0,descr);
             } else {
                 descr = description;
-                descriptionsLabels.add(descr);
+                //descriptionsLabels.add(descr);
+                descriptionsLabels.add(0,descr);
             }
 
             if (descr.length() > 10) {
@@ -1899,7 +1907,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 descr = truncated + "_" + (i - startSize);
             }
 
-            descriptions.add(descr);
+            //descriptions.add(descr);
+            
+            descriptions.add(0, descr);
 
             this.featureCount++;
 
@@ -1911,7 +1921,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
                 Number feature = (Number) features.get(k);
                 ArrayList<Number> object = (ArrayList) measurements.get(k);
-                object.add(feature);
+                object.add(0,feature);
             }
         }
 
@@ -1931,9 +1941,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jComboBoxYaxis.setRenderer(renderer);
         jComboBoxLUTPlot.setRenderer(renderer);
 
-        jComboBoxXaxis.setSelectedIndex(xsel);
-        jComboBoxYaxis.setSelectedIndex(ysel);
-        jComboBoxLUTPlot.setSelectedIndex(zsel);
+        jComboBoxXaxis.setSelectedIndex(xsel+1);
+        jComboBoxYaxis.setSelectedIndex(ysel+1);
+        jComboBoxLUTPlot.setSelectedIndex(zsel+1);
         jComboBoxPointSize.setSelectedIndex(ssel);
 
         //x, y, l Labels
@@ -2041,7 +2051,12 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         updatePlot = true;
         //onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+        jComboBoxXaxis.setSelectedIndex(0);
         pack();
+        
+        ec.setCustomRange(this.XAXIS, false);
+        onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
+  
 
     }
 
@@ -2061,78 +2076,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         this.childKeys.add(linkedKey);
     }
 
-//    public class SelectPlottingDataMenu extends JPopupMenu implements ActionListener {
-//
-//        HashMap<Integer, String> hm_position;
-//        HashMap<String, Integer> hm_string;
-//        int Axis;
-//        String CurrentSelection;
-//        private ArrayList<PopupMenuAxisListener> listeners = new ArrayList<PopupMenuAxisListener>();
-//
-//        public SelectPlottingDataMenu(ArrayList<String> AvailableData, int Axis) {
-//
-//            this.Axis = Axis;
-//
-//            String tempString;
-//            Integer tempInteger = 0;
-//
-//            ListIterator<String> itr = AvailableData.listIterator();
-//            HashMap<String, Integer> hm_string = new HashMap<String, Integer>();
-//            HashMap<Integer, String> hm_position = new HashMap<Integer, String>();
-//
-//            while (itr.hasNext()) {
-//                tempString = itr.next();
-//                tempInteger = itr.nextIndex();
-//                this.add(new JMenuItem(tempString)).addActionListener(this);
-//                hm_string.put(tempString, tempInteger);
-//
-//            }
-//            if (this.Axis == 2) {
-//                hm_string.put("None", tempInteger++);
-//            }
-//        }
-//
-//        @Override
-//        public void actionPerformed(ActionEvent ae) {
-//            impoverlay.setOpenAsHyperStack(true);
-//            notifyPopupMenuAxisListeners(Axis, ae.getActionCommand());
-//        }
-//
-//        public void addPopupMenuAxisListener(PopupMenuAxisListener listener) {
-//            listeners.add(listener);
-//        }
-//
-//        public void notifyPopupMenuAxisListeners(int axis, String position) {
-//            for (PopupMenuAxisListener listener : listeners) {
-//                listener.changeAxes(Axis, position);
-//            }
-//        }
-//
-//    }
-//
-//    //as borrowed from https://stackoverflow.com/questions/480261/java-swing-mouseover-text-on-jcombobox-items
-//    public class ComboboxToolTipRenderer extends DefaultListCellRenderer {
-//
-//        List<String> tooltips;
-//
-//        @Override
-//        public Component getListCellRendererComponent(JList list, Object value,
-//                int index, boolean isSelected, boolean cellHasFocus) {
-//
-//            JComponent comp = (JComponent) super.getListCellRendererComponent(list,
-//                    value, index, isSelected, cellHasFocus);
-//
-//            if (-1 < index && null != value && null != tooltips) {
-//                list.setToolTipText(tooltips.get(index));
-//            }
-//            return comp;
-//        }
-//
-//        public void setTooltips(List<String> tooltips) {
-//            this.tooltips = tooltips;
-//        }
-//    }
-//    //this needs to be runnable
+
     public class ExportOBJ {
 
         public ExportOBJ() {
@@ -2142,9 +2086,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 ArrayList measurements, ArrayList headers,
                 ArrayList headerLabels) {
 
-            //Arraylist to save to file
-            //key; Objects; Measurements; headers; headerLabels
-            //string; ImagePlus; ArrayList; ArrayList; ArrayList; ArrayList
             JCheckBox reduceSize = new JCheckBox("Reduce size", false);
 
             MicroObject obj = objects.get(0);
@@ -2202,7 +2143,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
                             oos.close();
 
                             FileSaver fs = new FileSaver(imp);
-                            fs.saveAsTiffStack(file.getParent() + "/" + key + ".tif");
+                            fs.saveAsTiffStack(file.getParent() + "/" + k + ".tif");
 
                         } catch (IOException e) {
                             System.out.println("ERROR: Could not save the file" + e);

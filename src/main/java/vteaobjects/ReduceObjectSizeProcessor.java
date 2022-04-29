@@ -28,14 +28,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Set;
+import org.scijava.plugin.Plugin;
 import vtea._vtea;
 import vtea.processor.AbstractProcessor;
+import vtea.processor.Processor;
 import vteaexploration.ProgressTracker;
 
 /**
  *
  * @author sethwinfree
  */
+@Plugin(type = Processor.class)
 public class ReduceObjectSizeProcessor extends AbstractProcessor {
 
     private String key;
@@ -48,6 +51,14 @@ public class ReduceObjectSizeProcessor extends AbstractProcessor {
     private File file;
 
     private ArrayList<MicroObject> objectsProcessed;
+    
+    public ReduceObjectSizeProcessor() {
+        VERSION = "0.1";
+        AUTHOR = "Seth Winfree";
+        COMMENT = "Processor for removing redundant morphologies in objects";
+        NAME = "Reduce Object Size Processor";
+        KEY = "ReduceObjectSizeProcessor";
+    }
 
     public ReduceObjectSizeProcessor(String k, ImagePlus imp, ArrayList<MicroObject> obj,
             ArrayList meas, ArrayList head, ArrayList headLab, File f) {
