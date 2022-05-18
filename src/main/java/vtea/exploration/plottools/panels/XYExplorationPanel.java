@@ -2065,6 +2065,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
         JCheckBox zero = new JCheckBox("Zero Order", true);
         JCheckBox position = new JCheckBox("Use Position", false);
+        //JCheckBox parentID = new JCheckBox("Use ParentID", false);
 
         ProgressTracker tracker = new ProgressTracker();
 
@@ -2140,8 +2141,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
             for (int k = 0; k < dataColumns; k++) {
                 blank.add(-1);
-                FeatureColumns.add(new ArrayList<Number>());
+                FeatureColumns.add(new ArrayList<>());
             }
+            
+            
+            //ArrayList<String> parentIDs = 
+            
 
             //build data by column
             for (int c = 0; c < this.objects.size(); c++) {
@@ -2151,7 +2156,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                         objects.get(c).getCentroidZ();      
                 
                 ArrayList<Number> data = this.getObjectDataAll(zeroOrder, 
-                        positionImport, csvData, blank, c, positionText);
+                        positionImport, csvData, blank, (int)objects.get(c).getSerialID(), positionText);
                 for (int b = 0; b < dataColumns; b++) {
                     ArrayList<Number> al = FeatureColumns.get(b);
                     al.add(data.get(b));
@@ -2376,7 +2381,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
     private ArrayList<Number> getObjectDataAll(boolean zeroOrder, boolean positionImport,
             ArrayList<ArrayList<Number>> data, ArrayList<Number> blank, float id, String position) {
-        ArrayList<Number> result = new ArrayList<Number>();
+        ArrayList<Number> result = new ArrayList<>();
         boolean elementFound = false;
         for (int x = 0; x < data.size(); x++) {
 

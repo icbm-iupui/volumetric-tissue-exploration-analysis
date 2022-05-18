@@ -514,7 +514,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         North.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 5));
 
         toolbarPlot.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        toolbarPlot.setFloatable(false);
         toolbarPlot.setForeground(new java.awt.Color(255, 255, 255));
         toolbarPlot.setRollover(true);
         toolbarPlot.setMaximumSize(new java.awt.Dimension(715, 30));
@@ -586,7 +585,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         North.add(toolbarPlot);
 
         toolbarGate.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        toolbarGate.setFloatable(false);
         toolbarGate.setRollover(true);
         toolbarGate.setMaximumSize(new java.awt.Dimension(725, 41));
         toolbarGate.setMinimumSize(new java.awt.Dimension(725, 41));
@@ -2184,7 +2182,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
                 returnVal = jf.showSaveDialog(Main);
 
-                file = jf.getSelectedFile();
+                //file = jf.getSelectedFile();
 
                 file = jf.getSelectedFile();
                 if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("csv")) {

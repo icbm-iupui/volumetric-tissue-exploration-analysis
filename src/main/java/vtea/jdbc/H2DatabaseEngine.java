@@ -594,6 +594,13 @@ public class H2DatabaseEngine {
         }
         return result;
     }
+    
+//H2 SQL to get objects
+    
+    //public static ArrayList getParentObjectID(){
+        
+    //}
+    
 
 //H2 SQL for get cells in polygon 
     public static ArrayList getObjectsInPolygon(String table, Polygon p, String column1, String column2) {

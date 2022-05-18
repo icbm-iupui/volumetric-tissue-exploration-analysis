@@ -129,7 +129,6 @@
                 <EmptyBorder/>
               </Border>
             </Property>
-            <Property name="floatable" type="boolean" value="false"/>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
@@ -251,7 +250,6 @@
                 <EmptyBorder/>
               </Border>
             </Property>
-            <Property name="floatable" type="boolean" value="false"/>
             <Property name="rollover" type="boolean" value="true"/>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[725, 41]"/>
