@@ -66,7 +66,9 @@ public class ExplorerProcessor extends AbstractProcessor {
     once SegmentationProcessor exists on its own.
     
      */
-    public <T extends MicroObject> ExplorerProcessor(String k, String parentk, ImagePlus imp, ArrayList<T> volumes, ArrayList measurements, ArrayList headers, ArrayList headerLabels, ArrayList m) {
+    public <T extends MicroObject> ExplorerProcessor(String k, String parentk, 
+            ImagePlus imp, ArrayList<T> volumes, ArrayList measurements, 
+            ArrayList headers, ArrayList headerLabels, ArrayList m) {
 
         VERSION = "0.0";
         AUTHOR = "Seth Winfree";
@@ -95,7 +97,8 @@ public class ExplorerProcessor extends AbstractProcessor {
             try {
 
                 firePropertyChange("progress", 0, 5);
-                firePropertyChange("comment", "", "Starting explorer processing on " + objects.size() + " objects...");
+                firePropertyChange("comment", "", "Starting explorer processing"
+                        + " on " + objects.size() + " objects...");
 
                 HashMap<Integer, String> hm = new HashMap<Integer, String>();
 
@@ -104,29 +107,25 @@ public class ExplorerProcessor extends AbstractProcessor {
                 }
 
                 Connection connection = H2DatabaseEngine.getDBConnection();
-                
-                
 
                 System.out.println("PROFILING: Exploring on dataset: " + key);
 
-                String title = "Segmentation_" + (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
+                String title = "Segmentation_" + 
+                        (impOriginal.getTitle().replace("DUP_", "")).replace(".tif", "");
 
-                XYExplorationPanel XY = new XYExplorationPanel(key, connection, measurements, descriptions, hm, objects, title);
+                XYExplorationPanel XY = new XYExplorationPanel(key, 
+                        connection, measurements, descriptions, hm, objects, title);
                 DefaultPlotPanels DPP = new DefaultPlotPanels();
                 MicroExplorer explorer = new MicroExplorer();
 
                 explorer.setTitle("Explorer: " + title);
                 impOriginal.deleteRoi();
-                explorer.process(key, impOriginal, title, measurements, XY, DPP, descriptions, descriptionLabels, morphologies);
+                explorer.process(key, impOriginal, title, measurements, 
+                        XY, DPP, descriptions, descriptionLabels, morphologies);
                 XY.updateMenuPositions(explorer.getX(), explorer.getY() + explorer.getHeight());
                 setProgress(100);
                 firePropertyChange("comment", "", "Done.");
-                
-//                ArrayList tables = H2DatabaseEngine.getListOfTables(connection);
-//                if(tables.size() > 0){
-//                    for(int i = 0; i < tables.size(); i++){
-//                    System.out.println("PROFILING: Table: " + i + ", name:" + tables.get(i));
-//                    }}
+               
                 
             } catch (Exception e) {
                 e.printStackTrace();

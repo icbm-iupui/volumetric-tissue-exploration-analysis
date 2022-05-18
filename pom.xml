@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <artifactId>vtea</artifactId>
     <version>1.1.5</version>
 
-    <name>VTEA master</name>
+    <name>VTEA master-combined</name>
     <description>Volumetric analysis</description>
     
     <properties>
@@ -190,6 +190,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <groupId>org.netbeans.external</groupId>
             <artifactId>AbsoluteLayout</artifactId>
             <version>RELEASE113</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.qupath</groupId>
+            <artifactId>qupath-core</artifactId>
+            <version>0.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>cisd</groupId>
+            <artifactId>jhdf5</artifactId>
+            <version>14.12.5</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.formdev/flatlaf -->
         <dependency>
@@ -382,7 +392,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <url>https://jitpack.io</url>
         </repository>
  
-      <repository>
+        <repository>
             <id>netbeans</id>
             <name>NetBeans</name>
             <url>http://netbeans.apidesign.org/maven2/</url>

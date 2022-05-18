@@ -29,16 +29,11 @@ import ij.measure.ResultsTable;
 import ij.process.LUT;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -53,19 +48,13 @@ import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
@@ -85,7 +74,6 @@ import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.LinkedKeyListener;
 import vtea.exploration.listeners.UpdateExplorerGuiListener;
 import vtea.exploration.listeners.UpdatePlotSettingsListener;
-import vtea.exploration.plotgatetools.gates.PolygonGate;
 import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
 import vtea.exploration.plotgatetools.listeners.PopupMenuAxisLUTListener;
@@ -100,13 +88,8 @@ import vtea.exploration.plottools.panels.VerticalLabelUI;
 import vtea.exploration.plottools.panels.XYPanels;
 import vtea.feature.FeatureFrame;
 import vtea.dataset.normalization.NormalizationFrame;
-import vtea.morphology.ImageFeatureAddFrame;
 import vtea.processor.ExplorerProcessor;
-import vtea.protocol.setup.SegmentationPreviewer;
 import vtea.plot.PlotOutputFrame;
-import vtea.protocol.listeners.AddImageFrameListener;
-
-import vtea.protocol.setup.MicroBlockMorphologySetup;
 import vteaobjects.MicroObject;
 import vteaobjects.ReduceObjectSizeProcessor;
 
@@ -115,7 +98,7 @@ import vteaobjects.ReduceObjectSizeProcessor;
  * @author vinfrais
  *
  */
-public class MicroExplorer extends javax.swing.JFrame implements
+public class MicroExplorerCombined extends javax.swing.JFrame implements
         FeatureMapListener, SubGateExplorerListener, AddFeaturesListener,
         RoiListener, LinkedKeyListener, PlotUpdateListener, MakeImageOverlayListener,
         ChangePlotAxesListener, ImageListener, ResetSelectionListener,
@@ -205,14 +188,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
     /**
      * Creates new form MicroExplorer
      */
-    public MicroExplorer() {
+    public MicroExplorerCombined() {
 
         Roi.addRoiListener(this);
 
         try {
             UIManager.setLookAndFeel(new FlatLightLaf());
         } catch (UnsupportedLookAndFeelException ex) {
-            Logger.getLogger(MicroExplorer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MicroExplorerCombined.class.getName()).log(Level.SEVERE, null, ex);
         }
         SwingUtilities.updateComponentTreeUI(this);
         this.pack();
@@ -260,9 +243,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
         addMenuItems();
 
         this.title = title;
-        get3DProjection.setEnabled(false);
+        //get3DProjection.setEnabled(false);
 
-        makeOverlayImage(new ArrayList<PolygonGate>(), aep.getSelectedObjects(), aep.getGatedObjects(impoverlay), MicroExplorer.XAXIS, MicroExplorer.YAXIS);
+        //makeOverlayImage(new ArrayList<PolygonGate>(), aep.getSelectedObjects(), aep.getGatedObjects(impoverlay), MicroExplorerCombined.XAXIS, MicroExplorerCombined.YAXIS);
 
         AvailableDataHM = makeAvailableDataHM(descriptions);
 
@@ -270,9 +253,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
         GateButtonsHM.put(RECTANGLEGATE, this.addRectangularGate);
         //GateButtonsHM.put(QUADRANTGATE, this.addQuadrantGate);
 
-        final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
-        final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.YAXIS);
-        final SelectPlottingDataMenu PlottingPopupLUTaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.LUTAXIS);
+        final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorerCombined.XAXIS);
+        final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(descriptions, MicroExplorerCombined.YAXIS);
+        final SelectPlottingDataMenu PlottingPopupLUTaxis = new SelectPlottingDataMenu(descriptions, MicroExplorerCombined.LUTAXIS);
 
         PlottingPopupXaxis.addPopupMenuAxisListener(this);
         PlottingPopupYaxis.addPopupMenuAxisListener(this);
@@ -413,32 +396,16 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jSeparator2 = new javax.swing.JSeparator();
         jSeparator3 = new javax.swing.JSeparator();
         North = new javax.swing.JPanel();
-        toolbarPlot = new javax.swing.JToolBar();
-        jSeparator4 = new javax.swing.JToolBar.Separator();
-        jLabel1 = new javax.swing.JLabel();
-        jComboBoxXaxis = new javax.swing.JComboBox();
-        jLabel2 = new javax.swing.JLabel();
-        jComboBoxYaxis = new javax.swing.JComboBox();
-        jLabel5 = new javax.swing.JLabel();
-        jComboBoxLUTPlot = new javax.swing.JComboBox();
-        jLabel6 = new javax.swing.JLabel();
-        jComboBoxPointSize = new javax.swing.JComboBox();
         toolbarGate = new javax.swing.JToolBar();
+        jLabel4 = new javax.swing.JLabel();
+        jComboBoxXaxis1 = new javax.swing.JComboBox();
         addPolygonGate = new javax.swing.JToggleButton();
         addRectangularGate = new javax.swing.JToggleButton();
         exportGates = new javax.swing.JButton();
         LoadGates = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         jLabel3 = new javax.swing.JLabel();
-        AutoScaleAxes = new javax.swing.JButton();
-        SetGlobalToLocal = new javax.swing.JButton();
-        UseGlobal = new javax.swing.JToggleButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
-        get3DProjection = new javax.swing.JButton();
-        MakeOverlays = new javax.swing.JToggleButton();
-        getMask = new javax.swing.JButton();
-        getSegmentation = new javax.swing.JButton();
-        jSeparator7 = new javax.swing.JToolBar.Separator();
         jButtonImage = new javax.swing.JButton();
         jButtonMeas = new javax.swing.JButton();
         jButtonFeature = new javax.swing.JButton();
@@ -449,8 +416,19 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jSeparator9 = new javax.swing.JToolBar.Separator();
         exportOBJ = new javax.swing.JButton();
         importOBJ = new javax.swing.JButton();
-        WestPanel = new javax.swing.JPanel();
+        toolbarPlot = new javax.swing.JToolBar();
         yTextPanel = new javax.swing.JPanel();
+        AutoScaleAxes = new javax.swing.JButton();
+        jSeparator4 = new javax.swing.JToolBar.Separator();
+        jLabel1 = new javax.swing.JLabel();
+        jComboBoxXaxis = new javax.swing.JComboBox();
+        jLabel2 = new javax.swing.JLabel();
+        jComboBoxYaxis = new javax.swing.JComboBox();
+        jLabel5 = new javax.swing.JLabel();
+        jComboBoxLUTPlot = new javax.swing.JComboBox();
+        jLabel6 = new javax.swing.JLabel();
+        jComboBoxPointSize = new javax.swing.JComboBox();
+        WestPanel = new javax.swing.JPanel();
         FlipAxes = new javax.swing.JButton();
         SouthPanel = new javax.swing.JPanel();
         Main = new javax.swing.JPanel();
@@ -463,9 +441,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         setTitle(getTitle());
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
-        setMaximumSize(getPreferredSize());
         setMinimumSize(getPreferredSize());
-        setPreferredSize(new java.awt.Dimension(725, 650));
         setResizable(false);
         setSize(new java.awt.Dimension(725, 650));
         addContainerListener(new java.awt.event.ContainerAdapter() {
@@ -513,84 +489,26 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         North.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 5));
 
-        toolbarPlot.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        toolbarPlot.setFloatable(false);
-        toolbarPlot.setForeground(new java.awt.Color(255, 255, 255));
-        toolbarPlot.setRollover(true);
-        toolbarPlot.setMaximumSize(new java.awt.Dimension(715, 30));
-        toolbarPlot.setMinimumSize(new java.awt.Dimension(715, 30));
-        toolbarPlot.setPreferredSize(new java.awt.Dimension(715, 30));
-        toolbarPlot.add(jSeparator4);
-
-        jLabel1.setFont(new java.awt.Font("Helvetica", 1, 12)); // NOI18N
-        jLabel1.setLabelFor(jComboBoxXaxis);
-        jLabel1.setText("X");
-        toolbarPlot.add(jLabel1);
-
-        jComboBoxXaxis.setModel(new DefaultComboBoxModel(descriptions.toArray()));
-        jComboBoxXaxis.setSelectedIndex(this.XSTART);
-        jComboBoxXaxis.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBoxXaxisActionPerformed(evt);
-            }
-        });
-        toolbarPlot.add(jComboBoxXaxis);
-
-        jLabel2.setFont(new java.awt.Font("Helvetica", 1, 12)); // NOI18N
-        jLabel2.setLabelFor(jComboBoxYaxis);
-        jLabel2.setText(" Y");
-        toolbarPlot.add(jLabel2);
-
-        jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
-        jComboBoxYaxis.setSelectedIndex(this.YSTART);
-        jComboBoxYaxis.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBoxYaxisActionPerformed(evt);
-            }
-        });
-        toolbarPlot.add(jComboBoxYaxis);
-
-        jLabel5.setFont(new java.awt.Font("Helvetica", 1, 13)); // NOI18N
-        jLabel5.setLabelFor(jComboBoxLUTPlot);
-        jLabel5.setText(" Color");
-        jLabel5.setToolTipText("Metric to be plotted as a \npoint's look-up table.");
-        toolbarPlot.add(jLabel5);
-
-        jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
-        jComboBoxLUTPlot.setSelectedIndex(this.LUTSTART);
-        jComboBoxLUTPlot.setToolTipText("Metric to be plotted as a \npoint's look-up table.");
-        jComboBoxLUTPlot.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBoxLUTPlotActionPerformed(evt);
-            }
-        });
-        toolbarPlot.add(jComboBoxLUTPlot);
-
-        jLabel6.setFont(new java.awt.Font("Helvetica", 1, 12)); // NOI18N
-        jLabel6.setText(" Size ");
-        toolbarPlot.add(jLabel6);
-
-        jComboBoxPointSize.setModel(new DefaultComboBoxModel(this.sizes));
-        jComboBoxPointSize.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBoxPointSizeActionPerformed(evt);
-            }
-        });
-        jComboBoxPointSize.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                jComboBoxPointSizePropertyChange(evt);
-            }
-        });
-        toolbarPlot.add(jComboBoxPointSize);
-
-        North.add(toolbarPlot);
-
         toolbarGate.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         toolbarGate.setFloatable(false);
         toolbarGate.setRollover(true);
         toolbarGate.setMaximumSize(new java.awt.Dimension(725, 41));
         toolbarGate.setMinimumSize(new java.awt.Dimension(725, 41));
         toolbarGate.setPreferredSize(new java.awt.Dimension(725, 41));
+
+        jLabel4.setFont(new java.awt.Font("Helvetica", 1, 12)); // NOI18N
+        jLabel4.setLabelFor(jComboBoxYaxis);
+        jLabel4.setText("Dataset");
+        toolbarGate.add(jLabel4);
+
+        jComboBoxXaxis1.setModel(new DefaultComboBoxModel(descriptions.toArray()));
+        jComboBoxXaxis1.setSelectedIndex(this.XSTART);
+        jComboBoxXaxis1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxXaxis1ActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(jComboBoxXaxis1);
 
         addPolygonGate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/polygon-filled.png"))); // NOI18N
         addPolygonGate.setToolTipText("Add polygon gate");
@@ -656,111 +574,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         toolbarGate.add(LoadGates);
         toolbarGate.add(jSeparator1);
         toolbarGate.add(jLabel3);
-
-        AutoScaleAxes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-undo.png"))); // NOI18N
-        AutoScaleAxes.setToolTipText("Autoscale axes");
-        AutoScaleAxes.setFocusable(false);
-        AutoScaleAxes.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        AutoScaleAxes.setMaximumSize(new java.awt.Dimension(35, 40));
-        AutoScaleAxes.setMinimumSize(new java.awt.Dimension(35, 40));
-        AutoScaleAxes.setPreferredSize(new java.awt.Dimension(35, 40));
-        AutoScaleAxes.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        AutoScaleAxes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                AutoScaleAxesActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(AutoScaleAxes);
-
-        SetGlobalToLocal.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/setGlobal copy.png"))); // NOI18N
-        SetGlobalToLocal.setToolTipText("Set global axes");
-        SetGlobalToLocal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        SetGlobalToLocal.setMaximumSize(new java.awt.Dimension(35, 40));
-        SetGlobalToLocal.setMinimumSize(new java.awt.Dimension(35, 40));
-        SetGlobalToLocal.setPreferredSize(new java.awt.Dimension(35, 40));
-        SetGlobalToLocal.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SetGlobalToLocalActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(SetGlobalToLocal);
-
-        UseGlobal.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/global copy.png"))); // NOI18N
-        UseGlobal.setToolTipText("Use global axes");
-        UseGlobal.setMaximumSize(new java.awt.Dimension(35, 40));
-        UseGlobal.setMinimumSize(new java.awt.Dimension(35, 40));
-        UseGlobal.setPreferredSize(new java.awt.Dimension(35, 40));
-        UseGlobal.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                UseGlobalActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(UseGlobal);
         toolbarGate.add(jSeparator5);
-
-        get3DProjection.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cube.png"))); // NOI18N
-        get3DProjection.setToolTipText("Visualize in 3D");
-        get3DProjection.setEnabled(false);
-        get3DProjection.setMaximumSize(new java.awt.Dimension(35, 40));
-        get3DProjection.setMinimumSize(new java.awt.Dimension(35, 40));
-        get3DProjection.setName(""); // NOI18N
-        get3DProjection.setPreferredSize(new java.awt.Dimension(35, 40));
-        get3DProjection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                get3DProjectionActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(get3DProjection);
-
-        MakeOverlays.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/no_masks.png"))); // NOI18N
-        MakeOverlays.setToolTipText("Disable image mapping");
-        MakeOverlays.setFocusable(false);
-        MakeOverlays.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        MakeOverlays.setMaximumSize(new java.awt.Dimension(35, 40));
-        MakeOverlays.setMinimumSize(new java.awt.Dimension(35, 40));
-        MakeOverlays.setPreferredSize(new java.awt.Dimension(35, 40));
-        MakeOverlays.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        MakeOverlays.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                MakeOverlaysActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(MakeOverlays);
-
-        getMask.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/masks.png"))); // NOI18N
-        getMask.setToolTipText("Visualize gated masks");
-        getMask.setFocusable(false);
-        getMask.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        getMask.setMaximumSize(new java.awt.Dimension(35, 40));
-        getMask.setMinimumSize(new java.awt.Dimension(35, 40));
-        getMask.setName(""); // NOI18N
-        getMask.setPreferredSize(new java.awt.Dimension(35, 40));
-        getMask.setVerifyInputWhenFocusTarget(false);
-        getMask.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        getMask.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                getMaskActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(getMask);
-
-        getSegmentation.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Segmentation.png"))); // NOI18N
-        getSegmentation.setToolTipText("Visualize segmentation");
-        getSegmentation.setFocusable(false);
-        getSegmentation.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        getSegmentation.setMaximumSize(new java.awt.Dimension(35, 40));
-        getSegmentation.setMinimumSize(new java.awt.Dimension(35, 40));
-        getSegmentation.setName(""); // NOI18N
-        getSegmentation.setPreferredSize(new java.awt.Dimension(35, 40));
-        getSegmentation.setVerifyInputWhenFocusTarget(false);
-        getSegmentation.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        getSegmentation.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                getSegmentationActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(getSegmentation);
-        toolbarGate.add(jSeparator7);
 
         jButtonImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/addImageDataImage_32.png"))); // NOI18N
         jButtonImage.setToolTipText("Import image and measure...");
@@ -889,15 +703,102 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         North.add(toolbarGate);
 
+        toolbarPlot.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        toolbarPlot.setFloatable(false);
+        toolbarPlot.setForeground(new java.awt.Color(255, 255, 255));
+        toolbarPlot.setRollover(true);
+        toolbarPlot.setMaximumSize(new java.awt.Dimension(715, 30));
+        toolbarPlot.setMinimumSize(new java.awt.Dimension(715, 30));
+        toolbarPlot.setPreferredSize(new java.awt.Dimension(715, 30));
+
+        yTextPanel.setMaximumSize(new java.awt.Dimension(140, 40));
+        yTextPanel.setLayout(new java.awt.BorderLayout());
+        toolbarPlot.add(yTextPanel);
+
+        AutoScaleAxes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/edit-undo.png"))); // NOI18N
+        AutoScaleAxes.setToolTipText("Autoscale axes");
+        AutoScaleAxes.setFocusable(false);
+        AutoScaleAxes.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        AutoScaleAxes.setMaximumSize(new java.awt.Dimension(35, 40));
+        AutoScaleAxes.setMinimumSize(new java.awt.Dimension(35, 40));
+        AutoScaleAxes.setPreferredSize(new java.awt.Dimension(35, 40));
+        AutoScaleAxes.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        AutoScaleAxes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AutoScaleAxesActionPerformed(evt);
+            }
+        });
+        toolbarPlot.add(AutoScaleAxes);
+        toolbarPlot.add(jSeparator4);
+
+        jLabel1.setFont(new java.awt.Font("Helvetica", 1, 12)); // NOI18N
+        jLabel1.setLabelFor(jComboBoxXaxis);
+        jLabel1.setText("X");
+        toolbarPlot.add(jLabel1);
+
+        jComboBoxXaxis.setModel(new DefaultComboBoxModel(descriptions.toArray()));
+        jComboBoxXaxis.setSelectedIndex(this.XSTART);
+        jComboBoxXaxis.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxXaxisActionPerformed(evt);
+            }
+        });
+        toolbarPlot.add(jComboBoxXaxis);
+
+        jLabel2.setFont(new java.awt.Font("Helvetica", 1, 12)); // NOI18N
+        jLabel2.setLabelFor(jComboBoxYaxis);
+        jLabel2.setText(" Y");
+        toolbarPlot.add(jLabel2);
+
+        jComboBoxYaxis.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+        jComboBoxYaxis.setSelectedIndex(this.YSTART);
+        jComboBoxYaxis.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxYaxisActionPerformed(evt);
+            }
+        });
+        toolbarPlot.add(jComboBoxYaxis);
+
+        jLabel5.setFont(new java.awt.Font("Helvetica", 1, 13)); // NOI18N
+        jLabel5.setLabelFor(jComboBoxLUTPlot);
+        jLabel5.setText(" Color");
+        jLabel5.setToolTipText("Metric to be plotted as a \npoint's look-up table.");
+        toolbarPlot.add(jLabel5);
+
+        jComboBoxLUTPlot.setModel(new DefaultComboBoxModel(this.descriptions.toArray()));
+        jComboBoxLUTPlot.setSelectedIndex(this.LUTSTART);
+        jComboBoxLUTPlot.setToolTipText("Metric to be plotted as a \npoint's look-up table.");
+        jComboBoxLUTPlot.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxLUTPlotActionPerformed(evt);
+            }
+        });
+        toolbarPlot.add(jComboBoxLUTPlot);
+
+        jLabel6.setFont(new java.awt.Font("Helvetica", 1, 12)); // NOI18N
+        jLabel6.setText(" Size ");
+        toolbarPlot.add(jLabel6);
+
+        jComboBoxPointSize.setModel(new DefaultComboBoxModel(this.sizes));
+        jComboBoxPointSize.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxPointSizeActionPerformed(evt);
+            }
+        });
+        jComboBoxPointSize.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jComboBoxPointSizePropertyChange(evt);
+            }
+        });
+        toolbarPlot.add(jComboBoxPointSize);
+
+        North.add(toolbarPlot);
+
         getContentPane().add(North, java.awt.BorderLayout.NORTH);
 
         WestPanel.setMinimumSize(new java.awt.Dimension(44, 530));
         WestPanel.setPreferredSize(new java.awt.Dimension(44, 530));
         WestPanel.setLayout(new java.awt.BorderLayout());
-
-        yTextPanel.setMaximumSize(new java.awt.Dimension(140, 40));
-        yTextPanel.setLayout(new java.awt.BorderLayout());
-        WestPanel.add(yTextPanel, java.awt.BorderLayout.CENTER);
 
         FlipAxes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/view-refresh-5.png"))); // NOI18N
         FlipAxes.setToolTipText("Flip X and Y axes");
@@ -1002,21 +903,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     }//GEN-LAST:event_jComboBoxPointSizePropertyChange
 
-    private void SetGlobalToLocalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SetGlobalToLocalActionPerformed
-        ec.setAxesToCurrent();
-    }//GEN-LAST:event_SetGlobalToLocalActionPerformed
-
-    private void UseGlobalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UseGlobalActionPerformed
-        ec.setGlobalAxes(!ec.getGlobalAxes());
-
-        // System.out.println("PROFILING: set global axes, " + ec.getGlobalAxes());
-        updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(),
-                this.jComboBoxYaxis.getSelectedIndex(),
-                this.jComboBoxLUTPlot.getSelectedIndex(),
-                jComboBoxPointSize.getSelectedIndex());
-
-    }//GEN-LAST:event_UseGlobalActionPerformed
-
     private void exportOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportOBJActionPerformed
         new Thread(() -> {
             try {
@@ -1087,10 +973,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     }//GEN-LAST:event_jButtonFeatureActionPerformed
 
-    private void getSegmentationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getSegmentationActionPerformed
-        SegmentationPreviewer.SegmentationFactory(impoverlay, ec.getObjects());
-    }//GEN-LAST:event_getSegmentationActionPerformed
-
     private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
 
         new Thread(() -> {
@@ -1122,18 +1004,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     }//GEN-LAST:event_NorthMouseClicked
 
-    private void getMaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getMaskActionPerformed
-        new Thread(() -> {
-            try {
-                ec.getZProjection();
-                java.lang.Thread.sleep(100);
-                String image = "Gates_" + impoverlay.getTitle();
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
-            }
-        }).start();        // TODO add your handling code here:
-    }//GEN-LAST:event_getMaskActionPerformed
-
     private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
         if (this.isVisible()) {
             Point position = evt.getComponent().getLocationOnScreen();
@@ -1163,10 +1033,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         this.addPlotSettingsListener(pof);
         pof.process(key, title, descriptions, descriptionsLabels);
     }//GEN-LAST:event_jButtonPlotsActionPerformed
-
-    private void MakeOverlaysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MakeOverlaysActionPerformed
-        ec.setMapping(!this.MakeOverlays.isSelected());
-    }//GEN-LAST:event_MakeOverlaysActionPerformed
 
     private void formComponentHidden(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentHidden
         if (this.isVisible()) {
@@ -1208,21 +1074,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
         ec.importImageFeatures();
     }//GEN-LAST:event_jButtonImageActionPerformed
 
-    private void get3DProjectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_get3DProjectionActionPerformed
-
-        new Thread(() -> {
-            try {
-                ec.getZProjection();
-                java.lang.Thread.sleep(100);
-                String image = "Gates_" + impoverlay.getTitle();
-                IJ.run("Open in ClearVolume", image);
-            } catch (Exception e) {
-                System.out.println("ERROR: ClearVolume not installed");
-            }
-
-        }).start();
-
-    }//GEN-LAST:event_get3DProjectionActionPerformed
+    private void jComboBoxXaxis1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxXaxis1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBoxXaxis1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1265,21 +1119,15 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private javax.swing.JButton FlipAxes;
     private javax.swing.JButton LoadGates;
     protected javax.swing.JPanel Main;
-    private javax.swing.JToggleButton MakeOverlays;
     private javax.swing.JPanel North;
-    private javax.swing.JButton SetGlobalToLocal;
     private javax.swing.JMenu Settings;
     private javax.swing.JPanel SouthPanel;
-    private javax.swing.JToggleButton UseGlobal;
     private javax.swing.JPanel WestPanel;
     protected javax.swing.JToggleButton addPolygonGate;
     protected javax.swing.JToggleButton addRectangularGate;
     private javax.swing.JButton exportCSV;
     private javax.swing.JButton exportGates;
     private javax.swing.JButton exportOBJ;
-    private javax.swing.JButton get3DProjection;
-    private javax.swing.JButton getMask;
-    private javax.swing.JButton getSegmentation;
     private javax.swing.JButton importOBJ;
     private javax.swing.JButton jButtonFeature;
     private javax.swing.JButton jButtonImage;
@@ -1289,10 +1137,12 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private javax.swing.JComboBox jComboBoxLUTPlot;
     private javax.swing.JComboBox jComboBoxPointSize;
     private javax.swing.JComboBox jComboBoxXaxis;
+    private javax.swing.JComboBox jComboBoxXaxis1;
     private javax.swing.JComboBox jComboBoxYaxis;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JMenuBar jMenuBar;
@@ -1301,7 +1151,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
     private javax.swing.JToolBar.Separator jSeparator5;
-    private javax.swing.JToolBar.Separator jSeparator7;
     private javax.swing.JToolBar.Separator jSeparator8;
     private javax.swing.JToolBar.Separator jSeparator9;
     private javax.swing.JToolBar toolbarGate;
@@ -1406,7 +1255,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }
 
     static public Dimension getMainDimension() {
-        return MicroExplorer.MAINPANELSIZE;
+        return MicroExplorerCombined.MAINPANELSIZE;
     }
 
     private void makePolygonGate() {
@@ -1612,7 +1461,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
     @Override
     @SuppressWarnings("empty-statementget3DProjection.setEnabled(true);")
     public void makeOverlayImage(ArrayList gates, int x, int y, int xAxis, int yAxis) {
-        get3DProjection.setEnabled(true);
+        //get3DProjection.setEnabled(true);
     }
 
     @Override
@@ -1699,13 +1548,13 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     @Override
     public void changeAxes(int axis, String position) {
-        if (axis == MicroExplorer.XAXIS) {
+        if (axis == MicroExplorerCombined.XAXIS) {
             updatePlotByPopUpMenu(this.descriptions.indexOf(position), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
-        } else if (axis == MicroExplorer.YAXIS) {
+        } else if (axis == MicroExplorerCombined.YAXIS) {
             updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.descriptions.indexOf(position), this.jComboBoxLUTPlot.getSelectedIndex(), this.jComboBoxPointSize.getSelectedIndex());
-        } else if (axis == MicroExplorer.LUTAXIS) {
+        } else if (axis == MicroExplorerCombined.LUTAXIS) {
             updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.descriptions.indexOf(position), this.jComboBoxPointSize.getSelectedIndex());
-        } else if (axis == MicroExplorer.POINTAXIS) {
+        } else if (axis == MicroExplorerCombined.POINTAXIS) {
             updatePlotByPopUpMenu(this.jComboBoxXaxis.getSelectedIndex(), this.jComboBoxYaxis.getSelectedIndex(), this.jComboBoxLUTPlot.getSelectedIndex(), this.descriptions.indexOf(position));
         }
     }
@@ -1946,9 +1795,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
         jComboBoxPointSize.setSelectedIndex(ssel);
 
         //x, y, l Labels
-        final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.XAXIS);
-        final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.YAXIS);
-        final SelectPlottingDataMenu PlottingPopupLUTaxis = new SelectPlottingDataMenu(descriptions, MicroExplorer.LUTAXIS);
+        final SelectPlottingDataMenu PlottingPopupXaxis = new SelectPlottingDataMenu(descriptions, MicroExplorerCombined.XAXIS);
+        final SelectPlottingDataMenu PlottingPopupYaxis = new SelectPlottingDataMenu(descriptions, MicroExplorerCombined.YAXIS);
+        final SelectPlottingDataMenu PlottingPopupLUTaxis = new SelectPlottingDataMenu(descriptions, MicroExplorerCombined.LUTAXIS);
 
         PlottingPopupXaxis.addPopupMenuAxisListener(this);
         PlottingPopupYaxis.addPopupMenuAxisListener(this);

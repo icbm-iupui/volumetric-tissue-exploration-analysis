@@ -52,7 +52,7 @@ import vtea.gui.ColorEditor;
  *
  * @author vinfrais
  */
-public class TableWindow extends javax.swing.JFrame implements TableModelListener {
+public class CombinedWindow extends javax.swing.JFrame implements TableModelListener {
 
     protected Object[][] DataTableArray = new Object[4][15];
 
@@ -69,7 +69,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     /**
      * Creates new form gatePercentages
      */
-    public TableWindow(String name) {
+    public CombinedWindow(String name) {
         initComponents();
         GateDataTable.getModel().addTableModelListener(this);
         setTitle(getTitle() + ": " + name);
@@ -149,9 +149,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         jRadioButton1 = new javax.swing.JRadioButton();
         jToolBar1 = new javax.swing.JToolBar();
         currentMeasure = new javax.swing.JLabel();
-        addMeasurement = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JToolBar.Separator();
-        exportGates = new javax.swing.JButton();
         LoadGates = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -162,7 +160,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         setTitle("Gate Management");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setFocusTraversalPolicyProvider(true);
-        setMaximumSize(new java.awt.Dimension(725, 500));
         setMinimumSize(new java.awt.Dimension(725, 240));
         setSize(new java.awt.Dimension(725, 280));
         setType(java.awt.Window.Type.UTILITY);
@@ -175,45 +172,14 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         jToolBar1.setPreferredSize(new java.awt.Dimension(700, 35));
 
         currentMeasure.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
-        currentMeasure.setText("Gating Statistics");
+        currentMeasure.setText("VTEA datasets for combined analysis...");
         currentMeasure.setToolTipText(currentMeasure.getText());
         currentMeasure.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
         currentMeasure.setMaximumSize(new java.awt.Dimension(670, 20));
         currentMeasure.setMinimumSize(new java.awt.Dimension(520, 20));
         currentMeasure.setPreferredSize(new java.awt.Dimension(580, 20));
         jToolBar1.add(currentMeasure);
-
-        addMeasurement.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/list-add-3 2.png"))); // NOI18N
-        addMeasurement.setToolTipText("Add measurement to ImageJ log.");
-        addMeasurement.setFocusable(false);
-        addMeasurement.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        addMeasurement.setMaximumSize(new java.awt.Dimension(35, 40));
-        addMeasurement.setMinimumSize(new java.awt.Dimension(35, 40));
-        addMeasurement.setPreferredSize(new java.awt.Dimension(35, 40));
-        addMeasurement.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        addMeasurement.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addMeasurementActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(addMeasurement);
         jToolBar1.add(jSeparator2);
-
-        exportGates.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save-2_24.png"))); // NOI18N
-        exportGates.setToolTipText("Save gates...");
-        exportGates.setFocusable(false);
-        exportGates.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        exportGates.setMaximumSize(new java.awt.Dimension(35, 40));
-        exportGates.setMinimumSize(new java.awt.Dimension(35, 40));
-        exportGates.setName(""); // NOI18N
-        exportGates.setPreferredSize(new java.awt.Dimension(35, 40));
-        exportGates.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        exportGates.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exportGatesActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(exportGates);
 
         LoadGates.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-open-folder_24.png"))); // NOI18N
         LoadGates.setToolTipText("Load gates...");
@@ -287,32 +253,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void addMeasurementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMeasurementActionPerformed
-        IJ.log(this.getTitle());
-        System.out.println(this.getTitle());
-
-        ListIterator<PolygonGate> itr = gateList.listIterator();
-
-        while (itr.hasNext()) {
-            PolygonGate pg = (PolygonGate) itr.next();
-            if (pg.getSelected()) {
-//                 System.out.println("Gating results: Name: " + pg.getName() + ", " +
-//                  pg.getColor().toString() + ", " + pg.getXAxis()  + ", " + pg.getYAxis() + ", " +
-//                  pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", " +
-//                  (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects())); 
-//                 
-                IJ.log("Gating results: Name: " + pg.getName() + ", "
-                        + pg.getColor().toString() + ", " + pg.getXAxis() + ", " + pg.getYAxis() + ", "
-                        + pg.getObjectsInGate() + ", " + pg.getTotalObjects() + ", "
-                        + (float) 100 * ((int) pg.getObjectsInGate()) / ((int) pg.getTotalObjects()));
-            }
-        }
-    }//GEN-LAST:event_addMeasurementActionPerformed
-
-    private void exportGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGatesActionPerformed
-        notifyGateActionListeners("export");
-    }//GEN-LAST:event_exportGatesActionPerformed
-
     private void LoadGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadGatesActionPerformed
         notifyGateActionListeners("import");
     }//GEN-LAST:event_LoadGatesActionPerformed
@@ -320,9 +260,7 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GateDataTable;
     private javax.swing.JButton LoadGates;
-    private javax.swing.JButton addMeasurement;
     public javax.swing.JLabel currentMeasure;
-    private javax.swing.JButton exportGates;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar.Separator jSeparator1;
@@ -423,14 +361,14 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
 
             }
 
-            String[] columnNames = {"View",
-                "Color",
+            String[] columnNames = {"Name",
+                "File",
                 "Name",
                 "XAxis",
                 "YAxis",
                 "Gated",
                 "Total",
-                "%"
+                "Normalization"
             };
 
             this.GateDataTable = new JTable(gatesData, columnNames) {
@@ -610,6 +548,5 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
     }
 
 }
-
 
 

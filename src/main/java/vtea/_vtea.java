@@ -635,19 +635,28 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
         }
 
         System.out.println("-------------------------------- ");
-        
-        if(str.equals("load")){
-                    new Thread(() -> {
-            try {
-                OpenObxFormat io = new OpenObxFormat();
-                io.importObjects(new JPanel());
-            } catch (Exception e) {
-               
-            }
-        }).start();
-        }else{
-        protocolWindow = new ProtocolManagerMulti();
-        protocolWindow.setVisible(true);
+
+        if (str.equals("load")) {
+            new Thread(() -> {
+                try {
+                    OpenObxFormat io = new OpenObxFormat();
+                    io.importObjects(new JPanel());
+                } catch (Exception e) {
+
+                }
+            }).start();
+        } else if (str.equals("combined")) {
+            new Thread(() -> {
+                try {
+                    //OpenObxFormat io = new OpenObxFormat();
+                    //io.importObjects(new JPanel());
+                } catch (Exception e) {
+
+                }
+            }).start();
+        } else {
+            protocolWindow = new ProtocolManagerMulti();
+            protocolWindow.setVisible(true);
         }
         
 //        try {
