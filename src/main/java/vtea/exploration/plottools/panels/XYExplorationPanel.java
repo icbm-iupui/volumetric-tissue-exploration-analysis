@@ -2656,7 +2656,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 objFeature.put(String.valueOf((objects.get(c)).getSerialID()), String.valueOf(features.get(c).get(0)));
             }
             //position Serial ID connection FIXED
-            ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
+            ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false); //erroring out on 2 channel image
 
             //start factory
             ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();

@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ListIterator;
 import javax.swing.JOptionPane;
+import vtea.clustering.kestimation.kEstimationProcessor;
 import vtea.exploration.listeners.AddFeaturesListener;
+import vtea.feature.listener.kEstimationListener;
 import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.processor.FeatureProcessor;
 import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
@@ -40,7 +42,10 @@ import vtea.protocol.listeners.UpdateProgressListener;
  *
  * @author drewmcnutt
  */
-public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener {
+public class FeatureFrame extends javax.swing.JFrame implements 
+        AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, 
+        RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener,
+        kEstimationListener{
 
     protected ArrayList<FeatureStepBlockGUI> FeatureStepsList;
     ArrayList descriptions;
@@ -295,6 +300,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "",  new Color(204,204,204), FeatureStepsList.size() + 1, descriptions, nvol);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
+        block.addkEstimationListener(this);
         //this.notifyRepaintFeatureListeners();
 
         FeatureStepsPanel.setLayout(FeatureLayout);
@@ -658,5 +664,21 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         for (AddFeaturesListener listener : listeners) {
             listener.addFeatures(description, descriptionLabel, result);
         }
+    }
+
+    @Override
+    public void generatekEstimations(ArrayList al) {
+ 
+    new Thread(() -> {
+            try {
+                kEstimationProcessor kep = new kEstimationProcessor();
+                kep.process(al, features, false);
+            } catch (Exception e) {
+                System.out.println("ERROR: Elbow calculation failed."
+                        + e.getLocalizedMessage());
+            }
+
+        }).start();
+
     }
 }

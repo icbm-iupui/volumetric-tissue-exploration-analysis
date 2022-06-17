@@ -200,7 +200,7 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
     }
 
     @Override
-    protected void getSegmentationPreview() {
+    protected void getPreview() {
 
         CurrentStepProtocol = CurrentProcessList;
         ThresholdOriginal.setRoi(ThresholdPreview.getRoi());

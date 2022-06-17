@@ -32,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import static vtea._vtea.FEATUREMAP;
+import vtea.feature.listener.kEstimationListener;
 import vtea.protocol.listeners.DeleteBlockListener;
 import vtea.protocol.listeners.MicroBlockSetupListener;
 import vtea.protocol.listeners.RebuildPanelListener;
@@ -43,7 +44,8 @@ import vtea.protocol.setup.MicroBlockSetup;
  *
  * @author drewmcnutt
  */
-public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements MicroBlockSetupListener {
+public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements 
+        MicroBlockSetupListener, kEstimationListener {
 
     JPanel step = new JPanel();
     Font PositionFont = new Font("Arial", Font.PLAIN, 16);
@@ -63,13 +65,15 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
 
     boolean performValidation;
 
-    MicroBlockSetup mbs;
+    MicroBlockFeatureSetup mbs;
 
     private ArrayList settings;
     ArrayList ad;
 
     public ArrayList<RebuildPanelListener> rebuildpanelisteners = new ArrayList<>();
     public ArrayList<DeleteBlockListener> deleteblocklisteners = new ArrayList<>();
+    
+    ArrayList<kEstimationListener> kEstimationListeners = new ArrayList<>();
 
     /**
      * Constructor. Empty
@@ -115,6 +119,7 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
 
         mbs.setVisible(true);
         mbs.addMicroBlockSetupListener(this);
+        mbs.addkEstimationListener(this);
 
         DeleteButton = new JButton();
         DeleteButton.addActionListener(new java.awt.event.ActionListener() {
@@ -364,6 +369,16 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
             listener.deleteBlock(type, position);
         }
     }
+    
+    public void addkEstimationListener(kEstimationListener l){
+        kEstimationListeners.add(l);
+    }
+    
+    public void notifykEstimationListener(ArrayList al){
+    for (kEstimationListener listener : kEstimationListeners) {
+            listener.generatekEstimations(al);
+        }
+    }
 
     private void addToolTip() {
         String tt = "<html>";
@@ -395,5 +410,10 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements Mi
 
     private void setupForValidation(boolean selected) {
         this.settings.set(3, selected);
+    }
+
+    @Override
+    public void generatekEstimations(ArrayList al) {
+        notifykEstimationListener(al);
     }
 }
