@@ -34,10 +34,17 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JWindow;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.ui.RefineryUtilities;
 import static vtea._vtea.FEATUREMAP;
+import vtea.clustering.KMeans;
+import vtea.clustering.kestimation.XYPlotkEstimation;
+import vtea.feature.listener.kEstimationListener;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 
 /**
@@ -61,6 +68,8 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
     JCheckBox all;
     JCheckBox normalize;
     ArrayList FeatureComponents = new ArrayList();
+    
+    ArrayList<kEstimationListener> kEstimationListeners = new ArrayList<>();
 
     /**
      * Constructor. Sets up the MicroBlockFeatureSetup GUI and initializes all
@@ -86,7 +95,9 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
         ChannelComboBox.setModel(channelsComboBox);
         getContentPane().remove(comments);
         getContentPane().remove(this.methodSelection);
-        buttonPanel.remove(PreviewButton);
+        //buttonPanel.remove(PreviewButton);
+        
+        PreviewButton.setToolTipText("Estimate k with Elbow Method");
 
         methodMorphology.setMaximumSize(new Dimension(359, 500));
         methodMorphology.setPreferredSize(new Dimension(359, 150));
@@ -101,6 +112,15 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
 
         setSpecificComboBox(ChannelComboBox.getSelectedIndex());
         finish();
+    }
+    
+    
+    @Override
+    protected void getPreview() {
+    updateProcessList();
+    this.PreviewProgress.setText("Getting k estimates...");
+    notifykEstimationListener(); 
+    this.PreviewProgress.setText("Done...");
     }
     
     private void setupJFrame(){
@@ -134,6 +154,8 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
             this.BlockSetupOK.setEnabled(false);
         } else if (e.getSource() == ProcessSelectComboBox) {
             updateProtocolPanel(e);
+        } else if (e.getSource() == PreviewButton){
+            this.notifykEstimationListener();
         }
     }
 
@@ -207,16 +229,22 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
             case 0:
                 ProcessText.setText("Clustering Method");
                 processComboBox = new DefaultComboBoxModel(CLUSTER.toArray());
+                PreviewButton.setVisible(true);
+                PreviewButton.setEnabled(true);
                 //ProcessSelectComboBox.setModel(new DefaultComboBoxModel(CLUSTER.toArray()));
                 break;
             case 1:
                 ProcessText.setText("Reduction Method");
                 processComboBox = new DefaultComboBoxModel(REDUCTION.toArray());
+                PreviewButton.setVisible(true);
+                PreviewButton.setEnabled(false);
                 //ProcessSelectComboBox.setModel(new DefaultComboBoxModel(REDUCTION.toArray()));
                 break;
             default:
                 ProcessText.setText("Other Method");
                 processComboBox = new DefaultComboBoxModel(OTHER.toArray());
+                PreviewButton.setVisible(true);
+                PreviewButton.setEnabled(false);
             //ProcessSelectComboBox.setModel(new DefaultComboBoxModel(OTHER.toArray()));
         }
 
@@ -417,5 +445,14 @@ public class MicroBlockFeatureSetup extends MicroBlockSetup implements ActionLis
             CurrentProcessList.addAll(FeatureComponents);
         }
     }
-
+    
+    public void addkEstimationListener(kEstimationListener l){
+        kEstimationListeners.add(l);
+    }
+    
+    public void notifykEstimationListener(){
+    for (kEstimationListener listener : kEstimationListeners) {
+            listener.generatekEstimations(CurrentProcessList);
+        }
+    }
 }

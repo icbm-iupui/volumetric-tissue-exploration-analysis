@@ -2047,9 +2047,26 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         this.notifyResetSelectionListeners();
 
-        updatePlot = true;
-        //onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
-        jComboBoxXaxis.setSelectedIndex(0);
+        switch(newFeatures){
+            case 1:
+                jComboBoxXaxis.setSelectedIndex(0);
+                jComboBoxYaxis.setSelectedIndex(ysel+1);
+                updatePlot = true;
+                jComboBoxLUTPlot.setSelectedIndex(zsel+1);
+                break;
+            case 2:
+                jComboBoxXaxis.setSelectedIndex(0);
+                jComboBoxYaxis.setSelectedIndex(1); 
+                updatePlot = true;
+                jComboBoxLUTPlot.setSelectedIndex(zsel+2);
+                break;
+            default:
+                jComboBoxXaxis.setSelectedIndex(newFeatures-1);
+                jComboBoxYaxis.setSelectedIndex(newFeatures-2);
+                updatePlot = true;
+                jComboBoxLUTPlot.setSelectedIndex(zsel+newFeatures);
+                break;
+        }        
         pack();
         
         ec.setCustomRange(this.XAXIS, false);

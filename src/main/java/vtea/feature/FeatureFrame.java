@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ListIterator;
 import javax.swing.JOptionPane;
+import vtea.clustering.kestimation.kEstimationProcessor;
 import vtea.exploration.listeners.AddFeaturesListener;
+import vtea.feature.listener.kEstimationListener;
 import vtea.feature.listeners.RepaintFeatureListener;
 import vtea.processor.FeatureProcessor;
 import vtea.protocol.blockstepgui.FeatureStepBlockGUI;
@@ -40,7 +42,10 @@ import vtea.protocol.listeners.UpdateProgressListener;
  *
  * @author drewmcnutt
  */
-public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener {
+public class FeatureFrame extends javax.swing.JFrame implements 
+        AddFeaturesListener, PropertyChangeListener, UpdateProgressListener, 
+        RebuildPanelListener, DeleteBlockListener, RepaintFeatureListener,
+        kEstimationListener{
 
     protected ArrayList<FeatureStepBlockGUI> FeatureStepsList;
     ArrayList descriptions;
@@ -80,6 +85,19 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         FeatureGo.setToolTipText("Calculate Features.");
 
     }
+    
+//    public void update(ArrayList descriptions, double[][] table){
+//        this.descriptions = new ArrayList<String>();
+//
+//        this.descriptions.add("PosX");
+//        this.descriptions.add("PosY");
+//        this.descriptions.add("PosZ");
+//
+//        this.descriptions.addAll(descriptions);
+//
+//        this.features = table;
+//        this.nvol = table.length;
+//    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -295,6 +313,7 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         FeatureStepBlockGUI block = new FeatureStepBlockGUI("Feature Step", "",  new Color(204,204,204), FeatureStepsList.size() + 1, descriptions, nvol);
         block.addDeleteBlockListener(this);
         block.addRebuildPanelListener(this);
+        block.addkEstimationListener(this);
         //this.notifyRepaintFeatureListeners();
 
         FeatureStepsPanel.setLayout(FeatureLayout);
@@ -464,10 +483,16 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
             ArrayList stepProtocol = fsb.getVariables();
             ArrayList useFeature = (ArrayList) stepProtocol.get(1);
 
+            ArrayList build = new ArrayList();
+            
             if (useFeature.size() < descriptions.size()) {
-                for (int i = useFeature.size(); i < descriptions.size(); i++) {
-                    useFeature.add(false);
-                }
+                
+                for (int i = 0; i < descriptions.size()-useFeature.size(); i++) {
+                    build.add(false);
+                }     
+                build.addAll(useFeature);
+                useFeature.clear();
+                useFeature.addAll(build);
             }
 
             Result.add(stepProtocol);
@@ -522,11 +547,13 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
      */
     private void findFeatures() {
         FeatureComment.setText("Finding features...");
-        ArrayList<ArrayList> protocol = new ArrayList<>();
+        ArrayList<ArrayList> protocols = new ArrayList<>();
         //get the arraylist, decide the nubmer of steps, by .steps to do and whether this is a preview or final by .type
-        protocol = extractSteps(FeatureStepsList);
+        protocols = extractSteps(FeatureStepsList);
+        ArrayList featureOffset = new ArrayList(protocols.size());
+        
 
-        FeatureProcessor fp = new FeatureProcessor(features, protocol);
+        FeatureProcessor fp = new FeatureProcessor(features, protocols);
         fp.addPropertyChangeListener(this);
         fp.addListener(this);
         fp.execute();
@@ -576,7 +603,8 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         if (dupl.isEmpty()) {
             response = JOptionPane.NO_OPTION;
         } else {
-            StringBuilder sb = new StringBuilder("The following columns are duplicates of existing columns: \n");
+            StringBuilder sb = new StringBuilder("The following columns are "
+                    + "duplicates of existing columns: \n");
             int count = 0;
             for (Integer col : dupl) {
                 sb.append(descriptions.get(col - 1));
@@ -591,7 +619,9 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
             }
 
             sb.append("\nWould you like to delete these columns from the dataset?");
-            response = JOptionPane.showConfirmDialog(this, sb, "Duplicate Columns Detected", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            response = JOptionPane.showConfirmDialog(this, sb, 
+                    "Duplicate Columns Detected", JOptionPane.YES_NO_OPTION, 
+                    JOptionPane.WARNING_MESSAGE);
         }
 
         if (response == JOptionPane.YES_OPTION) {
@@ -610,10 +640,15 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         this.descriptions.addAll(newDescriptions);
 
         features = newFeatures;
+        
+        
+        
+        
     }
 
     private void deleteColumns(ArrayList<Integer> duplicates) {
-        double[][] newfeat = new double[features.length][features[0].length - duplicates.size()];
+        double[][] newfeat = new double[features.length][features[0].length 
+                - duplicates.size()];
 
         int count = 0;
         int j = 0;
@@ -636,7 +671,8 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         }
 
         for (int i = 0; i < features.length; i++) {
-            for (int k = duplicates.get(duplicates.size() - 1) + 1; k < features[0].length; k++) {
+            for (int k = duplicates.get(duplicates.size() - 1) + 1; 
+                    k < features[0].length; k++) {
                 newfeat[i][k - count] = features[i][k];
             }
         }
@@ -645,7 +681,8 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
     }
 
     @Override
-    public void addFeatures(String description, String descriptionLabel, ArrayList<ArrayList<Number>> result) {
+    public void addFeatures(String description, String descriptionLabel, 
+            ArrayList<ArrayList<Number>> result) {
         notifyListeners(description, descriptionLabel, result);
 
     }
@@ -654,9 +691,26 @@ public class FeatureFrame extends javax.swing.JFrame implements AddFeaturesListe
         listeners.add(listener);
     }
 
-    private void notifyListeners(String description, String descriptionLabel, ArrayList<ArrayList<Number>> result) {
+    private void notifyListeners(String description, String descriptionLabel, 
+            ArrayList<ArrayList<Number>> result) {
         for (AddFeaturesListener listener : listeners) {
             listener.addFeatures(description, descriptionLabel, result);
         }
+    }
+
+    @Override
+    public void generatekEstimations(ArrayList al) {
+ 
+    new Thread(() -> {
+            try {
+                kEstimationProcessor kep = new kEstimationProcessor();
+                kep.process(al, features, false);
+            } catch (Exception e) {
+                System.out.println("ERROR: Elbow calculation failed."
+                        + e.getLocalizedMessage());
+            }
+
+        }).start();
+
     }
 }
