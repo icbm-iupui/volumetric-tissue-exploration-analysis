@@ -57,10 +57,6 @@ public class FeatureStepBlockGUI extends AbstractMicroBlockStepGUI implements
     boolean ProcessTypeSet = false;
     int position;
     
-    int featureOffset; //used when features are added while the an instance 
-                       //exists. This wasnt a problem until the reordering of 
-                       //new features was added to the begining of the table/list.
-    
 
     JButton DeleteButton;
     JButton EditButton;
