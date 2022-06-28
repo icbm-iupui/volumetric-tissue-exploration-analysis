@@ -1019,6 +1019,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates, hm.get(currentX), hm.get(currentY));
 
         gjlayer.setLocation(0, 0);
+        CenterPanel.removeAll();
         CenterPanel.add(gjlayer);
         validate();
         repaint();

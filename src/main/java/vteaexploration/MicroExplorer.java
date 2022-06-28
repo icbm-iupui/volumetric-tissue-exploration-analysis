@@ -2069,7 +2069,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         }        
         pack();
         
-        ec.setCustomRange(this.XAXIS, false);
+     
         onPlotChangeRequest(jComboBoxXaxis.getSelectedIndex(), jComboBoxYaxis.getSelectedIndex(), jComboBoxLUTPlot.getSelectedIndex(), jComboBoxPointSize.getSelectedIndex(), imageGate);
   
 
