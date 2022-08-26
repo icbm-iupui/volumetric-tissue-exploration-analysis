@@ -41,21 +41,14 @@ SOFTWARE.
  */
 package vtea.clustering.graph;
 
-import ij.IJ;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Random;
-import java.util.Set;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -79,15 +72,7 @@ import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Node;
 import org.gephi.graph.api.UndirectedGraph;
 import org.gephi.preview.api.*;
-import org.gephi.io.importer.api.Container;
-import org.gephi.io.importer.api.ImportController;
-import org.gephi.io.importer.impl.EdgeDraftImpl;
-import org.gephi.io.importer.impl.ImportContainerImpl;
-import org.gephi.io.importer.impl.NodeDraftImpl;
-import org.gephi.io.processor.plugin.DefaultProcessor;
 import org.gephi.layout.api.LayoutController;
-import org.gephi.layout.api.LayoutModel;
-import org.gephi.layout.plugin.force.yifanHu.YifanHuProportional;
 import org.gephi.layout.plugin.scale.Expand;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
@@ -99,10 +84,7 @@ import org.gephi.project.api.Workspace;
 import org.la4j.matrix.sparse.CRSMatrix;
 import org.openide.util.Lookup;
 import org.scijava.plugin.Plugin;
-import smile.classification.KNN;
-import smile.clustering.KMeans;
 import smile.neighbor.KDTree;
-import smile.neighbor.KNNSearch;
 import smile.neighbor.Neighbor;
 import vtea.featureprocessing.AbstractFeatureProcessing;
 import vtea.featureprocessing.FeatureProcessing;
@@ -113,7 +95,7 @@ import vtea.featureprocessing.FeatureProcessing;
  * @author winfrees
  */
 @Plugin(type = FeatureProcessing.class)
-public class KNNCommunity extends AbstractFeatureProcessing {
+public class NNCommunity extends AbstractFeatureProcessing {
 
     public static boolean validate = false;
 
@@ -145,13 +127,13 @@ public class KNNCommunity extends AbstractFeatureProcessing {
     /**
      * Basic Constructor. Sets all protected variables
      */
-    public KNNCommunity() {
+    public NNCommunity() {
         VERSION = "0.1";
         AUTHOR = "Seth WInfree";
         COMMENT = "Implements KNN graph generation and "
                 + "community detection ";
-        NAME = "KNN Community";
-        KEY = "KNNcommunity";
+        NAME = "NN Community";
+        KEY = "NNcommunity";
         TYPE = "Cluster";
     }
 
@@ -161,7 +143,7 @@ public class KNNCommunity extends AbstractFeatureProcessing {
      *
      * @param max the number of objects segmented in the volume
      */
-    public KNNCommunity(int max) {
+    public NNCommunity(int max) {
         this();
 
         protocol = new ArrayList();
@@ -173,7 +155,7 @@ public class KNNCommunity extends AbstractFeatureProcessing {
 
         protocol.add(new JLabel("Cutoff"));
         //protocol.add(new JLabel("    "));
-        protocol.add(new JTextField("5"));
+        protocol.add(new JTextField("1"));
 
         JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 20, 1);
         JLabelLinked value = new JLabelLinked("");
@@ -249,19 +231,6 @@ public class KNNCommunity extends AbstractFeatureProcessing {
     @Override
     public boolean process(ArrayList al, double[][] feature, boolean val) {
 
-//                //15
-//        protocol.add(new JLabel("Method"));
-//        String[] methods = {"Louvain", "Leiden"};
-//        protocol.add(new JComboBox(methods));
-//        //17
-//        protocol.add(new JLabel("Starts"));
-//        protocol.add(new JTextField("500"));
-//        //19
-//        protocol.add(new JLabel("Iterations"));
-//        protocol.add(new JTextField("100"));
-//        //21
-//        protocol.add(new JLabel("Min. Size"));
-//        protocol.add(new JTextField("20"));
         //make KNN graph
         // --> generate KDTree
         //--> use euclidean distance between cells with n features to define kNN
@@ -272,33 +241,28 @@ public class KNNCommunity extends AbstractFeatureProcessing {
         int nRandomStarts = Integer.valueOf(((JTextField) al.get(19)).getText());
         int nIterations = Integer.valueOf(((JTextField) al.get(21)).getText());
         int minClusterSize = Integer.valueOf(((JTextField) al.get(23)).getText());
-
         int db = 0;
 
         double[] test = feature[0];
-
         double[][] data = new double[feature.length][test.length];
         double[][] key = new double[feature.length][1];
         double[] d = new double[test.length];
+        
+        long startTimeAlgorithm = System.currentTimeMillis();
+        
         System.out.println("PROFILING: Building graph...");
         //System.out.println("PROFILING: resolution: " + resolution);
-
         for (int i = 0; i < feature.length; i++) {
             d = new double[test.length];
             test = feature[i];
-
             for (int j = 0; j < test.length; j++) {
                 d[j] = test[j];
-                //System.out.println("PROFILING: making data array: " + test[j]);
             }
-
             data[i] = d;
-
             double[] k = new double[1];
             k[0] = i;
             key[i] = k;
             //object[i] = i;
-
         }
 
         CRSMatrix clusters = CRSMatrix.zero(feature.length, feature.length);
@@ -306,29 +270,41 @@ public class KNNCommunity extends AbstractFeatureProcessing {
         KDTree tree = new KDTree(data, key);
         System.out.println("PROFILING: Building SNN... ");
         for (int i = 0; i < feature.length; i++) {
-            for (int j = 0; j < feature.length; j++) {
-                //System.out.println("PROFILING: comparing neighborhoods: " + i + "and " + j);
-                Neighbor[] neighbors1 = tree.knn(data[i], kNeighbors);
-                Neighbor[] neighbors2 = tree.knn(data[j], kNeighbors);
-                double score = scoreKNNs(neighbors1, neighbors2);
-                if(score > threshold){
-                clusters.set(i, j, score);
-                } else {
-                  clusters.set(i, j, 0);  
-                }
+            //Neighbor[] neighbors1 = tree.knn(data[i], kNeighbors);
+            
+            ArrayList neighbors1 = new ArrayList();
+            
+            tree.range(data[i], resolution, neighbors1);
 
+            for (int j = 0; j < feature.length; j++) {
+                
+                ArrayList neighbors2 = new ArrayList();
+            
+                tree.range(data[j], resolution, neighbors2);
+
+                //Neighbor[] neighbors2 = tree.knn(data[j], kNeighbors);
+                
+                double score = scoreNNs(neighbors1, neighbors2);
+                  
+                if(score > threshold){
+                    clusters.set(i, j, score);
+                      System.out.println("PROFILING: comparing neighborhoods: " 
+                        + i + " and " + j + ", score; " + score);  
+                } else {
+                    clusters.set(i, j, 0);  
+                }
             }
         }
 
-
         //Adapted from networkanalyzer, copyrights as above.
         double[] nodeWeights = new double[feature.length];
-
-        //DynamicDoubleArray[] clustered = new DynamicDoubleArray[100];
         DynamicIntArray[] edges = new DynamicIntArray[2];
         edges[0] = new DynamicIntArray(100);
         edges[1] = new DynamicIntArray(100);
         DynamicDoubleArray edgeWeights = new DynamicDoubleArray(100);
+        
+        //startTimeAlgorithm = System.currentTimeMillis();
+        
         System.out.println("PROFILING: Building edge table... ");
 
         int a = 0;
@@ -346,7 +322,7 @@ public class KNNCommunity extends AbstractFeatureProcessing {
         edges2[0] = edges[0].toArray();
         edges2[1] = edges[1].toArray();
         
-        visualizeGraph(feature.length, edges2[0], edges2[1], edgeWeights.toArray());
+        //visualizeGraph(feature.length, edges2[0], edges2[1], edgeWeights.toArray());
 
         Network network = new Network(nodeWeights, edges2,
                 edgeWeights.toArray(), true, true);
@@ -354,26 +330,29 @@ public class KNNCommunity extends AbstractFeatureProcessing {
         try {
             network.checkIntegrity();
         } catch (java.lang.IllegalArgumentException e) {
-            System.out.println("ERROR: KNNLouvain network building error.");
+            System.out.println("ERROR: NN network building error.");
         }
+        
+        System.err.println("KNN built in " + (System.currentTimeMillis() - startTimeAlgorithm) / 1000 + "s.");
 
         Clustering initialClustering = new Clustering(network.getNNodes());
 
-        long startTimeAlgorithm = System.currentTimeMillis();
+        startTimeAlgorithm = System.currentTimeMillis();
 
         IterativeCPMClusteringAlgorithm algorithm;
-        
-        
 
-        //double resolution2 = resolution / (2 * network.getTotalEdgeWeight() + network.getTotalEdgeWeightSelfLinks());
+        double resolution2 = resolution / (2 * network.getTotalEdgeWeight() 
+                + network.getTotalEdgeWeightSelfLinks());
         
-         double resolution2 = resolution ;
+        //double resolution2 = resolution;
         Random random = new Random();
+        
         //partition useing community approach
         if (community.equals("Louvain")) {
             algorithm = new LouvainAlgorithm(resolution2, nIterations, random);
         } else {
-            algorithm = new LeidenAlgorithm(resolution2, nIterations, LeidenAlgorithm.DEFAULT_RANDOMNESS, random);
+            algorithm = new LeidenAlgorithm(resolution2, nIterations, 
+                    LeidenAlgorithm.DEFAULT_RANDOMNESS, random);
         }
         Clustering finalClustering = null;
         double maxQuality = Double.NEGATIVE_INFINITY;
@@ -382,7 +361,8 @@ public class KNNCommunity extends AbstractFeatureProcessing {
             algorithm.improveClustering(network, clustering);
             double quality = algorithm.calcQuality(network, clustering);
             if (nRandomStarts > 1) {
-                System.err.println("Quality function in random start " + (k + 1) + " equals " + quality + ".");
+                System.err.println("Quality function in random start " + 
+                        (k + 1) + " equals " + quality + ".");
             }
             if (quality > maxQuality) {
                 finalClustering = clustering;
@@ -413,29 +393,33 @@ public class KNNCommunity extends AbstractFeatureProcessing {
             holder.add(m);
         }
         dataResult.add(holder);
-
         //add good to return VOC as well
         return true;
     }
+    
+    
 
-    private double scoreKNNs(Neighbor[] neighbors1, Neighbor[] neighbors2) {
-
+    private double scoreNNs(ArrayList<Neighbor> neighbors1, ArrayList<Neighbor> neighbors2) {
+        //this could be parrellelized
         double score = 0;
-        for (int i = 0; i < neighbors1.length; i++) {
-            double[] id1 = (double[]) (neighbors1[i].value);
-            for (int j = 0; j < neighbors2.length; j++) {
-                double[] id2 = (double[]) (neighbors2[j].value);
-                //System.out.println("      ...comparing objects: " + id1[0] + " and " + id2[0]);
+        
+       // System.out.println("      ...neighborhood1 size: " + neighbors1.size());
+       // System.out.println("      ...neighborhood2 size: " + neighbors2.size());
+        
+        for (int i = 0; i < neighbors1.size(); i++) {
+            double[] id1 = (double[]) neighbors1.get(i).value;
+            for (int j = 0; j < neighbors2.size(); j++) {
+                double[] id2 = (double[]) neighbors2.get(j).value;
+                  // System.out.println("      ...comparing objects: " + id1[0] 
+                   //        + " and " + id2[0]);
                 if ((int)id1[0] == (int)id2[0]) {
                     score++;
-                    //System.out.println("      ...scored objects: " + id1[0] + " and " + id2[0]);
+                   // System.out.println("      ...scored objects: " + id1[0] + " and " + id2[0]);
                 }
-            }
-            
+            }           
         }
         return score;
-    }
-    
+    }   
 
     private double getMeanDistance(Neighbor[] neighbors) {
         double result = 0;
@@ -593,7 +577,7 @@ public class KNNCommunity extends AbstractFeatureProcessing {
             int position = ((JSlider) e.getSource()).getValue();
 
             DecimalFormat df = new DecimalFormat("#.##");
-            String lookup = df.format(KNNCommunity.getSliderValue(position));
+            String lookup = df.format(NNCommunity.getSliderValue(position));
 
             this.setText(lookup);
         }
