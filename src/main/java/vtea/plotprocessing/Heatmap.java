@@ -169,6 +169,11 @@ public class Heatmap extends AbstractPlotMaker {
     }
 
     @Override
+    public void exportPlot(String destination, String location, String filename, String key,
+            ArrayList<String> featureNames, String group, ArrayList<Component> secondarySettings) {
+    }
+    
+    @Override
     public boolean doesMultiples() {
         return true;
     }

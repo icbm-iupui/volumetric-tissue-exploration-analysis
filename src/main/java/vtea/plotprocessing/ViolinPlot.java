@@ -107,10 +107,10 @@ public class ViolinPlot extends AbstractPlotMaker {
 
             String platform = System.getProperty("os.name");
             if (platform.startsWith("Windows")) {
-                location = location.replace("\\", "//");
-                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
+                location = location.replace("\\", System.getProperty("file.separator"));
+                engine.eval("plot <- read.csv('" + location + System.getProperty("file.separator") + filename + ".csv')");
             } else {
-                engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
+                engine.eval("plot <- read.csv('" + location + System.getProperty("file.separator") + filename + ".csv')");
             }
             engine.eval(VTEACOLORS);
             //engine.eval("plot$" + group + " <- factor(plot, " + "plot$" + group  + ")");
@@ -120,7 +120,7 @@ public class ViolinPlot extends AbstractPlotMaker {
                     + "+ theme_bw() + theme(legend.position = 'none') + "
                     + "scale_fill_manual(values = plot_colors)");
 
-            engine.eval("png('" + location + "/" + filename + ".png')");
+            engine.eval("png('" + location + System.getProperty("file.separator") + filename + ".png')");
             engine.eval("print(out)");
             engine.eval("dev.off()");
 
@@ -137,6 +137,8 @@ public class ViolinPlot extends AbstractPlotMaker {
 
                 
         try {
+            
+            System.out.println("plot$" + group + " <- factor(" + "plot$" + group + ", levels = c(" + ((JTextField)secondarySettings.get(3)).getText() + "))");
 
             RenjinScriptEngineFactory factory = new RenjinScriptEngineFactory();
 
@@ -147,13 +149,12 @@ public class ViolinPlot extends AbstractPlotMaker {
 
             String platform = System.getProperty("os.name");
             if (platform.startsWith("Windows")) {
-                location = location.replace("\\", "//");
-                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
+                location = location.replace("\\", System.getProperty("file.separator"));
+                engine.eval("plot <- read.csv('"  + System.getProperty("file.separator") + filename + ".csv')");
             } else {
-                engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
+                engine.eval("plot <- read.csv('"  + System.getProperty("file.separator") + filename + ".csv')");
             }
-            engine.eval(VTEACOLORS);
-            
+            engine.eval(VTEACOLORS);          
             
             engine.eval("sortorder <- c(" + ((JTextField)secondarySettings.get(3)).getText() + ")");
             engine.eval("plot$" + group + " <- factor(" + "plot$" + group + ", levels = c(" + ((JTextField)secondarySettings.get(3)).getText() + "))");
@@ -164,7 +165,7 @@ public class ViolinPlot extends AbstractPlotMaker {
                     + "scale_fill_manual(values = plot_colors)");
             
             if (platform.startsWith("Windows")) {
-                destination = destination.replace("\\", "//");
+                destination = destination.replace("\\", System.getProperty("file.separator"));
                 engine.eval("ggsave('" + destination + ".pdf', height = " + ((JTextField)secondarySettings.get(1)).getText() + ", width = " +((JTextField)secondarySettings.get(0)).getText()+")");
             } else {
                 engine.eval("ggsave('" + destination + ".pdf', height = " + ((JTextField)secondarySettings.get(1)).getText() + ", width = " +((JTextField)secondarySettings.get(0)).getText()+")");
