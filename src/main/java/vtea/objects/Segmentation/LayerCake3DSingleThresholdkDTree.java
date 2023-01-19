@@ -319,7 +319,8 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                 }
             }
         }
-        
+  
+  
         //imageResult = ConnectedComponents.preProcess(stackResult, watershedImageJ);
         
         imageResult = new ImagePlus("Mask Result", stackResult);
@@ -335,7 +336,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         //define the regions
         notifyProgressListeners("Finding regions...", 10.0);
 
-        RegionForkPool rrf = new RegionForkPool(imageResult.getStack(), stackOriginal, 0, stackOriginal.getSize());
+        RegionForkPool rrf = new RegionForkPool(imageResult.getStack(), stackOriginal, 0, stackOriginal.getSize(), 1, stackOriginal.getHeight());
         ForkJoinPool pool = new ForkJoinPool();
         pool.invoke(rrf);
 
@@ -570,14 +571,19 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         private ImageStack original;
         private int start;
         private int stop;
+        private int startHeight;
+        private int stopHeight;
+        
 
-        RegionForkPool(ImageStack st, ImageStack orig, int start, int stop) {
+        RegionForkPool(ImageStack st, ImageStack orig, int start, int stop, int startHeight, int stopHeight) {
 
             stack = st;
             original = orig;
-
             this.start = start;
-            this.stop = stop;
+            this.stop = stop;           
+            this.startHeight = startHeight;
+            this.stopHeight = stopHeight; 
+            
             maxsize = stack.getSize() * stack.getWidth() * stack.getHeight();
         }
 
@@ -589,7 +595,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
 
             for (int n = this.start; n <= this.stop; n++) {
                 for (int p = 0; p < stack.getWidth(); p++) {
-                    for (int q = 0; q < stack.getHeight(); q++) {
+                    for (int q = startHeight; q < stopHeight; q++) {
                         if (getVoxelBounds(stack, p, q, n) == 255) {
                             pixels = floodfill(stack, p, q, n, stack.getWidth(), stack.getHeight(), stack.getSize(), color, pixels);
 
@@ -624,7 +630,6 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                 }
             }
             System.out.println("PROFILING: ...Regions found in thread:  " + alResult.size());
-
         }
 
         private ArrayList<int[]> floodfill(ImageStack stack, int x, int y, int z, int width, int height, int depth, int color, ArrayList<int[]> pixels) {
@@ -684,27 +689,41 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         @Override
         protected void compute() {
 
-            long processors = Runtime.getRuntime().availableProcessors();
-            
-        
+            long processors = Runtime.getRuntime().availableProcessors();          
 
             long length = stack.getSize() / processors;
+            long height = stack.getHeight() / processors;
             
-      
-
             if (stack.getSize() < processors) {
                 length = 1;
             }
-            if (stop - start > length) {
-
-               
-                invokeAll(new RegionForkPool(stack, original, start, start + ((stop - start) / 2)),
-                        new RegionForkPool(stack, original, start + ((stop - start) / 2) + 1, stop));
-            } else  {
+            
+            if(stack.getSize() == 1){      
+                if(stopHeight - startHeight > height){
+                        invokeAll(new RegionForkPool(stack, original, start, stop, 
+                        startHeight, startHeight + ((stopHeight - startHeight) / 2)),
+                        new RegionForkPool(stack, original,start, stop, 
+                        startHeight + ((stopHeight - startHeight) / 2) + 1, stopHeight));
+                    
+                } else  {
                 defineRegions();
                 setRegions();
+                }
+            } else {
+                startHeight = 1;
+                stopHeight = stack.getHeight();
+                if (stop - start > length) {
+                    int stop1 = start + ((stop - start) / 2);
+                        invokeAll(new RegionForkPool(stack, original, start, stop1, 
+                        0, 0),
+                        new RegionForkPool(stack, original, stop1 + 1, stop, 
+                        0, 0));
+                } else  {
+                defineRegions();
+                setRegions();
+                }
             }
-        }
+        }      
     }
 
     public class JTextFieldLinked extends JTextField implements ChangeThresholdListener {
