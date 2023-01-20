@@ -144,19 +144,22 @@ public class Heatmap extends AbstractPlotMaker {
 
             //load data
             
-                        String platform = System.getProperty("os.name");
-            if(platform.startsWith("Windows")){
-              location = location.replace("\\", "//");
-              engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");  
-            } else {
-            engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
-            }
+            String platform = System.getProperty("os.name");
+//            if (platform.startsWith("Windows")) {
+//                location = location.replace("///", "//");
+//                location = location.replace("\\", "//");
+//                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
+//            } else {
+                engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
+//            }
             
             engine.eval("row.names(plot) <- plot$" + group);
             engine.eval("plot <- plot[,-1]");
             engine.eval("plot <- as.matrix(plot)");
             engine.eval("lut <- colorRampPalette(brewer.pal(8, 'PiYG'))(50)");
+
             engine.eval("png('" + location + "/" + filename + ".png')");
+            
             engine.eval("heatmap.2(plot,  scale='column',col = lut, density.info='none',"
                     + "cexRow=1,cexCol=1,margins=c(12,8),trace='none',srtCol=45)");
             engine.eval("dev.off()");

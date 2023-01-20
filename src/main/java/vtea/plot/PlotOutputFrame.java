@@ -263,7 +263,6 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         NorthPanel.setPreferredSize(new java.awt.Dimension(610, 70));
         NorthPanel.setRequestFocusEnabled(false);
 
-        jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
         jToolBar1.setMaximumSize(new java.awt.Dimension(600, 31));
         jToolBar1.setMinimumSize(new java.awt.Dimension(600, 31));
@@ -306,7 +305,6 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
 
         NorthPanel.add(jToolBar1);
 
-        jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
         jToolBar2.setMaximumSize(new java.awt.Dimension(600, 31));
         jToolBar2.setMinimumSize(new java.awt.Dimension(600, 31));
@@ -358,9 +356,6 @@ public class PlotOutputFrame extends javax.swing.JFrame implements UpdatePlotSet
         ClosePlot.setEnabled(false);
         ClosePlot.setFocusable(false);
         ClosePlot.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        ClosePlot.setMaximumSize(new java.awt.Dimension(30, 30));
-        ClosePlot.setMinimumSize(new java.awt.Dimension(30, 30));
-        ClosePlot.setPreferredSize(new java.awt.Dimension(30, 30));
         ClosePlot.setRequestFocusEnabled(false);
         ClosePlot.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         ClosePlot.addActionListener(new java.awt.event.ActionListener() {

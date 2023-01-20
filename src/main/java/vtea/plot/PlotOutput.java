@@ -97,7 +97,7 @@ public class PlotOutput {
         
         int returnVal;
         String filename = vtea._vtea.PLOT_DIRECTORY
-                    + System.getProperty("file.separator") + graphs.get(i);
+                    + "/" + graphs.get(i);
         return filename;
         
         

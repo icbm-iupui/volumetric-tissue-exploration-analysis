@@ -111,8 +111,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
             + "/" + "tmp";
     public static boolean DATABASE_IN_RAM = true;
     
-    public static String PLOT_DIRECTORY = new String(ij.Prefs.getImageJDir() + "/" + "VTEA"
-             + "/" + "plots");
+    public static String PLOT_DIRECTORY = new String( ij.Prefs.getImageJDir() + "/" + "VTEA" + "/" + "plots");
 
     public static String PLOT_TMP_DIRECTORY = new String(ij.Prefs.getImageJDir() + "/" + "VTEA"
              + "/" + "plots" + "/" + "tmp");

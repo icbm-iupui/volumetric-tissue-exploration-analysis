@@ -62,7 +62,7 @@ public class ViolinPlot extends AbstractPlotMaker {
         String filename = KEY + "_" + System.currentTimeMillis();
 
         try {
-            File file = new File(location + System.getProperty("file.separator") + filename + ".csv");
+            File file = new File(location + "/" + filename + ".csv");
             PrintWriter pw;
 
             pw = new PrintWriter(file);
@@ -106,12 +106,13 @@ public class ViolinPlot extends AbstractPlotMaker {
             engine.eval("library(colorspace)");
 
             String platform = System.getProperty("os.name");
-            if (platform.startsWith("Windows")) {
-                location = location.replace("\\", "//");
-                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
-            } else {
+//            if (platform.startsWith("Windows")) {
+                //location = location.replace("\/", "/");
+//                location = location.replace("\\", "//");
+//                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
+//            } else {
                 engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
-            }
+//            }
             engine.eval(VTEACOLORS);
             //engine.eval("plot$" + group + " <- factor(plot, " + "plot$" + group  + ")");
             engine.eval("out <- ggplot(plot, aes(factor(plot$" + group + "),"
@@ -119,8 +120,11 @@ public class ViolinPlot extends AbstractPlotMaker {
             engine.eval("out <- out + geom_violin(scale = 'width', alpha = 0.8) "
                     + "+ theme_bw() + theme(legend.position = 'none') + "
                     + "scale_fill_manual(values = plot_colors)");
+            
+            System.out.println("png('" + location + "/" + filename + ".png')");
 
             engine.eval("png('" + location + "/" + filename + ".png')");
+       
             engine.eval("print(out)");
             engine.eval("dev.off()");
 
@@ -146,12 +150,13 @@ public class ViolinPlot extends AbstractPlotMaker {
             engine.eval("library(colorspace)");
 
             String platform = System.getProperty("os.name");
-            if (platform.startsWith("Windows")) {
-                location = location.replace("\\", "//");
-                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
-            } else {
+//            if (platform.startsWith("Windows")) {
+//                location = location.replace("\\", "//");
+//                location = location.replace("\\/", "///");
+//                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
+//            } else {
                 engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
-            }
+//            }
             engine.eval(VTEACOLORS);
             
             
