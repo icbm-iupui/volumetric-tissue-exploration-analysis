@@ -343,8 +343,12 @@ public class SegmentationProcessor extends AbstractProcessor {
                     }
 
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                System.out.println("EXCEPTION: Error in object segmentation... " + ex.getLocalizedMessage());
+                StackTraceElement[] ele = ex.getStackTrace();
+                for (int i = 0; i < ex.getStackTrace().length; i++) {
+                    System.out.println("trace: " + ele[i].toString());
                 }
+            }
 
             }
 

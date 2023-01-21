@@ -63,7 +63,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
 
     private boolean watershedImageJ = true;
 
-    private ArrayList<MicroObject> alVolumes = new ArrayList<MicroObject>();
+    private List<MicroObject> alVolumes = Collections.synchronizedList(new ArrayList<MicroObject>());
     private List<microRegion> alRegions = Collections.synchronizedList(new ArrayList<microRegion>());
     private List<microRegion> alRegionsProcessed = Collections.synchronizedList(new ArrayList<microRegion>());
 
@@ -127,7 +127,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
 
     @Override
     public ArrayList<MicroObject> getObjects() {
-        return alVolumes;
+        return new ArrayList(alVolumes);
     }
 
     @Override
@@ -280,7 +280,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
     @Override
     public boolean process(ImageStack[] is, List protocol, boolean count) {
 
-        System.out.println("PROFILING: processing on LayerCake3D with kD tree...");
+        System.out.println("PROFILING: processing with connected components useing kD tree...");
         //System.out.println("PROFILING: Image width: " + is[0].getWidth() + ", height: " + is[0].getHeight());
 
         /**
@@ -336,7 +336,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         //define the regions
         notifyProgressListeners("Finding regions...", 10.0);
 
-        RegionForkPool rrf = new RegionForkPool(imageResult.getStack(), stackOriginal, 0, stackOriginal.getSize(), 1, stackOriginal.getHeight());
+        RegionForkPool rrf = new RegionForkPool(imageResult.getStack(), stackOriginal, 0, stackOriginal.getSize(), 0, stackOriginal.getHeight());
         ForkJoinPool pool = new ForkJoinPool();
         pool.invoke(rrf);
 
@@ -368,6 +368,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             d[0] = mr.getBoundCenterX();
             d[1] = mr.getBoundCenterY();
             d[2] = mr.getZPosition();
+       
             data[i] = d;
             
             //System.out.println("PROFILING: Adding: " + mr.getBoundCenterX() + ", " + mr.getBoundCenterY() + ", " + mr.getZPosition() + " at " + i);
@@ -413,12 +414,14 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
 
             } 
         }
+        
+        //this needs to be threaded
+        
+        VolumeForkPool vfp = new VolumeForkPool(nVolumesLocal, 0, nVolumesLocal);
+        pool = new ForkJoinPool();
+        pool.invoke(vfp);
 
-        
-        
-        
-        
-        for (int k = 1; k <= nVolumesLocal; k++) {
+     /**   for (int k = 1; k <= nVolumesLocal; k++) {
              db = (100 * (k + 1)) / nVolumesLocal;
             notifyProgressListeners("Parsing volumes...", (double) db);
             microVolume volume = new microVolume();
@@ -439,6 +442,10 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                 }
             }
         }
+        * 
+        * 
+        **/
+      
         System.out.println("PROFILING:  Found " + alVolumes.size() + " volumes.");
         return true;
     }
@@ -478,13 +485,6 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
 
                            findConnectedRegions(volumeNumber, query, tree);
                        } 
-//                       else if (volumeNumber != addRegion.getMembership()) {
-//                           addRegion.setMembership(volumeNumber);
-//                           query[0] = addRegion.getBoundCenterX();
-//                           query[1] = addRegion.getBoundCenterY();
-//                           query[2] = addRegion.getZPosition();
-//                           findConnectedRegions(volumeNumber, query, tree);
-//                       } 
 
                    }
                    
@@ -562,7 +562,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
     private class RegionForkPool extends RecursiveAction {
 
         private int maxsize = 1;
-        private final ArrayList<microRegion> alResult = new ArrayList<>();
+        private ArrayList<microRegion> alResult = new ArrayList<>();
 
         int n_positions = 0;
 
@@ -587,11 +587,15 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             maxsize = stack.getSize() * stack.getWidth() * stack.getHeight();
         }
 
-        private void defineRegions() {
+        private boolean defineRegions() {
 
             int color = 1;
             int region = 0;
             ArrayList<int[]> pixels = new ArrayList<int[]>();
+            
+            if(stopHeight > stack.getHeight()){stopHeight = stack.getHeight();}
+            
+            //System.out.println("PROFILING: ...Defining regions...");
 
             for (int n = this.start; n <= this.stop; n++) {
                 for (int p = 0; p < stack.getWidth(); p++) {
@@ -629,14 +633,16 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                     }
                 }
             }
-            System.out.println("PROFILING: ...Regions found in thread:  " + alResult.size());
+            if(!alResult.isEmpty()){System.out.println("PROFILING: ...Regions found in thread:  " + alResult.size());
+            return true;}
+            else {System.out.println("PROFILING: ...Regions found in thread:  0"); return false;}
         }
 
         private ArrayList<int[]> floodfill(ImageStack stack, int x, int y, int z, int width, int height, int depth, int color, ArrayList<int[]> pixels) {
 
             if (x < 0 || y < 0 || z < 0 || x >= width || y >= height || z >= depth || stack.getVoxel(x, y, z) < 255) {
                 return pixels;
-            } else {
+            } if(pixels.size() < minConstants[1]) {
 
                 stack.setVoxel(x, y, z, color);
 
@@ -670,7 +676,8 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         }
 
         private void setRegions() {
-            alRegions.addAll(alResult);
+            if(!alResult.isEmpty()){alRegions.addAll(alResult);}
+            //System.out.println("PROFILING: ...Regions set...");
         }
 
         public ArrayList<microRegion> getRegions() {
@@ -681,7 +688,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             int[] ret = new int[integers.size()];
             Iterator<Integer> iterator = integers.iterator();
             for (int i = 0; i < ret.length; i++) {
-                ret[i] = iterator.next().intValue();
+                ret[i] = iterator.next();
             }
             return ret;
         }
@@ -691,26 +698,29 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
 
             long processors = Runtime.getRuntime().availableProcessors();          
 
-            long length = stack.getSize() / processors;
-            long height = stack.getHeight() / processors;
+            long length = (stack.getSize() / (processors-1));
+            long height = (stack.getHeight() / (processors-1));
             
-            if (stack.getSize() < processors) {
+            if(stopHeight > stack.getHeight()){stopHeight = stack.getHeight();}
+
+            if(stack.getSize() == 1){   
+                
                 length = 1;
-            }
-            
-            if(stack.getSize() == 1){      
                 if(stopHeight - startHeight > height){
+                        //System.out.println("PROFILING: ...Splitting image volume...");
                         invokeAll(new RegionForkPool(stack, original, start, stop, 
                         startHeight, startHeight + ((stopHeight - startHeight) / 2)),
                         new RegionForkPool(stack, original,start, stop, 
                         startHeight + ((stopHeight - startHeight) / 2) + 1, stopHeight));
-                    
                 } else  {
+                
+                //System.out.println("PROFILING: ...Finding regions between " + startHeight + " and " + stopHeight);
                 defineRegions();
                 setRegions();
                 }
             } else {
-                startHeight = 1;
+                //System.out.println("PROFILING: ...Subdividing volume...size: " + length);
+                startHeight = 0;
                 stopHeight = stack.getHeight();
                 if (stop - start > length) {
                     int stop1 = start + ((stop - start) / 2);
@@ -719,11 +729,69 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                         new RegionForkPool(stack, original, stop1 + 1, stop, 
                         0, 0));
                 } else  {
-                defineRegions();
-                setRegions();
+                if(defineRegions()){
+                setRegions();}
                 }
             }
         }      
+    }
+    
+    private class VolumeForkPool extends RecursiveAction {
+
+        private int nVolumes;
+        private int start;
+        private int stop;
+        
+        
+        
+
+        VolumeForkPool(int nVolumes, int start, int stop) {
+
+            this.nVolumes = nVolumes;
+            this.start = start;
+            this.stop = stop;                       
+        }
+
+        @Override
+        protected void compute() {
+
+            long processors = Runtime.getRuntime().availableProcessors();          
+            long length = alRegionsProcessed.size()/ (processors-1);
+
+                if(stop - start > length){
+                        //System.out.println("PROFILING: ...Splitting image volume...");
+                        invokeAll(new VolumeForkPool(nVolumes, start, start + ((stop - start) / 2)),
+                        new VolumeForkPool(nVolumes, start + ((stop - start) / 2) + 1, stop));
+                } else  {
+                parseVolumes();
+                }
+        }  
+        
+        private boolean parseVolumes() {
+               for (int k = start; k < stop; k++) {
+             double db = (100 * (k + 1)) / (stop-start);
+            notifyProgressListeners("Parsing volumes...", (double) db);
+            microVolume volume = new microVolume();
+            ListIterator<microRegion> vol = alRegionsProcessed.listIterator();
+            microRegion region = new microRegion();
+            while (vol.hasNext()) {
+                region = vol.next();
+                if (k == region.getMembership()) {
+                    volume.addRegion(region);
+                }
+            }
+            if (volume.getNRegions() > 1 || imageResult.getNSlices() == 1) {
+                volume.makePixelArrays();
+                volume.setCentroid();
+                volume.setSerialID(alVolumes.size());
+                if ((volume.getPixelsX()).length >= minConstants[0] && (volume.getPixelsX()).length <= minConstants[1]) {
+                    alVolumes.add(volume);
+                }
+            }
+        }
+        //System.out.println("PROFILING:  Found " + alVolumes.size() + " volumes.");
+        return true;
+        }
     }
 
     public class JTextFieldLinked extends JTextField implements ChangeThresholdListener {
