@@ -102,7 +102,6 @@ public class BackgroundSubtraction extends AbstractImageProcessing {
 
         for (int n = 1; n <= is.getSize(); n++) {
             rbb.rollingBallBackground(is.getProcessor(n), Float.parseFloat(radius.getText()), false, false, false, true, true);
-
         }
         //imgResult = ImageJFunctions.wrapReal(imp);
         return true;

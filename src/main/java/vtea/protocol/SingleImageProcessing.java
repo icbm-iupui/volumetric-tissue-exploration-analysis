@@ -565,8 +565,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
     }//GEN-LAST:event_DeleteAllSteps_PreProcessingActionPerformed
 
     private void PreProcessingGoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreProcessingGoActionPerformed
-
-        this.firePropertyChange("comment", "", "Processing image data...");
+      new Thread(new Runnable() {
+            public void run() {
+         firePropertyChange("comment", "", "Processing image data...");
         executeProcessing();
         VTEAProgressBar.setValue(0);
         AddStep_Object.setEnabled(true);
@@ -575,6 +576,14 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         } else {
             addObjectBlock();
         }
+
+                try {
+                    java.lang.Thread.sleep(100);
+                } catch (Exception e) {
+                }
+            }
+        }).start();
+
         
     }//GEN-LAST:event_PreProcessingGoActionPerformed
 
@@ -1253,7 +1262,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
             ImageProcessingProcessor ipp = new ImageProcessingProcessor(ProcessedImage, protocol);
             ipp.addPropertyChangeListener(this);
             ipp.execute();
-
+            while(!ipp.isDone()){
+               //wait
+            }
         } else {
 
             OriginalImage.deleteRoi();
@@ -1270,6 +1281,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
 
         if (ObjectStepsList.size() > 0) {
             notifyUpdatedImageListeners(ProcessedImage);
+            
         }
     }
 
