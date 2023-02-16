@@ -39,6 +39,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Queue;
+import java.util.Stack;
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -355,7 +357,7 @@ public class PreLabelled extends AbstractSegmentation {
 
         } else {
 
-            findNonUnique(imp);
+            //findNonUnique(imp);
         }
 
         System.out.println("PROFILING:  Found " + alVolumes.size() + " volumes.");
@@ -363,6 +365,152 @@ public class PreLabelled extends AbstractSegmentation {
     }
 
     private void findNonUnique(ImagePlus imp) {
+
+        ArrayList<Point3D> objectPoints = new ArrayList<Point3D>();
+
+        double max = imp.getNSlices() * imp.getWidth() * imp.getHeight();
+
+        for (int z = 0; z < imp.getNSlices(); z++) {
+            for (int x = 0; x < imp.getWidth(); x++) {
+                for (int y = 0; y < imp.getHeight(); y++) {
+
+                    double v = (z + x + y);
+                    double db = 100 * (v / max);
+                    notifyProgressListeners("Parsing pixels, " + alVolumes.size() + " objects found...", (double) db);
+
+                    imp.setZ(z);
+                    ImageProcessor ip;
+                    ip = imp.getProcessor();
+                    double color = ip.getValue(x, y);
+                    if (color > 0) {
+                        objectPoints = nonRecursiveFlood3D(
+                                imp, x, y, z, color, new Stack<Point3D>(),
+                                new ArrayList<Point3D>());
+                        MicroObject obj = new MicroObject();
+                        int[] xPos = new int[objectPoints.size()];
+                        int[] yPos = new int[objectPoints.size()];
+                        int[] zPos = new int[objectPoints.size()];
+
+                        for (int c = 0; c < objectPoints.size(); c++) {
+
+                            Point3D p = objectPoints.get(c);
+
+                            Double xD = p.getX();
+                            Double yD = p.getY();
+                            Double zD = p.getZ();
+
+                            xPos[c] = xD.intValue();
+                            yPos[c] = yD.intValue();
+                            zPos[c] = zD.intValue();
+                        }
+
+                        obj.setPixelsX(xPos);
+                        obj.setPixelsY(yPos);
+                        obj.setPixelsZ(zPos);
+                        obj.setCentroid();
+                        obj.setSerialID(alVolumes.size());
+                        alVolumes.add(obj);
+                    }
+                }
+            }
+        }
+
+    }
+
+    private double voxelTest(ImagePlus imp, int x, int y, int z) {
+        if (x < imp.getWidth() & y < imp.getHeight() & z < imp.getNSlices() &
+                x > -1 & y > -1 & z > 0) {
+            imp.setZ(z);
+            ImageProcessor ip = imp.getProcessor();
+            float color = ip.getPixelValue(x, y);
+            return color;
+        }
+        return 0;
+    }
+
+    private ArrayList<Point3D> nonRecursiveFlood3D(ImagePlus imp, int x, int y, int z, double color, Stack<Point3D> searchpattern, ArrayList<Point3D> objectPoints) {
+        boolean done = false;
+        ImageProcessor ip;
+        searchpattern.add(new Point3D(x, y, z, color));
+        
+        boolean flood = true;
+        System.out.println("TESTING: start color: " + color);
+        System.out.println("TESTING: searchpattern size: " + searchpattern.size());
+        
+        while (flood) {
+            //System.out.println("TESTING: searchpattern size: " + searchpattern.size());
+            Point3D test = searchpattern.pop();
+            System.out.println("TESTING: searchpattern size: " + searchpattern.size());
+            x = test.x;
+            y = test.y;
+            z = test.z;
+
+            if (voxelTest(imp, x, y, z) == color) {
+                imp.setZ(z);
+                ip = imp.getProcessor();
+                ip.set(0);
+                objectPoints.add(new Point3D(x, y, z, color));
+            } else {
+                searchpattern.clear();
+            }
+            if (voxelTest(imp, x + 1, y, z) == color) {
+                searchpattern.add(new Point3D(x + 1, y, z, color));
+                System.out.println("TESTING: searchpattern size: " + searchpattern.size());
+           
+                imp.setZ(z);
+                ip = imp.getProcessor();
+                ip.set(0);
+            }
+            if (voxelTest(imp, x, y + 1, z) == color) {
+                searchpattern.add(new Point3D(x, y + 1, z, color));
+                System.out.println("TESTING: searchpattern size: " + searchpattern.size());
+           
+                imp.setZ(z);
+                ip = imp.getProcessor();
+                ip.set(0);
+            }
+            if (voxelTest(imp, x, y, z + 1) == color) {
+                searchpattern.add(new Point3D(x, y, z + 1, color));
+                System.out.println("TESTING: searchpattern size: " + searchpattern.size());
+           
+                imp.setZ(z + 1);
+                ip = imp.getProcessor();
+                ip.set(0);
+            }
+            if (voxelTest(imp, x, y - 1, z) == color) {
+                searchpattern.add(new Point3D(x, y - 1, z, color));
+                System.out.println("TESTING: searchpattern size: " + searchpattern.size());
+           
+                imp.setZ(z);
+                ip = imp.getProcessor();
+                ip.set(0);
+            }
+            if (voxelTest(imp, x - 1, y, z) == color) {
+                searchpattern.add(new Point3D(x - 1, y, z, color));
+                System.out.println("TESTING: searchpattern size: " + searchpattern.size());
+           
+                imp.setZ(z);
+                ip = imp.getProcessor();
+                ip.set(0);
+            }
+            if (voxelTest(imp, x, y, z - 1) == color) {
+                searchpattern.add(new Point3D(x, y, z - 1, color));
+                System.out.println("TESTING: searchpattern size: " + searchpattern.size());
+           
+                imp.setZ(z - 1);
+                ip = imp.getProcessor();
+                ip.set(0);
+            }
+            if(searchpattern.size() == 0){
+                flood = false;
+            } else {
+                flood = true;
+            }
+        }
+        return objectPoints;
+    }
+
+    private void findNonUnique2(ImagePlus imp) {
         ImageStack stack = imp.getImageStack();
         int width = stack.getWidth();
         int height = stack.getHeight();
@@ -411,11 +559,11 @@ public class PreLabelled extends AbstractSegmentation {
         System.out.println("PROFILING: Total rois identified: " + rois.size());
         System.out.println("PROFILING: Building by CC...");
         int z = 0;
-        
+
         float memberNumber = 0;
 
         for (int i = 0; i < colors.size(); i++) {
-            
+
             db = 100 * (i / colors.size());
             notifyProgressListeners("Parsing rois...", (double) db);
 
@@ -423,95 +571,79 @@ public class PreLabelled extends AbstractSegmentation {
             Float startColor = colors.get(i);
             if (member.get(i).intValue() == -1) {
                 regionCC(startRoi, startColor, memberNumber, rois, colors, slices, member);
-            }    
+            }
             memberNumber++;
         }
 
-            
-
-            
-
-            //parse member list build object list   
-
-
+        //parse member list build object list   
         for (int j = 0; j < colors.size(); j++) {
-         
-        if (member.get(j) > -1){    
-            
-        Roi startRoi = rois.get(j);
-        db = 100 * (j / colors.size());
-        notifyProgressListeners("Building objects...", (double) db);
 
-        ArrayList<Point> points = new ArrayList<>();
-        ArrayList<Integer> slice = new ArrayList<>();
-        
-        points = addPoints(points, startRoi.getContainedPoints());
-         for(int a = 0; a < startRoi.getContainedPoints().length; a++){
-                 slice.add(slices.get(j));
-          }
+            if (member.get(j) > -1) {
 
-                
+                Roi startRoi = rois.get(j);
+                db = 100 * (j / colors.size());
+                notifyProgressListeners("Building objects...", (double) db);
+
+                ArrayList<Point> points = new ArrayList<>();
+                ArrayList<Integer> slice = new ArrayList<>();
+
+                points = addPoints(points, startRoi.getContainedPoints());
+                for (int a = 0; a < startRoi.getContainedPoints().length; a++) {
+                    slice.add(slices.get(j));
+                }
+
                 for (int k = 0; k < colors.size(); k++) {
-                        Roi testRoi = rois.get(k);
-                if (member.get(j).intValue() == member.get(k).intValue() && j != k) {
-                    points = addPoints(points, testRoi.getContainedPoints());
-                    for(int a = 0; a < testRoi.getContainedPoints().length; a++){
-                        slice.add(slices.get(k));
+                    Roi testRoi = rois.get(k);
+                    if (member.get(j).intValue() == member.get(k).intValue() && j != k) {
+                        points = addPoints(points, testRoi.getContainedPoints());
+                        for (int a = 0; a < testRoi.getContainedPoints().length; a++) {
+                            slice.add(slices.get(k));
+                        }
+                        member.set(k, new Float(-1));
                     }
-                    member.set(k,new Float(-1));
                 }
+                //build point arrays
+                MicroObject obj = new MicroObject();
+                int[] xPos = new int[points.size()];
+                int[] yPos = new int[points.size()];
+                int[] zPos = new int[points.size()];
+
+                for (int c = 0; c < points.size(); c++) {
+                    Point p = points.get(c);
+                    Double x = p.getX();
+                    Double y = p.getY();
+                    z = slice.get(c);
+
+                    xPos[c] = x.intValue();
+                    yPos[c] = y.intValue();
+                    zPos[c] = z;
                 }
-            //build point arrays
-            MicroObject obj = new MicroObject();
-            int[] xPos = new int[points.size()];
-            int[] yPos = new int[points.size()];
-            int[] zPos = new int[points.size()];
-
-            for (int c = 0; c < points.size(); c++) {
-                Point p = points.get(c);
-                Double x = p.getX();
-                Double y = p.getY();
-                z = slice.get(c);
-
-                xPos[c] = x.intValue();
-                yPos[c] = y.intValue();
-                zPos[c] = z;
+                obj.setPixelsX(xPos);
+                obj.setPixelsY(yPos);
+                obj.setPixelsZ(zPos);
+                obj.setCentroid();
+                obj.setSerialID(alVolumes.size());
+                alVolumes.add(obj);
+                //System.out.println("PROFILING: adding object: " + alVolumes.size());
+                member.set(j, new Float(-1));
             }
-            obj.setPixelsX(xPos);
-            obj.setPixelsY(yPos);
-            obj.setPixelsZ(zPos);
-            obj.setCentroid();
-            obj.setSerialID(alVolumes.size());
-            alVolumes.add(obj);
-            //System.out.println("PROFILING: adding object: " + alVolumes.size());
-        member.set(j,new Float(-1));
-        }
         }
     }
 
-
-private void regionCC(Roi startRoi, Float startColor,Float memberNumber,ArrayList<Roi> rois,
-        ArrayList<Float> colors,
-        ArrayList<Integer> slices,
-        ArrayList<Float> member){
-                for (int j = 0; j < colors.size(); j++) {
-                    Float compareColor = colors.get(j);
-                    if (startColor.intValue() == compareColor.intValue() && 
-                            member.get(j).intValue() == -1) {
-                        Roi compareRoi = rois.get(j);          
-                        Polygon start = startRoi.getPolygon();
-                        if (start.intersects(compareRoi.getBounds())) {
-                            member.set(j, memberNumber);
-                            regionCC(compareRoi, startColor,memberNumber, rois, colors,slices,member);
-                        }
-                    }
+    private void regionCC(Roi startRoi, Float startColor, Float memberNumber, ArrayList<Roi> rois, ArrayList<Float> colors, ArrayList<Integer> slices, ArrayList<Float> member) {
+        for (int j = 0; j < colors.size(); j++) {
+            Float compareColor = colors.get(j);
+            if (startColor.intValue() == compareColor.intValue()
+                    && member.get(j).intValue() == -1) {
+                Roi compareRoi = rois.get(j);
+                Polygon start = startRoi.getPolygon();
+                if (start.intersects(compareRoi.getBounds())) {
+                    member.set(j, memberNumber);
+                    regionCC(compareRoi, startColor, memberNumber, rois, colors, slices, member);
                 }
-                
-
             }
-
-    
-
+        }
+    }
 
     private ArrayList<Point> addPoints(ArrayList<Point> points, Point[] p) {
 
@@ -520,11 +652,9 @@ private void regionCC(Roi startRoi, Float startColor,Float memberNumber,ArrayLis
         }
         return points;
     }
-    
-    private boolean roiOverlap(Roi r1, Roi r2){
-        
-      
-        
+
+    private boolean roiOverlap(Roi r1, Roi r2) {
+
         return false;
     }
 
@@ -656,44 +786,41 @@ private void regionCC(Roi startRoi, Float startColor,Float memberNumber,ArrayLis
         }
 
         return pixels;
-    
 
-}
+    }
 
     class JComboBoxCustom extends JComboBox implements ItemListener {
 
-    String[] ActionStrings;
+        String[] ActionStrings;
 
-    public JComboBoxCustom() {
-        super();
+        public JComboBoxCustom() {
+            super();
 
-    }
+        }
 
-    public JComboBoxCustom​(String[] actions) {
-        super(actions);
-        ActionStrings = actions;
-        uniqueID.addItemListener(this);
-        this.setEnabled(false);
-    }
+        public JComboBoxCustom​(String[] actions) {
+            super(actions);
+            ActionStrings = actions;
+            uniqueID.addItemListener(this);
+            this.setEnabled(false);
+        }
 
-    @Override
+        @Override
 
-    public void itemStateChanged(ItemEvent e) {
-        if (e.getStateChange() == ItemEvent.SELECTED) {
-            String item = (String) e.getItem();
-            if (item.equals(ActionStrings[0])) {
-                this.setEnabled(true);
-            }
-            if (item.equals(ActionStrings[1])) {
-                this.setSelectedIndex(0);
-                this.setEnabled(false);
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String item = (String) e.getItem();
+                if (item.equals(ActionStrings[0])) {
+                    this.setEnabled(true);
+                }
+                if (item.equals(ActionStrings[1])) {
+                    this.setSelectedIndex(0);
+                    this.setEnabled(false);
+                }
             }
         }
+
     }
-
-}
-
-
 
 }
 
@@ -782,3 +909,39 @@ class JTextAreaFile extends JTextArea {
     }
 
 };
+
+class Point3D {
+
+    int x;
+    int y;
+    int z;
+    double color;
+
+    Point3D() {
+    }
+
+    Point3D(int x, int y, int z, double color) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.color = color;
+    }
+
+    public int[] getPosition() {
+        int[] point = {x, y, z};
+        return point;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getZ() {
+        return z;
+    }
+
+}

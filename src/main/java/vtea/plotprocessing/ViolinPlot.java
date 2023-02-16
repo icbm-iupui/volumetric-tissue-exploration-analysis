@@ -141,6 +141,8 @@ public class ViolinPlot extends AbstractPlotMaker {
 
                 
         try {
+            
+            System.out.println("plot$" + group + " <- factor(" + "plot$" + group + ", levels = c(" + ((JTextField)secondarySettings.get(3)).getText() + "))");
 
             RenjinScriptEngineFactory factory = new RenjinScriptEngineFactory();
 
@@ -169,7 +171,7 @@ public class ViolinPlot extends AbstractPlotMaker {
                     + "scale_fill_manual(values = plot_colors)");
             
             if (platform.startsWith("Windows")) {
-                destination = destination.replace("\\", "//");
+                destination = destination.replace("\\", System.getProperty("file.separator"));
                 engine.eval("ggsave('" + destination + ".pdf', height = " + ((JTextField)secondarySettings.get(1)).getText() + ", width = " +((JTextField)secondarySettings.get(0)).getText()+")");
             } else {
                 engine.eval("ggsave('" + destination + ".pdf', height = " + ((JTextField)secondarySettings.get(1)).getText() + ", width = " +((JTextField)secondarySettings.get(0)).getText()+")");

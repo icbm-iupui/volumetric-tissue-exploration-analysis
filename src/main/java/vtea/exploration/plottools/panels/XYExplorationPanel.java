@@ -240,6 +240,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         keySQLSafe = key.replace("-", "_");
 
         writeCSV(_vtea.DATABASE_DIRECTORY + System.getProperty("file.separator") + key);
+        
+        
         startH2Database(_vtea.DATABASE_DIRECTORY + System.getProperty("file.separator") + key + ".csv",
                 vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe);
 
