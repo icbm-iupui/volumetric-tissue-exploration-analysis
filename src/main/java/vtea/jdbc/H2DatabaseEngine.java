@@ -469,6 +469,31 @@ public class H2DatabaseEngine {
         }
         return objects;
     }
+    
+        //H2 SQL for get related MicroObject by ID
+    public static boolean resetObjectID(String table1) {
+
+        PreparedStatement selectPreparedStatement = null;
+        ResultSet rs = null;
+
+        Connection cn = H2DatabaseEngine.getDBConnection();
+
+        try {
+
+            String ModifyQuery = "WITH NewSequence AS ( SELECT OBJECT," +
+                "ROW_NUMBER() OVER as ID_New" +
+                "  FROM "+ table1 + ")" +
+                "UPDATE NewSequence SET OBJECT = ID_New";
+
+            selectPreparedStatement = cn.prepareStatement(ModifyQuery);
+            selectPreparedStatement.executeQuery();
+
+        } catch (SQLException e) {
+            System.out.println("Exception Message " + e.getLocalizedMessage());
+            return false;
+        }
+        return true;
+    }
 
     //H2 SQL for get Range of values query returned as 
     public static ArrayList<ArrayList> getObjectsInRange2DSubSelect(String table, String select1, String select2, String select3, String column1, double low1,

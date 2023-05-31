@@ -165,7 +165,6 @@ public class TableWindow extends javax.swing.JFrame implements TableModelListene
         setSize(new java.awt.Dimension(725, 280));
         setType(java.awt.Window.Type.UTILITY);
 
-        jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
         jToolBar1.setBorderPainted(false);
         jToolBar1.setMaximumSize(new java.awt.Dimension(700, 35));

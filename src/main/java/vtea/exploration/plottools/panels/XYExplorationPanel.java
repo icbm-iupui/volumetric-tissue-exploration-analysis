@@ -33,6 +33,7 @@ import ij.process.ImageConverter;
 import ij.process.StackConverter;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -136,6 +137,8 @@ import vteaobjects.MicroNeighborhoodObject;
 import vteaobjects.MicroObject;
 import vteaobjects.MicroObjectModel;
 import vtea.exploration.listeners.GatePlotListener;
+import vtea.exploration.plotgatetools.listeners.DatasetUtilitiesListener;
+import vtea.exploration.util.DatasetUtilities;
 
 /**
  *
@@ -151,7 +154,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         NameUpdateListener, colorUpdateListener, remapOverlayListener,
         ManualClassListener, AssignmentListener, UpdateFeaturesListener,
         GateManagerActionListener, AddClassByMathListener, GateMathObjectListener,
-        RandomizationListener, SpatialListener, GatePlotListener{
+        RandomizationListener, SpatialListener, GatePlotListener, DatasetUtilitiesListener{
 
     static String printResult = "";
     static public int testCounter = 0;
@@ -218,6 +221,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     int explorerYposition = 0;
     int explorerPointSizeIndex = 0;
     LookupPaintScale lps;
+    
+    DatasetUtilities DataUtilities;
 
     public XYExplorationPanel(String key, Connection connection,
             ArrayList measurements, ArrayList<String> descriptions,
@@ -228,9 +233,10 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         gm = new TableWindow(title);
         gm.addGatePlotListener(this);
-
+        
+        
         configureListeners();
-
+        
         this.key = key;
         this.objects = objects;
         this.measurements = measurements;
@@ -238,13 +244,15 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         this.connection = connection;
 
         keySQLSafe = key.replace("-", "_");
+        
+        DataUtilities = new DatasetUtilities(vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe, this.objects);
+        
 
         writeCSV(_vtea.DATABASE_DIRECTORY + System.getProperty("file.separator") + key);
-        
-        
+
         startH2Database(_vtea.DATABASE_DIRECTORY + System.getProperty("file.separator") + key + ".csv",
                 vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe);
-
+        
         this.LUT = 0;
         this.hm = hm;
         this.pointsize = MicroExplorer.POINTSIZE;
@@ -283,12 +291,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 MicroExplorer.POINTSIZE, 0, hm.get(1), hm.get(4), hm.get(2));
 
         invokeAxesSettingsDialog(this.getX(), this.getY() + this.getHeight());
-
     }
 
     private void configureListeners() {
 
         Roi.addRoiListener(this);
+        
+        //DataUtilities.addResetIDListener(this);
 
         gm.addUpdateNameListener(this);
         gm.addUpdateColorListener(this);
@@ -308,6 +317,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addAssignmentListener(this);
         gl.addRandomizationListener(this);
         gl.addSpatialListener(this);
+        gl.addDatasetUtilitiesListener(this);
 
     }
 
@@ -1015,6 +1025,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addAssignmentListener(this);
         gl.addRandomizationListener(this);
         gl.addSpatialListener(this);
+        gl.addDatasetUtilitiesListener(this);
 
         gl.msActive = false;
 
@@ -1319,6 +1330,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         gl.addAssignmentListener(this);
         gl.addRandomizationListener(this);
         gl.addSpatialListener(this);
+        gl.addDatasetUtilitiesListener(this);
 
         gl.msActive = false;
         JXLayer<JComponent> gjlayer = gl.createLayer(chart, gates, hm.get(currentX), hm.get(currentY));
@@ -1381,7 +1393,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     public ImagePlus getZProjection() {
 
         ListIterator itr = gates.listIterator();
-
         Overlay over = impoverlay.getOverlay();
 
         while (itr.hasNext()) {
@@ -1396,45 +1407,50 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             PolygonGate gate = (PolygonGate) itr.next();
             gate.setSelected(false);
         }
-
-        ImageStack[] isAll = new ImageStack[impoverlay.getNChannels()
-                + gates.size()];
-
-        //get channels from original image
-        for (int i = 1; i <= impoverlay.getNChannels(); i++) {
-
-            if (impoverlay.getRoi() != null) {
-                isAll[i - 1] = ChannelSplitter.getChannel(new Duplicator().run(impoverlay), i);
-            } else {
-                isAll[i - 1] = ChannelSplitter.getChannel(impoverlay, i);
-            }
-        }
+        
+        //boolean includeImage = false;
+        
+       ImageStack[] isAll = new ImageStack[gates.size()];
+        
+//        if(includeImage){
+//
+//        isAll = new ImageStack[impoverlay.getNChannels()
+//                + gates.size()];
+//
+//        //get channels from original image
+//        for (int i = 1; i <= impoverlay.getNChannels(); i++) {
+//
+//            if (impoverlay.getRoi() != null) {
+//                isAll[i - 1] = ChannelSplitter.getChannel(new Duplicator().run(impoverlay), i);
+//            } else {
+//                isAll[i - 1] = ChannelSplitter.getChannel(impoverlay, i);
+//            }
+//        } 
+//        }
 
         if (gates.size() > 0) {
             for (int i = 0; i < gates.size(); i++) {
-                isAll[i + impoverlay.getNChannels()]
-                        = alIs.get(i);
-                //= this.GateOverlays.get(i);
-                //= gates.get(i).getGateOverlayStack();
+                //isAll[i + impoverlay.getNChannels()]
+                isAll[i]= alIs.get(i);
             }
         }
         ImagePlus[] images = new ImagePlus[isAll.length];
 
-        ij.process.LUT[] oldLUT = impoverlay.getLuts();
-
+//        ij.process.LUT[] oldLUT = impoverlay.getLuts();
+//
         for (int i = 0; i < isAll.length; i++) {
             images[i] = new ImagePlus("Channel_" + i, isAll[i]);
             if (impoverlay.getSlice() > 1) {
                 StackConverter sc = new StackConverter(images[i]);
-                if (i < impoverlay.getNChannels()) {
-                    images[i].setLut(oldLUT[i]);
-                }
+//                if (i < impoverlay.getNChannels()) {
+//                    images[i].setLut(oldLUT[i]);
+//                }
                 sc.convertToGray8();
             } else {
                 ImageConverter ic = new ImageConverter(images[i]);
-                if (i < impoverlay.getNChannels()) {
-                    images[i].setLut(oldLUT[i]);
-                }
+//                if (i < impoverlay.getNChannels()) {
+//                    images[i].setLut(oldLUT[i]);
+//                }
                 ic.convertToGray8();
             }
         }
@@ -2076,11 +2092,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         
         jf.setDialogTitle("Select CSV file");
 
-        JPanel panel1 = (JPanel) jf.getComponent(3);
-        JPanel panel2 = (JPanel) panel1.getComponent(3);
-        
-        panel2.add(zero);
-        panel2.add(position);
+//        JPanel panel1 = (JPanel) jf.getComponent(1);
+//        JPanel panel2 = (JPanel) panel1.getComponent(2);
+//        JPanel panel3 = (JPanel) panel2.getComponent(2);
+//
+//        panel3.add(zero);
+//        panel3.add(position);
 
         int returnVal = jf.showOpenDialog(CenterPanel);
         File file = jf.getSelectedFile();
@@ -3305,6 +3322,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         explorerXposition = xPos;
         explorerYposition = yPos;
         AxesManager.updateMenuPosition(xPos, yPos);
+        DataUtilities.setLocation(xPos, yPos);
         gm.setLocation(xPos, yPos + 96);
         gm.toFront();
         gm.pack();
@@ -3436,6 +3454,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         }
         //System.out.println("PROFILING: " + xPos +", " + yPos + ".");
       updatePlot(xPos, yPos, this.currentL, 4, true);
+    }
+
+
+    @Override
+    public void dataSetUtilities() {
+        DataUtilities.setVisible(true);    
     }
 
     class ExportGates {

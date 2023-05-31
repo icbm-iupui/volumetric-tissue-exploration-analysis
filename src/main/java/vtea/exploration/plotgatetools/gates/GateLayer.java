@@ -63,6 +63,7 @@ import vtea.exploration.listeners.SaveGatedImagesListener;
 import vtea.exploration.listeners.SpatialListener;
 import vtea.exploration.listeners.SubGateListener;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
+import vtea.exploration.plotgatetools.listeners.DatasetUtilitiesListener;
 import vtea.exploration.plotgatetools.listeners.DeleteGateListener;
 import vtea.exploration.plotgatetools.listeners.GateColorListener;
 import vtea.exploration.plotgatetools.listeners.ImageHighlightSelectionListener;
@@ -117,6 +118,7 @@ public class GateLayer implements ActionListener, ItemListener {
     private ArrayList<DensityMapListener> densityMapListeners = new ArrayList<>();
     private ArrayList<NeighborhoodListener> neighborhoodListeners = new ArrayList<>();
     private ArrayList<SpatialListener> spatialListeners = new ArrayList<>();
+    private ArrayList<DatasetUtilitiesListener> DatasetUtilitiesListeners = new ArrayList<>();
 
 
     private ArrayList<PolygonGate> gates = new ArrayList<PolygonGate>();
@@ -661,6 +663,20 @@ public class GateLayer implements ActionListener, ItemListener {
             listener.onPasteGate(gate);
         }
     }
+    
+    //DatasetUtilitiesListeners
+    
+    
+    public void addDatasetUtilitiesListener(DatasetUtilitiesListener listener) {
+        DatasetUtilitiesListeners.add(listener);
+    }
+
+    public void notifyDatasetUtilitiesListeners() {
+        for (DatasetUtilitiesListener listener : DatasetUtilitiesListeners) {
+            listener.dataSetUtilities();
+        }
+    }
+    
 
     public void addGateColorListener(GateColorListener listener) {
         gatecolorlisteners.add(listener);
@@ -765,6 +781,10 @@ public class GateLayer implements ActionListener, ItemListener {
         menu.add(new JSeparator());
 
         menuItem = new JMenuItem("Subgate Selection...");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+        
+        menuItem = new JMenuItem("Dataset utilities...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
 
@@ -888,8 +908,11 @@ public class GateLayer implements ActionListener, ItemListener {
         } else if (e.getActionCommand().equals("Classify by Gate...")) {
 
             notifyAssignmentListeners("gate");
-
             
+        } else if (e.getActionCommand().equals("Dataset utilities...")) {
+            //System.out.println("fired event, daatset, listners: " + DatasetUtilitiesListeners.size());
+           notifyDatasetUtilitiesListeners();
+
         }else if (e.getActionCommand().equals("Randomize classes...")) {
                            new Thread(() -> {
                     try {

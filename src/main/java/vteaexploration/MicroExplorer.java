@@ -100,13 +100,11 @@ import vtea.exploration.plottools.panels.VerticalLabelUI;
 import vtea.exploration.plottools.panels.XYPanels;
 import vtea.feature.FeatureFrame;
 import vtea.dataset.normalization.NormalizationFrame;
-import vtea.morphology.ImageFeatureAddFrame;
+
 import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
 import vtea.plot.PlotOutputFrame;
-import vtea.protocol.listeners.AddImageFrameListener;
 
-import vtea.protocol.setup.MicroBlockMorphologySetup;
 import vteaobjects.MicroObject;
 import vteaobjects.ReduceObjectSizeProcessor;
 
@@ -1054,6 +1052,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getLocalizedMessage());
+                e.printStackTrace();
             }
         }).start();
     }//GEN-LAST:event_importOBJActionPerformed
@@ -2102,6 +2101,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
                 ArrayList headerLabels) {
 
             JCheckBox reduceSize = new JCheckBox("Reduce size", false);
+            
+            reduceSize.setToolTipText("For streamlining datasets with multiple morphologies...");
 
             MicroObject obj = objects.get(0);
 
@@ -2115,10 +2116,12 @@ public class MicroExplorer extends javax.swing.JFrame implements
             do {
                 JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
                 jf.setDialogTitle("Export VTEA objects...");
-
-                JPanel panel1 = (JPanel) jf.getComponent(3);
-                JPanel panel2 = (JPanel) panel1.getComponent(3);
-                panel2.add(reduceSize);
+                
+//                JPanel panel1 = (JPanel) jf.getComponent(1);
+//                JPanel panel2 = (JPanel) panel1.getComponent(2);
+//                JPanel panel3 = (JPanel) panel2.getComponent(2);
+//
+//                panel3.add(reduceSize);
 
                 returnVal = jf.showSaveDialog(Main);
 

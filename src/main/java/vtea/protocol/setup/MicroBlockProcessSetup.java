@@ -80,6 +80,8 @@ public class MicroBlockProcessSetup extends MicroBlockSetup implements ChangeLis
     public MicroBlockProcessSetup(int step, ArrayList Channels, ArrayList<ProcessStepBlockGUI> Protocols, ImagePlus imp) {
 
         super(step, Channels);
+        
+        setTitle("Image Processing Setup");
 
         ProtocolAll = Protocols;
         //OriginalImage = new Duplicator().run(imp);

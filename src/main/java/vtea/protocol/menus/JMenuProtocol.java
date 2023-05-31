@@ -45,6 +45,8 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
     JMenuItem SaveAllSteps;
 
     JMenuItem LoadExplorer;
+    
+    JMenuItem LoadUtilities;
 
     JMenu CopySteps;
     //JMenuItem Item3;
@@ -134,6 +136,16 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                 notifyFileOperationListener(ae);
             }
         });
+        
+        LoadUtilities = new JMenuItem("Load Utilities...");
+        LoadUtilities.setActionCommand("Utilities");
+        LoadUtilities.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                notifyFileOperationListener(ae);
+            }
+        });
+        
 
         add(LoadProcessSteps);
         add(SaveProcessSteps);
@@ -247,6 +259,17 @@ public class JMenuProtocol extends JMenu implements ActionListener, ItemListener
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(this.getParent(),
                             "File could not be opened...\n"
+                            + e.getMessage(),
+                            vtea._vtea.VERSION,
+                            JOptionPane.WARNING_MESSAGE);
+                    System.out.println("ERROR: " + e.getLocalizedMessage());
+                }
+            } else if (temp.getText().equals("Load Utilities...")) {
+                try {
+                    //Listener.onLoadDatasets();
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this.getParent(),
+                            "Could not open utilities menu...\n"
                             + e.getMessage(),
                             vtea._vtea.VERSION,
                             JOptionPane.WARNING_MESSAGE);

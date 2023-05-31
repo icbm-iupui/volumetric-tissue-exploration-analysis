@@ -47,7 +47,7 @@ public final class MicroBlockMorphologySetup extends MicroBlockSetup {
 
         super(step, Channels);
         
-        setTitle("Add Morphology"); // NOI18N
+        setTitle("Morphology Setup");
 
         ChannelSelection.setText("Morphology on: ");
         ChannelComboBox.addItem("All");

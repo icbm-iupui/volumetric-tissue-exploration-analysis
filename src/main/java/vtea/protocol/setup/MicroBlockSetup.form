@@ -13,7 +13,7 @@
     </Component>
   </NonVisualComponents>
   <Properties>
-    <Property name="title" type="java.lang.String" value="Setup"/>
+    <Property name="title" type="java.lang.String" value="Protocol Setup"/>
     <Property name="alwaysOnTop" type="boolean" value="true"/>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
       <Connection code="vtea._vtea.BACKGROUND" type="code"/>

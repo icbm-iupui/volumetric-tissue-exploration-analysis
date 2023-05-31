@@ -142,7 +142,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         jLabel3.setText("Notes");
         jLabel3.setAlignmentX(0.5F);
 
-        setTitle("Setup");
+        setTitle("Protocol Setup");
         setAlwaysOnTop(true);
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(110, 160, 800, 400));
@@ -695,8 +695,7 @@ public class MicroBlockSetup extends javax.swing.JFrame implements Cloneable {
         return this.TitleText.getText();
     }
 
-    @Override
-    public void setTitle(String title) {
+    public void setTitlePanel(String title) {
         TitleText.setText(title);
     }
 

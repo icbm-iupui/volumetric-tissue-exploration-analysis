@@ -135,8 +135,10 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         initComponents();
         if(WindowManager.getImageCount() > 0){
             this.LoadImage.setEnabled(true);
+            this.OpenImage.setEnabled(true);
         } else {
             this.LoadImage.setEnabled(false);
+            this.OpenImage.setEnabled(true);
         }
     }
 
@@ -295,7 +297,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         PreProcessingGo.setToolTipText("Process the loaded image.");
         PreProcessingGo.setEnabled(false);
         PreProcessingGo.setPreferredSize(new java.awt.Dimension(92, 34));
-        PreProcessingGo.setSize(new java.awt.Dimension(92, 34));
         PreProcessingGo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 PreProcessingGoActionPerformed(evt);
@@ -371,7 +372,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         ObjectsLabel.setMaximumSize(new java.awt.Dimension(360, 28));
         ObjectsLabel.setMinimumSize(new java.awt.Dimension(360, 28));
         ObjectsLabel.setPreferredSize(new java.awt.Dimension(360, 28));
-        ObjectsLabel.setSize(new java.awt.Dimension(360, 28));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -447,7 +447,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         ObjectStepsPanel.setMaximumSize(new java.awt.Dimension(420, 245));
         ObjectStepsPanel.setMinimumSize(new java.awt.Dimension(420, 245));
         ObjectStepsPanel.setPreferredSize(new java.awt.Dimension(420, 245));
-        ObjectStepsPanel.setSize(new java.awt.Dimension(420, 245));
 
         javax.swing.GroupLayout ObjectStepsPanelLayout = new javax.swing.GroupLayout(ObjectStepsPanel);
         ObjectStepsPanel.setLayout(ObjectStepsPanelLayout);
@@ -464,7 +463,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         ObjectGo.setFont(new java.awt.Font("Helvetica", 0, 14)); // NOI18N
         ObjectGo.setText("Find Objects");
         ObjectGo.setToolTipText("Find segmented objects.");
-        ObjectGo.setBounds(new java.awt.Rectangle(0, 0, 130, 34));
         ObjectGo.setEnabled(false);
         ObjectGo.setMaximumSize(new java.awt.Dimension(130, 34));
         ObjectGo.setMinimumSize(new java.awt.Dimension(130, 34));
@@ -518,6 +516,9 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         ProgressPanel.add(ProgressComment);
 
         VTEAProgressBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        VTEAProgressBar.setMaximumSize(new java.awt.Dimension(200, 20));
+        VTEAProgressBar.setMinimumSize(new java.awt.Dimension(200, 20));
+        VTEAProgressBar.setMixingCutoutShape(null);
         VTEAProgressBar.setPreferredSize(new java.awt.Dimension(200, 20));
         ProgressPanel.add(VTEAProgressBar);
 
@@ -556,7 +557,8 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         PreProcessingStepsPanel.removeAll();
         AddStep_Preprocessing.setEnabled(false);
         PreProcessingGo.setEnabled(false);
-        this.OpenImage.setEnabled(true);
+        OpenImage.setEnabled(true);
+        LoadImage.setEnabled(true);
         PreProcessingStepsPanel.repaint();
         this.OriginalImage = new ImagePlus();
         System.gc();
@@ -1539,6 +1541,7 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
             }
         }
         notifyRepaintTabListeners();
+        LoadImage.setEnabled(false);
         OpenImage.setEnabled(false);
         DeleteAllSteps_PreProcessing.setEnabled(true);
         AddStep_Preprocessing.setEnabled(true);

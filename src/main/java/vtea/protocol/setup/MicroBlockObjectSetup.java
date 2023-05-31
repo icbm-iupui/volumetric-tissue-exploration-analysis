@@ -100,8 +100,10 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
     public MicroBlockObjectSetup(int step, ArrayList Channels, ImagePlus imp) {
 
         super(step, Channels);
+        
+        setTitle("Segmentation Setup");
 
-        setTitle("Object_" + (step));
+        setTitlePanel("Object_" + (step));
         
 
         MorphologyMenu = new MorphologyFrame(Channels);
@@ -229,11 +231,17 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
     @Override
     public void setVisible(boolean b) {
+        setThresholdPreviewVisible(b);
         super.setVisible(b);
+    }
+    
+    private void setThresholdPreviewVisible(boolean b){
         if (b && !(ThresholdPreview.isVisible())) {
+            ThresholdPreview.addImageListener(this);
             ThresholdPreview.show();
             ThresholdPreview.setTitle(this.TitleText.getText());
         } else {
+            ThresholdPreview.removeImageListener(this);
             ThresholdPreview.hide();
         }
     }
@@ -365,18 +373,16 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
 
     @Override
     public void blockSetupOKAction() {
+        setVisible(false);
         ThresholdPreview.removeImageListener(this);
         CurrentStepProtocol = CurrentProcessList;
-
         notifyMicroBlockSetupListeners(getSettings());
-
-        setVisible(false);
         ThresholdPreview.addImageListener(this);
     }
 
     @Override
     protected void blockSetupCancelAction() {
-
+        setVisible(false);
     }
 
     /**
@@ -522,6 +528,8 @@ public final class MicroBlockObjectSetup extends MicroBlockSetup implements Acti
         return new AbstractSegmentation();
 
     }
+    
+ 
 
     @Override
     public void updateGui(String str, Double dbl) {

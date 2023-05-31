@@ -446,7 +446,20 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         * 
         **/
       
+       
+        System.out.println("PROFILING: Renumbering objects from threads...");
+        
+        for(int k = 0; k < alVolumes.size(); k++){ 
+    
+            db = (100 * (k + 1)) / alVolumes.size();
+            notifyProgressListeners("Renumbering objects...", (double) db);
+            
+            MicroObject o = alVolumes.get(k);
+            o.setSerialID(k);
+        }
+        
         System.out.println("PROFILING:  Found " + alVolumes.size() + " volumes.");
+        
         return true;
     }
 
