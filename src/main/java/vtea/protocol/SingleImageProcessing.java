@@ -518,7 +518,6 @@ public class SingleImageProcessing extends javax.swing.JPanel implements
         VTEAProgressBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
         VTEAProgressBar.setMaximumSize(new java.awt.Dimension(200, 20));
         VTEAProgressBar.setMinimumSize(new java.awt.Dimension(200, 20));
-        VTEAProgressBar.setMixingCutoutShape(null);
         VTEAProgressBar.setPreferredSize(new java.awt.Dimension(200, 20));
         ProgressPanel.add(VTEAProgressBar);
 
