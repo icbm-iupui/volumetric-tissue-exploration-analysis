@@ -2164,7 +2164,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
             ExportImageStack eis = new ExportImageStack();
             eis.export(isResult, "_" + featureProcess.get(i) + "_");
-            //System.gc();
+
             }
         } catch (Exception e) {
                 System.out.println("ERROR: Object mask on feature failed...");
