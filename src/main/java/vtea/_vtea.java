@@ -102,7 +102,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static String H2_OBJECT_TABLE = new String("OBJECTS");
     
 
-
+    public static String LASTFILENAMEROOT = "Export";
 
     public static String MEASUREMENTS_TEMP = new String("MEASUREMENTS_TEMP");
     public static String OBJECTS_TEMP = new String("OBJECTS_TEMP");
@@ -136,6 +136,7 @@ public class _vtea implements PlugIn, RichPlugin, ImageListener, ActionListener 
     public static String[] LUTOPTIONS;
     public static String[] PLOTMAKEROPTIONS;
     public static String[] GATEMATHOPTIONS;
+    public static String[] MAPMAKEROPTIONS = {"Feature", "Gate"};
 
     public static ConcurrentHashMap<String, String> PROCESSINGMAP;
     public static ConcurrentHashMap<String, String> SEGMENTATIONMAP;

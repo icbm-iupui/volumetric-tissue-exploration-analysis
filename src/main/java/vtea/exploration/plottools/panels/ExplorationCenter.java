@@ -18,6 +18,7 @@
 package vtea.exploration.plottools.panels;
 
 import ij.ImagePlus;
+import ij.ImageStack;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 import vtea.exploration.plotgatetools.listeners.MakeImageOverlayListener;
@@ -32,6 +33,7 @@ import vteaobjects.MicroObject;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.LinkedKeyListener;
 import vtea.exploration.listeners.UpdateExplorerGuiListener;
+import vtea.exploration.plotgatetools.gates.Gate;
 
 /**
  *
@@ -79,7 +81,9 @@ public interface ExplorationCenter {
 
     public XYChartPanel getPanel(int x, int y, int l, int size, String xText, String yText, String lText);
 
-    public PolygonGate getGates(int x, int y, int l, int size);
+    public PolygonGate getGate(int x, int y, int l, int size);
+    
+    public ArrayList<PolygonGate> getGates();
     
     public int getSelectedObjects();
     
@@ -158,5 +162,11 @@ public interface ExplorationCenter {
     public void setMapping(boolean map);
     
     public void importImageFeatures();
+    
+    public ArrayList<ImageStack> makeGateOverlayVolume(ArrayList<PolygonGate> gates);
+    
+    public ImageStack makeSelectedGateOverlayVolume(PolygonGate gate);
+
+    public ImageStack makeObjectsOverlayVolume(ArrayList<MicroObject> objects);
 
 }

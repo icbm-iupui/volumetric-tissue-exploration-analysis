@@ -33,6 +33,7 @@ import vtea.exploration.listeners.SubGateExplorerListener;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.LinkedKeyListener;
 import vtea.exploration.listeners.UpdateExplorerGuiListener;
+import vtea.exploration.plotgatetools.gates.Gate;
 
 import vtea.exploration.plotgatetools.gates.GateLayer;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
@@ -119,6 +120,11 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
         }
         return 0;
     }
+    @Override
+    public ArrayList<PolygonGate> getGates(){
+        return gates;
+    }
+   
     
     @Override
     public ArrayList<Component>  getSettingsContent() {
