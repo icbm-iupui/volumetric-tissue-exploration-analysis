@@ -21,6 +21,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
 import ij.io.FileSaver;
@@ -100,10 +101,13 @@ import vtea.exploration.plottools.panels.VerticalLabelUI;
 import vtea.exploration.plottools.panels.XYPanels;
 import vtea.feature.FeatureFrame;
 import vtea.dataset.normalization.NormalizationFrame;
+import vtea.exploration.plotgatetools.listeners.MakeObjectMasksListener;
+import static vtea.jdbc.H2DatabaseEngine.getObjectsInRange2D;
 
 import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
 import vtea.plot.PlotOutputFrame;
+import vtea.utilities.ImagePlusToPyramidOMETiff;
 
 import vteaobjects.MicroObject;
 import vteaobjects.ReduceObjectSizeProcessor;
@@ -119,7 +123,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         ChangePlotAxesListener, ImageListener, ResetSelectionListener,
         PopupMenuAxisListener, PopupMenuLUTListener, PopupMenuAxisLUTListener,
         UpdatePlotWindowListener, AxesChangeListener,
-        AxesSetupExplorerPlotUpdateListener, UpdateExplorerGuiListener,
+        AxesSetupExplorerPlotUpdateListener, UpdateExplorerGuiListener, MakeObjectMasksListener,
         Runnable {
 
     private XYPanels DefaultXYPanels;
@@ -185,6 +189,8 @@ public class MicroExplorer extends javax.swing.JFrame implements
     ArrayList<AddFeaturesListener> FeatureListeners = new ArrayList<AddFeaturesListener>();
     ArrayList<UpdatePlotSettingsListener> PlotSettingListeners = new ArrayList<UpdatePlotSettingsListener>();
     ArrayList<SubGateExplorerListener> SubGateListeners = new ArrayList<SubGateExplorerListener>();
+    
+    
 
     int subgateSerial = 0;
 
@@ -395,6 +401,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         nf = new NormalizationFrame(measurements, aep.getObjects());
         nf.addListener(this);
+        
+       
+       
 
     }
 
@@ -432,14 +441,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
         SetGlobalToLocal = new javax.swing.JButton();
         UseGlobal = new javax.swing.JToggleButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
-        get3DProjection = new javax.swing.JButton();
         MakeOverlays = new javax.swing.JToggleButton();
         getMask = new javax.swing.JButton();
         getSegmentation = new javax.swing.JButton();
+        get3DProjection = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JToolBar.Separator();
-        jButtonImage = new javax.swing.JButton();
-        jButtonMeas = new javax.swing.JButton();
         jButtonFeature = new javax.swing.JButton();
+        jButtonMeas = new javax.swing.JButton();
+        jButtonImage = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
         jButtonPlots = new javax.swing.JButton();
         ExportGraph = new javax.swing.JButton();
@@ -694,20 +703,6 @@ public class MicroExplorer extends javax.swing.JFrame implements
         toolbarGate.add(UseGlobal);
         toolbarGate.add(jSeparator5);
 
-        get3DProjection.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cube.png"))); // NOI18N
-        get3DProjection.setToolTipText("Visualize in 3D");
-        get3DProjection.setEnabled(false);
-        get3DProjection.setMaximumSize(new java.awt.Dimension(35, 40));
-        get3DProjection.setMinimumSize(new java.awt.Dimension(35, 40));
-        get3DProjection.setName(""); // NOI18N
-        get3DProjection.setPreferredSize(new java.awt.Dimension(35, 40));
-        get3DProjection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                get3DProjectionActionPerformed(evt);
-            }
-        });
-        toolbarGate.add(get3DProjection);
-
         MakeOverlays.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/no_masks.png"))); // NOI18N
         MakeOverlays.setToolTipText("Disable image mapping");
         MakeOverlays.setFocusable(false);
@@ -724,7 +719,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         toolbarGate.add(MakeOverlays);
 
         getMask.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/masks.png"))); // NOI18N
-        getMask.setToolTipText("Visualize gated masks");
+        getMask.setToolTipText("Make object mask images");
         getMask.setFocusable(false);
         getMask.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         getMask.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -756,21 +751,36 @@ public class MicroExplorer extends javax.swing.JFrame implements
             }
         });
         toolbarGate.add(getSegmentation);
-        toolbarGate.add(jSeparator7);
 
-        jButtonImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/addImageDataImage_32.png"))); // NOI18N
-        jButtonImage.setToolTipText("Import image and measure...");
-        jButtonImage.setFocusable(false);
-        jButtonImage.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonImage.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonImage.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonImage.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonImage.addActionListener(new java.awt.event.ActionListener() {
+        get3DProjection.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/cube.png"))); // NOI18N
+        get3DProjection.setToolTipText("Visualize in 3D");
+        get3DProjection.setEnabled(false);
+        get3DProjection.setMaximumSize(new java.awt.Dimension(35, 40));
+        get3DProjection.setMinimumSize(new java.awt.Dimension(35, 40));
+        get3DProjection.setName(""); // NOI18N
+        get3DProjection.setPreferredSize(new java.awt.Dimension(35, 40));
+        get3DProjection.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonImageActionPerformed(evt);
+                get3DProjectionActionPerformed(evt);
             }
         });
-        toolbarGate.add(jButtonImage);
+        toolbarGate.add(get3DProjection);
+        toolbarGate.add(jSeparator7);
+
+        jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
+        jButtonFeature.setToolTipText("Add features...");
+        jButtonFeature.setFocusable(false);
+        jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
+        jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFeatureActionPerformed(evt);
+            }
+        });
+        toolbarGate.add(jButtonFeature);
 
         jButtonMeas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/FeaturesAdd_2.png"))); // NOI18N
         jButtonMeas.setToolTipText("Import features from CSV...");
@@ -787,20 +797,19 @@ public class MicroExplorer extends javax.swing.JFrame implements
         });
         toolbarGate.add(jButtonMeas);
 
-        jButtonFeature.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/Features.png"))); // NOI18N
-        jButtonFeature.setToolTipText("Add features...");
-        jButtonFeature.setFocusable(false);
-        jButtonFeature.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonFeature.setMaximumSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setMinimumSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setPreferredSize(new java.awt.Dimension(35, 40));
-        jButtonFeature.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonFeature.addActionListener(new java.awt.event.ActionListener() {
+        jButtonImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/addImageDataImage_32.png"))); // NOI18N
+        jButtonImage.setToolTipText("Import image and measure...");
+        jButtonImage.setFocusable(false);
+        jButtonImage.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonImage.setMaximumSize(new java.awt.Dimension(35, 40));
+        jButtonImage.setMinimumSize(new java.awt.Dimension(35, 40));
+        jButtonImage.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonFeatureActionPerformed(evt);
+                jButtonImageActionPerformed(evt);
             }
         });
-        toolbarGate.add(jButtonFeature);
+        toolbarGate.add(jButtonImage);
         toolbarGate.add(jSeparator8);
 
         jButtonPlots.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/plots.png"))); // NOI18N
@@ -835,7 +844,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         toolbarGate.add(ExportGraph);
 
         exportCSV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/document-save_csv-2_32.png"))); // NOI18N
-        exportCSV.setToolTipText("Export objects as csv...");
+        exportCSV.setToolTipText("Export objects as CSV...");
         exportCSV.setFocusable(false);
         exportCSV.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         exportCSV.setMaximumSize(new java.awt.Dimension(35, 40));
@@ -1137,15 +1146,23 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_NorthMouseClicked
 
     private void getMaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getMaskActionPerformed
-        new Thread(() -> {
-            try {
-                ec.getZProjection();
-                java.lang.Thread.sleep(100);
-                String image = "Gates_" + impoverlay.getTitle();
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
-            }
-        }).start();        // TODO add your handling code here:
+       
+        ObjectTypeMapsOutputFrame mof = new ObjectTypeMapsOutputFrame();
+         mof.addMakeObjectMasksListener(this);
+        String keySQLSafe = key.replace("-", "_");
+
+        mof.process(keySQLSafe, title, ec.getGates(), descriptions, descriptionsLabels);
+        mof.setVisible(true);
+//        
+//        new Thread(() -> {
+//            try {
+//                ec.getZProjection();
+//                java.lang.Thread.sleep(100);
+//                String image = "Gates_" + impoverlay.getTitle();
+//            } catch (Exception e) {
+//                System.out.println("ERROR: " + e.getLocalizedMessage());
+//            }
+//        }).start();        
     }//GEN-LAST:event_getMaskActionPerformed
 
     private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
@@ -2090,6 +2107,107 @@ public class MicroExplorer extends javax.swing.JFrame implements
         this.childKeys.add(linkedKey);
     }
 
+    @Override
+    public void onMakeObjectMasksFromFeature(boolean[] process, String feature, 
+            ArrayList<Double> features, ArrayList<String> labels) {
+     
+    ArrayList<Double> featureProcess = new ArrayList();
+        
+    for(int j = 0; j < features.size(); j++){
+        if(process[j]){
+        featureProcess.add(features.get(j));
+                }
+    }
+    
+    features = featureProcess;
+        
+    new Thread(() -> {
+        try {
+            for(int i = 0; i < featureProcess.size(); i++){
+            //get a list of objects for a given feature value.
+            ArrayList<ArrayList> result = getObjectsInRange2D(
+            (vtea._vtea.H2_MEASUREMENTS_TABLE+"_" + key).replace("-", "_"), 
+                    feature,featureProcess.get(i).intValue());
+            
+            ListIterator<ArrayList> itr1 = result.listIterator();
+            
+            ArrayList<Double> objectID = new ArrayList();
+            
+            while(itr1.hasNext()){
+                ArrayList resultArr = itr1.next();
+                objectID.add((Double)resultArr.get(0));
+            }
+            
+            
+            ArrayList<MicroObject> selectedObjects = new ArrayList();
+            ArrayList<MicroObject> allObjects = ec.getObjects();
+            
+            //ListIterator<Double> itr = objectID.listIterator();
+           
+            for(int k = 0; k < objectID.size(); k++){          
+                Double test = objectID.get(k);
+                for(int j = 0; j < allObjects.size(); j++){
+                    MicroObject obj = allObjects.get(j);
+                     //System.out.println("ERROR: Objects: " + test + "," + obj.getSerialID());
+                    if(test == obj.getSerialID()){
+                        selectedObjects.add(obj);
+                        j = allObjects.size();
+                    }
+                }
+            }
+            
+            //System.out.println("PROFILING: Selected objects: " + selectedObjects.size());
+
+            ImageStack isResult = ec.makeObjectsOverlayVolume(selectedObjects);
+            
+            //Save IS to file
+
+            ExportImageStack eis = new ExportImageStack();
+            eis.export(isResult, "_" + featureProcess.get(i) + "_");
+            //System.gc();
+            }
+        } catch (Exception e) {
+                System.out.println("ERROR: Object mask on feature failed...");
+        }
+    }).start();
+    }
+
+    @Override
+    public void onMakeObjectMasksFromGate(boolean[] gates, ArrayList<String> labels) {
+           new Thread(() -> {
+        try {
+        ArrayList<PolygonGate> gatesList = ec.getGates();
+        
+        
+        for(int i = 0; i < gates.length; i++){
+            
+            if(gates[i]){
+                ImageStack isResult = ec.makeSelectedGateOverlayVolume(
+                        gatesList.get(i));
+                
+                //Save IS to pyramid file, TBD
+                
+                
+                
+                ExportImageStack eis = new ExportImageStack();
+                eis.export(isResult, gatesList.get(i).getName());
+                System.gc();
+                
+            }       
+        }
+        
+        //use boolean to grab the correct gates.
+
+        //run existing gate dependent code for mask generation.
+             
+        
+        } catch (Exception e) {
+                System.out.println("ERROR: Object mask failed on gate...");
+        }
+    }).start();
+    }
+    
+
 
     public class ExportOBJ {
 
@@ -2187,6 +2305,7 @@ public class MicroExplorer extends javax.swing.JFrame implements
         }
 
     }
+    
 
     class ExportCSV {
 
@@ -2269,6 +2388,55 @@ public class MicroExplorer extends javax.swing.JFrame implements
                         pw.close();
 
                     } catch (FileNotFoundException e) {
+                    }
+
+                } catch (NullPointerException ne) {
+                }
+                _vtea.LASTDIRECTORY = file.getPath();
+            } else {
+            }
+
+        }
+
+    }
+    
+    class ExportImageStack {
+
+        public ExportImageStack() {
+        }
+
+        protected void export(ImageStack is, String label) {
+            File file;
+            int returnVal = JFileChooser.CANCEL_OPTION;
+            int choice = JOptionPane.OK_OPTION;
+            do {
+                JFileChooser jf = new JFileChooser(_vtea.LASTDIRECTORY);
+                jf.setSelectedFile(new File(vtea._vtea.LASTFILENAMEROOT));
+                returnVal = jf.showSaveDialog(Main);
+                
+                file = jf.getSelectedFile();
+                if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase(".tif")) {
+
+                } else {
+                    file = new File(file.toString() + "_" + label + ".tif");
+                }
+
+                if (file.exists()) {
+                    String message = String.format("%s already exists\nOverwrite it?", file.getName());
+                    choice = JOptionPane.showConfirmDialog(null, message, "Overwrite File", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                }
+            } while (choice != JOptionPane.OK_OPTION);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+                try {
+
+                    try {
+ 
+                        FileSaver fs = new FileSaver(new ImagePlus(file.getName() + "_" + label, is));
+                        fs.saveAsTiffStack(file.getPath());
+                        _vtea.LASTDIRECTORY = file.getPath();
+
+                    } catch (Exception e) {
                     }
 
                 } catch (NullPointerException ne) {

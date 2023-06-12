@@ -566,8 +566,7 @@ public class H2DatabaseEngine {
                     al.add(rs.getDouble(2));
                     al.add(rs.getDouble(3));
                     al.add(rs.getDouble(4)-1);
-                    result.add(al);
-                    
+                    result.add(al);                
                 }
             }
 
@@ -578,8 +577,10 @@ public class H2DatabaseEngine {
     }
 
 //H2 SQL for get Range of values with third channel
-    public static ArrayList<ArrayList> getObjectsInRange2D(Path2D.Double p, String table, String column1, double low1,
-            double high1, String column2, double low2, double high2, String column3) {
+    public static ArrayList<ArrayList> getObjectsInRange2D(Path2D.Double p, 
+            String table, String column1, double low1,
+            double high1, String column2, double low2, double high2, 
+            String column3) {
 
         Connection cn = getDBConnection();
         PreparedStatement selectPreparedStatement = null;
@@ -619,6 +620,46 @@ public class H2DatabaseEngine {
         }
         return result;
     }
+  
+//H2 SQL for get distinct object for a given field value
+    public static ArrayList<ArrayList> getObjectsInRange2D(String table, 
+            String feature, int value) {
+
+        Connection cn = getDBConnection();
+        PreparedStatement selectPreparedStatement = null;
+        ResultSet rs = null;
+        
+        
+
+        ArrayList<ArrayList> result = new ArrayList();
+
+        try{
+
+            String SelectQuery = "select Object" 
+                    + " from " + table + " WHERE "
+                    +feature + "=" + value;
+            
+            
+            
+            selectPreparedStatement = cn.prepareStatement(SelectQuery);
+            rs = selectPreparedStatement.executeQuery();
+
+            while (rs.next()) {
+                    ArrayList al = new ArrayList();
+                    al.add(rs.getDouble(1));
+                    result.add(al);
+            }
+            
+            //System.out.println("SQL statement: " + SelectQuery);
+            //System.out.println("Objects found: " + result.size());
+
+        } catch (SQLException e) {
+            System.out.println("Exception Message " + e.getLocalizedMessage());
+        }
+        return result;
+    }
+   
+    
     
 //H2 SQL to get objects
     
@@ -628,7 +669,8 @@ public class H2DatabaseEngine {
     
 
 //H2 SQL for get cells in polygon 
-    public static ArrayList getObjectsInPolygon(String table, Polygon p, String column1, String column2) {
+    public static ArrayList getObjectsInPolygon(String table, Polygon p, 
+            String column1, String column2) {
 
         Connection cn = getDBConnection();
 
@@ -656,7 +698,8 @@ public class H2DatabaseEngine {
 
             //check against polygon2D
             while (rs.next()) {
-                if (p.contains(rs.getDouble(column2), rs.getDouble(column2))) {
+                if (p.contains(rs.getDouble(column2), 
+                        rs.getDouble(column2))) {
                     al.add(rs.getDouble(0));
                 }
             }

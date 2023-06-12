@@ -488,36 +488,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                         }
                     }
 
-//                    java.awt.Font f = new Font("Arial", Font.BOLD, 12);
-//
-//                    BigDecimal percentage = new BigDecimal(selected);
-//                    BigDecimal totalBD = new BigDecimal(total);
-//                    percentage = percentage.divide(totalBD, 3, BigDecimal.ROUND_CEILING);
-//
-//                    BigDecimal percentageGated = new BigDecimal(gated);
-//                    BigDecimal totalGatedBD = new BigDecimal(total);
-//                    percentageGated = percentageGated.divide(totalGatedBD, 3,
-//                            BigDecimal.ROUND_CEILING);
-//
-//                    BigDecimal percentageGatedSelected = new BigDecimal(gatedSelected);
-//                    BigDecimal totalGatedSelectedBD = new BigDecimal(total);
-//                    percentageGatedSelected
-//                            = percentageGatedSelected.divide(totalGatedSelectedBD,
-//                                    3, BigDecimal.ROUND_CEILING);
-//
-//                    TextRoi textTotal = new TextRoi(5, 10, selected
-//                            + "/" + total + " gated ("
-//                            + 100 * percentage.floatValue() + "%)");
-//                    printResult = textTotal.getText();
-//                    if (gated > 0) {
-//                        textTotal = new TextRoi(5, 10, selected + "/" + total
-//                                + " total (" + 100 * percentage.floatValue()
-//                                + "%)" + "; " + gated + "/" + total + " roi ("
-//                                + 100 * percentageGated.floatValue() + "%)"
-//                                + "; " + gatedSelected + "/" + total + " overlap ("
-//                                + 100 * percentageGatedSelected.floatValue() + "%)", f);
-//                        printResult = textTotal.getText();
-//                    }
+
                     gate.setObjectsInGate(selected);
                     gate.setTotalObjects(total);
 
@@ -534,12 +505,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     impoverlay.setDisplayMode(IJ.COMPOSITE);
                 }
                 impoverlay.show();
-                System.gc();
+                //System.gc();
 
             }
         } else {
             impoverlay.getOverlay().clear();
-            System.gc();
+            //System.gc();
         }
     }
     } 
@@ -879,6 +850,317 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         }
         return alIs;
     }
+    
+    @Override
+        public ArrayList<ImageStack> makeGateOverlayVolume(ArrayList<PolygonGate> gates) {
+
+        ArrayList<ImageStack> alIs = new ArrayList<>();
+
+        HashMap<Double, Integer> objPositions = new HashMap();
+
+        objPositions = getSerialIDHashMap(objects);
+
+        PolygonGate gate;
+        ListIterator<PolygonGate> gate_itr = gates.listIterator();
+
+        int gatedSelected = 0;
+        int gatecount = gates.size();
+
+        while (gate_itr.hasNext()) {
+            gate = gate_itr.next();
+
+            if (gate.getSelected()) {
+
+                Path2D.Double path = gate.createPath2DInChartSpace();
+
+                ArrayList<MicroObject> result = new ArrayList<MicroObject>();
+                ///  ArrayList<MicroObject> volumes = (ArrayList) objects;
+                MicroObjectModel volume;
+
+                double xValue = 0;
+                double yValue = 0;
+
+                ArrayList<ArrayList> resultKey
+                        = H2DatabaseEngine.getObjectsInRange2D(path,
+                                vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
+                                gate.getXAxis(), path.getBounds2D().getX(),
+                                path.getBounds2D().getX() + path.getBounds2D().getWidth(),
+                                gate.getYAxis(), path.getBounds2D().getY(),
+                                path.getBounds2D().getY() + path.getBounds2D().getHeight());
+
+                ListIterator<ArrayList> itr = resultKey.listIterator();
+
+                int offsetx = 0;
+                int offsety = 0;
+
+                if (impoverlay.getRoi() != null) {
+                    Roi r = impoverlay.getRoi();
+                    offsetx = r.getBounds().x;
+                    offsety = r.getBounds().y;
+                }
+
+                while (itr.hasNext()) {
+                    ArrayList al = itr.next();
+                    double object = (double) (al.get(0));
+
+                    MicroObject obj = objects.get(objPositions.get(object));
+
+                    if (impoverlay.getRoi() != null) {
+                        if (impoverlay.getRoi().contains((int) obj.getCentroidX(),
+                                (int) obj.getCentroidY())) {
+                            result.add(objects.get(objPositions.get(object)));
+                        }
+                    } else {
+                        result.add(objects.get(objPositions.get(object)));
+                    }
+                }
+
+                Overlay overlay = new Overlay();
+
+                int count = 0;
+
+                ImageStack gateOverlay = new ImageStack(impoverlay.getWidth(),
+                        impoverlay.getHeight());
+
+                gated = getGatedObjects(impoverlay);
+                gatedSelected = getGatedSelected(impoverlay);
+
+                Collections.sort(result, new ZComparator());
+
+                for (int i = 0; i <= impoverlay.getNSlices(); i++) {
+
+                    BufferedImage selections = new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
+
+                    if (impoverlay.getRoi() != null) {
+                        Roi r = impoverlay.getRoi();
+                        selections = new BufferedImage(r.getBounds().width,
+                                r.getBounds().height, BufferedImage.TYPE_BYTE_GRAY);
+                    } else {
+
+                        selections = new BufferedImage(impoverlay.getWidth(),
+                                impoverlay.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+                    }
+
+                    Graphics2D g2 = selections.createGraphics();
+                    ImageRoi ir = new ImageRoi(0, 0, selections);
+                    ListIterator<MicroObject> vitr = result.listIterator();
+                    boolean inZ = true;
+                    while (vitr.hasNext()) {
+                        MicroObject vol = (MicroObject) vitr.next();
+                        inZ = true;
+                        if (i >= vol.getMinZ() && i <= vol.getMaxZ()) {
+                            inZ = false;
+                        }
+                        try {
+                            int[] x_pixels = vol.getXPixelsInRegion(i);
+                            int[] y_pixels = vol.getYPixelsInRegion(i);
+                            for (int c = 0; c < x_pixels.length; c++) {
+                                g2.setColor(gate.getColor());
+                                g2.drawRect(x_pixels[c] - offsetx, y_pixels[c] - offsety, 1, 1);
+                            }
+                            ir = new ImageRoi(0, 0, selections);
+                            count++;
+                        } catch (NullPointerException e) {
+                        }
+                    }
+                    ir.setPosition(0, i, 0);
+                    ir.setOpacity(0.4);
+                    overlay.selectable(false);
+                    overlay.add(ir);
+
+                    gateOverlay.addSlice(ir.getProcessor());
+                }
+                alIs.add(gateOverlay);
+                gatecount++;
+            }
+        }
+        return alIs;
+    }
+    
+    @Override
+    public ImageStack makeSelectedGateOverlayVolume(PolygonGate gate) {
+
+        
+        HashMap<Double, Integer> objPositions = new HashMap();
+
+        objPositions = getSerialIDHashMap(objects);
+
+        Path2D.Double path = gate.createPath2DInChartSpace();
+
+        ArrayList<MicroObject> result = new ArrayList<MicroObject>();
+        
+        MicroObjectModel volume;
+        
+        
+
+        double xValue = 0;
+        double yValue = 0;
+
+        ArrayList<ArrayList> resultKey
+                = H2DatabaseEngine.getObjectsInRange2D(path,
+                        vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
+                        gate.getXAxis(), path.getBounds2D().getX(),
+                        path.getBounds2D().getX() + path.getBounds2D().getWidth(),
+                        gate.getYAxis(), path.getBounds2D().getY(),
+                        path.getBounds2D().getY() + path.getBounds2D().getHeight());
+
+        ListIterator<ArrayList> itr = resultKey.listIterator();
+        
+        //System.out.println("PROFILING: Gate mask, objects found: " + resultKey.size());
+        //System.out.println("PROFILING: Gate mask, lookup hashmap: " + objPositions.size());
+
+        int offsetx = 0;
+        int offsety = 0;
+
+        if (impoverlay.getRoi() != null) {
+            Roi r = impoverlay.getRoi();
+            offsetx = r.getBounds().x;
+            offsety = r.getBounds().y;
+        }
+
+        while (itr.hasNext()) {
+            ArrayList al = itr.next();
+            double object = (double) (al.get(0));
+
+            MicroObject obj = objects.get(objPositions.get(object));
+
+            if (impoverlay.getRoi() != null) {
+                if (impoverlay.getRoi().contains((int) obj.getCentroidX(),
+                        (int) obj.getCentroidY())) {
+                    result.add(objects.get(objPositions.get(object)));
+                }
+            } else {
+                result.add(objects.get(objPositions.get(object)));
+            }
+        }
+
+        Overlay overlay = new Overlay();
+
+        int count = 0;
+
+        ImageStack gateOverlay = new ImageStack(impoverlay.getWidth(),
+                impoverlay.getHeight());
+
+        //gated = getGatedObjects(impoverlay);
+        
+
+        Collections.sort(result, new ZComparator());
+
+        for (int i = 0; i <= impoverlay.getNSlices(); i++) {
+
+            BufferedImage selections = new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
+
+            if (impoverlay.getRoi() != null) {
+                Roi r = impoverlay.getRoi();
+                selections = new BufferedImage(r.getBounds().width,
+                        r.getBounds().height, BufferedImage.TYPE_BYTE_GRAY);
+            } else {
+
+                selections = new BufferedImage(impoverlay.getWidth(),
+                        impoverlay.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+            }
+
+            Graphics2D g2 = selections.createGraphics();
+            ImageRoi ir = new ImageRoi(0, 0, selections);
+            ListIterator<MicroObject> vitr = result.listIterator();
+            boolean inZ = true;
+            while (vitr.hasNext()) {
+                MicroObject vol = (MicroObject) vitr.next();
+                inZ = true;
+                if (i >= vol.getMinZ() && i <= vol.getMaxZ()) {
+                    inZ = false;
+                }
+                try {
+                    int[] x_pixels = vol.getXPixelsInRegion(i);
+                    int[] y_pixels = vol.getYPixelsInRegion(i);
+                    for (int c = 0; c < x_pixels.length; c++) {
+                        g2.setColor(gate.getColor());
+                        g2.drawRect(x_pixels[c] - offsetx, y_pixels[c] - offsety, 1, 1);
+                    }
+                    ir = new ImageRoi(0, 0, selections);
+                    count++;
+                } catch (NullPointerException e) {
+                }
+            }
+            ir.setPosition(0, i, 0);
+            ir.setOpacity(0.4);
+            overlay.selectable(false);
+            overlay.add(ir);
+
+            gateOverlay.addSlice(ir.getProcessor());
+        }
+        return gateOverlay;
+    }
+
+    @Override
+    public ImageStack makeObjectsOverlayVolume(ArrayList<MicroObject> objects) {
+
+        HashMap<Double, Integer> objPositions = new HashMap();
+        objPositions = getSerialIDHashMap(objects);
+
+        int offsetx = 0;
+        int offsety = 0;
+
+        if (impoverlay.getRoi() != null) {
+            Roi r = impoverlay.getRoi();
+            offsetx = r.getBounds().x;
+            offsety = r.getBounds().y;
+        }
+
+        Overlay overlay = new Overlay();
+
+        int count = 0;
+
+        ImageStack imageOverlay = new ImageStack(impoverlay.getWidth(),
+                impoverlay.getHeight());
+
+        Collections.sort(objects, new ZComparator());
+
+        for (int i = 0; i <= impoverlay.getNSlices(); i++) {
+
+            BufferedImage selections = new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
+
+            if (impoverlay.getRoi() != null) {
+                Roi r = impoverlay.getRoi();
+                selections = new BufferedImage(r.getBounds().width,
+                        r.getBounds().height, BufferedImage.TYPE_BYTE_GRAY);
+            } else {
+
+                selections = new BufferedImage(impoverlay.getWidth(),
+                        impoverlay.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+            }
+
+            Graphics2D g2 = selections.createGraphics();
+            ImageRoi ir = new ImageRoi(0, 0, selections);
+            ListIterator<MicroObject> vitr = objects.listIterator();
+            boolean inZ = true;
+            while (vitr.hasNext()) {
+                MicroObject vol = (MicroObject) vitr.next();
+                inZ = true;
+                if (i >= vol.getMinZ() && i <= vol.getMaxZ()) {
+                    inZ = false;
+                }
+                try {
+                    int[] x_pixels = vol.getXPixelsInRegion(i);
+                    int[] y_pixels = vol.getYPixelsInRegion(i);
+                    for (int c = 0; c < x_pixels.length; c++) {
+                        g2.setColor(Color.RED);
+                        g2.drawRect(x_pixels[c] - offsetx, y_pixels[c] - offsety, 1, 1);
+                    }
+                    ir = new ImageRoi(0, 0, selections);
+                    count++;
+                } catch (NullPointerException e) {
+                }
+            }
+            ir.setPosition(0, i, 0);
+            ir.setOpacity(0.4);
+            overlay.selectable(false);
+            overlay.add(ir);
+
+            imageOverlay.addSlice(ir.getProcessor());
+        }
+        return imageOverlay;
+    }
 
     @Override
     public int getGatedObjects(ImagePlus ip) {
@@ -887,9 +1169,6 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             ListIterator<MicroObject> itr = objects.listIterator();
             while (itr.hasNext()) {
                 MicroObject m = itr.next();
-//                int[] c = new int[2];
-//                c = m.getBoundsCenter();
-
                 if (ip.getRoi().contains((int) m.getCentroidX(), (int) m.getCentroidY())) {
                     ImageGatedObjects.add(m);
                     m.setGated(true);
@@ -1135,7 +1414,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     @Override
-    public PolygonGate getGates(int x, int y, int l, int size) {
+    public PolygonGate getGate(int x, int y, int l, int size) {
         String key = x + "_" + y;
         if (isMade(x, y, l, size)) {
             ListIterator<ArrayList> itr = ExplorationItems.listIterator();
@@ -2203,7 +2482,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                         (columnTitles[m].replace(".", "_")).replace("/", "_"),
                         (columnTitles[m].replace(".", "_")).replace("/", "_"), 
                         result);
-
+                System.gc();
             }
         }
         tracker.setVisible(false);
@@ -3148,7 +3427,7 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void addDistanceMapFromGate(String s) {
         
-        System.out.println("PROFILING: calculating distance.");
+        //System.out.println("PROFILING: calculating distance.");
 
         ArrayList<ArrayList> al = cloneGatedObjectsMeasurements(false);
         ArrayList<MicroObject> objectsTemp = new ArrayList<MicroObject>();
@@ -3460,6 +3739,11 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     @Override
     public void dataSetUtilities() {
         DataUtilities.setVisible(true);    
+    }
+
+    @Override
+    public ArrayList<PolygonGate> getGates() {
+        return gl.getGates();
     }
 
     class ExportGates {
