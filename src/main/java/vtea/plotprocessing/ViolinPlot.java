@@ -106,13 +106,13 @@ public class ViolinPlot extends AbstractPlotMaker {
             engine.eval("library(colorspace)");
 
             String platform = System.getProperty("os.name");
-//            if (platform.startsWith("Windows")) {
-                //location = location.replace("\/", "/");
-//                location = location.replace("\\", "//");
-//                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
-//            } else {
+            if (platform.startsWith("Windows")) {
+                location = location.replace("///", "//");
+                location = location.replace("\\", "//");
+                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
+            } else {
                 engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
-//            }
+            }
             engine.eval(VTEACOLORS);
             //engine.eval("plot$" + group + " <- factor(plot, " + "plot$" + group  + ")");
             engine.eval("out <- ggplot(plot, aes(factor(plot$" + group + "),"

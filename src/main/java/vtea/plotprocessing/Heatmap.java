@@ -145,13 +145,13 @@ public class Heatmap extends AbstractPlotMaker {
             //load data
             
             String platform = System.getProperty("os.name");
-//            if (platform.startsWith("Windows")) {
-//                location = location.replace("///", "//");
-//                location = location.replace("\\", "//");
-//                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
-//            } else {
+            if (platform.startsWith("Windows")) {
+                location = location.replace("///", "//");
+                location = location.replace("\\", "//");
+                engine.eval("plot <- read.csv('" + location + "//" + filename + ".csv')");
+            } else {
                 engine.eval("plot <- read.csv('" + location + "/" + filename + ".csv')");
-//            }
+            }
             
             engine.eval("row.names(plot) <- plot$" + group);
             engine.eval("plot <- plot[,-1]");
