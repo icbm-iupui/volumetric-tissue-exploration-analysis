@@ -62,6 +62,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
     private double[][] distance;
 
     private boolean watershedImageJ = true;
+    private boolean enforce2_5D = true;
 
     private List<MicroObject> alVolumes = Collections.synchronizedList(new ArrayList<MicroObject>());
     private List<microRegion> alRegions = Collections.synchronizedList(new ArrayList<microRegion>());
@@ -74,10 +75,11 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
     JTextField f3 = new JTextField(String.valueOf(settings[2]), 5);
     JTextField f4 = new JTextField(String.valueOf(settings[3]), 5);
 
+
     MicroThresholdAdjuster mta;
 
     public LayerCake3DSingleThresholdkDTree() {
-        VERSION = "0.1";
+        VERSION = "0.2";
         AUTHOR = "Seth Winfree";
         COMMENT = "Connected components object segmentation with kDTree datatype.";
         NAME = "Connect 2D/3D with kDTree";
@@ -102,6 +104,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         f4.setMaximumSize(f4.getPreferredSize());
         f4.setMinimumSize(f4.getPreferredSize());
 
+
         protocol.add(new JLabel("Low Threshold"));
         protocol.add(f1);
         protocol.add(new JLabel("Centroid Offset"));
@@ -111,6 +114,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         protocol.add(new JLabel("Max Vol (vox)"));
         protocol.add(f4);
         protocol.add(new JCheckBox("Watershed", true));
+        protocol.add(new JCheckBox("2.5D", true));
 
     }
 
@@ -170,6 +174,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             JTextField f3 = (JTextField) sComponents.get(5);
             JTextField f4 = (JTextField) sComponents.get(7);
             JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox) (sComponents.get(8))).isSelected());
+            JCheckBox dimensionality = new JCheckBox("2.5D", ((JCheckBox) (sComponents.get(9))).isSelected());
 
             dComponents.add(new JLabel("Low Threshold"));
             dComponents.add(f1);
@@ -180,6 +185,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             dComponents.add(new JLabel("Max Vol (vox)"));
             dComponents.add(f4);
             dComponents.add(watershed);
+            dComponents.add(dimensionality);
 
             return true;
         } catch (Exception e) {
@@ -208,12 +214,14 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             JTextField n3 = (JTextField) dComponents.get(5);
             JTextField n4 = (JTextField) dComponents.get(7);
             JCheckBox n5 = (JCheckBox) dComponents.get(8);
+            JCheckBox n6 = (JCheckBox) dComponents.get(9);
 
             n1.setText((String) fields.get(0));
             n2.setText((String) fields.get(1));
             n3.setText((String) fields.get(2));
             n4.setText((String) fields.get(3));
             n5.setSelected((boolean) fields.get(4));
+            n6.setSelected((boolean) fields.get(5));
 
             return true;
         } catch (Exception e) {
@@ -241,12 +249,14 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             JTextField f3 = (JTextField) sComponents.get(5);
             JTextField f4 = (JTextField) sComponents.get(7);
             JCheckBox watershed = new JCheckBox("Watershed", ((JCheckBox) (sComponents.get(8))).isSelected());
+            JCheckBox dimensionality = new JCheckBox("2.5D", ((JCheckBox) (sComponents.get(9))).isSelected());
 
             fields.add(f1.getText());
             fields.add(f2.getText());
             fields.add(f3.getText());
             fields.add(f4.getText());
             fields.add(((JCheckBox) (sComponents.get(8))).isSelected());
+            fields.add(((JCheckBox) (sComponents.get(9))).isSelected());
 
             return true;
         } catch (Exception e) {
@@ -299,6 +309,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         minConstants[0] = Integer.parseInt(((JTextField) (al.get(5))).getText());
         minConstants[1] = Integer.parseInt(((JTextField) (al.get(7))).getText());
         watershedImageJ = ((JCheckBox) (al.get(8))).isSelected();
+        enforce2_5D = ((JCheckBox) (al.get(9))).isSelected();
 
         int segmentationChannel = (int) protocol.get(2);
 
@@ -409,9 +420,9 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
                tree.range(query, minConstants[2], neighbors);  
                ListIterator<Neighbor> neighborItr = neighbors.listIterator();
-               
+               if(!enforce2_5D){
                findConnectedRegions(nVolumesLocal, query, tree);
-
+               }
             } 
         }
         
@@ -495,7 +506,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                            query[0] = addRegion.getBoundCenterX();
                            query[1] = addRegion.getBoundCenterY();
                            query[2] = addRegion.getZPosition();
-
+                           
                            findConnectedRegions(volumeNumber, query, tree);
                        } 
 
@@ -793,7 +804,15 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                     volume.addRegion(region);
                 }
             }
-            if (volume.getNRegions() > 1 || imageResult.getNSlices() == 1) {
+            
+            //trap 2.5D
+            
+            int minRegions = 1;
+            if(enforce2_5D){
+                minRegions = 0;
+            }
+
+            if (volume.getNRegions() > minRegions || imageResult.getNSlices() == 1) {
                 volume.makePixelArrays();
                 volume.setCentroid();
                 volume.setSerialID(alVolumes.size());
