@@ -22,6 +22,8 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Polygon;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -397,6 +399,8 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         db = 0;
         //int z = 0;
         
+        if(!enforce2_5D){
+        
         for (int j = 0; j < alRegions.size(); j++) {
             
             db = (100 * (j + 1)) / alRegions.size();
@@ -420,11 +424,16 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
                tree.range(query, minConstants[2], neighbors);  
                ListIterator<Neighbor> neighborItr = neighbors.listIterator();
-               if(!enforce2_5D){
-               findConnectedRegions(nVolumesLocal, query, tree);
-               }
+               //if(!enforce2_5D){
+               findConnectedRegions(nVolumesLocal, query, tree, 3);
+               //} 
             } 
+        } 
+        }else{
+            alRegionsProcessed.addAll(alRegions);
         }
+        
+        //System.out.println("PROFILING... Regions: " + alRegionsProcessed.size());
         
         //this needs to be threaded
         
@@ -482,10 +491,8 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         return distance;
     }
 
-    private void findConnectedRegions(int volumeNumber, double[] query, KDTree tree) {
+    private void findConnectedRegions(int volumeNumber, double[] query, KDTree tree, int nD) {
 
-     
-        
         ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
                tree.range(query, minConstants[2], neighbors);  
                ListIterator<Neighbor> neighborItr = neighbors.listIterator();
@@ -495,9 +502,10 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                    double[] neighborkey = (double[])n.value;
                    microRegion addRegion = alRegions.get((int)neighborkey[0]);
                    
-                if (!addRegion.isAMember()) {   
-                   if (n.distance <= (minConstants[2])
-                           && Math.abs(addRegion.getZPosition() - query[2]) == 1) {
+                if (!addRegion.isAMember()) {
+                   if (nD == 3 && n.distance <= (minConstants[2])
+                           && Math.abs(addRegion.getZPosition() - query[2]) == 1
+                           ) {
                        
                            addRegion.setMembership(volumeNumber);
                            addRegion.setAMember(true);
@@ -507,13 +515,57 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                            query[1] = addRegion.getBoundCenterY();
                            query[2] = addRegion.getZPosition();
                            
-                           findConnectedRegions(volumeNumber, query, tree);
+                           findConnectedRegions(volumeNumber, query, tree, nD);
                        } 
 
-                   }
+//                 if(nD == 2 && n.distance <= (minConstants[2])) {
+//                        addRegion.setMembership(volumeNumber);
+//                           addRegion.setAMember(true);
+//                           alRegionsProcessed.add(addRegion);
+//
+//                           query[0] = addRegion.getBoundCenterX();
+//                           query[1] = addRegion.getBoundCenterY();
+//                           query[2] = addRegion.getZPosition();
+//                           
+//                           findConnectedRegions(volumeNumber, query, tree, nD);
+//                }
+                }
                    
-               }
+            }
+    }
+    
+    private Polygon getPerimeter(microRegion test){
+        Polygon boundary = new Polygon();
+        int[] pixels_x = test.getPixelsX();
+        int[] pixels_y = test.getPixelsY();
+        
+        Polygon pg = new Polygon(pixels_x,pixels_y, pixels_y.length);
+        
+        //for each pixel, check 8C for inside p, if not, boundary
+        
+        for(int i = 0; i < pixels_x.length; i++){
             
+            Point p = new Point(pixels_x[i], pixels_y[i]);
+            
+            p = new Point(pixels_x[i], pixels_y[i]-1);
+            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i], pixels_y[i]+1);
+            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]+1, pixels_y[i]);
+            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]-1, pixels_y[i]);
+            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]-1, pixels_y[i]-1);
+            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]+1, pixels_y[i]+1);
+            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]+1, pixels_y[i]-1);
+            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]-1, pixels_y[i]+1);
+            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}    
+        }
+
+        return boundary;
     }
 
     private class ZComparator implements Comparator<microRegion> {
@@ -616,30 +668,32 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             int color = 1;
             int region = 0;
             ArrayList<int[]> pixels = new ArrayList<int[]>();
+
             
             if(stopHeight > stack.getHeight()){stopHeight = stack.getHeight();}
-            
-            //System.out.println("PROFILING: ...Defining regions...");
 
             for (int n = this.start; n <= this.stop; n++) {
                 for (int p = 0; p < stack.getWidth(); p++) {
-                    for (int q = startHeight; q < stopHeight; q++) {
+                  for (int q = startHeight; q < stopHeight; q++) {
+                    
                         if (getVoxelBounds(stack, p, q, n) == 255) {
-                            pixels = floodfill(stack, p, q, n, stack.getWidth(), stack.getHeight(), stack.getSize(), color, pixels);
+                            
+                            pixels = floodfill(stack, p, q, n, stack.getWidth(), stopHeight, stack.getSize(), color, pixels);
+                            
+                            if(!pixels.isEmpty()){
+                                //System.out.println("PROFILING: region size: " + pixels.size());
+                                int[] pixel = new int[3];
+                                int[] xPixels = new int[pixels.size()];
+                                int[] yPixels = new int[pixels.size()];
+                                int j = 0;
 
-                            //System.out.println("PROFILING: region size: " + pixels.size());
-                            int[] pixel = new int[3];
-                            int[] xPixels = new int[pixels.size()];
-                            int[] yPixels = new int[pixels.size()];
-                            int j = 0;
-
-                            ListIterator<int[]> itr = pixels.listIterator();
-                            while (itr.hasNext()) {
-                                pixel = itr.next();
-                                xPixels[j] = pixel[0];
-                                yPixels[j] = pixel[1];
-                                j++;
-                            }
+                                ListIterator<int[]> itr = pixels.listIterator();
+                                while (itr.hasNext()) {
+                                    pixel = itr.next();
+                                    xPixels[j] = pixel[0];
+                                    yPixels[j] = pixel[1];
+                                    j++;
+                                }
 
                             alResult.add(new microRegion(xPixels, yPixels, xPixels.length, n, original));
 
@@ -652,7 +706,9 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                             n_positions = 0;
                             count = 0;
                             region++;
+                            
                             pixels.clear();
+                            }
                         }
                     }
                 }
@@ -664,9 +720,22 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
 
         private ArrayList<int[]> floodfill(ImageStack stack, int x, int y, int z, int width, int height, int depth, int color, ArrayList<int[]> pixels) {
 
-            if (x < 0 || y < 0 || z < 0 || x >= width || y >= height || z >= depth || stack.getVoxel(x, y, z) < 255) {
+            //System.out.println("Section HeightStop: " + height); 
+            //System.out.println("Stack Height: " + stack.getHeight()); 
+            
+            if (x < 0 || y < 0 || z < 0) {
                 return pixels;
-            } if(pixels.size() < minConstants[1]) {
+            }
+            
+            if (y >= stack.getHeight() || x >= width || z >= depth ) {
+                return pixels;
+            }
+          
+            if (stack.getVoxel(x, y, z) < 255) {
+                return pixels;
+            }
+     
+            if(pixels.size() < minConstants[1]) {
 
                 stack.setVoxel(x, y, z, color);
 
@@ -676,18 +745,21 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                 pixel[2] = z;
 
                 pixels.add(pixel);
-
-                pixels = floodfill(stack, x + 1, y, z, width, height, depth, color, pixels);
+                
+                pixels = floodfill(stack, x - 1, y - 1, z, width, height, depth, color, pixels);
+                pixels = floodfill(stack, x - 1, y, z, width, height, depth, color, pixels);
+                pixels = floodfill(stack, x - 1, y + 1, z, width, height, depth, color, pixels);
+                pixels = floodfill(stack, x, y - 1, z, width, height, depth, color, pixels);
+                pixels = floodfill(stack, x + 1, y - 1, z, width, height, depth, color, pixels);
                 pixels = floodfill(stack, x, y + 1, z, width, height, depth, color, pixels);
                 pixels = floodfill(stack, x + 1, y + 1, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x - 1, y, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x, y - 1, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x - 1, y - 1, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x - 1, y + 1, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x + 1, y - 1, z, width, height, depth, color, pixels);
+                pixels = floodfill(stack, x + 1, y, z, width, height, depth, color, pixels);
+          
+            } else { 
+                return new ArrayList<int[]>();
             }
+  
             return pixels;
-
         }
 
         private double getVoxelBounds(ImageStack stack, int x, int y, int z) {
@@ -701,7 +773,6 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
 
         private void setRegions() {
             if(!alResult.isEmpty()){alRegions.addAll(alResult);}
-            //System.out.println("PROFILING: ...Regions set...");
         }
 
         public ArrayList<microRegion> getRegions() {
@@ -720,41 +791,38 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         @Override
         protected void compute() {
 
-            long processors = Runtime.getRuntime().availableProcessors();          
+            long processors = Runtime.getRuntime().availableProcessors(); 
 
-            long length = (stack.getSize() / (processors-1));
+            long depth = (stack.getSize() / (processors-1));
             long height = (stack.getHeight() / (processors-1));
-            
+
             if(stopHeight > stack.getHeight()){stopHeight = stack.getHeight();}
 
             if(stack.getSize() == 1){   
-                
-                length = 1;
+                depth = 1;
                 if(stopHeight - startHeight > height){
-                        //System.out.println("PROFILING: ...Splitting image volume...");
                         invokeAll(new RegionForkPool(stack, original, start, stop, 
                         startHeight, startHeight + ((stopHeight - startHeight) / 2)),
                         new RegionForkPool(stack, original,start, stop, 
                         startHeight + ((stopHeight - startHeight) / 2) + 1, stopHeight));
                 } else  {
-                
-                //System.out.println("PROFILING: ...Finding regions between " + startHeight + " and " + stopHeight);
-                defineRegions();
-                setRegions();
+                    if(defineRegions()){
+                    setRegions();}
+                    //System.out.println("PROFILING: ...Total regions: " + alRegions.size());
                 }
             } else {
-                //System.out.println("PROFILING: ...Subdividing volume...size: " + length);
                 startHeight = 0;
                 stopHeight = stack.getHeight();
-                if (stop - start > length) {
+                if (stop - start > depth) {
                     int stop1 = start + ((stop - start) / 2);
                         invokeAll(new RegionForkPool(stack, original, start, stop1, 
                         0, 0),
                         new RegionForkPool(stack, original, stop1 + 1, stop, 
                         0, 0));
                 } else  {
-                if(defineRegions()){
-                setRegions();}
+                    if(defineRegions()){
+                    setRegions();}
+                    //System.out.println("PROFILING: ...Total regions: " + alRegions.size());
                 }
             }
         }      
@@ -779,9 +847,11 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         @Override
         protected void compute() {
 
+         if(!enforce2_5D){   
+            
             long processors = Runtime.getRuntime().availableProcessors();          
             long length = alRegionsProcessed.size()/ (processors-1);
-
+                //System.out.println("PROFILING: ...Total processed regions: " + alRegionsProcessed.size());
                 if(stop - start > length){
                         //System.out.println("PROFILING: ...Splitting image volume...");
                         invokeAll(new VolumeForkPool(nVolumes, start, start + ((stop - start) / 2)),
@@ -789,6 +859,24 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                 } else  {
                 parseVolumes();
                 }
+         } else {
+             
+             alVolumes.clear();
+             
+            ListIterator<microRegion> itr = alRegionsProcessed.listIterator(); 
+             
+            while(itr.hasNext()){  
+             microRegion region = itr.next();      
+             microVolume volume = new microVolume();
+             volume.addRegion(region);
+             volume.makePixelArrays();
+             volume.setCentroid();
+             volume.setSerialID(alVolumes.size());
+             if ((volume.getPixelsX()).length >= minConstants[0] && (volume.getPixelsX()).length <= minConstants[1]) {
+                    alVolumes.add(volume);
+                }
+            }
+         }
         }  
         
         private boolean parseVolumes() {
@@ -807,10 +895,11 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             
             //trap 2.5D
             
-            int minRegions = 1;
-            if(enforce2_5D){
-                minRegions = 0;
-            }
+            int minRegions = 0;
+            //if(enforce2_5D){
+            //    minRegions = 0;
+            //}
+            
 
             if (volume.getNRegions() > minRegions || imageResult.getNSlices() == 1) {
                 volume.makePixelArrays();

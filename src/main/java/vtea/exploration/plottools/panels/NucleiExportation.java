@@ -187,6 +187,7 @@ public class NucleiExportation {
                         getProperVolume.setAccessible(true);
                     } catch (NoSuchMethodException | ClassNotFoundException e) {
                         Logger.getLogger(NucleiExportation.class.getName()).log(Level.SEVERE, null, e);
+                        
                     }
 
                     final int sizeL = size;
@@ -315,9 +316,11 @@ public class NucleiExportation {
                             long end1 = System.currentTimeMillis();
                             System.out.println((end1 - start1) / 1000f + " seconds");
                         } catch (FileNotFoundException e) {
+                            System.out.println("EXCEPTION: " + e.getMessage());
                         }
 
                     } catch (NullPointerException ne) {
+                        System.out.println("NULL EXCEPTION: " + ne.getMessage());
                     }
                     counter++;
                 }
