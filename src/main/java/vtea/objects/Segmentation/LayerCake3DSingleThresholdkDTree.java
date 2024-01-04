@@ -20,10 +20,19 @@ package vtea.objects.Segmentation;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.ImageRoi;
+import ij.gui.Overlay;
+import ij.plugin.Duplicator;
+import ij.plugin.StackCombiner;
+import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -334,14 +343,40 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         }
   
   
-        //imageResult = ConnectedComponents.preProcess(stackResult, watershedImageJ);
+        
         
         imageResult = new ImagePlus("Mask Result", stackResult);
 
         IJ.run(imageResult, "8-bit", "");
         IJ.run(imageResult, "Invert", "stack");
         if (watershedImageJ) {
+            
+            if(imageResult.getHeight() > 30000 && imageResult.getWidth() > 30000){
+                
+                imageResult.setRoi(0,0,imageResult.getWidth(),imageResult.getHeight()/2);
+                
+                Duplicator dup = new Duplicator();
+                
+                ImagePlus imageResult_top = dup.crop(imageResult);
+                IJ.run(imageResult_top, "Watershed", "stack");
+                
+                //imageResult_top.show();
+                
+                imageResult.setRoi(0,imageResult.getHeight()/2,imageResult.getWidth(),imageResult.getHeight());
+                ImagePlus imageResult_bottom = dup.crop(imageResult);
+                IJ.run(imageResult_bottom, "Watershed", "stack");
+                
+                //imageResult_bottom.show();
+                
+                StackCombiner combiner = new StackCombiner();
+                ImageStack result = combiner.combineVertically(imageResult_top.getImageStack(), 
+                        imageResult_bottom.getImageStack());
+                
+                imageResult = new ImagePlus(imageResult.getTitle(), result);
+                
+            }else{
             IJ.run(imageResult, "Watershed", "stack");
+            }
         }
         IJ.run(imageResult, "Invert", "stack");
 
@@ -437,7 +472,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         
         //this needs to be threaded
         
-        VolumeForkPool vfp = new VolumeForkPool(nVolumesLocal, 0, nVolumesLocal);
+        VolumeForkPool vfp = new VolumeForkPool(stackOriginal, nVolumesLocal, 0, nVolumesLocal);
         pool = new ForkJoinPool();
         pool.invoke(vfp);
 
@@ -481,6 +516,15 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         System.out.println("PROFILING:  Found " + alVolumes.size() + " volumes.");
         
         return true;
+    }
+    
+    private ImagePlus splitImageWatershed(ImagePlus imp){
+        
+        
+        
+        
+        
+        return imp;
     }
 
     private double lengthCart(double[] position, double[] reference_pt) {
@@ -534,40 +578,6 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             }
     }
     
-    private Polygon getPerimeter(microRegion test){
-        Polygon boundary = new Polygon();
-        int[] pixels_x = test.getPixelsX();
-        int[] pixels_y = test.getPixelsY();
-        
-        Polygon pg = new Polygon(pixels_x,pixels_y, pixels_y.length);
-        
-        //for each pixel, check 8C for inside p, if not, boundary
-        
-        for(int i = 0; i < pixels_x.length; i++){
-            
-            Point p = new Point(pixels_x[i], pixels_y[i]);
-            
-            p = new Point(pixels_x[i], pixels_y[i]-1);
-            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
-            p = new Point(pixels_x[i], pixels_y[i]+1);
-            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
-            p = new Point(pixels_x[i]+1, pixels_y[i]);
-            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
-            p = new Point(pixels_x[i]-1, pixels_y[i]);
-            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
-            p = new Point(pixels_x[i]-1, pixels_y[i]-1);
-            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
-            p = new Point(pixels_x[i]+1, pixels_y[i]+1);
-            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
-            p = new Point(pixels_x[i]+1, pixels_y[i]-1);
-            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}
-            p = new Point(pixels_x[i]-1, pixels_y[i]+1);
-            if(!pg.contains(p) && !boundary.contains(p)){boundary.addPoint(p.x,p.y);}    
-        }
-
-        return boundary;
-    }
-
     private class ZComparator implements Comparator<microRegion> {
 
         @Override
@@ -678,7 +688,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                     
                         if (getVoxelBounds(stack, p, q, n) == 255) {
                             
-                            pixels = floodfill(stack, p, q, n, stack.getWidth(), stopHeight, stack.getSize(), color, pixels);
+                            pixels = floodfill(stack, p, q, n, stack.getWidth(), startHeight, stopHeight, stack.getSize(), color, pixels);
                             
                             if(!pixels.isEmpty()){
                                 //System.out.println("PROFILING: region size: " + pixels.size());
@@ -718,7 +728,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             else {System.out.println("PROFILING: ...Regions found in thread:  0"); return false;}
         }
 
-        private ArrayList<int[]> floodfill(ImageStack stack, int x, int y, int z, int width, int height, int depth, int color, ArrayList<int[]> pixels) {
+        private ArrayList<int[]> floodfill(ImageStack stack, int x, int y, int z, int width,int start_height, int height, int depth, int color, ArrayList<int[]> pixels) {
 
             //System.out.println("Section HeightStop: " + height); 
             //System.out.println("Stack Height: " + stack.getHeight()); 
@@ -727,7 +737,8 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                 return pixels;
             }
             
-            if (y >= stack.getHeight() || x >= width || z >= depth ) {
+            
+            if (y >= height || x >= width || z >= depth ) {
                 return pixels;
             }
           
@@ -746,14 +757,14 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
 
                 pixels.add(pixel);
                 
-                pixels = floodfill(stack, x - 1, y - 1, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x - 1, y, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x - 1, y + 1, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x, y - 1, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x + 1, y - 1, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x, y + 1, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x + 1, y + 1, z, width, height, depth, color, pixels);
-                pixels = floodfill(stack, x + 1, y, z, width, height, depth, color, pixels);
+                pixels = floodfill(stack, x, y - 1, z, width, start_height,height, depth, color, pixels);
+                pixels = floodfill(stack, x - 1, y - 1, z, width, start_height,height, depth, color, pixels);
+                pixels = floodfill(stack, x + 1, y - 1, z, width, start_height,height, depth, color, pixels);
+                pixels = floodfill(stack, x - 1, y, z, width,start_height, height, depth, color, pixels);
+                pixels = floodfill(stack, x - 1, y + 1, z, width,start_height, height, depth, color, pixels);
+                pixels = floodfill(stack, x, y + 1, z, width, start_height,height, depth, color, pixels);
+                pixels = floodfill(stack, x + 1, y + 1, z, width, start_height,height, depth, color, pixels);
+                pixels = floodfill(stack, x + 1, y, z, width, start_height,height, depth, color, pixels);
           
             } else { 
                 return new ArrayList<int[]>();
@@ -794,7 +805,9 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             long processors = Runtime.getRuntime().availableProcessors(); 
 
             long depth = (stack.getSize() / (processors-1));
-            long height = (stack.getHeight() / (processors-1));
+            long height = (stack.getHeight() / 8);
+            
+            if(height < 1024) {height=1024;}
 
             if(stopHeight > stack.getHeight()){stopHeight = stack.getHeight();}
 
@@ -833,12 +846,12 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
         private int nVolumes;
         private int start;
         private int stop;
-        
-        
+        private ImageStack stack;
         
 
-        VolumeForkPool(int nVolumes, int start, int stop) {
+        VolumeForkPool(ImageStack stack, int nVolumes, int start, int stop) {
 
+            this.stack = stack;
             this.nVolumes = nVolumes;
             this.start = start;
             this.stop = stop;                       
@@ -854,13 +867,12 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                 //System.out.println("PROFILING: ...Total processed regions: " + alRegionsProcessed.size());
                 if(stop - start > length){
                         //System.out.println("PROFILING: ...Splitting image volume...");
-                        invokeAll(new VolumeForkPool(nVolumes, start, start + ((stop - start) / 2)),
-                        new VolumeForkPool(nVolumes, start + ((stop - start) / 2) + 1, stop));
+                        invokeAll(new VolumeForkPool(stackOriginal,nVolumes, start, start + ((stop - start) / 2)),
+                        new VolumeForkPool(stackOriginal,nVolumes, start + ((stop - start) / 2) + 1, stop));
                 } else  {
                 parseVolumes();
                 }
-         } else {
-             
+         } else {   
              alVolumes.clear();
              
             ListIterator<microRegion> itr = alRegionsProcessed.listIterator(); 
@@ -875,8 +887,18 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
              if ((volume.getPixelsX()).length >= minConstants[0] && (volume.getPixelsX()).length <= minConstants[1]) {
                     alVolumes.add(volume);
                 }
+             
+
+
+             
+             
             }
+             System.out.println("PROFILING:  Fixing split nuclei on: " + alVolumes.size() + " volumes.");
+             if(stack.getHeight() > 1024){
+             fix2DCollisions();
+             }
          }
+
         }  
         
         private boolean parseVolumes() {
@@ -896,10 +918,7 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
             //trap 2.5D
             
             int minRegions = 0;
-            //if(enforce2_5D){
-            //    minRegions = 0;
-            //}
-            
+
 
             if (volume.getNRegions() > minRegions || imageResult.getNSlices() == 1) {
                 volume.makePixelArrays();
@@ -910,9 +929,285 @@ public class LayerCake3DSingleThresholdkDTree extends AbstractSegmentation {
                 }
             }
         }
-        //System.out.println("PROFILING:  Found " + alVolumes.size() + " volumes.");
         return true;
         }
+    
+    private void fix2DCollisions(){
+        
+        List<MicroObject> updated_alVolumes = Collections.synchronizedList(new ArrayList<MicroObject>());
+        List<MicroObject> boundary_alVolumes = Collections.synchronizedList(new ArrayList<MicroObject>());
+        
+        boundary_alVolumes.addAll(getBoundaryObjects(128));
+        
+        
+        boolean[] processed = new boolean[boundary_alVolumes.size()];
+        boolean[] notmerged = new boolean[boundary_alVolumes.size()];
+        
+
+        
+        
+        
+        //int merge_counter = 0;
+        
+        for(int i = 0; i < boundary_alVolumes.size(); i++){
+            processed[i] = false;
+            notmerged[i] = true;
+        }
+        
+        
+        
+        for(int i = 0; i < boundary_alVolumes.size(); i++){
+
+            MicroObject obj1 = boundary_alVolumes.get(i);
+            Polygon pg = getPerimeter(obj1);
+            
+            processed[i] = true;
+            
+        
+            //System.out.println("PROFILING:  Screening object: " + obj1.getSerialID());
+            
+            label:for(int j = 0; j < boundary_alVolumes.size(); j++){
+
+                if(!processed[j]){
+                
+                 MicroObject obj2 = boundary_alVolumes.get(j);
+                 
+                    //System.out.println("     ...against object: " + obj2.getSerialID());
+                 
+                 int[] obj2_x = obj2.getPixelsX();
+                 int[] obj2_y = obj2.getPixelsY();
+
+                    if(detectSplit(pg, obj2_x, obj2_y)){
+                        //System.out.println("PROFILING:  Merging connected nuclei: " + obj1.getSerialID() + " and " + obj2.getSerialID());
+                        updated_alVolumes.add(mergeObjects(obj1, obj2));
+                        processed[j] = true;
+                        notmerged[j] = false;
+                        notmerged[i] = false;
+                        break label;
+                    }
+                }
+            }
+
+            
+
+        } 
+        
+        for(int i = 0; i < notmerged.length; i++){
+            
+            if(notmerged[i]){
+                updated_alVolumes.add(boundary_alVolumes.get(i));
+            }
+            
+            
+        }
+   
+
+        //System.out.println("PROFILING:  Merged volumes: " + 
+          //      merge_counter + " volumes.");
+        
+        
+        //alVolumes.clear();
+        alVolumes.addAll(updated_alVolumes);
+        
+    }
+    
+    private ArrayList<Integer> calculateBoundaries(){
+        
+            int processors = Runtime.getRuntime().availableProcessors();          
+            int height = stack.getHeight()/8;
+            
+            if(height < 1024) {height=1024;}
+            
+            int start = 0;
+            int stop = stack.getHeight();
+            
+            ArrayList<Integer> boundaries = new ArrayList<>();
+            
+           
+            
+            int nBoundary = 0;
+            
+        while(stop - start > height){         
+            nBoundary = (stop - start)/2;       
+            stop = nBoundary;
+        } 
+        
+        stop = stack.getHeight();
+        
+        while(start < stop){
+            
+            boundaries.add(start);
+            start = start+nBoundary;
+            
+        }
+        
+
+       System.out.println("PROFILING:  Fixing " + boundaries.size() + " boundaries."); 
+        return boundaries;
+    }
+    
+    private ArrayList<MicroObject> getBoundaryObjects(int range){
+        
+        ArrayList<MicroObject> boundaryVolumes = new ArrayList<>();
+        
+        ArrayList<Integer> boundaries = calculateBoundaries();
+        
+        for(int i = 0; i < boundaries.size(); i++){
+            
+            ListIterator<MicroObject> itr = alVolumes.listIterator();
+            
+            int min = boundaries.get(i)-(range/2);
+            int max = boundaries.get(i)+(range/2);
+            
+            if(min < 0){min = 0;}
+            if(max > stack.getHeight()){max = stack.getHeight();}
+            
+            while(itr.hasNext()){    
+                MicroObject test = itr.next();
+                if(test.getCentroidY() > min && test.getCentroidY() < max){
+                    boundaryVolumes.add(test);
+                    itr.remove();  
+                }
+                
+            }
+        } 
+        System.out.println("PROFILING:  Found " + boundaryVolumes.size() + " boundary object(s)."); 
+        return boundaryVolumes;
+        }
+    
+    private boolean detectSplit(Polygon pg, int[] obj2_x, int[] obj2_y){
+    
+    for(int i = 0; i < obj2_x.length; i++){
+                     if(pg.contains(obj2_x[i], obj2_y[i])){
+                         return true;
+                     }
+    }
+    return false;
+    }
+    
+    
+    private microVolume mergeObjects(MicroObject obj1, MicroObject obj2){
+        
+        int[] obj1_x = obj1.getPixelsX();
+        int[] obj1_y = obj1.getPixelsY();
+                                
+        int[] obj2_x = obj2.getPixelsX();
+        int[] obj2_y = obj2.getPixelsY();
+        
+        //System.out.println("PROFILING:  previous size: " + obj1_x.length + "," + obj2_x.length);
+        
+        int[] merge_x = new int[obj1_x.length+obj2_x.length];
+        int[] merge_y = new int[obj1_x.length+obj2_x.length];  
+        
+      
+        
+        for(int i = 0; i < obj1_x.length; i++){
+            merge_x[i] = obj1_x[i];
+            merge_y[i] = obj1_y[i];
+        }
+        
+        //System.out.println("PROFILING:  added object 1: " + obj1_x.length);
+        
+       
+        
+        for(int i = 0; i < obj2_x.length; i++){
+            merge_x[i+obj1_x.length] = obj2_x[i];
+            merge_y[i+obj1_x.length] = obj2_y[i];
+        }
+        
+        
+        //System.out.println("PROFILING:  combined size: " + merge_x.length);
+        
+        microVolume merged = new microVolume();
+        microRegion region = new microRegion(merge_x, merge_y, merge_y.length, 0);
+ 
+        merged.addRegion(region);
+
+        merged.makePixelArrays();
+        merged.setCentroid();
+        merged.setSerialID(alVolumes.size());
+         
+        
+        return merged;
+    }
+        
+    private Polygon getPerimeter(MicroObject test){
+        Polygon boundary = new Polygon();
+        int[] pixels_x = test.getPixelsX();
+        int[] pixels_y = test.getPixelsY();
+        
+        Polygon pg = new Polygon(pixels_x,pixels_y, pixels_y.length);
+        
+        //for each pixel, check 8C for inside p, if not, boundary
+        
+        for(int i = 0; i < pixels_x.length; i++){
+            
+            Point p = new Point(pixels_x[i], pixels_y[i]);
+            
+            p = new Point(pixels_x[i], pixels_y[i]-1);
+            if(!(pg.contains(p))){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i], pixels_y[i]+1);
+            if(!(pg.contains(p))){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]+1, pixels_y[i]);
+            if(!(pg.contains(p))){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]-1, pixels_y[i]);
+            if(!(pg.contains(p))){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]-1, pixels_y[i]-1);
+            if(!(pg.contains(p))){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]+1, pixels_y[i]+1);
+            if(!(pg.contains(p))){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]+1, pixels_y[i]-1);
+            if(!(pg.contains(p))){boundary.addPoint(p.x,p.y);}
+            p = new Point(pixels_x[i]-1, pixels_y[i]+1);
+            if(!(pg.contains(p))){boundary.addPoint(p.x,p.y);}  
+            
+        }
+        
+//        ByteProcessor ip = new ByteProcessor(200,200);
+//        BufferedImage selections = new BufferedImage(200,
+//                    200, BufferedImage.TYPE_INT_ARGB);
+//
+//
+//            Overlay overlay = new Overlay();
+//        
+//        
+//        
+//        
+//        Graphics2D g2 = selections.createGraphics();
+//        
+//        
+//        int[] x_pixels = boundary.xpoints;
+//        int[] y_pixels = boundary.ypoints;
+//        for (int c = 0; c < x_pixels.length; c++) {
+//                                g2.setColor(Color.green);
+//                                g2.drawRect(x_pixels[c], y_pixels[c], 1, 1);
+//        }
+//        
+//        x_pixels = pg.xpoints;
+//        y_pixels = pg.ypoints;
+//        for (int c = 0; c < x_pixels.length; c++) {
+//                                g2.setColor(Color.red);
+//                                g2.drawRect(x_pixels[c], y_pixels[c], 1, 1);
+//        }
+//        
+//        ImageRoi ir = new ImageRoi(0, 0, selections);
+//        overlay.selectable(false);
+//        overlay.add(ir);
+//
+//
+//        ImagePlus imp = new ImagePlus("Boundary of object: " + test.getSerialID(), ip);
+//        
+//        //imp.setOverlay(pg, Color.green, new BasicStroke(1.5f));
+//        
+//        imp.setOverlay(overlay);
+//       
+//        imp.draw();
+//        imp.show();
+        
+        return boundary;
+    }
+
+        
     }
 
     public class JTextFieldLinked extends JTextField implements ChangeThresholdListener {
