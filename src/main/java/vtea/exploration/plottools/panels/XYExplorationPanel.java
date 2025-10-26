@@ -139,6 +139,7 @@ import vteaobjects.MicroObjectModel;
 import vtea.exploration.listeners.GatePlotListener;
 import vtea.exploration.plotgatetools.listeners.DatasetUtilitiesListener;
 import vtea.exploration.util.DatasetUtilities;
+import vtea.util.PerformanceProfiler;
 
 /**
  *
@@ -412,6 +413,9 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         if (gates.size() > 0) {
 
+            // Profile this critical rendering path
+            long startTime = PerformanceProfiler.startTiming("MakeGateOverlayImage");
+
             PolygonGate gate;
             ListIterator<PolygonGate> gate_itr = gates.listIterator();
 
@@ -553,6 +557,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 impoverlay.show();
                 //System.gc();
 
+                // End profiling for this rendering path
+                PerformanceProfiler.endTiming("MakeGateOverlayImage", startTime);
             }
         } else {
             impoverlay.getOverlay().clear();

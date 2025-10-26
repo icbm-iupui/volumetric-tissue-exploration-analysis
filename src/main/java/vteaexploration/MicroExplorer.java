@@ -107,6 +107,7 @@ import static vtea.jdbc.H2DatabaseEngine.getObjectsInRange2D;
 import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
 import vtea.plot.PlotOutputFrame;
+import vtea.util.BackgroundTaskHelper;
 import vtea.utilities.ImagePlusToPyramidOMETiff;
 
 import vteaobjects.MicroObject;
@@ -1009,18 +1010,19 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void get3DProjectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_get3DProjectionActionPerformed
 
-        new Thread(() -> {
-            try {
+        BackgroundTaskHelper.execute(
+            () -> {
                 ec.getZProjection();
                 java.lang.Thread.sleep(100);
                 String image = "Gates_" + impoverlay.getTitle();
                 IJ.run("Open in ClearVolume", image);
-            } catch (Exception e) {
-                System.out.println("ERROR: ClearVolume not installed");
+            },
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR: ClearVolume not installed or failed: " + e.getMessage());
             }
-
-        }).start();
-
+        );
 
     }//GEN-LAST:event_get3DProjectionActionPerformed
 
@@ -1040,30 +1042,35 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_UseGlobalActionPerformed
 
     private void exportOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportOBJActionPerformed
-        new Thread(() -> {
-            try {
-
+        BackgroundTaskHelper.execute(
+            () -> {
                 ExportOBJ ex = new ExportOBJ();
                 ex.export(key, imp, ec.getObjects(),
                         measurements, descriptions,
                         descriptionsLabels);
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
+            },
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR exporting objects: " + e.getLocalizedMessage());
+                e.printStackTrace();
             }
-        }).start();
+        );
     }//GEN-LAST:event_exportOBJActionPerformed
 
     private void importOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importOBJActionPerformed
-        new Thread(() -> {
-            try {
+        BackgroundTaskHelper.execute(
+            () -> {
                 OpenObxFormat io = new OpenObxFormat();
                 io.importObjects(Main);
-
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
+            },
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR importing objects: " + e.getLocalizedMessage());
                 e.printStackTrace();
             }
-        }).start();
+        );
     }//GEN-LAST:event_importOBJActionPerformed
 
     private void AutoScaleAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutoScaleAxesActionPerformed
@@ -1073,14 +1080,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_AutoScaleAxesActionPerformed
 
     private void exportGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGatesActionPerformed
-        new Thread(() -> {
-            try {
-                ec.exportGates();
-            } catch (Exception e) {
-
+        BackgroundTaskHelper.execute(
+            () -> ec.exportGates(),
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR exporting gates: " + e.getMessage());
             }
-        }).start();
-
+        );
     }//GEN-LAST:event_exportGatesActionPerformed
 
     private void LoadGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadGatesActionPerformed
@@ -1089,14 +1096,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void ExportGraphActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportGraphActionPerformed
 
-        new Thread(() -> {
-            try {
-                ec.getBufferedImage();
-
-            } catch (Exception e) {
-
+        BackgroundTaskHelper.execute(
+            () -> ec.getBufferedImage(),
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR exporting graph: " + e.getMessage());
             }
-        }).start();
+        );
 
     }//GEN-LAST:event_ExportGraphActionPerformed
 
@@ -1116,15 +1123,17 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
 
-        new Thread(() -> {
-            try {
-
+        BackgroundTaskHelper.execute(
+            () -> {
                 ExportCSV ex = new ExportCSV();
                 ex.export(this.descriptions, this.measurements);
-            } catch (Exception e) {
-                //System.out.println("ERROR: " + e.getLocalizedMessage());
+            },
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR exporting CSV: " + e.getLocalizedMessage());
             }
-        }).start();
+        );
 
     }//GEN-LAST:event_exportCSVActionPerformed
 
