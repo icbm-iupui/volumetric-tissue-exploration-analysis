@@ -233,6 +233,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <version>6.1.1</version>
             <type>jar</type>
         </dependency>
+        <!-- JDLL: Java Deep Learning Library for DeepImageJ support -->
+        <dependency>
+            <groupId>io.bioimage</groupId>
+            <artifactId>dl-modelrunner</artifactId>
+            <version>0.4.0</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
