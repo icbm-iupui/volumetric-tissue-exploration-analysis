@@ -205,11 +205,11 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
         setAutoRequestFocus(false);
         setBackground(new java.awt.Color(204, 204, 204));
         setBounds(new java.awt.Rectangle(0, 100, 890, 400));
-        setMaximumSize(new java.awt.Dimension(767, 472));
+        // Allow window resizing for better flexibility and high-DPI support
         setMinimumSize(new java.awt.Dimension(767, 472));
-        setName("ProcessingFrame"); // NOI18N
         setPreferredSize(new java.awt.Dimension(767, 472));
-        setResizable(false);
+        setName("ProcessingFrame"); // NOI18N
+        setResizable(true); // Changed from false to allow user resizing
         setSize(new java.awt.Dimension(767, 472));
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {

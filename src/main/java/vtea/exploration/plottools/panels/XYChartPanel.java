@@ -56,6 +56,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYZDataset;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.jdbc.H2DatabaseEngine;
+import vtea.util.PerformanceProfiler;
 import vteaobjects.MicroObject;
 
 /**
@@ -266,8 +267,10 @@ public class XYChartPanel implements RoiListener {
     }
 
     private ChartPanel createChart(Connection connection, int x, int y, int l, String xText, String yText, String lText, Color imageGateColor) {
-      
-        
+
+        // Profile this critical chart creation path
+        long startTime = PerformanceProfiler.startTiming("XYChartPanel.createChart");
+
         XYShapeRenderer renderer = new XYShapeRenderer();
         XYShapeRenderer rendererGate = new XYShapeRenderer();
 
@@ -373,9 +376,8 @@ public class XYChartPanel implements RoiListener {
         }
 
         //notifiyUpdatePlotWindowListeners();
+        PerformanceProfiler.endTiming("XYChartPanel.createChart", startTime);
         return new ChartPanel(chart, true, true, false, false, true);
-        
-    
     }
 
     private double getRangeofData(ArrayList measurements, int x) {

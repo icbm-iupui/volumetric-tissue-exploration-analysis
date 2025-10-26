@@ -108,6 +108,7 @@ import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
 import vtea.plot.PlotOutputFrame;
 import vtea.util.BackgroundTaskHelper;
+import vtea.util.PerformanceProfiler;
 import vtea.utilities.ImagePlusToPyramidOMETiff;
 
 import vteaobjects.MicroObject;
@@ -228,6 +229,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
             AbstractExplorationPanel aep, PlotAxesPanels pap, ArrayList AvailableData,
             ArrayList descriptionLabel, ArrayList morphologies) {
         //Needs to be converted to a Factory metaphor.
+
+        // Profile this critical initialization path
+        long startTime = PerformanceProfiler.startTiming("MicroExplorer.process");
 
         //Setup base dataseta
         //Available data is an arraylist of the available tags as they exist in microvolumes.
@@ -402,10 +406,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         nf = new NormalizationFrame(measurements, aep.getObjects());
         nf.addListener(this);
-        
-       
-       
 
+        // End profiling for initialization
+        PerformanceProfiler.endTiming("MicroExplorer.process", startTime);
     }
 
     /**
@@ -471,10 +474,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
         setTitle(getTitle());
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
-        setMaximumSize(getPreferredSize());
-        setMinimumSize(getPreferredSize());
+        // Allow window resizing for better flexibility and high-DPI support
+        setMinimumSize(new java.awt.Dimension(725, 650));
         setPreferredSize(new java.awt.Dimension(725, 650));
-        setResizable(false);
+        setResizable(true); // Changed from false to allow user resizing
         setSize(new java.awt.Dimension(725, 650));
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
