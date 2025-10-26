@@ -24,6 +24,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import javax.swing.JFrame;
+import javax.swing.Timer;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
@@ -53,6 +56,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYZDataset;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.jdbc.H2DatabaseEngine;
+import vtea.util.PerformanceProfiler;
 import vteaobjects.MicroObject;
 
 /**
@@ -136,6 +140,10 @@ public class XYChartPanel implements RoiListener {
 
     LookupPaintScale PS;
 
+    // Timer for throttling repaint calls to improve performance
+    private Timer repaintTimer;
+    private static final int REPAINT_DELAY_MS = 50; // 20 FPS max
+
 
     public XYChartPanel() {
 
@@ -208,7 +216,7 @@ public class XYChartPanel implements RoiListener {
 
             @Override
             public void chartMouseClicked(ChartMouseEvent cme) {
-                chartPanel.getParent().repaint();
+                scheduleThrottledRepaint();
             }
 
             @Override
@@ -220,13 +228,13 @@ public class XYChartPanel implements RoiListener {
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                chartPanel.getParent().repaint();
-
+                scheduleThrottledRepaint();
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                chartPanel.getParent().repaint();
+                // Removed repaint - mouse move events are too frequent
+                // If needed, use scheduleThrottledRepaint() sparingly
             }
         });
 
@@ -259,8 +267,10 @@ public class XYChartPanel implements RoiListener {
     }
 
     private ChartPanel createChart(Connection connection, int x, int y, int l, String xText, String yText, String lText, Color imageGateColor) {
-      
-        
+
+        // Profile this critical chart creation path
+        long startTime = PerformanceProfiler.startTiming("XYChartPanel.createChart");
+
         XYShapeRenderer renderer = new XYShapeRenderer();
         XYShapeRenderer rendererGate = new XYShapeRenderer();
 
@@ -366,9 +376,8 @@ public class XYChartPanel implements RoiListener {
         }
 
         //notifiyUpdatePlotWindowListeners();
+        PerformanceProfiler.endTiming("XYChartPanel.createChart", startTime);
         return new ChartPanel(chart, true, true, false, false, true);
-        
-    
     }
 
     private double getRangeofData(ArrayList measurements, int x) {
@@ -582,6 +591,34 @@ public class XYChartPanel implements RoiListener {
         for (UpdatePlotWindowListener listener : UpdatePlotWindowListeners) {
             listener.onUpdatePlotWindow();
         }
+    }
+
+    /**
+     * Schedule a throttled repaint to avoid excessive repainting during mouse events.
+     * This uses a timer to limit repaints to approximately 20 FPS, significantly
+     * reducing CPU usage during mouse interaction.
+     */
+    private void scheduleThrottledRepaint() {
+        if (chartPanel == null || chartPanel.getParent() == null) {
+            return;
+        }
+
+        // Cancel any pending repaint
+        if (repaintTimer != null && repaintTimer.isRunning()) {
+            repaintTimer.stop();
+        }
+
+        // Schedule new repaint
+        repaintTimer = new Timer(REPAINT_DELAY_MS, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (chartPanel != null && chartPanel.getParent() != null) {
+                    chartPanel.getParent().repaint();
+                }
+            }
+        });
+        repaintTimer.setRepeats(false);
+        repaintTimer.start();
     }
 
 }

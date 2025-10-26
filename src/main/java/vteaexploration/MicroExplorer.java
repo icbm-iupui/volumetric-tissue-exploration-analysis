@@ -107,6 +107,8 @@ import static vtea.jdbc.H2DatabaseEngine.getObjectsInRange2D;
 import vtea.processor.ExplorerProcessor;
 import vtea.protocol.setup.SegmentationPreviewer;
 import vtea.plot.PlotOutputFrame;
+import vtea.util.BackgroundTaskHelper;
+import vtea.util.PerformanceProfiler;
 import vtea.utilities.ImagePlusToPyramidOMETiff;
 
 import vteaobjects.MicroObject;
@@ -227,6 +229,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
             AbstractExplorationPanel aep, PlotAxesPanels pap, ArrayList AvailableData,
             ArrayList descriptionLabel, ArrayList morphologies) {
         //Needs to be converted to a Factory metaphor.
+
+        // Profile this critical initialization path
+        long startTime = PerformanceProfiler.startTiming("MicroExplorer.process");
 
         //Setup base dataseta
         //Available data is an arraylist of the available tags as they exist in microvolumes.
@@ -401,10 +406,9 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         nf = new NormalizationFrame(measurements, aep.getObjects());
         nf.addListener(this);
-        
-       
-       
 
+        // End profiling for initialization
+        PerformanceProfiler.endTiming("MicroExplorer.process", startTime);
     }
 
     /**
@@ -470,10 +474,10 @@ public class MicroExplorer extends javax.swing.JFrame implements
         setTitle(getTitle());
         setBackground(vtea._vtea.BACKGROUND);
         setBounds(new java.awt.Rectangle(892, 100, 0, 0));
-        setMaximumSize(getPreferredSize());
-        setMinimumSize(getPreferredSize());
+        // Allow window resizing for better flexibility and high-DPI support
+        setMinimumSize(new java.awt.Dimension(725, 650));
         setPreferredSize(new java.awt.Dimension(725, 650));
-        setResizable(false);
+        setResizable(true); // Changed from false to allow user resizing
         setSize(new java.awt.Dimension(725, 650));
         addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
@@ -1009,18 +1013,19 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void get3DProjectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_get3DProjectionActionPerformed
 
-        new Thread(() -> {
-            try {
+        BackgroundTaskHelper.execute(
+            () -> {
                 ec.getZProjection();
                 java.lang.Thread.sleep(100);
                 String image = "Gates_" + impoverlay.getTitle();
                 IJ.run("Open in ClearVolume", image);
-            } catch (Exception e) {
-                System.out.println("ERROR: ClearVolume not installed");
+            },
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR: ClearVolume not installed or failed: " + e.getMessage());
             }
-
-        }).start();
-
+        );
 
     }//GEN-LAST:event_get3DProjectionActionPerformed
 
@@ -1040,30 +1045,35 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_UseGlobalActionPerformed
 
     private void exportOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportOBJActionPerformed
-        new Thread(() -> {
-            try {
-
+        BackgroundTaskHelper.execute(
+            () -> {
                 ExportOBJ ex = new ExportOBJ();
                 ex.export(key, imp, ec.getObjects(),
                         measurements, descriptions,
                         descriptionsLabels);
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
+            },
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR exporting objects: " + e.getLocalizedMessage());
+                e.printStackTrace();
             }
-        }).start();
+        );
     }//GEN-LAST:event_exportOBJActionPerformed
 
     private void importOBJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importOBJActionPerformed
-        new Thread(() -> {
-            try {
+        BackgroundTaskHelper.execute(
+            () -> {
                 OpenObxFormat io = new OpenObxFormat();
                 io.importObjects(Main);
-
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getLocalizedMessage());
+            },
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR importing objects: " + e.getLocalizedMessage());
                 e.printStackTrace();
             }
-        }).start();
+        );
     }//GEN-LAST:event_importOBJActionPerformed
 
     private void AutoScaleAxesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutoScaleAxesActionPerformed
@@ -1073,14 +1083,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_AutoScaleAxesActionPerformed
 
     private void exportGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportGatesActionPerformed
-        new Thread(() -> {
-            try {
-                ec.exportGates();
-            } catch (Exception e) {
-
+        BackgroundTaskHelper.execute(
+            () -> ec.exportGates(),
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR exporting gates: " + e.getMessage());
             }
-        }).start();
-
+        );
     }//GEN-LAST:event_exportGatesActionPerformed
 
     private void LoadGatesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoadGatesActionPerformed
@@ -1089,14 +1099,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void ExportGraphActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportGraphActionPerformed
 
-        new Thread(() -> {
-            try {
-                ec.getBufferedImage();
-
-            } catch (Exception e) {
-
+        BackgroundTaskHelper.execute(
+            () -> ec.getBufferedImage(),
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR exporting graph: " + e.getMessage());
             }
-        }).start();
+        );
 
     }//GEN-LAST:event_ExportGraphActionPerformed
 
@@ -1116,15 +1126,17 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
     private void exportCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportCSVActionPerformed
 
-        new Thread(() -> {
-            try {
-
+        BackgroundTaskHelper.execute(
+            () -> {
                 ExportCSV ex = new ExportCSV();
                 ex.export(this.descriptions, this.measurements);
-            } catch (Exception e) {
-                //System.out.println("ERROR: " + e.getLocalizedMessage());
+            },
+            null, // No success callback
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR exporting CSV: " + e.getLocalizedMessage());
             }
-        }).start();
+        );
 
     }//GEN-LAST:event_exportCSVActionPerformed
 
@@ -1173,21 +1185,87 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_formComponentMoved
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        ec.closeMenu();
-        ec = null;
-        this.imp = null;
-        this.impoverlay = null;
-        ff.setVisible(false);
-
+        cleanup();
     }//GEN-LAST:event_formWindowClosing
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-        ec.closeMenu();
-        ec = null;
-        this.imp = null;
-        this.impoverlay = null;
-        ff.setVisible(false);
+        cleanup();
     }//GEN-LAST:event_formWindowClosed
+
+    /**
+     * Properly cleanup resources and remove all listeners to prevent memory leaks
+     */
+    private void cleanup() {
+        // Remove ImageJ listeners
+        Roi.removeRoiListener(this);
+
+        // Cleanup image resources
+        if (impoverlay != null) {
+            impoverlay.removeImageListener(this);
+            impoverlay = null;
+        }
+
+        // Cleanup exploration center
+        if (ec != null) {
+            ec.closeMenu();
+            ec = null;
+        }
+
+        // Cleanup feature frame
+        if (ff != null) {
+            ff.setVisible(false);
+            ff.dispose();
+            ff = null;
+        }
+
+        // Cleanup normalization frame
+        if (nf != null) {
+            nf.setVisible(false);
+            nf.dispose();
+            nf = null;
+        }
+
+        // Clear listener lists to allow garbage collection
+        if (FeatureListeners != null) {
+            FeatureListeners.clear();
+        }
+        if (PlotSettingListeners != null) {
+            PlotSettingListeners.clear();
+        }
+        if (SubGateListeners != null) {
+            SubGateListeners.clear();
+        }
+
+        // Clear data structures
+        if (Objects != null) {
+            Objects.clear();
+        }
+        if (ImageGatedObjects != null) {
+            ImageGatedObjects.clear();
+        }
+
+        // Nullify image references
+        this.imp = null;
+        this.imageLUTs = null;
+
+        // Cleanup result table
+        if (rt != null) {
+            rt.reset();
+            rt = null;
+        }
+
+        // Cleanup results window
+        if (ResultsWindow != null) {
+            ResultsWindow.dispose();
+            ResultsWindow = null;
+        }
+    }
+
+    @Override
+    public void dispose() {
+        cleanup();
+        super.dispose();
+    }
 
     private void jButtonPlotsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlotsActionPerformed
         PlotOutputFrame pof = new PlotOutputFrame();

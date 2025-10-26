@@ -62,6 +62,7 @@ import vtea.ImageSelectionListener;
 import vtea.OpenImageWindow;
 import vtea.OpenObxFormat;
 import vtea._vtea;
+import vtea.util.BackgroundTaskHelper;
 import static vtea._vtea.PROCESSINGMAP;
 import static vtea._vtea.SEGMENTATIONMAP;
 import vtea.imageprocessing.AbstractImageProcessing;
@@ -138,9 +139,8 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
         } catch (UnsupportedLookAndFeelException ex) {
             Logger.getLogger(MicroExplorer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        SwingUtilities.updateComponentTreeUI(this);
-        this.pack();
 
+        // Initialize all components before any layout/pack operations
         openerWindow.addImageSelectionListener(this);
         GuiSetup();
         initComponents();
@@ -151,8 +151,7 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
         this.ImageTabs.setTabPlacement(JTabbedPane.TOP);
         this.ImageTabs.setSelectedIndex(ImageTabs.getTabCount() - 1);
-        //IJ.log("Starting things up!");
-        
+
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
@@ -160,6 +159,11 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
                 _vtea.clearVTEADirectory();
             }
         });
+
+        // Apply LAF and layout ONCE at the end after all components added
+        SwingUtilities.updateComponentTreeUI(this);
+        this.pack();
+        //IJ.log("Starting things up!");
     }
 
     /**
@@ -201,11 +205,11 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
         setAutoRequestFocus(false);
         setBackground(new java.awt.Color(204, 204, 204));
         setBounds(new java.awt.Rectangle(0, 100, 890, 400));
-        setMaximumSize(new java.awt.Dimension(767, 472));
+        // Allow window resizing for better flexibility and high-DPI support
         setMinimumSize(new java.awt.Dimension(767, 472));
-        setName("ProcessingFrame"); // NOI18N
         setPreferredSize(new java.awt.Dimension(767, 472));
-        setResizable(false);
+        setName("ProcessingFrame"); // NOI18N
+        setResizable(true); // Changed from false to allow user resizing
         setSize(new java.awt.Dimension(767, 472));
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -1121,15 +1125,17 @@ public class ProtocolManagerMulti extends javax.swing.JFrame implements FileOper
 
     @Override
     public void onLoadDatasets() throws Exception {
-        new Thread(() -> {
-            try {
+        BackgroundTaskHelper.execute(
+            () -> {
                 OpenObxFormat io = new OpenObxFormat();
                 io.importObjects(ImageTabs);
-
-            } catch (Exception e) {
-                //System.out.println("ERROR: " + e.getLocalizedMessage());
+            },
+            null, // No success callback needed
+            (e) -> {
+                // Error callback runs on EDT
+                System.err.println("ERROR loading datasets: " + e.getLocalizedMessage());
             }
-        }).start();
+        );
     }
 
 //    public class ImportOBJ {

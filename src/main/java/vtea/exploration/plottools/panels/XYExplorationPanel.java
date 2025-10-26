@@ -139,6 +139,7 @@ import vteaobjects.MicroObjectModel;
 import vtea.exploration.listeners.GatePlotListener;
 import vtea.exploration.plotgatetools.listeners.DatasetUtilitiesListener;
 import vtea.exploration.util.DatasetUtilities;
+import vtea.util.PerformanceProfiler;
 
 /**
  *
@@ -221,8 +222,19 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     int explorerYposition = 0;
     int explorerPointSizeIndex = 0;
     LookupPaintScale lps;
-    
+
     DatasetUtilities DataUtilities;
+
+    // BufferedImage cache for overlay rendering to avoid recreating images on every call
+    private BufferedImage cachedPlaceholder;
+    private BufferedImage cachedSelections;
+    private boolean overlayCacheDirty = true;
+    private int cachedImageWidth = -1;
+    private int cachedImageHeight = -1;
+
+    // Cache for database query results to avoid blocking EDT
+    private HashMap<String, ArrayList<ArrayList>> gateQueryCache = new HashMap<>();
+    private boolean useQueryCache = true;
 
     public XYExplorationPanel(String key, Connection connection,
             ArrayList measurements, ArrayList<String> descriptions,
@@ -396,10 +408,13 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     }
 
     public void makeGateOverlayImage() {
-        
+
         if(this.mapGates){
 
         if (gates.size() > 0) {
+
+            // Profile this critical rendering path
+            long startTime = PerformanceProfiler.startTiming("MakeGateOverlayImage");
 
             PolygonGate gate;
             ListIterator<PolygonGate> gate_itr = gates.listIterator();
@@ -410,11 +425,28 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             int gatedSelected = 0;
             int gatecount = gates.size();
 
-            BufferedImage placeholder = new BufferedImage(impoverlay.getWidth(),
-                    impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            // Use cached BufferedImages if available and size hasn't changed
+            int currentWidth = impoverlay.getWidth();
+            int currentHeight = impoverlay.getHeight();
 
-            BufferedImage selections = new BufferedImage(impoverlay.getWidth(),
-                    impoverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            if (cachedPlaceholder == null || overlayCacheDirty ||
+                cachedImageWidth != currentWidth || cachedImageHeight != currentHeight) {
+                // Create new images only when necessary
+                cachedPlaceholder = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_ARGB);
+                cachedSelections = new BufferedImage(currentWidth, currentHeight, BufferedImage.TYPE_INT_ARGB);
+                cachedImageWidth = currentWidth;
+                cachedImageHeight = currentHeight;
+                overlayCacheDirty = false;
+            } else {
+                // Clear existing image for reuse
+                Graphics2D g2clear = cachedSelections.createGraphics();
+                g2clear.setBackground(new Color(0, 0, 0, 0));
+                g2clear.clearRect(0, 0, currentWidth, currentHeight);
+                g2clear.dispose();
+            }
+
+            BufferedImage placeholder = cachedPlaceholder;
+            BufferedImage selections = cachedSelections;
 
             Overlay overlay = new Overlay();
 
@@ -438,13 +470,31 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                     double xValue = 0;
                     double yValue = 0;
 
-                    ArrayList<ArrayList> resultKey
-                            = H2DatabaseEngine.getObjectsInRange2D(path,
-                                    vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
-                                    gate.getXAxis(), path.getBounds2D().getX(),
-                                    path.getBounds2D().getX() + path.getBounds2D().getWidth(),
-                                    gate.getYAxis(), path.getBounds2D().getY(),
-                                    path.getBounds2D().getY() + path.getBounds2D().getHeight());
+                    // Create cache key for this gate query
+                    String cacheKey = gate.getXAxis() + "_" + gate.getYAxis() + "_" +
+                                     path.getBounds2D().getX() + "_" + path.getBounds2D().getY() + "_" +
+                                     path.getBounds2D().getWidth() + "_" + path.getBounds2D().getHeight();
+
+                    ArrayList<ArrayList> resultKey;
+
+                    // Check cache first to avoid database query on EDT
+                    if (useQueryCache && gateQueryCache.containsKey(cacheKey)) {
+                        resultKey = gateQueryCache.get(cacheKey);
+                    } else {
+                        // Query database - this should ideally be done in background
+                        // For now, we cache the result to avoid repeated queries
+                        resultKey = H2DatabaseEngine.getObjectsInRange2D(path,
+                                        vtea._vtea.H2_MEASUREMENTS_TABLE + "_" + keySQLSafe,
+                                        gate.getXAxis(), path.getBounds2D().getX(),
+                                        path.getBounds2D().getX() + path.getBounds2D().getWidth(),
+                                        gate.getYAxis(), path.getBounds2D().getY(),
+                                        path.getBounds2D().getY() + path.getBounds2D().getHeight());
+
+                        // Cache the result
+                        if (useQueryCache) {
+                            gateQueryCache.put(cacheKey, resultKey);
+                        }
+                    }
 
                     ListIterator<ArrayList> itr = resultKey.listIterator();
 
@@ -507,6 +557,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
                 impoverlay.show();
                 //System.gc();
 
+                // End profiling for this rendering path
+                PerformanceProfiler.endTiming("MakeGateOverlayImage", startTime);
             }
         } else {
             impoverlay.getOverlay().clear();
@@ -4273,6 +4325,84 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
             return result;
         }
 
+    }
+
+    /**
+     * Invalidate the BufferedImage cache to force recreation on next overlay render.
+     * Call this when gates are added/removed/modified or when the image size changes.
+     */
+    public void invalidateOverlayCache() {
+        overlayCacheDirty = true;
+    }
+
+    /**
+     * Clear the database query cache.
+     * Call this when gates are modified or when the underlying data changes.
+     */
+    public void clearQueryCache() {
+        if (gateQueryCache != null) {
+            gateQueryCache.clear();
+        }
+    }
+
+    /**
+     * Clear a specific query from the cache.
+     * @param gate The gate whose query should be removed from cache
+     */
+    public void clearQueryCacheForGate(PolygonGate gate) {
+        if (gateQueryCache != null && gate != null) {
+            Path2D.Double path = gate.createPath2DInChartSpace();
+            String cacheKey = gate.getXAxis() + "_" + gate.getYAxis() + "_" +
+                             path.getBounds2D().getX() + "_" + path.getBounds2D().getY() + "_" +
+                             path.getBounds2D().getWidth() + "_" + path.getBounds2D().getHeight();
+            gateQueryCache.remove(cacheKey);
+        }
+    }
+
+    /**
+     * Override dispose to cleanup XYExplorationPanel-specific resources
+     */
+    @Override
+    public void dispose() {
+        // Remove ROI listener that was added in configureListeners
+        Roi.removeRoiListener(this);
+
+        // Cleanup database connection
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (Exception e) {
+                // Log or ignore
+            }
+            connection = null;
+        }
+
+        // Cleanup gate manager
+        if (gm != null) {
+            gm.dispose();
+            gm = null;
+        }
+
+        // Cleanup axes manager
+        if (AxesManager != null) {
+            AxesManager = null;
+        }
+
+        // Cleanup chart panel
+        if (cpd != null) {
+            cpd = null;
+        }
+
+        // Clear cached BufferedImages
+        cachedPlaceholder = null;
+        cachedSelections = null;
+
+        // Clear query cache
+        clearQueryCache();
+        gateQueryCache = null;
+
+        // Call parent cleanup
+        super.dispose();
     }
 
 }

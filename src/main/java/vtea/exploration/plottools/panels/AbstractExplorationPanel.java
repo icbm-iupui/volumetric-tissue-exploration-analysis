@@ -162,5 +162,66 @@ public abstract class AbstractExplorationPanel extends JFrame implements Explora
            this.mapGates = map;
        }
 
-       
+       /**
+        * Properly cleanup resources and remove all listeners to prevent memory leaks
+        */
+       @Override
+       public void dispose() {
+           // Clear all listener lists
+           if (overlaylisteners != null) {
+               overlaylisteners.clear();
+           }
+           if (resetselectionlisteners != null) {
+               resetselectionlisteners.clear();
+           }
+           if (subgatelisteners != null) {
+               subgatelisteners.clear();
+           }
+           if (linkedKeyListeners != null) {
+               linkedKeyListeners.clear();
+           }
+           if (addfeaturelisteners != null) {
+               addfeaturelisteners.clear();
+           }
+           if (axesSetupExplorerUpdateListeners != null) {
+               axesSetupExplorerUpdateListeners.clear();
+           }
+           if (updateexlporerguilisteners != null) {
+               updateexlporerguilisteners.clear();
+           }
+           if (SubGateListeners != null) {
+               SubGateListeners.clear();
+           }
+
+           // Clear data structures
+           if (gates != null) {
+               gates.clear();
+           }
+           if (measurements != null) {
+               measurements.clear();
+           }
+           if (objects != null) {
+               objects.clear();
+           }
+           if (gatemathobjects != null) {
+               gatemathobjects.clear();
+           }
+           if (charts != null) {
+               charts.clear();
+           }
+           if (gatelayers != null) {
+               gatelayers.clear();
+           }
+           if (ExplorationItems != null) {
+               ExplorationItems.clear();
+           }
+
+           // Nullify references
+           impoverlay = null;
+           chart = null;
+           GateOverlays = null;
+
+           super.dispose();
+       }
+
 }
