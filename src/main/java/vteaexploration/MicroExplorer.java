@@ -1173,21 +1173,87 @@ public class MicroExplorer extends javax.swing.JFrame implements
     }//GEN-LAST:event_formComponentMoved
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        ec.closeMenu();
-        ec = null;
-        this.imp = null;
-        this.impoverlay = null;
-        ff.setVisible(false);
-
+        cleanup();
     }//GEN-LAST:event_formWindowClosing
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-        ec.closeMenu();
-        ec = null;
-        this.imp = null;
-        this.impoverlay = null;
-        ff.setVisible(false);
+        cleanup();
     }//GEN-LAST:event_formWindowClosed
+
+    /**
+     * Properly cleanup resources and remove all listeners to prevent memory leaks
+     */
+    private void cleanup() {
+        // Remove ImageJ listeners
+        Roi.removeRoiListener(this);
+
+        // Cleanup image resources
+        if (impoverlay != null) {
+            impoverlay.removeImageListener(this);
+            impoverlay = null;
+        }
+
+        // Cleanup exploration center
+        if (ec != null) {
+            ec.closeMenu();
+            ec = null;
+        }
+
+        // Cleanup feature frame
+        if (ff != null) {
+            ff.setVisible(false);
+            ff.dispose();
+            ff = null;
+        }
+
+        // Cleanup normalization frame
+        if (nf != null) {
+            nf.setVisible(false);
+            nf.dispose();
+            nf = null;
+        }
+
+        // Clear listener lists to allow garbage collection
+        if (FeatureListeners != null) {
+            FeatureListeners.clear();
+        }
+        if (PlotSettingListeners != null) {
+            PlotSettingListeners.clear();
+        }
+        if (SubGateListeners != null) {
+            SubGateListeners.clear();
+        }
+
+        // Clear data structures
+        if (Objects != null) {
+            Objects.clear();
+        }
+        if (ImageGatedObjects != null) {
+            ImageGatedObjects.clear();
+        }
+
+        // Nullify image references
+        this.imp = null;
+        this.imageLUTs = null;
+
+        // Cleanup result table
+        if (rt != null) {
+            rt.reset();
+            rt = null;
+        }
+
+        // Cleanup results window
+        if (ResultsWindow != null) {
+            ResultsWindow.dispose();
+            ResultsWindow = null;
+        }
+    }
+
+    @Override
+    public void dispose() {
+        cleanup();
+        super.dispose();
+    }
 
     private void jButtonPlotsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlotsActionPerformed
         PlotOutputFrame pof = new PlotOutputFrame();
