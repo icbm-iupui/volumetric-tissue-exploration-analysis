@@ -1,0 +1,4 @@
+cellpose>=2.2
+torch>=2.0
+numpy>=1.23
+py4j>=0.10.9.7
