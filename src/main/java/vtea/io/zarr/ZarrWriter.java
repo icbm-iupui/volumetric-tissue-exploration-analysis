@@ -222,7 +222,7 @@ public class ZarrWriter implements AutoCloseable {
         }
 
         // Write to Zarr
-        N5Utils.save(img, n5Writer, datasetName, chunkSize, compression);
+        N5Utils.save((RandomAccessibleInterval) img, n5Writer, datasetName, chunkSize, compression, dataType);
     }
 
     /**
