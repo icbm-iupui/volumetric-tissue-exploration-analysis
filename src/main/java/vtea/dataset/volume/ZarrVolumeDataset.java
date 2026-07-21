@@ -156,11 +156,17 @@ public class ZarrVolumeDataset implements ChunkedVolumeDataset {
      */
     private void loadMetadata() {
         try {
-            Map<String, ?> attrs = n5Reader.getAttributes(datasetName);
-            if (attrs != null) {
-                for (Map.Entry<String, ?> entry : attrs.entrySet()) {
-                    if (entry.getValue() != null) {
-                        metadata.put(entry.getKey(), entry.getValue().toString());
+            // Get all attribute keys and read each one
+            Map<String, Class<?>> attributeList = n5Reader.listAttributes(datasetName);
+            if (attributeList != null) {
+                for (String key : attributeList.keySet()) {
+                    try {
+                        Object value = n5Reader.getAttribute(datasetName, key, Object.class);
+                        if (value != null) {
+                            metadata.put(key, value.toString());
+                        }
+                    } catch (Exception ex) {
+                        // Skip individual attributes that can't be read
                     }
                 }
             }
@@ -236,14 +242,17 @@ public class ZarrVolumeDataset implements ChunkedVolumeDataset {
 
             // Access voxel through ImgLib2
             if (bitDepth == 8) {
-                return ((RandomAccessibleInterval<UnsignedByteType>) rai)
-                    .randomAccess().setPositionAndGet(x, y, z).getRealDouble();
+                net.imglib2.RandomAccess<UnsignedByteType> ra = ((RandomAccessibleInterval<UnsignedByteType>) rai).randomAccess();
+                ra.setPosition(new long[]{x, y, z});
+                return ra.get().getRealDouble();
             } else if (bitDepth == 16) {
-                return ((RandomAccessibleInterval<UnsignedShortType>) rai)
-                    .randomAccess().setPositionAndGet(x, y, z).getRealDouble();
+                net.imglib2.RandomAccess<UnsignedShortType> ra = ((RandomAccessibleInterval<UnsignedShortType>) rai).randomAccess();
+                ra.setPosition(new long[]{x, y, z});
+                return ra.get().getRealDouble();
             } else {
-                return ((RandomAccessibleInterval<FloatType>) rai)
-                    .randomAccess().setPositionAndGet(x, y, z).getRealDouble();
+                net.imglib2.RandomAccess<FloatType> ra = ((RandomAccessibleInterval<FloatType>) rai).randomAccess();
+                ra.setPosition(new long[]{x, y, z});
+                return ra.get().getRealDouble();
             }
         } catch (Exception e) {
             System.err.println("Error reading voxel: " + e.getMessage());
@@ -309,7 +318,7 @@ public class ZarrVolumeDataset implements ChunkedVolumeDataset {
      */
     private <T extends RealType<T>> void copyToProcessor(RandomAccessibleInterval<T> rai,
                                                           ImageProcessor ip, int width, int height) {
-        var cursor = Views.flatIterable(rai).cursor();
+        net.imglib2.Cursor<T> cursor = Views.flatIterable(rai).cursor();
         int i = 0;
         while (cursor.hasNext()) {
             ip.setf(i++, cursor.next().getRealFloat());
