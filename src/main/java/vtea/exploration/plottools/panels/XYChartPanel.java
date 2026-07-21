@@ -20,10 +20,12 @@ package vtea.exploration.plottools.panels;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.gui.RoiListener;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -42,6 +44,7 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYShapeAnnotation;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -144,6 +147,18 @@ public class XYChartPanel implements RoiListener {
     private Timer repaintTimer;
     private static final int REPAINT_DELAY_MS = 50; // 20 FPS max
 
+    // Gallery view cell highlighting
+    private MicroObject galleryHighlightedCell;
+    private XYShapeAnnotation highlightAnnotation;
+    private static final Color GALLERY_HIGHLIGHT_COLOR = Color.RED;
+    private static final Stroke GALLERY_HIGHLIGHT_STROKE = new BasicStroke(
+            2.0f,
+            BasicStroke.CAP_ROUND,
+            BasicStroke.JOIN_ROUND,
+            10.0f,
+            new float[]{5.0f, 5.0f},  // Dashed pattern
+            0.0f
+    );
 
     public XYChartPanel() {
 
@@ -619,6 +634,112 @@ public class XYChartPanel implements RoiListener {
         });
         repaintTimer.setRepeats(false);
         repaintTimer.start();
+    }
+
+    // ========== Gallery View Cell Highlighting ==========
+
+    /**
+     * Highlight a specific cell with a red dashed outline.
+     * @param cell The MicroObject to highlight
+     */
+    public void highlightCell(MicroObject cell) {
+        if (cell == null || chartPanel == null) {
+            clearCellHighlight();
+            return;
+        }
+
+        this.galleryHighlightedCell = cell;
+        updateHighlightAnnotation();
+    }
+
+    /**
+     * Clear cell highlight.
+     */
+    public void clearCellHighlight() {
+        this.galleryHighlightedCell = null;
+        updateHighlightAnnotation();
+    }
+
+    /**
+     * Get the currently highlighted cell.
+     * @return The highlighted MicroObject, or null
+     */
+    public MicroObject getHighlightedCell() {
+        return galleryHighlightedCell;
+    }
+
+    /**
+     * Update the highlight annotation on the chart.
+     */
+    private void updateHighlightAnnotation() {
+        if (chartPanel == null || chartPanel.getChart() == null) {
+            return;
+        }
+
+        JFreeChart chart = chartPanel.getChart();
+        XYPlot plot = chart.getXYPlot();
+
+        // Remove existing highlight annotation
+        if (highlightAnnotation != null) {
+            plot.removeAnnotation(highlightAnnotation);
+            highlightAnnotation = null;
+        }
+
+        // Add new annotation if we have a highlighted cell
+        if (galleryHighlightedCell != null) {
+            try {
+                // Get cell coordinates in data space
+                double x = galleryHighlightedCell.getChannelTagFloat(xValuesText);
+                double y = galleryHighlightedCell.getChannelTagFloat(yValuesText);
+
+                // Create circle shape in data coordinates
+                // Size based on the current point size
+                double radius = size * 1.5;  // Make highlight larger than point
+
+                // Create ellipse centered on the cell
+                Ellipse2D.Double circle = new Ellipse2D.Double(
+                        x - radius/2,
+                        y - radius/2,
+                        radius,
+                        radius
+                );
+
+                // Create annotation with red dashed outline
+                highlightAnnotation = new XYShapeAnnotation(
+                        circle,
+                        GALLERY_HIGHLIGHT_STROKE,
+                        GALLERY_HIGHLIGHT_COLOR,
+                        null  // No fill, just outline
+                );
+
+                plot.addAnnotation(highlightAnnotation);
+
+            } catch (Exception e) {
+                System.err.println("Error creating highlight annotation: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        // Trigger repaint
+        if (chartPanel != null) {
+            scheduleThrottledRepaint();
+        }
+    }
+
+    /**
+     * Get the X axis label.
+     * @return X axis label text
+     */
+    public String getXAxisText() {
+        return xValuesText;
+    }
+
+    /**
+     * Get the Y axis label.
+     * @return Y axis label text
+     */
+    public String getYAxisText() {
+        return yValuesText;
     }
 
 }

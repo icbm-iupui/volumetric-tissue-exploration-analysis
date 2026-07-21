@@ -166,7 +166,7 @@ public class ZarrWriter implements AutoCloseable {
 
         // Write using N5Utils
         N5Utils.save((RandomAccessibleInterval) rai, n5Writer, datasetName,
-                    chunkSize, compression, dataType);
+                    chunkSize, compression);
 
         // Write metadata
         Map<String, Object> metadata = new HashMap<>();
@@ -222,7 +222,7 @@ public class ZarrWriter implements AutoCloseable {
         }
 
         // Write to Zarr
-        N5Utils.save(img, n5Writer, datasetName, chunkSize, compression, dataType);
+        N5Utils.save(img, n5Writer, datasetName, chunkSize, compression);
     }
 
     /**
@@ -230,7 +230,7 @@ public class ZarrWriter implements AutoCloseable {
      */
     private <T extends net.imglib2.type.numeric.RealType<T>> void copyStackToImg(
             ImageStack stack, Img<T> img) {
-        var cursor = img.cursor();
+        net.imglib2.Cursor<T> cursor = img.cursor();
         int z = 0;
         int sliceSize = stack.getWidth() * stack.getHeight();
 
@@ -273,7 +273,7 @@ public class ZarrWriter implements AutoCloseable {
 
             Img<UnsignedByteType> img = ArrayImgs.unsignedBytes(width, height, depth);
             copyArrayToImg(byteData, img);
-            N5Utils.save(img, n5Writer, datasetName, chunkSize, compression, dataType);
+            N5Utils.save(img, n5Writer, datasetName, chunkSize, compression);
 
         } else if (data instanceof short[][][]) {
             short[][][] shortData = (short[][][]) data;
@@ -283,7 +283,7 @@ public class ZarrWriter implements AutoCloseable {
 
             Img<UnsignedShortType> img = ArrayImgs.unsignedShorts(width, height, depth);
             copyArrayToImg(shortData, img);
-            N5Utils.save(img, n5Writer, datasetName, chunkSize, compression, dataType);
+            N5Utils.save(img, n5Writer, datasetName, chunkSize, compression);
 
         } else if (data instanceof float[][][]) {
             float[][][] floatData = (float[][][]) data;
@@ -293,7 +293,7 @@ public class ZarrWriter implements AutoCloseable {
 
             Img<FloatType> img = ArrayImgs.floats(width, height, depth);
             copyArrayToImg(floatData, img);
-            N5Utils.save(img, n5Writer, datasetName, chunkSize, compression, dataType);
+            N5Utils.save(img, n5Writer, datasetName, chunkSize, compression);
 
         } else {
             throw new IOException("Unsupported array type");
@@ -304,7 +304,7 @@ public class ZarrWriter implements AutoCloseable {
      * Copy byte array to Img
      */
     private void copyArrayToImg(byte[][][] data, Img<UnsignedByteType> img) {
-        var cursor = img.cursor();
+        net.imglib2.Cursor<UnsignedByteType> cursor = img.cursor();
         while (cursor.hasNext()) {
             cursor.fwd();
             long[] pos = new long[3];
@@ -317,7 +317,7 @@ public class ZarrWriter implements AutoCloseable {
      * Copy short array to Img
      */
     private void copyArrayToImg(short[][][] data, Img<UnsignedShortType> img) {
-        var cursor = img.cursor();
+        net.imglib2.Cursor<UnsignedShortType> cursor = img.cursor();
         while (cursor.hasNext()) {
             cursor.fwd();
             long[] pos = new long[3];
@@ -330,7 +330,7 @@ public class ZarrWriter implements AutoCloseable {
      * Copy float array to Img
      */
     private void copyArrayToImg(float[][][] data, Img<FloatType> img) {
-        var cursor = img.cursor();
+        net.imglib2.Cursor<FloatType> cursor = img.cursor();
         while (cursor.hasNext()) {
             cursor.fwd();
             long[] pos = new long[3];
@@ -404,6 +404,6 @@ public class ZarrWriter implements AutoCloseable {
     @Override
     public String toString() {
         return String.format("ZarrWriter[%s, compression=%s]",
-                zarrPath, compression != null ? compression.getType() : "none");
+                zarrPath, compression != null ? compression.getClass().getSimpleName() : "none");
     }
 }

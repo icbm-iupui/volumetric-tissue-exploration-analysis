@@ -81,6 +81,7 @@ import vtea.exploration.listeners.AxesChangeListener;
 import vtea.exploration.listeners.FeatureMapListener;
 import vtea.exploration.listeners.PlotUpdateListener;
 import vtea.exploration.listeners.SubGateExplorerListener;
+import vtea.exploration.plottools.panels.XYExplorationPanel;
 import vtea.exploration.listeners.UpdatePlotWindowListener;
 import vtea.exploration.listeners.AxesSetupExplorerPlotUpdateListener;
 import vtea.exploration.listeners.LinkedKeyListener;
@@ -392,6 +393,14 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         //load default view
         setPanels(plotvalues, aep, pap);
+
+        // Setup gallery view support - extract ImageStacks and pass to XYExplorationPanel
+        if (aep instanceof XYExplorationPanel) {
+            XYExplorationPanel xyPanel = (XYExplorationPanel) aep;
+            ImageStack[] imageStacks = extractImageStacks(impoverlay);
+            xyPanel.setImageStacks(imageStacks);
+        }
+
         this.addAxesLabels(AvailableData.get(this.XSTART).toString(), AvailableData.get(this.YSTART).toString(), AvailableData.get(this.LUTSTART).toString());
         this.displayXYView();
         this.repaint();
@@ -2525,6 +2534,44 @@ public class MicroExplorer extends javax.swing.JFrame implements
 
         }
 
+    }
+
+    /**
+     * Extract ImageStack array from VTEAImagePlus for gallery view.
+     * Each channel becomes a separate ImageStack in the array.
+     * @param imp The VTEAImagePlus to extract from
+     * @return Array of ImageStacks (one per channel)
+     */
+    private ImageStack[] extractImageStacks(VTEAImagePlus imp) {
+        try {
+            int nChannels = imp.getNChannels();
+            int nSlices = imp.getNSlices();
+            int nFrames = imp.getNFrames();
+            int width = imp.getWidth();
+            int height = imp.getHeight();
+
+            ImageStack[] stacks = new ImageStack[nChannels];
+
+            for (int c = 0; c < nChannels; c++) {
+                ImageStack stack = new ImageStack(width, height);
+
+                for (int z = 1; z <= nSlices; z++) {
+                    // Set position to specific channel, slice, and frame
+                    imp.setPosition(c + 1, z, 1);
+                    // Get processor and duplicate it
+                    stack.addSlice(imp.getProcessor().duplicate());
+                }
+
+                stacks[c] = stack;
+            }
+
+            return stacks;
+
+        } catch (Exception e) {
+            System.err.println("Error extracting ImageStacks: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

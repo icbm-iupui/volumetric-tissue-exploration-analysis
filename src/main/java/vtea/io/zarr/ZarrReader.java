@@ -153,9 +153,19 @@ public class ZarrReader implements AutoCloseable {
         Map<String, Object> attributes = new HashMap<>();
 
         try {
-            Map<String, ?> zarrAttrs = n5Reader.getAttributes(datasetName);
-            if (zarrAttrs != null) {
-                attributes.putAll(zarrAttrs);
+            // Get all attribute keys and read each one
+            Map<String, Class<?>> attributeList = n5Reader.listAttributes(datasetName);
+            if (attributeList != null) {
+                for (String key : attributeList.keySet()) {
+                    try {
+                        Object value = n5Reader.getAttribute(datasetName, key, Object.class);
+                        if (value != null) {
+                            attributes.put(key, value);
+                        }
+                    } catch (Exception ex) {
+                        // Skip individual attributes that can't be read
+                    }
+                }
             }
         } catch (Exception e) {
             // Attributes not critical
@@ -258,18 +268,24 @@ public class ZarrReader implements AutoCloseable {
 
         switch (info.dataType) {
             case UINT8:
-            case INT8:
-                return ((RandomAccessibleInterval<UnsignedByteType>) rai)
-                        .randomAccess().setPositionAndGet(x, y, z).getRealDouble();
+            case INT8: {
+                net.imglib2.RandomAccess<UnsignedByteType> ra = ((RandomAccessibleInterval<UnsignedByteType>) rai).randomAccess();
+                ra.setPosition(new long[]{x, y, z});
+                return ra.get().getRealDouble();
+            }
             case UINT16:
-            case INT16:
-                return ((RandomAccessibleInterval<UnsignedShortType>) rai)
-                        .randomAccess().setPositionAndGet(x, y, z).getRealDouble();
+            case INT16: {
+                net.imglib2.RandomAccess<UnsignedShortType> ra = ((RandomAccessibleInterval<UnsignedShortType>) rai).randomAccess();
+                ra.setPosition(new long[]{x, y, z});
+                return ra.get().getRealDouble();
+            }
             case UINT32:
             case INT32:
-            case FLOAT32:
-                return ((RandomAccessibleInterval<FloatType>) rai)
-                        .randomAccess().setPositionAndGet(x, y, z).getRealDouble();
+            case FLOAT32: {
+                net.imglib2.RandomAccess<FloatType> ra = ((RandomAccessibleInterval<FloatType>) rai).randomAccess();
+                ra.setPosition(new long[]{x, y, z});
+                return ra.get().getRealDouble();
+            }
             default:
                 return 0.0;
         }
@@ -317,7 +333,7 @@ public class ZarrReader implements AutoCloseable {
      */
     private <T extends net.imglib2.type.numeric.RealType<T>> void copyToProcessor(
             RandomAccessibleInterval<T> rai, ImageProcessor ip) {
-        var cursor = Views.flatIterable(rai).cursor();
+        net.imglib2.Cursor<T> cursor = Views.flatIterable(rai).cursor();
         int i = 0;
         while (cursor.hasNext()) {
             ip.setf(i++, cursor.next().getRealFloat());
