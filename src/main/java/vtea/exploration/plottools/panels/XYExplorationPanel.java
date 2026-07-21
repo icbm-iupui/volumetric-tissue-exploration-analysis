@@ -108,6 +108,9 @@ import vtea.exploration.listeners.colorUpdateListener;
 import vtea.exploration.listeners.remapOverlayListener;
 import vtea.exploration.plotgatetools.gates.GateLayer;
 import vtea.exploration.plotgatetools.gates.PolygonGate;
+import vtea.exploration.gallery.GalleryViewDataProvider;
+import vtea.exploration.gallery.GallerySelectionListener;
+import vtea.exploration.gallery.GalleryViewWindow;
 import vtea.exploration.plotgatetools.listeners.AddGateListener;
 import vtea.exploration.plotgatetools.listeners.ChangePlotAxesListener;
 import vtea.exploration.plotgatetools.listeners.DeleteGateListener;
@@ -155,7 +158,8 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
         NameUpdateListener, colorUpdateListener, remapOverlayListener,
         ManualClassListener, AssignmentListener, UpdateFeaturesListener,
         GateManagerActionListener, AddClassByMathListener, GateMathObjectListener,
-        RandomizationListener, SpatialListener, GatePlotListener, DatasetUtilitiesListener{
+        RandomizationListener, SpatialListener, GatePlotListener, DatasetUtilitiesListener,
+        GalleryViewDataProvider{
 
     static String printResult = "";
     static public int testCounter = 0;
@@ -235,6 +239,12 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
     // Cache for database query results to avoid blocking EDT
     private HashMap<String, ArrayList<ArrayList>> gateQueryCache = new HashMap<>();
     private boolean useQueryCache = true;
+
+    // Gallery view fields
+    private HashMap<String, GalleryViewWindow> galleryWindows = new HashMap<>();
+    private ImageStack[] imageStacks;
+    private GateLayer gateLayer;
+    private MicroObject currentGallerySelection;
 
     public XYExplorationPanel(String key, Connection connection,
             ArrayList measurements, ArrayList<String> descriptions,
@@ -4403,6 +4413,203 @@ public class XYExplorationPanel extends AbstractExplorationPanel implements
 
         // Call parent cleanup
         super.dispose();
+    }
+
+    // ========== Gallery View Implementation ==========
+
+    /**
+     * Implementation of GalleryViewDataProvider interface.
+     * Opens a gallery view window for the specified gate.
+     */
+    @Override
+    public void openGalleryView(PolygonGate gate) {
+        // Get cells in this gate
+        ArrayList<MicroObject> gatedCells = getObjectsInGate(gate);
+
+        if (gatedCells.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No cells found in gate \"" + gate.getName() + "\"",
+                    "Empty Gate",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            return;
+        }
+
+        // Check if we have image stacks
+        if (imageStacks == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Image data not available for gallery view.\nPlease ensure image stacks are loaded.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        // Determine which channels to display
+        int[] channels = getDefaultChannels();
+
+        // Create or reuse gallery window
+        String gateKey = gate.getName();
+        GalleryViewWindow galleryWindow = galleryWindows.get(gateKey);
+
+        if (galleryWindow == null || !galleryWindow.isVisible()) {
+            galleryWindow = new GalleryViewWindow(
+                    gate.getName(),
+                    gatedCells,
+                    imageStacks,
+                    channels
+            );
+
+            // Listen for gallery selections
+            final GalleryViewWindow finalGalleryWindow = galleryWindow;
+            galleryWindow.addGallerySelectionListener(new GallerySelectionListener() {
+                @Override
+                public void gallerySelectionChanged(MicroObject selectedCell) {
+                    handleGallerySelection(selectedCell);
+                }
+            });
+
+            galleryWindows.put(gateKey, galleryWindow);
+            galleryWindow.setVisible(true);
+        } else {
+            // Bring existing window to front
+            galleryWindow.toFront();
+            galleryWindow.requestFocus();
+        }
+    }
+
+    /**
+     * Get all objects within a specific gate.
+     */
+    private ArrayList<MicroObject> getObjectsInGate(PolygonGate gate) {
+        ArrayList<MicroObject> result = new ArrayList<>();
+
+        try {
+            // Get gate bounds in data coordinates
+            Path2D.Float path = gate.createPath2DInChartSpace();
+
+            // Get axis names
+            String xAxisName = gate.getXAxis();
+            String yAxisName = gate.getYAxis();
+
+            // Test each object
+            for (MicroObject obj : objects) {
+                double xValue = obj.getChannelTagFloat(xAxisName);
+                double yValue = obj.getChannelTagFloat(yAxisName);
+
+                if (path.contains(xValue, yValue)) {
+                    result.add(obj);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error getting objects in gate: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    /**
+     * Get default channels for display (up to 3 channels for RGB).
+     */
+    private int[] getDefaultChannels() {
+        if (imageStacks != null) {
+            int numChannels = Math.min(3, imageStacks.length);
+            int[] channels = new int[numChannels];
+            for (int i = 0; i < numChannels; i++) {
+                channels[i] = i;
+            }
+            return channels;
+        }
+        return new int[]{0};
+    }
+
+    /**
+     * Handle selection from gallery view.
+     */
+    private void handleGallerySelection(MicroObject selectedCell) {
+        if (selectedCell == null) {
+            // Clear highlighting
+            clearGalleryHighlight();
+            return;
+        }
+
+        currentGallerySelection = selectedCell;
+
+        // Highlight cell on XY chart
+        if (cpd != null) {
+            highlightCellOnChart(selectedCell);
+        }
+
+        // Highlight cell on image overlay via GateLayer
+        if (gateLayer != null) {
+            highlightCellOnImage(selectedCell);
+        }
+    }
+
+    /**
+     * Highlight a specific cell on the XY chart.
+     */
+    private void highlightCellOnChart(MicroObject cell) {
+        if (cpd != null) {
+            cpd.highlightCell(cell);
+        }
+    }
+
+    /**
+     * Highlight cell on image overlay.
+     */
+    private void highlightCellOnImage(MicroObject cell) {
+        if (gateLayer != null) {
+            gateLayer.highlightCell(cell);
+        }
+    }
+
+    /**
+     * Clear gallery highlight.
+     */
+    private void clearGalleryHighlight() {
+        currentGallerySelection = null;
+
+        // Clear chart highlighting
+        if (cpd != null) {
+            cpd.clearCellHighlight();
+        }
+
+        // Clear image highlighting
+        if (gateLayer != null) {
+            gateLayer.clearCellHighlight();
+        }
+    }
+
+    /**
+     * Set the image stacks for gallery view.
+     * @param imageStacks Array of ImageStacks (one per channel)
+     */
+    public void setImageStacks(ImageStack[] imageStacks) {
+        this.imageStacks = imageStacks;
+    }
+
+    /**
+     * Set the GateLayer reference for highlighting.
+     * @param layer The GateLayer instance
+     */
+    public void setGateLayer(GateLayer layer) {
+        this.gateLayer = layer;
+        // Register as data provider
+        if (layer != null) {
+            layer.setGalleryViewDataProvider(this);
+        }
+    }
+
+    /**
+     * Get the currently selected cell from gallery.
+     * @return Current gallery selection, or null
+     */
+    public MicroObject getCurrentGallerySelection() {
+        return currentGallerySelection;
     }
 
 }

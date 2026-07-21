@@ -51,6 +51,9 @@ public class MicroObject implements Serializable, MicroObjectModel {
     ArrayList<ArrayList<Number>> features = new ArrayList();
     ConcurrentHashMap<Integer, String> measurementLookup = new ConcurrentHashMap();
 
+    // Property storage for metadata (used in chunked processing)
+    private HashMap<String, Object> properties = new HashMap<String, Object>();
+
     //private Color[][] Colorized = new Color[4][9];
     private ArrayList ResultsPointer;
 
@@ -77,6 +80,13 @@ public class MicroObject implements Serializable, MicroObjectModel {
     public MicroObject() {
     }
 
+    /**
+     * Constructor with pixel coordinates as ArrayList
+     * @param pixels ArrayList containing x, y, z coordinate arrays
+     * @param maskChannel The mask channel (currently unused, reserved for future use)
+     * @param is ImageStack array containing the image data
+     * @param serialID Serial identifier for this object
+     */
     public MicroObject(ArrayList<int[]> pixels, int maskChannel, ImageStack[] is, int serialID) {
         this.serialID = serialID;
         xLimit = is[0].getWidth();
@@ -101,6 +111,44 @@ public class MicroObject implements Serializable, MicroObjectModel {
         max_Z = this.setMaxZ();
         min_Z = this.setMinZ();
 
+    }
+
+    /**
+     * Constructor with pixel coordinates as separate arrays
+     * This constructor is used by chunked segmentation methods.
+     * @param x Array of x coordinates
+     * @param y Array of y coordinates
+     * @param z Array of z coordinates
+     * @param channel The channel (currently unused, reserved for future use)
+     * @param is ImageStack array containing the image data
+     * @param serialID Serial identifier for this object
+     */
+    public MicroObject(int[] x, int[] y, int[] z, int channel, ImageStack[] is, int serialID) {
+        this.serialID = serialID;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+
+        if (is != null && is.length > 0) {
+            xLimit = is[0].getWidth();
+            yLimit = is[0].getHeight();
+            zLimit = is[0].getSize();
+        }
+
+        derivedCount = 1;
+
+        ArrayList<Number> centroid = new ArrayList<Number>();
+        centroid = getCentroid(x, y, z);
+
+        max_Z = this.setMaxZ();
+        min_Z = this.setMinZ();
+
+        centroid_x = ((Number) centroid.get(0)).floatValue();
+        centroid_y = ((Number) centroid.get(1)).floatValue();
+        centroid_z = ((Number) centroid.get(2)).floatValue();
+
+        max_Z = this.setMaxZ();
+        min_Z = this.setMinZ();
     }
 
     public void setCentroid() {
@@ -457,7 +505,21 @@ public class MicroObject implements Serializable, MicroObjectModel {
 
     @Override
     public int getPixelCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (x == null) {
+            return 0;
+        }
+        return x.length;
+    }
+
+    /**
+     * Get the number of voxels/pixels in this object
+     * @return The number of voxels
+     */
+    public int getVoxelCount() {
+        if (x == null) {
+            return 0;
+        }
+        return x.length;
     }
 
     @Override
@@ -478,7 +540,7 @@ public class MicroObject implements Serializable, MicroObjectModel {
 
     @Override
     public Rectangle getBoundingRectangle() {
-        
+
     int x_max = 0;
     for (int i = 0; i < x.length; i++) {
         if (x[i] > x_max) {
@@ -491,7 +553,7 @@ public class MicroObject implements Serializable, MicroObjectModel {
             y_max = y[i];
         }
     }
-    
+
     int x_min = x_max;
     for (int i = 0; i < x.length; i++) {
         if (x[i] < x_min) {
@@ -504,15 +566,74 @@ public class MicroObject implements Serializable, MicroObjectModel {
             y_min = y[i];
         }
     }
-    
+
     int width = x_max-x_min;
     int height = y_max-y_min;
-    
+
     int xStart = (int)this.getCentroidX()-(width/2);
     int yStart = (int)this.getCentroidY()-(height/2);
-    
+
     return new Rectangle(xStart,yStart,width,height);
-  
+
+    }
+
+    /**
+     * Get centroid coordinates as a double array
+     * Used for coordinate transformations in chunked processing
+     * @return Array containing [x, y, z] centroid coordinates as doubles
+     */
+    public double[] getCentroidXYZ_AsDbl() {
+        return new double[]{(double) centroid_x, (double) centroid_y, (double) centroid_z};
+    }
+
+    /**
+     * Set centroid coordinates from a double array
+     * Used for coordinate transformations in chunked processing
+     * @param centroid Array containing [x, y, z] centroid coordinates
+     */
+    public void setCentroidXYZ(double[] centroid) {
+        if (centroid != null && centroid.length >= 3) {
+            this.centroid_x = (float) centroid[0];
+            this.centroid_y = (float) centroid[1];
+            this.centroid_z = (float) centroid[2];
+        }
+    }
+
+    /**
+     * Set a property value for this object
+     * Properties are used to store metadata such as chunk information, boundary status, etc.
+     * @param key Property name
+     * @param value Property value
+     */
+    public void setProperty(String key, Object value) {
+        properties.put(key, value);
+    }
+
+    /**
+     * Get a property value for this object
+     * @param key Property name
+     * @return Property value, or null if not found
+     */
+    public Object getProperty(String key) {
+        return properties.get(key);
+    }
+
+    /**
+     * Check if a property exists
+     * @param key Property name
+     * @return true if the property exists
+     */
+    public boolean hasProperty(String key) {
+        return properties.containsKey(key);
+    }
+
+    /**
+     * Remove a property
+     * @param key Property name
+     * @return The previous value associated with the key, or null
+     */
+    public Object removeProperty(String key) {
+        return properties.remove(key);
     }
 
 }

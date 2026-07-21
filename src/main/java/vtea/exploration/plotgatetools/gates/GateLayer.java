@@ -73,6 +73,8 @@ import vtea.exploration.plotgatetools.listeners.RandomizationListener;
 import vtea.exploration.plottools.panels.XYExplorationPanel;
 import vtea.imports.xml.roiHALO;
 import vteaexploration.GateMathWindow;
+import vtea.exploration.gallery.GalleryViewDataProvider;
+import vteaobjects.MicroObject;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -120,6 +122,21 @@ public class GateLayer implements ActionListener, ItemListener {
     private ArrayList<SpatialListener> spatialListeners = new ArrayList<>();
     private ArrayList<DatasetUtilitiesListener> DatasetUtilitiesListeners = new ArrayList<>();
 
+    // Gallery view data provider
+    private GalleryViewDataProvider galleryViewDataProvider;
+
+    // Gallery view cell highlighting
+    private MicroObject highlightedCell;
+    private JXLayer layer;  // Store layer reference for repainting
+    private static final Color HIGHLIGHT_COLOR = Color.RED;
+    private static final Stroke HIGHLIGHT_STROKE = new BasicStroke(
+            2.0f,
+            BasicStroke.CAP_ROUND,
+            BasicStroke.JOIN_ROUND,
+            10.0f,
+            new float[]{5.0f, 5.0f},
+            0.0f
+    );
 
     private ArrayList<PolygonGate> gates = new ArrayList<PolygonGate>();
 
@@ -156,9 +173,9 @@ public class GateLayer implements ActionListener, ItemListener {
         this.chart = chart;
 
         // wrap chart component
-        JXLayer layer = new JXLayer(chart);
+        this.layer = new JXLayer(chart);
 
-        createPopUpMenu(layer);
+        createPopUpMenu(this.layer);
 
         // create custom LayerUI
         AbstractLayerUI layerUI = new AbstractLayerUI() {
@@ -302,6 +319,11 @@ public class GateLayer implements ActionListener, ItemListener {
                     if (msFinal) {
                         g2.draw(new Line2D.Double(points.get(points.size() - 1), points.get(0)));
                     }
+                }
+
+                // Draw gallery view cell highlight
+                if (highlightedCell != null) {
+                    drawHighlightedCell(g2);
                 }
             }
 
@@ -699,6 +721,14 @@ public class GateLayer implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * Set the data provider for gallery view.
+     * @param provider The GalleryViewDataProvider to use
+     */
+    public void setGalleryViewDataProvider(GalleryViewDataProvider provider) {
+        this.galleryViewDataProvider = provider;
+    }
+
     private void createPopUpMenu(JXLayer layer) {
 
         this.menu = new JPopupMenu();
@@ -783,7 +813,11 @@ public class GateLayer implements ActionListener, ItemListener {
         menuItem = new JMenuItem("Subgate Selection...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
-        
+
+        menuItem = new JMenuItem("Gallery View...");
+        menuItem.addActionListener(this);
+        menu.add(menuItem);
+
         menuItem = new JMenuItem("Dataset utilities...");
         menuItem.addActionListener(this);
         menu.add(menuItem);
@@ -904,6 +938,24 @@ public class GateLayer implements ActionListener, ItemListener {
             }
 
             notifySubgateListeners();
+
+        } else if (e.getActionCommand().equals("Gallery View...")) {
+            // Open gallery view for selected gate
+            if (selectedGate == null) {
+                JOptionPane.showMessageDialog(
+                        chart,
+                        "Please select a gate first.",
+                        "No Gate Selected",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            if (galleryViewDataProvider != null) {
+                galleryViewDataProvider.openGalleryView(selectedGate);
+            } else {
+                System.err.println("GalleryViewDataProvider not set in GateLayer!");
+            }
 
         } else if (e.getActionCommand().equals("Classify by Gate...")) {
 
@@ -1304,5 +1356,76 @@ public class GateLayer implements ActionListener, ItemListener {
         gates.add(pg);
         //notifyPasteGateListeners();
 
+    }
+
+    // ========== Gallery View Cell Highlighting ==========
+
+    /**
+     * Highlight a specific cell on the image overlay with a red dashed circle.
+     * @param cell The MicroObject to highlight
+     */
+    public void highlightCell(MicroObject cell) {
+        this.highlightedCell = cell;
+        if (layer != null) {
+            layer.repaint();
+        }
+    }
+
+    /**
+     * Clear the highlighted cell.
+     */
+    public void clearCellHighlight() {
+        this.highlightedCell = null;
+        if (layer != null) {
+            layer.repaint();
+        }
+    }
+
+    /**
+     * Draw the highlighted cell as a red dashed circle on the chart.
+     * @param g2 Graphics context
+     */
+    private void drawHighlightedCell(Graphics2D g2) {
+        if (highlightedCell == null || chart == null) {
+            return;
+        }
+
+        try {
+            // Get cell coordinates in data space
+            double xValue = highlightedCell.getChannelTagFloat(xAxis);
+            double yValue = highlightedCell.getChannelTagFloat(yAxis);
+
+            // Convert to screen coordinates
+            Rectangle2D dataArea = chart.getChartRenderingInfo()
+                    .getPlotInfo()
+                    .getDataArea();
+
+            XYPlot plot = (XYPlot) chart.getChart().getPlot();
+            ValueAxis domainAxis = plot.getDomainAxis();
+            ValueAxis rangeAxis = plot.getRangeAxis();
+
+            double screenX = domainAxis.valueToJava2D(
+                    xValue, dataArea, plot.getDomainAxisEdge());
+            double screenY = rangeAxis.valueToJava2D(
+                    yValue, dataArea, plot.getRangeAxisEdge());
+
+            // Draw circle outline
+            g2.setColor(HIGHLIGHT_COLOR);
+            g2.setStroke(HIGHLIGHT_STROKE);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int radius = 10;  // Pixels
+            g2.drawOval(
+                    (int) (screenX - radius),
+                    (int) (screenY - radius),
+                    radius * 2,
+                    radius * 2
+            );
+
+        } catch (Exception e) {
+            System.err.println("Error drawing highlighted cell: " + e.getMessage());
+            // Don't print stack trace - this may fail if axes don't match, which is expected
+        }
     }
 }

@@ -65,11 +65,11 @@ public class ImagePlusToOMETiff {
 
             default:
                 throw new UnsupportedOperationException(
-                        "Cannot convert image of type " + image.getType() 
+                        "Cannot convert image of type " + image.getType()
                                 + " into a valid OME PixelType");
         }
 
-        omeMeta.setPixelsBigEndian(!isLittleEndian, 0);
+        omeMeta.setPixelsBigEndian(!isLittleEndian, series);
 
         int width = image.getWidth();
         int height = image.getHeight();
@@ -83,13 +83,12 @@ public class ImagePlusToOMETiff {
 
         // Set channel colors
         omeMeta.setPixelsSizeC(new PositiveInteger(nChannels), series);
+        omeMeta.setPixelsInterleaved(isInterleaved, series);
+
         if (isRGB) {
             omeMeta.setChannelID("Channel:0", series, 0);
-            omeMeta.setPixelsInterleaved(isInterleaved, series);
             omeMeta.setChannelSamplesPerPixel(new PositiveInteger(3), series, 0); //nSamples = 3; // TODO : check!
         } else {
-            omeMeta.setChannelSamplesPerPixel(new PositiveInteger(1), series, 0);
-            omeMeta.setPixelsInterleaved(isInterleaved, series);
             for (int c = 0; c < nChannels; c++) {
                 omeMeta.setChannelID("Channel:0:" + c, series, c);
                 omeMeta.setChannelSamplesPerPixel(new PositiveInteger(1), series, c);
@@ -113,9 +112,9 @@ public class ImagePlusToOMETiff {
             omeMeta.setPixelsPhysicalSizeZ(new Length(cal.pixelDepth, unit), series);
             // set Origin in XYZ
             // TODO : check if enough or other planes need to be set ?
-            omeMeta.setPlanePositionX(new Length(cal.xOrigin*cal.pixelWidth, unit),0,0);
-            omeMeta.setPlanePositionY(new Length(cal.yOrigin*cal.pixelHeight, unit),0,0);
-            omeMeta.setPlanePositionZ(new Length(cal.zOrigin*cal.pixelDepth, unit),0,0);
+            omeMeta.setPlanePositionX(new Length(cal.xOrigin*cal.pixelWidth, unit), series, 0);
+            omeMeta.setPlanePositionY(new Length(cal.yOrigin*cal.pixelHeight, unit), series, 0);
+            omeMeta.setPlanePositionZ(new Length(cal.zOrigin*cal.pixelDepth, unit), series, 0);
         }
 
         // Set resolutions
